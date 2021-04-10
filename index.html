@@ -33,12 +33,6 @@
     <div id="app">
         <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
             <a class="navbar-brand" href="/">Feedback Tool V2</a>
-            <form v-if="show.getExisting" class="form-inline ml-auto">
-                <div class="input-group input-group-sm">
-                  <input v-model="fetchID" type="text" class="form-control" placeholder="Session ID" autocomplete="off">
-                  <button type="button" class="btn btn-outline-light btn-sm" v-on:click="getSession">Give feedback</button>
-                </div>
-            </form>
         </nav>
         <div id="alert"></div>
         <div class="container">
@@ -46,8 +40,16 @@
                 Please wait...
             </section>
             <section v-if="show.welcome" id="welcome">
-                <br><strong>Welcome to the feedback tool. </strong>You can use this tool to request anonymous feedback on teaching session you have delivered.<br><br>If you want to provide feedback enter the session ID in the search box above, then click 'Give feedback'.<br><br>To set up a new feedback request click the 'create new session' button below.<br><br>
-                <button class="btn btn-dark" id="submitGiveFeedback" v-on:click="showComponent('createSession'); hideComponent('welcome')">Create new session</button>
+                <br><strong>Welcome to the feedback tool. </strong>You can use this tool to request anonymous feedback on teaching session you have delivered.
+                <br><br>If you want to provide feedback for a session you attended enter the session ID in the search box below, then click 'Give feedback'.<br>
+                <form class="form-inline">
+                    <div class="input-group input-group-sm">
+                      <input v-model="fetchID" type="text" class="form-control" placeholder="Session ID" autocomplete="off">
+                      <button type="button" id="getExistingSession" class="btn btn-dark btn-sm" v-on:click="getSession">Give feedback</button>
+                    </div>
+                </form>
+                <br><br>To set up a new feedback request click the 'create new session' button below.<br>
+                <button class="btn btn-dark btn-sm" id="submitGiveFeedback" v-on:click="hideComponent('all'); showComponent('createSession')">Create new session</button>
             </section>
             <section v-if="show.giveFeedback" id="giveFeedback">
                 <br><strong>Please provide some feedback to {{sDetails.fName}} regarding their session '{{sDetails.sName}}' delivered on {{sDetails.sDate}}.</strong><br><br>

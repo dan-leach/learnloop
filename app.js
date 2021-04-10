@@ -14,7 +14,6 @@ var data = {
   },
   show: {
     loader: true,
-    getExisting: false,
     welcome: false,
     giveFeedback: false,
     completedFeedback: false,
@@ -32,6 +31,9 @@ var app = new Vue({
     methods: {
       getSession: function(){
         console.log("Start getSession...")
+        app.closeAlert()
+        $( "#getExistingSession" ).html("<span class='spinner-border spinner-border-sm'></span>  Please wait...")
+        $( "#getExistingSession" ).prop( "disabled", true );
         if (data.fetchID == ''){
           //do nothing
         } else {
@@ -48,10 +50,11 @@ var app = new Vue({
                 app.hideComponent('all')
                 app.showComponent('giveFeedback')
               } catch (e) {
-                app.showAlert(this.responseText)
                 app.hideComponent('all')
                 app.showComponent('welcome')
-                app.showComponent('getExisting')
+                $( "#getExistingSession" ).html("Give feedback")
+                $( "#getExistingSession" ).prop( "disabled", false );
+                app.showAlert(this.responseText)
               }
             }
           };
@@ -110,6 +113,8 @@ var app = new Vue({
                 app.showComponent('completedFeedback')
               } catch (e) {
                 app.showAlert(this.responseText)
+                $( "#submitGiveFeedback" ).html("Retry give feedback?")
+                $( "#submitGiveFeedback" ).prop( "disabled", true );
               }
             }
           };
@@ -148,9 +153,8 @@ var app = new Vue({
         console.log("Autoload for session: " + data.fetchID)
         this.getSession()
       } else {
-        this.hideComponent('loader')
+        this.hideComponent('all')
         this.showComponent('welcome')
-        this.showComponent('getExisting')
       }
     }
   })
