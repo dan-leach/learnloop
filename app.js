@@ -1,13 +1,3 @@
-//to do:
-//add copy to clipboard function, invite and link, formating for requestFeedback section
-//add formatting to completedFeedback section
-//add mailing function
-//add certificate function
-//add confirm facilitator email function (to prevent abuse of certificate)
-//git version control
-//upload to github
-//check links on final domain
-
 var data = {
   fetchID: '',
   sDetails: {
@@ -152,7 +142,7 @@ var app = new Vue({
         $( "#alert" ).html("");
       },
     },
-    mounted() {
+    mounted: function() {
       data.fetchID = window.location.search.replace("?","")
       if (data.fetchID){
         console.log("Autoload for session: " + data.fetchID)
