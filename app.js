@@ -31,7 +31,11 @@ var app = new Vue({
     methods: {
       getSession: function(){
         console.log("Start getSession...")
-        app.closeAlert()
+        try {
+          app.closeAlert()
+        } catch (e) {
+          //alert not open
+        }
         $( "#getExistingSession" ).html("<span class='spinner-border spinner-border-sm'></span>  Please wait...")
         $( "#getExistingSession" ).prop( "disabled", true );
         if (data.fetchID == ''){
@@ -114,7 +118,7 @@ var app = new Vue({
               } catch (e) {
                 app.showAlert(this.responseText)
                 $( "#submitGiveFeedback" ).html("Retry give feedback?")
-                $( "#submitGiveFeedback" ).prop( "disabled", true );
+                $( "#submitGiveFeedback" ).prop( "disabled", false );
               }
             }
           };

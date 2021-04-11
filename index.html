@@ -96,8 +96,9 @@
                 <button class="btn btn-primary" id="submitGiveFeedback" v-on:click="giveFeedback">Give Feedback</button>
             </section>
             <section v-if="show.completedFeedback" id="completedFeedback">
+                <br><br>
                 <div class="card-deck">
-                    <div class="card p-2 bg-info" id="giveFeedbackCard">
+                    <div class="card p-2 bg-success" id="giveFeedbackCard">
                         <h4 class="card-title">Thank you for providing feedback</h4>
                         <p class="card-text">Your anonymous feedback will be returned to the session facilitator.</p>
                     </div>
@@ -130,8 +131,9 @@
                 <button class="btn btn-primary" id="submitCreateSession" v-on:click="createSession">Create session</button>
             </section>
             <section v-if="show.requestFeedback" id="requestFeedback">
+                <br><br>
                 <div class="card-deck">
-                    <div class="card p-2 bg-info" id="giveFeedbackCard">
+                    <div class="card p-2 bg-success" id="giveFeedbackCard">
                         <h4 class="card-title">Your session was created successfully</h4>
                         <p class="card-text">Link to share: https://danleach.uk/feedbackv2/?{{sDetails.sIdent}}</p>
                     </div>
