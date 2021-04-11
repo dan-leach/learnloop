@@ -23,33 +23,53 @@
             text-align: center;
         }
         a {
-            color:white;
+            color:black;
         }
     </style>
 
 </head>
-
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-            <a class="navbar-brand" href="/">Feedback Tool V2</a>
+        <nav class="navbar navbar-expand-sm bg-info navbar-light">
+            <a class="navbar-brand" href="/">Feedback Tool</a>
         </nav>
         <div id="alert"></div>
         <div class="container">
             <section v-if="show.loader" id="loader">
-                Please wait...
+                <br><br>
+                <div class="spinner-border"></div>    
+                Please wait... Feedback Tool is loading
             </section>
             <section v-if="show.welcome" id="welcome">
-                <br><strong>Welcome to the feedback tool. </strong>You can use this tool to request anonymous feedback on teaching session you have delivered.
-                <br><br>If you want to provide feedback for a session you attended enter the session ID in the search box below, then click 'Give feedback'.<br>
-                <form class="form-inline">
-                    <div class="input-group input-group-sm">
-                      <input v-model="fetchID" type="text" class="form-control" placeholder="Session ID" autocomplete="off">
-                      <button type="button" id="getExistingSession" class="btn btn-dark btn-sm" v-on:click="getSession">Give feedback</button>
+                <br><br>
+                <h2>Welcome to the feedback tool.</h2>
+                You can use this tool to quickly and easily request or provide anonymous feedback on a teaching session.
+                <br><br>
+                <div class="card-deck">
+                    <div class="card p-2 bg-info" id="giveFeedbackCard">
+                        <h4 class="card-title">Give feedback on a session you attended</h4>
+                        <p class="card-text">The session facilitator will have provided you with a session ID code. Enter the code in the search box below, then click 'Give feedback'.
+                            <br>
+                            <form class="form-inline">
+                                <div class="input-group">
+                                    <input v-model="fetchID" type="text" class="form-control" placeholder="Session ID" autocomplete="off">
+                                    <button type="button" id="getExistingSession" class="btn btn-primary" v-on:click="getSession">Give feedback</button>
+                                </div>
+                            </form>
+                        </p>
                     </div>
-                </form>
-                <br><br>To set up a new feedback request click the 'create new session' button below.<br>
-                <button class="btn btn-dark btn-sm" id="submitGiveFeedback" v-on:click="hideComponent('all'); showComponent('createSession')">Create new session</button>
+                    <div class="card p-2 bg-info" id="createSessionCard">
+                        <h4 class="card-title">Request feedback on a session you delivered</h4>
+                        <p class="card-text">To set up a new feedback request, and generate a code or link to share with attendees, click the 'create new session' button below.
+                            <br>
+                            <form class="form-inline">
+                                <div class="input-group">
+                                    <button class="btn btn-primary" id="submitGiveFeedback" v-on:click="hideComponent('all'); showComponent('createSession')">Create new session</button>
+                                </div>
+                            </form>
+                        </p>
+                    </div>
+                </div>
             </section>
             <section v-if="show.giveFeedback" id="giveFeedback">
                 <br><strong>Please provide some feedback to {{sDetails.fName}} regarding their session '{{sDetails.sName}}' delivered on {{sDetails.sDate}}.</strong><br><br>
@@ -73,10 +93,15 @@
                         <div class="invalid-feedback">Please indicate an overall score using the slider.</div>
                     </div>
                 </form>
-                <button class="btn btn-dark" id="submitGiveFeedback" v-on:click="giveFeedback">Give Feedback</button>
+                <button class="btn btn-primary" id="submitGiveFeedback" v-on:click="giveFeedback">Give Feedback</button>
             </section>
             <section v-if="show.completedFeedback" id="completedFeedback">
-                Thank you for providing feedback.
+                <div class="card-deck">
+                    <div class="card p-2 bg-info" id="giveFeedbackCard">
+                        <h4 class="card-title">Thank you for providing feedback</h4>
+                        <p class="card-text">Your anonymous feedback will be returned to the session facilitator.</p>
+                    </div>
+                </div>
             </section>
             <section v-if="show.createSession" id="createSession">
                 <br><strong>Please provide details of the session you are requesting feedback for.</strong><br><br>
@@ -102,13 +127,18 @@
                         <div class="invalid-feedback">Please fill out this field.</div>
                     </div>
                 </form>
-                <button class="btn btn-dark" id="submitCreateSession" v-on:click="createSession">Create session</button>
+                <button class="btn btn-primary" id="submitCreateSession" v-on:click="createSession">Create session</button>
             </section>
             <section v-if="show.requestFeedback" id="requestFeedback">
-                Link to share: https://danleach.uk/feedbackv2/?{{sDetails.sIdent}}
+                <div class="card-deck">
+                    <div class="card p-2 bg-info" id="giveFeedbackCard">
+                        <h4 class="card-title">Your session was created successfully</h4>
+                        <p class="card-text">Link to share: https://danleach.uk/feedbackv2/?{{sDetails.sIdent}}</p>
+                    </div>
+                </div>
             </section>
         </div>
-        <footer class="bg-dark">
+        <footer class="bg-info">
             <ul class="nav justify-content-center">
                 <li class="nav-item">
                     <a class="nav-link" href="/">Feedback Tool - Version 2.0</a>
@@ -127,7 +157,6 @@
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="app.js"></script>
 </body>
-
 </html>
 
 
