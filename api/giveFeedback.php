@@ -7,26 +7,27 @@
         die("Session data could not be logged. The server returned the following error message: " . mysqli_connect_error());
     }
 
-    $sIdent = "'".$_POST['sIdent']."'";
-    $positiveComments = "'".$_POST['positiveComments']."'";
-    $constructiveComments = "'".$_POST['constructiveComments']."'";
-    $overallScore = "'".$_POST['overallScore']."'";
+    $sIdent = filter_var($_POST['sIdent'], FILTER_SANITIZE_STRING);
+    $positiveComments = filter_var($_POST['positiveComments'], FILTER_SANITIZE_STRING);
+    $constructiveComments = filter_var($_POST['constructiveComments'], FILTER_SANITIZE_STRING);
+    $overallScore = filter_var($_POST['overallScore'], FILTER_SANITIZE_NUMBER_INT);
 
     // Attempt insert query execution
-    $sql = "INSERT INTO tbl_feedback_v2 (ID, sIdent, positiveComments, constructiveComments, overallScore) VALUES (null, $sIdent, $positiveComments, $constructiveComments, $overallScore)";
+    $sql = "INSERT INTO tbl_feedback_v2 (ID, sIdent, positiveComments, constructiveComments, overallScore) VALUES (null, '$sIdent', '$positiveComments', '$constructiveComments', '$overallScore')";
     if(mysqli_query($link, $sql)){
         //insert successful
     } else {
         die("Session data could not be logged. The server returned the following error message: " . mysqli_error($link));
     }
 
+    //initialize variables outside scope of sql query function
     $sName = '';
     $sDate = '';
     $fName = '';
     $fEmail = '';
 
     // Get session details required for sending email
-    if ($result = $link->query("SELECT sName, sDate, fName, fEmail FROM tbl_sessions WHERE sIdent = $sIdent")) {
+    if ($result = $link->query("SELECT sName, sDate, fName, fEmail FROM tbl_sessions WHERE sIdent = '$sIdent'")) {
         $row_cnt = $result->num_rows;
         if($row_cnt > 0){
             $rows = array();
