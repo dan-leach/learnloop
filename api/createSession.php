@@ -59,15 +59,25 @@
         die("Session data could not be logged. The server returned the following error message: " . $errMsg);
     }
 
-    // Attempt insert query execution
-    $sql = "INSERT INTO tbl_sessions (ID, sIdent, fName, fEmail, sName, sDate, sCert) VALUES (null, '$uuid', '$fName', '$fEmail', '$sName', '$sDate', '$sCert')";
-    if(mysqli_query($link, $sql)){
-        echo '{"status":"200","msg":"new session insert into db successful","uuid":"'.$uuid.'"}';
-    } else{
-        echo "Session data could not be logged. The server returned the following error message: " . mysqli_error($link);
+    $stmt = $link->prepare("INSERT INTO tbl_sessions (sIdent, fName, fEmail, sName, sDate, sCert) VALUES (?, ?, ?, ?, ?, ?)");
+    if ( false===$stmt ) {
+        die("Session data could not be logged. The server returned the following error message: prepare() failed: " . mysqli_error($link));
     }
-        
-    // Close connection
+
+    $rc = $stmt->bind_param("ssssss",$uuid, $fName, $fEmail, $sName, $sDate, $sCert);
+    if ( false===$rc ) {
+        die("Session data could not be logged. The server returned the following error message: bind_param() failed: " . mysqli_error($link));
+    }
+
+    $rc = $stmt->execute();
+    if ( false===$rc ) {
+        die("Session data could not be logged. The server returned the following error message: execute() failed: " . mysqli_error($link));
+    }
+
+    require 'createMail.php'; 
+    echo '{"status":"200","msg":"new session insert into db successful","uuid":"'.$uuid.'"}';
+
+    $stmt->close();
     mysqli_close($link);
 
 

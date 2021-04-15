@@ -1,6 +1,6 @@
 {
-    "name": "",
-    "short_name": "",
+    "name": "Feedback Tool",
+    "short_name": "Feedback Tool",
     "icons": [
         {
             "src": "/android-chrome-192x192.png",

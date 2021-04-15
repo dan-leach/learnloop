@@ -195,32 +195,28 @@
                     </div>
                 </form>
                 <br>
-                <button class="btn btn-info" id="showCertificateOptions" v-on:click="showCertificateOptions">Create session certificate</button>
+                <button class="btn btn-info" id="toggleCertificate" v-on:click="toggleCertificate">Disable certificate</button>
                 <a href="#" data-toggle="modal" data-target="#certificateOptionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
                 <div class="modal" id="certificateOptionsModal">
                     <div class="modal-dialog">
                         <div class="modal-content">
                             <div class="modal-header">
-                                <h4 class="modal-title">Create session certificate</h4>
+                                <h4 class="modal-title">Certificate of attendance (Optional)</h4>
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
-                                You can create a certificate for attendees of you session to download after they've provided completed the feedback form. This is a good way of encouraging attendees to provide feedback.
+                                By default attendees of you session will be able to download a certificate of attendance after completing the feedback form. This is a good way of encouraging attendees to provide feedback.
                                 <br><br>
-                                From the create new session page click the 'create session certificate'. You can toggle the option on or off if you change your mind.
-                                <br><br>
-                                This is optional and you don't need to create a certificate to collect feedback.
+                                You can disable the certificate if you prefer. Attendees will still be able to provide feedback but will not be given the option to download a certificate afterwards.
                             </div>
                         </div>
                     </div>
                 </div>
-                <div v-if="show.certificateOptions">
-                    <div v-if="sDetails.sCert">
-                        Attendees will be able to download a certificate for this session after providing feedback. <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
-                    </div>
-                    <div v-if="!sDetails.sCert">
-                        Attendees will not be able to download a certificate for this session after providing feedback. <i style="color:red"class="fas fa-times"></i>
-                    </div>
+                <div v-if="sDetails.sCert">
+                    Attendees will be able to download a certificate for this session after providing feedback. <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
+                </div>
+                <div v-if="!sDetails.sCert">
+                    Attendees will not be able to download a certificate for this session after providing feedback. <i style="color:red"class="fas fa-times"></i>
                 </div>
                 <br><br>
                 <button class="btn btn-primary" id="submitCreateSession" v-on:click="createSession">Create session</button>

@@ -7,7 +7,7 @@ var data = {
     fEmail: '',
     sName: '',
     sDate: '',
-    sCert: false
+    sCert: true
   },
   feedback: {
     positiveComments: '',
@@ -21,7 +21,6 @@ var data = {
     completedFeedback: false,
     createSession: false,
     requestFeedback: false,
-    certificateOptions: false
   },
   invite: {
     full: '',
@@ -254,11 +253,15 @@ var app = new Vue({
         const random = Math.floor(Math.random() * data.quoteList.length);
         data.quote = "<q>" + data.quoteList[random].quote + "</q><br><i>– " + data.quoteList[random].cite + "</i>"
       },
-      showCertificateOptions: function(){
-        data.show.certificateOptions = true
-        $( "#showCertificateOptions" ).html("Toggle")
+      toggleCertificate: function(){
         data.sDetails.sCert = !data.sDetails.sCert
         console.log('sDetails.sCert: ' + data.sDetails.sCert)
+        if (data.sDetails.sCert) {
+          $( "#toggleCertificate" ).html("Disable certificate")
+        } else {
+          $( "#toggleCertificate" ).html("Enable certificate")
+        }
+        
       },
       downloadCertificate: function(){
         $( "#getCertificateForm" ).addClass("was-validated")
