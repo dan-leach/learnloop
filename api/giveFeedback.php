@@ -107,7 +107,8 @@
     /* Open the try/catch block. */
     try {
     /* Set the mail sender. */
-    $mail->setFrom('feedback@danleach.uk', 'Feedback Tool');
+    $mail->setFrom('tool@feedback.danleach.uk', 'Feedback Tool');
+    $mail->addReplyTo('web@danleach.uk', 'Dan Leach');
 
     /* Add a recipient. */
     $mail->addAddress($fEmail, $fName);
