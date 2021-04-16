@@ -51,7 +51,14 @@
     }
     $sDate = filter_var($_POST['sDate'], FILTER_SANITIZE_STRING);
     if (!validateDate($sDate, 'Y-m-d')) {
-        $errMsg = $errMsg . "Session date is not valid; ";
+        if(!validateDate($sDate, 'd/m/Y')){
+            $errMsg = $errMsg . "Session date is not valid; ";
+        } else {
+            $d = substr($sDate, 0, 2);
+            $m = substr($sDate, 3, 2);
+            $y = substr($sDate, 6, 4);
+            $sDate = date("Y-m-d", mktime(0, 0, 0, $m, $d, $y));;
+        }
     }
     $sCert = filter_var($_POST['sCert'], FILTER_VALIDATE_BOOLEAN);
 

@@ -11,6 +11,7 @@
     $positiveComments = filter_var($_POST['positiveComments'], FILTER_SANITIZE_STRING);
     $constructiveComments = filter_var($_POST['constructiveComments'], FILTER_SANITIZE_STRING);
     $overallScore = filter_var($_POST['overallScore'], FILTER_SANITIZE_NUMBER_INT);
+    $scoreText = filter_var($_POST['scoreText'], FILTER_SANITIZE_STRING);
 
     $stmt = $link->prepare("INSERT INTO tbl_feedback_v2 (sIdent, positiveComments, constructiveComments, overallScore) VALUES (?, ?, ?, ?)");
     if ( false===$stmt ) {
@@ -82,7 +83,7 @@
     $messageContent = "
         <html>
             <img src='cid:logo' alt='Feedback Tool Logo' height='50'>
-            <h1>Some feedback has been submitted for your session.</h1>
+            <h1>You've received some feedback</h1>
             Hello " . $fName . ",<br>
             <br>
             A attendee of the session '" . $sName . "' that you delivered on " . $sDate . " has provided feedback for you.<br>
@@ -93,7 +94,7 @@
             <strong>Constructive comments:</strong><br>" . 
             $constructiveComments . "<br>
             <br>
-            <strong>Overall score:</strong> " . $overallScore . "<br>
+            <strong>Overall score:</strong> " . $overallScore . " ('" . $scoreText . "')<br>
             <br>
             Kind regards,<br>
             Feedback Tool<br>
@@ -112,7 +113,7 @@
     $mail->addAddress($fEmail, $fName);
 
     /* Set the subject. */
-    $mail->Subject = 'Feedback Tool Submission';
+    $mail->Subject = 'Feedback received for ' . $sName;
 
     $mail->isHTML(TRUE);
     $mail->AddEmbeddedImage('../logo.png', 'logo');

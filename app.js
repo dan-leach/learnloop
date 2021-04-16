@@ -12,7 +12,8 @@ var data = {
   feedback: {
     positiveComments: '',
     constructiveComments: '',
-    overallScore: null
+    overallScore: null,
+    scoreText: 'Please indicate an overall score using the slider.'
   },
   show: {
     loader: true,
@@ -45,7 +46,59 @@ var data = {
         {
             quote: "Feedback is a gift. Ideas are the currency of our next success. Let people see you value both feedback and ideas.",
             cite: "Jim Trinka and Les Wallace"
-        }
+        },
+        {
+          quote: "There is no failure. Only feedback.",
+          cite: "Robert Allen"
+        },
+        {
+          quote: "No matter how good you think you are as a leader, my goodness, the people around you will have all kinds of ideas for how you can get better. So for me, the most fundamental thing about leadership is to have the humility to continue to get feedback and to try to get better – because your job is to try to help everybody else get better.",
+          cite: "Jim Yong Kim"
+        },
+        {
+          quote: "True intuitive expertise is learned from prolonged experience with good feedback on mistakes.",
+          cite: "Daniel Kahneman"
+        },
+        {
+          quote: "Criticism may not be agreeable, but it is necessary. It fulfils the same function as pain in the human body. It calls attention to an unhealthy state of things.",
+          cite: "Winston Churchill"
+        },
+        {
+          quote: "All that is valuable in human society depends upon the opportunity for development accorded the individual.",
+          cite: "Albert Einstein"
+        },
+        {
+          quote: "Strive for continuous improvement, instead of perfection.",
+          cite: "Kim Collins"
+        },
+        {
+          quote: "Never be afraid to fail. Failure is only a stepping stone to improvement.",
+          cite: "Tony Jaa"
+        },
+        {
+          quote: "There is always space for improvement, no matter how long you’ve been in the business.",
+          cite: "Oscar De La Hoya"
+        },
+        {
+          quote: "Knowledge rests not upon truth alone, but upon error also.",
+          cite: "Carl Jung"
+        },
+        {
+          quote: "To become more effective and fulfilled at work, people need a keen understanding of their impact on others and the extent to which they’re achieving their goals in their working relationships. Direct feedback is the most efficient way for them to gather this information and learn from it.",
+          cite: "Ed Batista"
+        },
+        {
+          quote: "We can’t just sit back and wait for feedback to be offered, particularly when we’re in a leadership role. If we want feedback to take root in the culture, we need to explicitly ask for it.",
+          cite: "Ed Batista"
+        },
+        {
+          quote: "Average players want to be left alone. Good players want to be coached. Great players want to be told the truth.",
+          cite: "Doc Rivers"
+        },
+        {
+          quote: "I think it’s very important to have a feedback loop, where you’re constantly thinking about what you’ve done and how you could be doing it better.",
+          cite: "Elon Musk"
+        },
     ]
 }
 
@@ -112,14 +165,15 @@ var app = new Vue({
               var tempLink = 'https://feedback.danleach.uk/?' + data.sDetails.sIdent
               data.invite.full = "Dear attendee,<br><br>You attended my session <strong>'" + data.sDetails.sName + "'</strong> on " + data.sDetails.sDate + ". I would be grateful if you would take the time to provide some anonymous feedback for me using the link below.<br><br><h4><a href='" + tempLink + "'>Please click here to provide your feedback</a></h4>Or alternatively visit <strong><a href='https://feedback.danleach.uk'>feedback.danleach.uk</a></strong> and enter the session ID code: <strong>" + data.sDetails.sIdent + "</strong><br><br>Many thanks,<br>" + data.sDetails.fName + "<br><br><i>You can request feedback for your own sessions too using the feedback tool. Visit <a href='https://feedback.danleach.uk'>feedback.danleach.uk</a> to get started!</i>"
               data.invite.link = '<a href="' + tempLink + '">' + tempLink + '</a>'
-              data.invite.qr = '<img src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=' + tempLink + '&choe=UTF-8" alt="QR code" height="250">'
+              data.invite.qr = '<div id="loaderQR" class="spinner-border" style="width: 15rem; height: 15rem;"></div><img src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=' + tempLink + '&choe=UTF-8" alt="QR code" id="imgQR" height="250" onload="app.showQR()" hidden>'
               app.hideComponent('all')
               app.showComponent('requestFeedback')
+
             } catch (e) {
               app.showAlert(this.responseText)
               $( "#submitCreateSession" ).html("Retry create session?")
-              $( "#submitCreateSession" ).prop( "disabled", false );
-            }
+              $( "#submitCreateSession" ).prop( "disabled", false )
+            }            
           }
         };
         xhttp.open("POST", "api/createSession.php", true);
@@ -153,7 +207,7 @@ var app = new Vue({
           };
           xhttp.open("POST", "api/giveFeedback.php", true);
           xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-          xhttp.send("sIdent="+data.sDetails.sIdent+"&positiveComments="+data.feedback.positiveComments+"&constructiveComments="+data.feedback.constructiveComments+"&overallScore="+data.feedback.overallScore);
+          xhttp.send("sIdent="+data.sDetails.sIdent+"&positiveComments="+data.feedback.positiveComments+"&constructiveComments="+data.feedback.constructiveComments+"&overallScore="+data.feedback.overallScore+"&scoreText="+data.feedback.scoreText);
         } else {
           app.showAlert("Please correct the problems with the form before submitting your feedback.")
         }
@@ -202,7 +256,7 @@ var app = new Vue({
         try {
             document.execCommand('copy');
             if (this.isIE()){
-              this.showAlert('Copy button may not work correctly in internet explorer. Use Ctrl+C instead.')
+              this.showAlert('Copy button may not work correctly depending on your browser security settings. Use Ctrl+C instead.')
             } else {
               this.showNotice('Copied to clipboard.')
             }
@@ -251,7 +305,7 @@ var app = new Vue({
       },
       showQuote: function(){
         const random = Math.floor(Math.random() * data.quoteList.length);
-        data.quote = "<q>" + data.quoteList[random].quote + "</q><br><i>– " + data.quoteList[random].cite + "</i>"
+        data.quote = "<q>" + data.quoteList[random].quote + "</q><br><i>– " + data.quoteList[random].cite + "</i><br><a onclick='app.showQuote()'><i class='fas fa-redo'></i></a>"
       },
       toggleCertificate: function(){
         data.sDetails.sCert = !data.sDetails.sCert
@@ -271,16 +325,38 @@ var app = new Vue({
         } else {
             app.showAlert("Please correct the problems with the form before downloading your certificate.")
         }
-      }
+      },
+      showQR: function(){
+        console.log('showQR start...')
+        document.getElementById('loaderQR').setAttribute('hidden', true)
+        document.getElementById('imgQR').removeAttribute('hidden')
+      },
+      scoreChange: function(){
+        var x = document.getElementById('overallScoreRange').value
+        var y = 'slider error'
+        if (x>95){
+          y = 'an overwhelmingly excellent session, couldn\'t be improved'
+        } else if (x>80) {
+          y = 'an excellent sesssion, minimal grounds for improvement'
+        } else if (x>70) {
+          y = 'a very good session, minor points for improvement'
+        } else if (x>60) {
+          y = 'a fairly good session, could be improved further'
+        } else if (x>40) {
+          y = 'basically sound, but needs further development'
+        } else if (x>20) {
+          y = 'not adequate in its current state'
+        } else if (x < 20) {
+          y = 'an extremely poor session'
+        }
+        data.feedback.scoreText = y
+      },
     },
     mounted: function() {
-      if (this.isIE()) {
-        data.showCopyBtns = false
-      }
       data.fetchID = window.location.search.replace("?","")
       if (data.fetchID){
         console.log("Autoload for session: " + data.fetchID)
-        window.history.replaceState("https://danleach.uk/feedbackv2/", "Feedback Tool", "/feedbackv2/")
+        window.history.replaceState("https://feedback.danleach.uk", "Feedback Tool", "/")
         this.getSession()
       } else {
         this.hideComponent('all')

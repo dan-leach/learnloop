@@ -2,8 +2,8 @@
     //redirect v1 links
     if(isset($_GET['preload'])) {
         $preload = $_GET['preload'];
-        $params = substr($_SERVER[REQUEST_URI], strpos($_SERVER[REQUEST_URI], "?") + 1);    
-        $redirect = 'Location: ' . 'https://feedback.danleach.uk/v1/?' . $params;
+        $params = substr($_SERVER['REQUEST_URI'], strpos($_SERVER['REQUEST_URI'], "?") + 1);    
+        $redirect = 'Location: ' . 'https://feedback.danleach.uk';
         header($redirect);
         exit;
     }
@@ -51,6 +51,9 @@
             width: 100%;
             text-align: center;
         }
+        [v-cloak] {
+             display: none;
+        }
         a {
             color:black;
         }
@@ -84,7 +87,7 @@
                 <div class="spinner-border"></div>    
                 Please wait... Feedback Tool is loading
             </section>
-            <section v-if="show.welcome" id="welcome">
+            <section v-if="show.welcome" id="welcome" v-cloak>
                 <br><br>
                 <h2>Welcome to the feedback tool.</h2>
                 You can use this tool to quickly and easily request or provide anonymous feedback on a teaching session.
@@ -113,7 +116,7 @@
                 <br>
                 <div class="quote" v-html="quote"></div>
             </section>
-            <section v-if="show.giveFeedback" id="giveFeedback">
+            <section v-if="show.giveFeedback" id="giveFeedback" v-cloak>
                 <br><strong>Please provide some feedback to {{sDetails.fName}} regarding their session '{{sDetails.sName}}' delivered on {{sDetails.sDate}}.</strong><br><br>
                 <form id="giveFeedbackForm" class="needs-validation" novalidate>
                     <div class="form-group">
@@ -135,17 +138,20 @@
                         <br>
                         <div class="input-group">
                             <div class="input-group-prepend">
-                                <span class="input-group-text">Overall score: ({{feedback.overallScore}}/100)</span>
+                                <span class="input-group-text">Overall score ({{feedback.overallScore}}/100):</span>
                             </div>
-                            <input type="range" v-model="feedback.overallScore" style="width:80%; margin:10px;" id="overallScoreRange" placeholder="" name="overallScoreRange" autocomplete="off">
+                            <input type="range" v-model="feedback.overallScore" style="width:80%; margin:10px;" id="overallScoreRange" placeholder="" name="overallScoreRange" autocomplete="off" oninput="app.scoreChange()" onchange="app.scoreChange()">
                             <input type="text" v-model="feedback.overallScore" class="form-control-range" id="overallScore" placeholder="" name="overallScore" autocomplete="off" required hidden>
                             <div class="invalid-feedback">Please indicate an overall score using the slider.</div>
+                        </div>
+                        <div class="input-group">
+                            <textarea rows=2 v-model="feedback.scoreText" class="form-control" id="scoreText" placeholder="" name="scoreText" autocomplete="off" readonly></textarea>
                         </div>
                     </div>
                 </form>
                 <button class="btn btn-primary" id="submitGiveFeedback" v-on:click="giveFeedback">Give Feedback</button>
             </section>
-            <section v-if="show.completedFeedback" id="completedFeedback">
+            <section v-if="show.completedFeedback" id="completedFeedback" v-cloak>
                 <br><br>
                 <div class="card-deck">
                     <div class="card p-2 bg-success" id="giveFeedbackCard">
@@ -170,7 +176,7 @@
                     </div>
                 </div>
             </section>
-            <section v-if="show.createSession" id="createSession">
+            <section v-if="show.createSession" id="createSession" v-cloak>
                 <br><strong>Please provide details of the session you are requesting feedback for.</strong><br><br>
                 <form id="createSessionForm" class="needs-validation" novalidate>
                     <div class="form-group">
@@ -180,7 +186,7 @@
                     </div>
                     <div class="form-group">
                         <label for="sDate">Session date:</label>
-                        <input type="date" v-model="sDetails.sDate" class="form-control" id="sDate" placeholder="" name="sDate" autocomplete="off" required>
+                        <input type="date" v-model="sDetails.sDate" class="form-control" id="sDate" placeholder="dd/mm/yyyy" name="sDate" autocomplete="off" required>
                         <div class="invalid-feedback">Please select a date.</div>
                     </div>
                     <div class="form-group">
@@ -221,7 +227,7 @@
                 <br><br>
                 <button class="btn btn-primary" id="submitCreateSession" v-on:click="createSession">Create session</button>
             </section>
-            <section v-if="show.requestFeedback" id="requestFeedback">
+            <section v-if="show.requestFeedback" id="requestFeedback" v-cloak>
                 <br><br>
                 <div class="card-deck">
                     <div class="card p-2 bg-success" id="giveFeedbackCard">
@@ -249,7 +255,6 @@
                             </div>
                             <br>
                             You can insert this QR code at the end of a powerpoint presentation to allow your attendees to link directly with their smartphones to give feedback. Right click on the QR code image and select "Save image as...", then insert the saved image into your presentation.<br>
-                            <strong>The QR code may take a few moments to be generated...</strong>
                             <div class="input-group">
                                 <div class="input-group-prepend">
                                     <span class="input-group-text">QR Code:&nbsp;&nbsp;</span>
@@ -279,8 +284,7 @@
               </ul>
         </footer>
     </div>
-    <!--Vue development mode - remember to change to production version-->
-    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="app.js"></script>
 </body>
 </html>

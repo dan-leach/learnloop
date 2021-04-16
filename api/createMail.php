@@ -11,7 +11,7 @@ require 'PHPMailer/src/SMTP.php';
 $messageContent = "
     <html>
         <img src='cid:logo' alt='Feedback Tool Logo' height='50'>
-        <h1>New session created on feedback tool.</h1>
+        <h1>Your session was created successfully</h1>
         Hello " . $fName . ",<br>
         <br>
         Feedback tool is ready to receive feedback from attendees of your session '" . $sName . "' that you delivered on " . $sDate . ". Submitted feedback will be sent to this email address.<br>
@@ -19,7 +19,7 @@ $messageContent = "
         You can share this link with attendees:<br>
         <a href='https://feedback.danleach.uk/?".$uuid."'>https://feedback.danleach.uk/?".$uuid."</a><br>
         <br>
-        Or ask them to go to <a href='https://feedback.danleach.uk'>https://feedback.danleach.uk</a> and ask them to enter the session ID: <strong>". $uuid . "</strong><br>
+        Or ask them to go to <a href='https://feedback.danleach.uk'>https://feedback.danleach.uk</a> and enter the session ID: <strong>". $uuid . "</strong><br>
         <br>
         Or <a href='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=https://feedback.danleach.uk/?".$uuid."'>click here</a> to generate a QR code which you can save and insert into your presentation.<br>
         <br>
@@ -38,7 +38,7 @@ $mail->setFrom('feedback@danleach.uk', 'Feedback Tool');
 $mail->addAddress($fEmail, $fName);
 
 /* Set the subject. */
-$mail->Subject = 'Feedback Tool Session Created';
+$mail->Subject = 'Session created: ' . $sName;
 
 $mail->isHTML(TRUE);
 $mail->AddEmbeddedImage('../logo.png', 'logo');
