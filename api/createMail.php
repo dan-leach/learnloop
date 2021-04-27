@@ -32,7 +32,7 @@ $messageContent = "
 $mail = new PHPMailer(TRUE);
 
 /* Set the mail sender. */
-$mail->setFrom('tool@feedback.danleach.uk', 'Feedback Tool');
+$mail->setFrom('noreply@feedback.danleach.uk', 'Feedback Tool');
 $mail->addReplyTo('web@danleach.uk', 'Dan Leach');
 
 /* Add a recipient. */

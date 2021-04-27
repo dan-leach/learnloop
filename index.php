@@ -14,65 +14,7 @@
 <head>
     <title>Feedback Tool</title>
 
-    <!--Bootstrap 4-->
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- jQuery library -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- Popper JS -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <!-- Latest compiled JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <!-- icons-->
-    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css" integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
-    
-    <!--favicons-->
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#17a2b8">
-    <meta name="msapplication-TileColor" content="#17a2b8">
-    <meta name="theme-color" content="#17a2b8">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
-    
-    <style>
-        html {
-            position: relative;
-            min-height: 100%;
-        }
-        body {
-            margin: 0 0 100px;
-        }
-        footer {
-            position: absolute;
-            bottom: 0;
-            width: 100%;
-            text-align: center;
-        }
-        [v-cloak] {
-             display: none;
-        }
-        a {
-            color:black;
-        }
-        #spacer {
-            height: 30px;
-        }
-        .quote {
-            width: auto;
-            text-align: center;
-        }
-        .fa-question-circle {
-            vertical-align: middle;
-        }
-        .copyFrom {
-            background-color: white;
-            width: 70%;
-            padding: 10px;
-        }
-    </style>
+    <?php include "dependencies.php";?>
 
 </head>
 <body>
@@ -105,7 +47,7 @@
                     </div>
                     <div class="card p-2 bg-info" id="createSessionCard">
                         <h4 class="card-title">Request feedback on a session you delivered</h4>
-                        <p class="card-text">To set up a new feedback request, and generate a code or link to share with attendees, click the 'create new session' button below.
+                        <p class="card-text">To set up a new feedback request, and generate a session ID, link or QR code to share with attendees, click the 'Create new session' button below.
                             <br>
                             <div class="input-group">
                                 <button class="btn btn-primary" id="submitGiveFeedback" v-on:click="hideComponent('all'); showComponent('createSession')">Create new session</button>
@@ -232,7 +174,11 @@
                 <div class="card-deck">
                     <div class="card p-2 bg-success" id="giveFeedbackCard">
                         <h4 class="card-title">Your session was created successfully</h4>
-                        <p>You can copy the feedback invitation below, or just the link, to share with the attendees of your session.</p>
+                        <br>
+                        <strong>Please check your inbox to ensure you recieved the confirmation email.</strong>
+                        If it didn't arrive, take a look in your junk mail, or add noreply@feedback.danleach.uk to your safe senders list to ensure that you receive feedback once it's submitted.<br>
+                        <br>
+                        <p>You can copy the full feedback invitation into an email to send to your attendees, or share just the link, or you can use the QR code below.</p>
                         <div class="form-group">
                             <div class="input-group">
                                 <div class="input-group-prepend">
@@ -261,8 +207,6 @@
                                 </div>
                                 <div id="inviteQR" v-html="invite.qr" class="copyFrom" style="width:80%"></div>
                             </div>
-                            <br>
-                            <strong>Please ensure you check your junk mail for feedback responses which will be sent from feedback@danleach.uk</strong>
                         </div>
                     </div>
                 </div>
@@ -270,19 +214,7 @@
             <div id="logger"></div>
             <div id="spacer"></div>
         </div>
-        <footer class="bg-info">
-            <ul class="nav justify-content-center">
-                <li class="nav-item">
-                    <a class="nav-link" href="/">Feedback Tool - Version 2.0</a>
-                  </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="https://danleach.uk">Created by Dan Leach</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="mailto:web@danleach.uk">Contact: web@danleach.uk</a>
-                </li>
-              </ul>
-        </footer>
+        <?php include "footer.php";?>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="app.js"></script>

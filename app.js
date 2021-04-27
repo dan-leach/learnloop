@@ -305,7 +305,7 @@ var app = new Vue({
       },
       showQuote: function(){
         const random = Math.floor(Math.random() * data.quoteList.length);
-        data.quote = "<q>" + data.quoteList[random].quote + "</q><br><i>– " + data.quoteList[random].cite + "</i><br><a onclick='app.showQuote()'><i class='fas fa-redo'></i></a>"
+        data.quote = "<q>" + data.quoteList[random].quote + "</q><br><i>– " + data.quoteList[random].cite + "</i><br><a onclick='app.showQuote()'><i id='reload' class='fas fa-redo'></i></a>"
       },
       toggleCertificate: function(){
         data.sDetails.sCert = !data.sDetails.sCert
