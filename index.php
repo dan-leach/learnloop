@@ -24,14 +24,18 @@
         </nav>
         <div id="alert"></div>
         <div class="container">
+            <br><br>
+            <h1 class="ml10">
+                <span class="text-wrapper">
+                    <span class="letters">Welcome to the feedback tool.</span>
+                </span>
+            </h1>
             <section v-if="show.loader" id="loader">
                 <br><br>
                 <div class="spinner-border"></div>    
                 Please wait... Feedback Tool is loading
             </section>
             <section v-if="show.welcome" id="welcome" v-cloak>
-                <br><br>
-                <h2>Welcome to the feedback tool.</h2>
                 You can use this tool to quickly and easily request or provide anonymous feedback on a teaching session.
                 <br><br>
                 <div class="card-deck">
@@ -216,6 +220,7 @@
         </div>
         <?php include "footer.php";?>
     </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="app.js"></script>
 </body>

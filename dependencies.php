@@ -63,4 +63,24 @@
             color:teal;
             transform: scale(1.4) rotate(120deg);
         }
+        .ml10 {
+          position: relative;
+          font-weight: 600;
+          font-size: 100%;
+        }
+        
+        .ml10 .text-wrapper {
+          position: relative;
+          display: inline-block;
+          padding-top: 0.2em;
+          padding-right: 0.05em;
+          padding-bottom: 0.1em;
+          overflow: hidden;
+        }
+        
+        .ml10 .letter {
+          display: inline-block;
+          line-height: 1em;
+          transform-origin: 0 0;
+        }
     </style>
