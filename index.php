@@ -90,7 +90,7 @@
                                 <option v-for="subsession in session.subsessions" :value="subsession.id">Just '{{ subsession.title }}'</option>
                             </select>
                             <div class="input-group-append">
-                                <button class="btn btn-primary" id="btnViewFeedbackPDF" v-on:click="viewFeedbackPDF">Go</button>
+                                <button class="btn btn-primary" id="btnViewFeedbackPDF">Go</button>
                             </div>
                         </div>
                     </div>
