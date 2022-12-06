@@ -144,7 +144,7 @@ var app = new Vue({
               }
             }
           };
-          xhttp.open("GET", "api/getSession.php?fetchID="+data.fetchID, true)
+          xhttp.open("GET", "api-v2/getSession.php?fetchID="+data.fetchID, true)
           xhttp.send()
         }
       },
@@ -162,8 +162,8 @@ var app = new Vue({
             try {
               var obj = JSON.parse(this.responseText)
               data.sDetails.sIdent = obj.uuid
-              var tempLink = 'https://feedback.danleach.uk/?' + data.sDetails.sIdent
-              data.invite.full = "Dear attendee,<br><br>You attended my session <strong>'" + data.sDetails.sName + "'</strong> on " + data.sDetails.sDate + ". I would be grateful if you would take the time to provide some anonymous feedback for me using the link below.<br><br><h4><a href='" + tempLink + "'>Please click here to provide your feedback</a></h4>Or alternatively visit <strong><a href='https://feedback.danleach.uk'>feedback.danleach.uk</a></strong> and enter the session ID code: <strong>" + data.sDetails.sIdent + "</strong><br><br>Many thanks,<br>" + data.sDetails.fName + "<br><br><i>You can request feedback for your own sessions too using the feedback tool. Visit <a href='https://feedback.danleach.uk'>feedback.danleach.uk</a> to get started!</i>"
+              var tempLink = 'https://learnloop.co.uk?' + data.sDetails.sIdent
+              data.invite.full = "Dear attendee,<br><br>You attended my session <strong>'" + data.sDetails.sName + "'</strong> on " + data.sDetails.sDate + ". I would be grateful if you would take the time to provide some anonymous feedback for me using the link below.<br><br><h4><a href='" + tempLink + "'>Please click here to provide your feedback</a></h4>Or alternatively visit <strong><a href='https://learnloop.co.uk'>learnloop.co.uk</a></strong> and enter the session ID code: <strong>" + data.sDetails.sIdent + "</strong><br><br>Many thanks,<br>" + data.sDetails.fName + "<br><br><i>You can request feedback for your own sessions too using LearnLoop. Visit <a href='https://learnloop.co.uk'>learnloop.co.uk</a> to get started!</i>"
               data.invite.link = '<a href="' + tempLink + '">' + tempLink + '</a>'
               data.invite.qr = '<div id="loaderQR" class="spinner-border" style="width: 15rem; height: 15rem;"></div><img src="https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=' + tempLink + '&choe=UTF-8" alt="QR code" id="imgQR" height="250" onload="app.showQR()" hidden>'
               app.hideComponent('all')
@@ -176,7 +176,7 @@ var app = new Vue({
             }            
           }
         };
-        xhttp.open("POST", "api/createSession.php", true);
+        xhttp.open("POST", "api-v2/createSession.php", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.send("fName="+data.sDetails.fName+"&fEmail="+data.sDetails.fEmail+"&sName="+data.sDetails.sName+"&sDate="+data.sDetails.sDate+"&sCert="+data.sDetails.sCert);
       } else {
@@ -205,7 +205,7 @@ var app = new Vue({
               }
             }
           };
-          xhttp.open("POST", "api/giveFeedback.php", true);
+          xhttp.open("POST", "api-v2/giveFeedback.php", true);
           xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
           xhttp.send("sIdent="+data.sDetails.sIdent+"&positiveComments="+data.feedback.positiveComments+"&constructiveComments="+data.feedback.constructiveComments+"&overallScore="+data.feedback.overallScore+"&scoreText="+data.feedback.scoreText);
         } else {
@@ -356,7 +356,7 @@ var app = new Vue({
       data.fetchID = window.location.search.replace("?","")
       if (data.fetchID){
         console.log("Autoload for session: " + data.fetchID)
-        window.history.replaceState("https://feedback.danleach.uk", "Feedback Tool", "/")
+        window.history.replaceState("https://learnloop.co.uk", "LearnLoop", "/")
         this.getSession()
       } else {
         this.hideComponent('all')
@@ -365,16 +365,3 @@ var app = new Vue({
       this.showQuote()
     }
   })
-
-//https://tobiasahlin.com/moving-letters/#10
-// Wrap every letter in a span
-var textWrapper = document.querySelector('.ml10 .letters');
-textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
-
-anime.timeline({loop: false})
-  .add({
-    targets: '.ml10 .letter',
-    rotateY: [-90, 0],
-    duration: 2500,
-    delay: function(el, i) { return 45 * i}
-  });

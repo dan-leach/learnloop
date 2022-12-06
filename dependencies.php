@@ -15,9 +15,6 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
-    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#17a2b8">
-    <meta name="msapplication-TileColor" content="#17a2b8">
-    <meta name="theme-color" content="#17a2b8">
     
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, minimal-ui">
     
@@ -62,25 +59,5 @@
         #reload:hover {
             color:teal;
             transform: scale(1.4) rotate(120deg);
-        }
-        .ml10 {
-          position: relative;
-          font-weight: 600;
-          font-size: 100%;
-        }
-        
-        .ml10 .text-wrapper {
-          position: relative;
-          display: inline-block;
-          padding-top: 0.2em;
-          padding-right: 0.05em;
-          padding-bottom: 0.1em;
-          overflow: hidden;
-        }
-        
-        .ml10 .letter {
-          display: inline-block;
-          line-height: 1em;
-          transform-origin: 0 0;
         }
     </style>

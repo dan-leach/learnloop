@@ -82,7 +82,7 @@
 
     $messageContent = "
         <html>
-            <img src='cid:logo' alt='Feedback Tool Logo' height='50'>
+            <img src='cid:logo' alt='LearnLoop Logo' height='50'>
             <h1>You've received some feedback</h1>
             Hello " . $fName . ",<br>
             <br>
@@ -97,8 +97,8 @@
             <strong>Overall score:</strong> " . $overallScore . " ('" . $scoreText . "')<br>
             <br>
             Kind regards,<br>
-            Feedback Tool<br>
-            <a href='feedback.danleach.uk'>feedback.danleach.uk</a>
+            LearnLoop<br>
+            <a href='learnloop.co.uk'>learnloop.co.uk</a>
         </html>";
 
     /* Create a new PHPMailer object. Passing TRUE to the constructor enables exceptions. */
@@ -107,8 +107,7 @@
     /* Open the try/catch block. */
     try {
     /* Set the mail sender. */
-    $mail->setFrom('noreply@feedback.danleach.uk', 'Feedback Tool');
-    $mail->addReplyTo('web@danleach.uk', 'Dan Leach');
+    $mail->setFrom('mail@learnloop.co.uk', 'LearnLoop');
 
     /* Add a recipient. */
     $mail->addAddress($fEmail, $fName);

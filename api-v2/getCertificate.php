@@ -69,7 +69,7 @@
                     // Arial italic 8
                     $this->SetFont('Arial','',10);
                     // Page number
-                    $this->Cell(0,10,'Want to collect feedback on your next session? Visit feedback.danleach.uk',0,0,'C');
+                    $this->Cell(0,10,'Want to collect feedback on your next session? Visit learnloop.co.uk',0,0,'C');
                 }
             }
             

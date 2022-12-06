@@ -1,6 +1,5 @@
-api/link.php
-todo
-api/PHPMailer/
-api/FPDF/
+link.php
+PHPMailer/
+FPDF/
 error_log
-v1/
+adminPinHash.php
