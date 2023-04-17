@@ -8,7 +8,7 @@
 
     $id = htmlspecialchars($_GET['id']);
     
-    $stmt = $link->prepare("SELECT name, date, title, certificate, subsessions FROM tbl_sessions_v3 WHERE id = ?");
+    $stmt = $link->prepare("SELECT name, date, title, questions, certificate, attendance, tags, subsessions FROM tbl_sessions_v3 WHERE id = ?");
     if ( false===$stmt ) die("Session data could not be retreived. The server returned the following error message: prepare() failed: " . mysqli_error($link));
 
     $rc = $stmt->bind_param("s",$id);
@@ -28,6 +28,7 @@
         }
         $rows[0]['title'] = html_entity_decode($rows[0]['title']);
         $rows[0]['name'] = html_entity_decode($rows[0]['name']);
+        $rows[0]['questions'] = $rows[0]['questions'];
     } else {
         $result->close();
         $stmt->close();

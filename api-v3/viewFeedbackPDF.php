@@ -5,6 +5,7 @@
     if($link === false) die("Feedback report could not be generated. The server returned the following error message: " . mysqli_connect_error());
 
     require 'functions.php';
+    require 'adminPinHash.php';
     
     if (!isset($_POST['id'])) die("No session ID received.");
     $id = htmlspecialchars($_POST['id']);
@@ -33,7 +34,8 @@
             while($r = mysqli_fetch_assoc($result)) {
                 $seriesData[] = $r;
             }
-            if ($pinHash != $seriesData[0]['pinHash']) die("Incorrect PIN"); //stop if wrong pin
+            
+            if ($pinHash != $adminPinHash && $pinHash != $seriesData[0]['pinHash']) die("Incorrect PIN."); //stop if wrong pin
             if (!str_contains($seriesData[0]['subsessions'],$subID)) die("Subsession ID (" . $subID . ") not part of series with ID: " . $id . "."); //stop if subsession not part of this series
             $id = $subID;
             $checkPIN = false;
@@ -43,7 +45,7 @@
         
     }
     
-    $stmt = $link->prepare("SELECT name, title, date, subsessions, pinHash FROM tbl_sessions_v3 WHERE id = ?");
+    $stmt = $link->prepare("SELECT name, title, date, questions, subsessions, pinHash FROM tbl_sessions_v3 WHERE id = ?");
     if ( false===$stmt ) die("Feedback report could not be generated. The server returned the following error message: prepare() failed: " . mysqli_error($link));
 
     $rc = $stmt->bind_param("s",$id);
@@ -64,17 +66,18 @@
         $sessionData[0]['title'] = html_entity_decode($sessionData[0]['title']);
         $sessionData[0]['name'] = html_entity_decode($sessionData[0]['name']);
         $sessionData[0]['date'] = formatDateHuman($sessionData[0]['date']);
+        $questions = json_decode($sessionData[0]['questions']);
     } else {
         die("No session matching ID: ".$id);
     }
     
-    if ($pinHash != $sessionData[0]['pinHash'] and $checkPIN) die("Incorrect PIN."); //stop if wrong pin
+    if ($pinHash != $adminPinHash and $pinHash != $sessionData[0]['pinHash'] and $checkPIN) die("Incorrect PIN."); //stop if wrong pin
     unset($sessionData[0]['pinHash']); //remove the pinHash from the array to be returned to client
 
     $sessionData[0]['subsessionIDs'] = json_decode($sessionData[0]['subsessions']); //convert subsession IDs stored as json back into array
     unset($sessionData[0]['subsessions']); //clear the subsession object ready to be repopulated with feedback data
     
-    $stmt = $link->prepare("SELECT positive, negative, score FROM tbl_feedback_v3 WHERE id = ?");
+    $stmt = $link->prepare("SELECT positive, negative, questions, score FROM tbl_feedback_v3 WHERE id = ?");
     if ( false===$stmt ) die("Feedback report could not be generated. The server returned the following error message: prepare() failed: " . mysqli_error($link));
 
     $rc = $stmt->bind_param("s",$id);
@@ -89,16 +92,19 @@
     $row_cnt = $result->num_rows;
     $sessionData[0]['positive'] = array();
     $sessionData[0]['negative'] = array();
+    $questionFeedback = array();
     $sessionData[0]['score'] = array();
     if($row_cnt > 0){
         while($r = mysqli_fetch_assoc($result)) {
             array_push($sessionData[0]['positive'], html_entity_decode($r['positive']));
             array_push($sessionData[0]['negative'], html_entity_decode($r['negative']));
+            array_push($questionFeedback, json_decode($r['questions']));
             array_push($sessionData[0]['score'], html_entity_decode($r['score']));
         }
     } else {
         array_push($sessionData[0]['positive'], "No feedback found.");
         array_push($sessionData[0]['negative'], "No feedback found.");
+        array_push($sessionData[0]['questionFeedback'], "No feedback found.");
         array_push($sessionData[0]['score'], "No feedback found.");
     }
 
@@ -157,7 +163,28 @@
     }
     
     unset($sessionData[0]['subsessionIDs']); //clear the subsessionIDs once no longer required
-    //print json_encode($sessionData[0]); //return the array to the client
+
+    foreach ($questions as $key=>$question) {
+        $question->responses = array();
+        foreach ($questionFeedback as $key=>$feedback) {
+            foreach ($feedback as $key=>$item) {
+                if ($item->title == $question->title) {
+                    array_push($question->responses, $item->response);
+                }
+            }
+        }
+        if ($question->type != 'text') {
+            foreach($question->options as $key=>$option) {
+                $option->count = 0;
+                foreach($question->responses as $key=>$response) {
+                    if ($question->type == 'checkbox') if (str_contains($response, $option->title)) $option->count ++;
+                    if ($question->type == 'select') if ($response == $option->title) $option->count ++;
+                }
+            }
+        }
+    }
+
+    $sessionData[0]['questions'] = $questions;
 
     require('FPDF/fpdf.php');
             
@@ -212,6 +239,18 @@
     $pdf->SetFont('Arial','',10);
     foreach ($sessionData[0]['negative'] as $neg) {
         $pdf->MultiCell(0,4,$neg,0,'');
+    }
+
+    foreach ($questions as $key=>$question) {
+        $pdf->ln();
+        $pdf->SetFont('Arial','',12);
+        $pdf->MultiCell(0,7,$question->title,0,'');
+        $pdf->SetFont('Arial','',10);
+        if ($question->type == 'text') {
+            foreach ($question->responses as $key=>$response) $pdf->MultiCell(0,4,$response,0,'');
+        } else {
+            foreach ($question->options as $key=>$option) $pdf->MultiCell(0,4,$option->title . ": " . $option->count,0,'');
+        }
     }
 
     $pdf->ln();

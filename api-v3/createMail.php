@@ -8,7 +8,7 @@ require 'PHPMailer/src/Exception.php';
 require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
-function createMail($name, $date, $title, $email, $mailType, $notifications, $certificate, $id, $pin, $subsessions, $seriesName, $seriesTitle){
+function createMail($name, $date, $title, $email, $mailType, $questions, $notifications, $attendance, $tags, $certificate, $id, $pin, $subsessions, $seriesName, $seriesTitle){
 
     $d = date_create($date);
     $date = date_format($d, 'd/m/Y');
@@ -42,10 +42,12 @@ function createMail($name, $date, $title, $email, $mailType, $notifications, $ce
     }
 
     $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. <a href='https://learnloop.co.uk/?notifications=false&id=" . $id . "'>Click here to disable notifications</a>. " : "Email notification of feedback submissions is <strong>disabled</strong>. <a href='https://learnloop.co.uk/?notifications=true&id=" . $id . "'>Click here to enable notifications</a>. ";
+    $messageContent .= ($tags) ? "Feedback quick tags are <strong>enabled</strong>. " : "Feedback quick tags are <strong>disabled</strong>. ";
 
     if ($mailType != "subsession"){
         $certificateIs = ($certificate) ? "enabled" : "disabled";
         $messageContent .= "Certificate for attendees after completing feedback is <strong>" . $certificateIs . "</strong>. ";
+        $messageContent .= ($attendance) ? "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/?attendance=".$id."'>Click here to view an attendance report</a>. " : "The attendance register is <strong>disabled</strong>. ";
     }
 
     if ($mailType == "series") {
@@ -64,28 +66,38 @@ function createMail($name, $date, $title, $email, $mailType, $notifications, $ce
             }
     }
 
+    if ($questions) {
+        $messageContent .= "<br><br>The following additional questions will be asked:<ol>";
+            $i = 0;
+            foreach ($questions as $question) $messageContent .= "<li>'" . $question->title . "'</li>";
+            $messageContent .= "</ol>";
+    }
+
     $messageContent .= "
         <h3>View your feedback</h3>
-        Go to <a href='https://learnloop.co.uk/?view=".$id."'>https://learnloop.co.uk/?view=".$id."</a> and enter your PIN: <strong>" . $pin . "</strong> to retrieve submitted feedback (do not share your PIN or this email with attendees).<br>
+        Go to <a href='https://learnloop.co.uk/?view=".$id."'>https://learnloop.co.uk/?view=".$id."</a> and enter your PIN: <strong>" . $pin . "</strong> to retrieve submitted feedback (do not share your PIN or this email with attendees). <a href='https://learnloop.co.uk/?resetPIN=".$id."'>Click here to reset your PIN.</a><br>
         <h3>How to direct attendees to the feedback form</h3>
     ";
 
     if ($mailType == "subsession") {
         $messageContent .= "
-            The organiser of this session series will share the feedback link for the whole series with attendees. If needed you can use the details below which relate to just your session:<br>
+            The organiser of this session series will share the feedback link for the whole series with attendees.<br>
+        ";
+    } else {
+        $messageContent .= "
+            You can share this link: <a href='https://learnloop.co.uk/?".$id."'>https://learnloop.co.uk/?".$id."</a><br>
+            Or, ask them to go to <a href='https://learnloop.co.uk'>https://learnloop.co.uk</a> and enter the session ID: <strong>". $id . "</strong><br>
+            Or, <a href='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=https://learnloop.co.uk/?".$id."'>click here</a> to generate a QR code which you can save and insert into your presentation.<br>
         ";
     }
-
+    
     $messageContent .= "
-        You can share this link: <a href='https://learnloop.co.uk/?".$id."'>https://learnloop.co.uk/?".$id."</a><br>
-        Or, ask them to go to <a href='https://learnloop.co.uk'>https://learnloop.co.uk</a> and enter the session ID: <strong>". $id . "</strong><br>
-        Or, <a href='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=https://learnloop.co.uk/?".$id."'>click here</a> to generate a QR code which you can save and insert into your presentation.<br>
         <br><br>
         Kind regards,<br>
-        <strong>LearnLoop</strong><br>
+        <strong><a href='https://learnloop.co.uk'>LearnLoop</a></strong><br>
     ";
     
-    $messageContent .= ($mailType == "subsession") ? "<i>You can request feedback for your own sessions too using the LearnLoop. Visit <a href='https://learnloop.co.uk'>learnloop.co.uk</a> to get started!</i>" : "<a href='https://learnloop.co.uk'>learnloop.co.uk</a>";
+   if ($mailType == "subsession") $messageContent .= "<br><i>You can request feedback for your own sessions too using the LearnLoop. Visit <a href='https://learnloop.co.uk'>learnloop.co.uk</a> to get started!</i>";
     
     $messageContent .= "</html>";
 
@@ -132,14 +144,14 @@ function notificationMail($name, $date, $title, $email, $id, $mailType, $seriesN
         
     $messageContent .= "
             <h3>View your feedback</h3>
-            Go to <a href='https://learnloop.co.uk/?view=" . $id . "'>https://learnloop.co.uk/?view=" . $id . "</a> and enter your PIN (refer to the email you received when the feedback request was created to find your PIN).<br>
+            Go to <a href='https://learnloop.co.uk/?view=" . $id . "'>https://learnloop.co.uk/?view=" . $id . "</a> and enter your PIN (refer to the email you received when the feedback request was created, or <a href='https://learnloop.co.uk/?resetPIN=".$id."'>click here to reset your PIN.</a>).<br>
+            Please note, to avoid overloading your inbox, no further notifications will be sent for feedback submitted within the next 2 hours.<br>
             <h3>Turn off notifications</h3>
             If you don't want to receive notifications when feedback is submitted you can disable this.
             <br><a href='https://learnloop.co.uk/?notifications=false&id=" . $id . "'>Click here to disable notifications.</a>
             <br><br>
             Kind regards,<br>
-            <strong>LearnLoop</strong><br>
-            <a href='https://learnloop.co.uk'>learnloop.co.uk</a>
+            <strong><a href='https://learnloop.co.uk'>LearnLoop</a></strong><br>
         </html>";
 
     /* Create a new PHPMailer object. Passing TRUE to the constructor enables exceptions. */
@@ -178,8 +190,7 @@ function pinMail($name, $date, $title, $email, $id, $pin){
             Go to <a href='https://learnloop.co.uk/?view=".$id."'>https://learnloop.co.uk/?view=".$id."</a> and enter your PIN: <strong>" . $pin . "</strong> to retrieve submitted feedback.
             <br><br>
             Kind regards,<br>
-            <strong>LearnLoop</strong><br>
-            <a href='https://learnloop.co.uk'>learnloop.co.uk</a>
+            <strong><a href='https://learnloop.co.uk'>LearnLoop</a></strong><br>
         </html>";
 
     /* Create a new PHPMailer object. Passing TRUE to the constructor enables exceptions. */
@@ -222,8 +233,7 @@ function notificationPreferencesMail($name, $date, $title, $email, $id, $notific
             <a href='" . $toggleLink . "'>Click here if you want to " . $youCan . " notifications instead.</a>
             <br><br>
             Kind regards,<br>
-            <strong>LearnLoop</strong><br>
-            <a href='https://learnloop.co.uk'>learnloop.co.uk</a>
+            <strong><a href='https://learnloop.co.uk'>LearnLoop</a></strong><br>
         </html>";
 
     /* Create a new PHPMailer object. Passing TRUE to the constructor enables exceptions. */

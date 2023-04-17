@@ -5,12 +5,11 @@
     if($link === false) die("Session data could not be logged. The server returned the following error message: " . mysqli_connect_error());
 
     require 'functions.php';
-    
     $id = htmlspecialchars($_POST['id']);
     $pin = htmlspecialchars($_POST['pin']);
     $pinHash = pinHash($pin);
     
-    $stmt = $link->prepare("SELECT name, title, date, subsessions, pinHash FROM tbl_sessions_v3 WHERE id = ?");
+    $stmt = $link->prepare("SELECT name, title, date, questions, subsessions, pinHash FROM tbl_sessions_v3 WHERE id = ?");
     if ( false===$stmt ) die("Session data could not be retreived. The server returned the following error message: prepare() failed: " . mysqli_error($link));
 
     $rc = $stmt->bind_param("s",$id);
@@ -31,17 +30,19 @@
         $sessionData[0]['title'] = html_entity_decode($sessionData[0]['title']);
         $sessionData[0]['name'] = html_entity_decode($sessionData[0]['name']);
         $sessionData[0]['date'] = formatDateHuman($sessionData[0]['date']);
+        $questions = json_decode($sessionData[0]['questions']);
     } else {
         die("No session matching ID: ".$id);
     }
     
-    if ($pinHash != $sessionData[0]['pinHash']) die("Incorrect PIN"); //stop if wrong pin
+    require 'adminPinHash.php';
+    if ($pinHash != $adminPinHash and $pinHash != $sessionData[0]['pinHash']) die("Incorrect PIN."); //stop if wrong pin
     unset($sessionData[0]['pinHash']); //remove the pinHash from the array to be returned to client
 
     $sessionData[0]['subsessionIDs'] = json_decode($sessionData[0]['subsessions']); //convert subsession IDs stored as json back into array
     unset($sessionData[0]['subsessions']); //clear the subsession object ready to be repopulated with feedback data
     
-    $stmt = $link->prepare("SELECT positive, negative, score FROM tbl_feedback_v3 WHERE id = ?");
+    $stmt = $link->prepare("SELECT positive, negative, questions, score FROM tbl_feedback_v3 WHERE id = ?");
     if ( false===$stmt ) die("Session data could not be retreived. The server returned the following error message: prepare() failed: " . mysqli_error($link));
 
     $rc = $stmt->bind_param("s",$id);
@@ -56,16 +57,19 @@
     $row_cnt = $result->num_rows;
     $sessionData[0]['positive'] = array();
     $sessionData[0]['negative'] = array();
+    $questionFeedback = array();
     $sessionData[0]['score'] = array();
     if($row_cnt > 0){
         while($r = mysqli_fetch_assoc($result)) {
             array_push($sessionData[0]['positive'], html_entity_decode($r['positive']));
             array_push($sessionData[0]['negative'], html_entity_decode($r['negative']));
+            array_push($questionFeedback, json_decode($r['questions']));
             array_push($sessionData[0]['score'], html_entity_decode($r['score']));
         }
     } else {
         array_push($sessionData[0]['positive'], "No feedback found.");
         array_push($sessionData[0]['negative'], "No feedback found.");
+        array_push($sessionData[0]['questionFeedback'], "No feedback found.");
         array_push($sessionData[0]['score'], "No feedback found.");
     }
 
@@ -124,6 +128,29 @@
     }
     
     unset($sessionData[0]['subsessionIDs']); //clear the subsessionIDs once no longer required
+
+    foreach ($questions as $key=>$question) {
+        $question->responses = array();
+        foreach ($questionFeedback as $key=>$feedback) {
+            foreach ($feedback as $key=>$item) {
+                if ($item->title == $question->title) {
+                    array_push($question->responses, $item->response);
+                }
+            }
+        }
+        if ($question->type != 'text') {
+            foreach($question->options as $key=>$option) {
+                $option->count = 0;
+                foreach($question->responses as $key=>$response) {
+                    if ($question->type == 'checkbox') if (str_contains($response, $option->title)) $option->count ++;
+                    if ($question->type == 'select') if ($response == $option->title) $option->count ++;
+                }
+            }
+        }
+    }
+    
+    $sessionData[0]['questions'] = $questions;
+
     print json_encode($sessionData[0]); //return the array to the client
 
     $result->close();

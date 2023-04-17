@@ -72,18 +72,19 @@
 
         $date = $session->date;
         $notifications = true;
+        $tags = $session->tags;
         $pinHash = $session->pinHash;
 
-        $stmt = $link->prepare("INSERT INTO tbl_sessions_v3 (id, name, email, title, date, notifications, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        $stmt = $link->prepare("INSERT INTO tbl_sessions_v3 (id, name, email, title, date, notifications, tags, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
         if ( false===$stmt ) die("Subsession data could not be logged. The server returned the following error message: prepare() failed: " . mysqli_error($link));
     
-        $rc = $stmt->bind_param("sssssss",$id, $name, $email, $title, $date, $notifications, $pinHash);
+        $rc = $stmt->bind_param("ssssssss",$id, $name, $email, $title, $date, $notifications, $tags, $pinHash);
         if ( false===$rc ) die("Subsession data could not be logged. The server returned the following error message: bind_param() failed: " . mysqli_error($link));
     
         $rc = $stmt->execute();
         if ( false===$rc ) die("Subsession data could not be logged. The server returned the following error message: execute() failed: " . mysqli_error($link));
         
-        if (strlen($email) > 0) createMail($name, $date, $title, $email, "subsession", $notifications, '', $id, $session->pin, '', $session->seriesName, $session->seriesTitle);
+        if (strlen($email) > 0) createMail($name, $date, $title, $email, "subsession", '', $notifications, '', $tags, '', $id, $session->pin, '', $session->seriesName, $session->seriesTitle);
 
         return $errMsg;
     }
@@ -117,7 +118,7 @@
         $email = '';
         $notifications = '';
     
-        $stmt = $link->prepare("SELECT title, date, name, email, notifications FROM tbl_sessions_v3 WHERE id = ?");
+        $stmt = $link->prepare("SELECT title, date, name, email, notifications, lastSent FROM tbl_sessions_v3 WHERE id = ?");
         if ( false===$stmt ) die("Your feedback was logged successfully but there was a problem sending it to the session facilitator as the session details required to send the message could not be retrieved. The server returned the following error message: prepare() failed: " . mysqli_error($link));
     
         $rc = $stmt->bind_param("s",$id);
@@ -139,6 +140,7 @@
                 $name = $r['name'];
                 $email = $r['email'];
                 $notifications = $r['notifications'];
+                $lastSent = $r['lastSent'];
             }
         } else {
             die("Your feedback was logged successfully but there was a problem sending it to the session facilitator as the session details required to send the message could not be retrieved. The server returned the following error message: 'session ID not found'");
@@ -146,7 +148,17 @@
     
         $result->close();
         $stmt->close();
-        if ($notifications and $email) notificationMail($name, $date, $title, $email, $id, 'subsession', $seriesName, $seriesTitle);
+
+        $coolOff = new DateTime("-2 hours");
+        $lastSent = new DateTime($lastSent);
+
+        if ($notifications && $email && $lastSent < $coolOff) {
+            notificationMail($name, $date, $title, $email, $id, 'subsession', $seriesName, $seriesTitle);
+            
+            $stmt = $link->prepare("UPDATE tbl_sessions_v3 SET lastSent = NOW() WHERE id = ?");
+            $rc = $stmt->bind_param("s",$id);
+            $rc = $stmt->execute();
+        }
 
         return $errMsg;
     }

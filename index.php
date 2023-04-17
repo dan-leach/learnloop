@@ -21,10 +21,10 @@
             <section v-if="show.welcome" id="welcome" v-cloak>
                 Quickly and easily gather anonymous feedback on teaching.
                 <br><br>
-                <div class="card p-2 bg-primary text-white" id="updateInfo">
+                <!--<div class="card p-2 bg-primary text-white" id="updateInfo">
                     <strong>Update November 2022:</strong> LearnLoop has been updated to allow gathering of feedback on multiple sessions on a single link, for example for teaching days. Feedback will no longer be sent directly to your email - instead you will be able to view the collected feedback here using your session ID and PIN. I'll create a how to guide soon, but in the meantime feel free to contact me for help (email at the bottom of this page).
                 </div>
-                <br><br>
+                <br><br>-->
                 <div class="card-deck">
                     <div class="card p-2 bg-info" id="giveFeedbackCard">
                         <h4 class="card-title">Give feedback</h4>
@@ -66,7 +66,7 @@
                         <br>
                         <div class="input-group">
                             <input v-model="session.pin" type="password" class="form-control" placeholder="Session PIN" autocomplete="off" v-on:keyup.enter="viewFeedback()">
-                            <button type="button" id="submitPin" class="btn btn-primary" v-on:click="viewFeedback()">View feedback</button>
+                            <button type="button" id="submitPin" class="btn btn-primary" v-on:click="viewFeedback">View feedback</button>
                         </div>
                         <div>Lost your PIN? <a href='#' v-on:click="resetPIN">Click to reset.</a></div>
                     </p>
@@ -74,7 +74,7 @@
                 <br>
             </section>
             <section v-if="show.viewFeedback" id="viewFeedback" v-cloak>
-                Viewing feedback for <strong>'{{data.session.title}}'</strong> by <strong>{{data.session.name}}</strong> on <strong>{{data.session.date}}</strong>.<br>
+                Viewing feedback for <strong>'{{session.title}}'</strong> by <strong>{{session.name}}</strong> on <strong>{{session.date}}</strong>.<br>
                 <br>
                 <form method="post" action="api-v3/viewFeedbackPDF.php">
                     <input v-model="session.id" type="text" name="id" readonly hidden>
@@ -97,12 +97,22 @@
                 </form>
                 <br>
                 <h4>Positive comments:</h4>
-                <span v-for="item in data.session.feedback.positive">{{item}}<br></span>
+                <span v-for="item in session.feedback.positive">{{item}}<br></span>
                 <br>
                 <h4>Constructive comments:</h4>
-                <span v-for="item in data.session.feedback.negative">{{item}}<br></span>
+                <span v-for="item in session.feedback.negative">{{item}}<br></span>
+                <div v-for="(question, index) in session.questions">
+                    <br>
+                    <h4>{{question.title}}</h4>
+                    <div v-if="question.type == 'text'">
+                        <span v-for="response in question.responses">{{response}}<br></span>
+                    </div>
+                    <div v-if="question.type == 'checkbox' || question.type == 'select'">
+                        <span v-for="option in question.options">{{option.title}}: {{option.count}}<br></span>
+                    </div>
+                </div>
                 <br>
-                <h4>Average Score: {{data.session.feedback.score}}/100</h4>
+                <h4>Overall Score: {{session.feedback.score}}/100</h4>
                 <br>
                 <div v-if="session.subsessions">
                     <h4>Sessions:</h4>
@@ -116,7 +126,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(sub, index) in data.session.subsessions">
+                            <tr v-for="(sub, index) in session.subsessions">
                                 <td>
                                     <strong>{{sub.title}}</strong><br>
                                     {{sub.name}}
@@ -148,11 +158,11 @@
             <section v-if="show.attendanceReport" id="attendanceReport" v-cloak>
                 <div class="card p-2 bg-info" id="enterPinCard">
                     <h4 class="card-title">View attendance reports</h4>
-                    <p class="card-text">You will need an admin password.</p>
+                    <p class="card-text">You will need the pin from your confirmation email.</p>
                         <br>
                         <form method="post" action="api-v3/viewAttendancePDF.php">
-                            <input class="form-control" type="text" name="id" placeholder="Session ID">
-                            <input class="form-control" type="password" name="pin" placeholder="Admin password">
+                            <input class="form-control" type="text" name="id" placeholder="Session ID" v-model="session.id">
+                            <input class="form-control" type="password" name="pin" placeholder="Session PIN">
                             <select name="format" class="form-control">
                                 <option value="PDF">PDF</option>
                                 <option value="CSV">CSV (Opens in Excel)</option>
@@ -161,6 +171,7 @@
                             <div class="text-center">
                                 <button class="btn btn-primary" id="">Download attendance report</button>
                             </div>
+                            <div>Lost your PIN? <a href='#' v-on:click="resetPIN">Click to reset.</a></div>
                         </form>
                 </div>
                 <br>
@@ -180,6 +191,14 @@
                             <textarea rows="8" v-model="session.feedback.positive" class="form-control" id="positiveComments" placeholder="Please provide some feedback about what you enjoyed about this session..." name="positiveComments" autocomplete="off" required></textarea>
                             <div class="invalid-feedback">Please fill out this field.</div>
                         </div>
+                        <div v-if="session.tags">
+                            <br>
+                            Feedback quick tags (beta)<br>
+                            <span v-for="(tag, index) in tags.positive">
+                                <input type="checkbox" :id="'p-'+index" :value="index" v-model="session.feedback.tags.positive">
+                                <label :for="'p-'+index">{{tag}}&nbsp;&nbsp;&nbsp;</label>
+                            </span>
+                        </div>
                         <br>
                         <div class="input-group">
                             <div class="input-group-prepend">
@@ -187,6 +206,41 @@
                             </div>
                             <textarea rows="8" v-model="session.feedback.negative" class="form-control" id="constructiveComments" placeholder="Please provide some feedback about ways this session could be improved..." name="constructiveComments" autocomplete="off" required></textarea>
                             <div class="invalid-feedback">Please fill out this field.</div>
+                        </div>
+                        <div v-if="session.tags">
+                            <br>
+                            Feedback quick tags (beta)<br>
+                            <span v-for="(tag, index) in tags.negative">
+                                <input type="checkbox" :id="'p-'+index" :value="index" v-model="session.feedback.tags.negative">
+                                <label :for="'p-'+index">{{tag}}&nbsp;&nbsp;&nbsp;</label>
+                            </span>
+                        </div>
+                        <div v-if="session.questions">
+                            <br>
+                            <h4>Additional questions</h4>
+                            <div v-for="(question, index) in session.questions">
+                                <h5>{{question.title}}</h5>
+                                <div v-if="question.type == 'text'">
+                                    <textarea rows="8" v-model="question.response" class="form-control" id="question.title" name="question.title" autocomplete="off" required></textarea>
+                                </div>
+                                <div v-if="question.type == 'checkbox'">
+                                    <span v-for="(option, index) in question.options">
+                                        <label>
+                                            <input type="checkbox" value="option.title" v-model="option.selected">
+                                            {{option.title}}
+                                        </label>
+                                        <br>
+                                    </span>
+                                </div>
+                                <div v-if="question.type == 'select'">
+                                    <select v-model="question.response" class="form-control" required>
+                                        <option disabled value="">Please select one</option>
+                                        <option v-for="(option, index) in question.options">{{option.title}}</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please fill out this field.</div>
+                                </div>
+                                <br>
+                            </div>
                         </div>
                         <br>
                         <div class="input-group">
@@ -222,7 +276,7 @@
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="(sub, index) in data.session.subsessions">
+                        <tr v-for="(sub, index) in session.subsessions">
                             <td><strong>{{sub.title}}</strong><br>{{sub.name}}</td>
                             <td>{{sub.state}}</td>
                             <td><button style="float:right" class="btn btn-secondary btn-sm" id="btnEditSubsessionFeedback" v-on:click="editSubsessionFeedback(index)"><i class="fas fa-pen"></i></button></td>
@@ -289,7 +343,8 @@
                         </div>
                     </div>
                 </div>
-                
+                <div class="text-center"><button class="btn btn-secondary btn-sm" id="saveProgress" v-on:click="saveProgress(true)">Save progress</button></div>
+                <br>
                 <h4>Overall / feedback for organiser</h4>
                 <form id="giveFeedbackSeriesForm" class="needs-validation" novalidate>
                     <div class="form-group">
@@ -307,6 +362,33 @@
                             </div>
                             <textarea rows="8" v-model="session.feedback.negative" class="form-control" id="negative" placeholder="Please provide some feedback about ways this session series could be improved..." name="constructiveComments" autocomplete="off" required></textarea>
                             <div class="invalid-feedback">Please fill out this field.</div>
+                        </div>
+                        <div v-if="session.questions">
+                            <br>
+                            <h4>Additional questions</h4>
+                            <div v-for="(question, index) in session.questions">
+                                <h5>{{question.title}}</h5>
+                                <div v-if="question.type == 'text'">
+                                    <textarea rows="8" v-model="question.response" class="form-control" id="question.title" name="question.title" autocomplete="off" required></textarea>
+                                </div>
+                                <div v-if="question.type == 'checkbox'">
+                                    <span v-for="(option, index) in question.options">
+                                        <label>
+                                            <input type="checkbox" value="option.title" v-model="option.selected">
+                                            {{option.title}}
+                                        </label>
+                                        <br>
+                                    </span>
+                                </div>
+                                <div v-if="question.type == 'select'">
+                                    <select v-model="question.response" class="form-control" required>
+                                        <option disabled value="">Please select one</option>
+                                        <option v-for="(option, index) in question.options">{{option.title}}</option>
+                                    </select>
+                                    <div class="invalid-feedback">Please fill out this field.</div>
+                                </div>
+                                <br>
+                            </div>
                         </div>
                         <br>
                         <div class="input-group">
@@ -420,6 +502,115 @@
                     </div>
                 </form>
                 <br>
+                <span v-if="!session.hasQuestions">
+                    Do you want to ask additional questions to your attendees? <button class="btn btn-info" id="enableQuestions" v-on:click="session.hasQuestions = true;">Enable custom questions</button>
+                    <a href="#" data-toggle="modal" data-target="#enableQuestionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
+                    <div class="modal" id="enableQuestionsModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Custom questions (Optional)</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    If the standard feedback form doesn't cover everything you want to ask, you can add additional questions.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                </span>
+                <div v-if="session.hasQuestions">
+                    <h2>Custom questions</h2>
+                    <table class="table" id="questionsTable">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(question, index) in session.questions">
+                                <td>{{question.title}}</td>
+                                <td>{{question.type}}</td>
+                                <td><button style="float:right" class="btn btn-danger btn-sm" id="btnRemoveQuestion" v-on:click="removeQuestion(index)"><i class="fas fa-times"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button style="float:right;" class="btn btn-success btn-sm" id="btnAddQuestion" data-toggle="modal" data-target="#addQuestion" data-backdrop="static">Add <i class="fas fa-plus"></i></button>
+                    <div class="modal" id="addQuestion">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Add a custom question</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="createQuestionForm" class="needs-validation" novalidate>
+                                        <div class="form-group">
+                                            <label for="title">Question title:</label>
+                                            <input type="text" v-model="question.title" class="form-control" id="questionTitle" placeholder="Please enter your question..." name="title" autocomplete="off" required>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="type">Question type: <a href="#" data-toggle="modal" data-target="#questionTypeInfo"><i class="fas fa-question-circle fa-1x"></i></a></label>
+                                            <select v-model="question.type"  id="questionType" class="form-control" required>
+                                                <option disabled value="">Please select question type</option>
+                                                <option value="text">Text</option>
+                                                <option value="checkbox">Checkboxes</option>
+                                                <option value="select">Drop-down select</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                        </div>
+                                        <div class="form-group" v-if="question.type == 'select' || question.type == 'checkbox'">
+                                            <label for="type">Question options: <a href="#" data-toggle="modal" data-target="#questionOptionsInfo"><i class="fas fa-question-circle fa-1x"></i></a></label>
+                                            <input type="text" v-model="question.options" class="form-control" id="questionOptions" placeholder="Please enter the question options..." name="options" autocomplete="off" required>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                        </div>
+                                    </form>
+                                    <br><br>
+                                    <button class="btn btn-primary" id="submitCreateQuestion" v-on:click="createQuestion">Add question</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal" id="questionTypeInfo">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Question type info</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    There are three question types:
+                                    <ul>
+                                        <li>Text - a free-text area for attendees to type into, similar to the positive or constructive comment inputs on the default form</li>
+                                        <li>Checkboxes - a series of checkboxes which attendees can select from. Attendees can select as many options as apply, or none.</li>
+                                        <li>Drop-down select - a series of options in a drop-down menu. Attendees must select only one option.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal" id="questionOptionsInfo">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Question options info</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    Please enter each option separated by a semicolon <code>;</code><br>
+                                    <br>
+                                    e.g. <code>option 1;option 2; option 3</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                </div>
+
                 <span v-if="session.certificate">
                     Attendees will be able to download a certificate for this session after providing feedback. <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
                 </span>
@@ -465,6 +656,50 @@
                         </div>
                     </div>
                 </div>
+                <br><br>
+                <span v-if="session.attendance">
+                    Register of attendance will be kept. <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
+                </span>
+                <span v-if="!session.attendance">
+                    Register of attendance won't be kept. <i style="color:red"class="fas fa-times"></i>
+                </span>
+                <button class="btn btn-info" id="toggleAttendance" v-on:click="toggleAttendance">Disable register of attendance</button>
+                <a href="#" data-toggle="modal" data-target="#attendanceOptionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
+                <div class="modal" id="attendanceOptionsModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Register of attendance (Optional)</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                By default you will be able to generate an attendance report of people who have attended your session. The attendance report shows the name and organisation of each attendee who downloads a certificate of attendance. The attendee details are not linked to their feedback. To reduce the risk of attendees being linked to their feedback you will only be able to view a register of attendance once you have received at least 3 feedback submissions.<br><br>The certificate option must be enabled for the attendance register to be available.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--<br><br>
+                <span v-if="session.tags">
+                    Feedback quick tags will be available (beta). <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
+                </span>
+                <span v-if="!session.tags">
+                    Feedback quick tags won't be used. <i style="color:red"class="fas fa-times"></i>
+                </span>
+                <button class="btn btn-info" id="toggleTags" v-on:click="toggleTags">Disable feedback quick tags</button>
+                <a href="#" data-toggle="modal" data-target="#tagsOptionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
+                <div class="modal" id="tagsOptionsModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Feedback quick tags (Optional)</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                By default attendees will be able to use tags to quickly indicate positive or constructive points in addition to their free-text comments. For example, <i>"Try to reduce the amount of text on the slides"</i> or <i>"Good use of interactivity"</i>.<br><br> This function is in beta and may not work completely just yet.<br><br>You can disable feedback quick tags if you prefer to just gather free-text comments and a score.
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
                 <br><br>
                 <div class="text-center">
                     <button class="btn btn-primary" id="submitCreateSession" v-on:click="createSession">Create session</button>
@@ -564,6 +799,115 @@
                     </div>
                 </div>
                 <br><br>
+                
+                <span v-if="!session.hasQuestions">
+                    Do you want to ask additional questions to your attendees? <button class="btn btn-info" id="enableQuestions" v-on:click="session.hasQuestions = true;">Enable custom questions</button>
+                    <a href="#" data-toggle="modal" data-target="#enableQuestionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
+                    <div class="modal" id="enableQuestionsModal">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Custom questions (Optional)</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    If the standard feedback form doesn't cover everything you want to ask, you can add additional questions.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                </span>
+                <div v-if="session.hasQuestions">
+                    <h2>Custom questions</h2>
+                    <table class="table" id="questionsTable">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Type</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="(question, index) in session.questions">
+                                <td>{{question.title}}</td>
+                                <td>{{question.type}}</td>
+                                <td><button style="float:right" class="btn btn-danger btn-sm" id="btnRemoveQuestion" v-on:click="removeQuestion(index)"><i class="fas fa-times"></i></button></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <button style="float:right;" class="btn btn-success btn-sm" id="btnAddQuestion" data-toggle="modal" data-target="#addQuestion" data-backdrop="static">Add <i class="fas fa-plus"></i></button>
+                    <div class="modal" id="addQuestion">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Add a custom question</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    <form id="createQuestionForm" class="needs-validation" novalidate>
+                                        <div class="form-group">
+                                            <label for="title">Question title:</label>
+                                            <input type="text" v-model="question.title" class="form-control" id="questionTitle" placeholder="Please enter your question..." name="title" autocomplete="off" required>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="type">Question type: <a href="#" data-toggle="modal" data-target="#questionTypeInfo"><i class="fas fa-question-circle fa-1x"></i></a></label>
+                                            <select v-model="question.type"  id="questionType" class="form-control" required>
+                                                <option disabled value="">Please select question type</option>
+                                                <option value="text">Text</option>
+                                                <option value="checkbox">Checkboxes</option>
+                                                <option value="select">Drop-down select</option>
+                                            </select>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                        </div>
+                                        <div class="form-group" v-if="question.type == 'select' || question.type == 'checkbox'">
+                                            <label for="type">Question options: <a href="#" data-toggle="modal" data-target="#questionOptionsInfo"><i class="fas fa-question-circle fa-1x"></i></a></label>
+                                            <input type="text" v-model="question.options" class="form-control" id="questionOptions" placeholder="Please enter the question options..." name="options" autocomplete="off" required>
+                                            <div class="invalid-feedback">Please fill out this field.</div>
+                                        </div>
+                                    </form>
+                                    <br><br>
+                                    <button class="btn btn-primary" id="submitCreateQuestion" v-on:click="createQuestion">Add question</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal" id="questionTypeInfo">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Question type info</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    There are three question types:
+                                    <ul>
+                                        <li>Text - a free-text area for attendees to type into, similar to the positive or constructive comment inputs on the default form</li>
+                                        <li>Checkboxes - a series of checkboxes which attendees can select from. Attendees can select as many options as apply, or none.</li>
+                                        <li>Drop-down select - a series of options in a drop-down menu. Attendees must select only one option.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal" id="questionOptionsInfo">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h4 class="modal-title">Question options info</h4>
+                                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                </div>
+                                <div class="modal-body">
+                                    Please enter each option separated by a semicolon <code>;</code><br>
+                                    <br>
+                                    e.g. <code>option 1;option 2; option 3</code>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <br><br>
+                </div>
 
                 <span v-if="session.certificate">
                     Attendees will be able to download a certificate for this session series after providing feedback. <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
@@ -612,6 +956,50 @@
                         </div>
                     </div>
                 </div>
+                <br><br>
+                <span v-if="session.attendance">
+                    Register of attendance will be kept. <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
+                </span>
+                <span v-if="!session.attendance">
+                    Register of attendance won't be kept. <i style="color:red"class="fas fa-times"></i>
+                </span>
+                <button class="btn btn-info" id="toggleAttendance" v-on:click="toggleAttendance">Disable register of attendance</button>
+                <a href="#" data-toggle="modal" data-target="#attendanceOptionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
+                <div class="modal" id="attendanceOptionsModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Register of attendance (Optional)</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                By default you will be able to generate an attendance report of people who have attended your session. The attendance report shows the name and organisation of each attendee who downloads a certificate of attendance. The attendee details are not linked to their feedback. To reduce the risk of attendees being linked to their feedback you will only be able to view a register of attendance once you have received at least 3 feedback submissions.<br><br>The certificate option must be enabled for the attendance register to be available.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--<br><br>
+                <span v-if="session.tags">
+                    Feedback quick tags will be available (beta). <i style="color:green" class="fa fa-check" aria-hidden="true"></i>
+                </span>
+                <span v-if="!session.tags">
+                    Feedback quick tags won't be used. <i style="color:red"class="fas fa-times"></i>
+                </span>
+                <button class="btn btn-info" id="toggleTags" v-on:click="toggleTags">Disable feedback quick tags</button>
+                <a href="#" data-toggle="modal" data-target="#tagsOptionsModal"><i class="fas fa-question-circle fa-2x"></i></a>
+                <div class="modal" id="tagsOptionsModal">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4 class="modal-title">Feedback quick tags (Optional)</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                By default attendees will be able to use tags to quickly indicate positive or constructive points in addition to their free-text comments. For example, <i>"Try to reduce the amount of text on the slides"</i> or <i>"Good use of interactivity"</i>.<br><br> This function is in beta and may not work completely just yet.<br><br>You can disable feedback quick tags if you prefer to just gather free-text comments and a score.
+                            </div>
+                        </div>
+                    </div>
+                </div>-->
                 <br><br>
                 <div class="text-center">
                     <button class="btn btn-primary" id="submitCreateSessionSeries" v-on:click="createSessionSeries">Create session series</button>

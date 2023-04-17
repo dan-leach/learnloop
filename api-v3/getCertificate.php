@@ -12,17 +12,7 @@
     $certName = htmlspecialchars($_POST['certName']);
     $certOrg = htmlspecialchars($_POST['certOrg']);
 
-    $stmt = $link->prepare("INSERT INTO tbl_attendance_v3 (id, name, organisation) VALUES (?, ?, ?)");
-    if ( false===$stmt ) die("Attendance data could not be logged. The server returned the following error message: prepare() failed: " . mysqli_error($link));
-
-    $rc = $stmt->bind_param("sss", $id, $certName, $certOrg);
-    if ( false===$rc ) die("Attendance data could not be logged. The server returned the following error message: bind_param() failed: " . mysqli_error($link));
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) die("Attendance data could not be logged. The server returned the following error message: execute() failed: " . mysqli_error($link));
-
-
-    $stmt = $link->prepare("SELECT name, date, title, certificate, subsessions FROM tbl_sessions_v3 WHERE id = ?");
+    $stmt = $link->prepare("SELECT name, date, title, certificate, attendance, subsessions FROM tbl_sessions_v3 WHERE id = ?");
     if ( false===$stmt ) die("Certificate could not be retrieved. The server returned the following error message: prepare() failed: " . mysqli_error($link));
 
     $rc = $stmt->bind_param("s", $id);
@@ -43,6 +33,7 @@
             $name = $rows[0]['name'];
             $date = formatDateHuman($rows[0]['date']);
             $title = $rows[0]['title'];
+            $attendance = $rows[0]['attendance'];
             
             $subsessions = json_decode($rows[0]['subsessions']);
             $subsessionTitles = array();
@@ -160,5 +151,17 @@
 
     $result->close();
     $stmt->close();
+
+    if ($attendance){
+        $stmt = $link->prepare("INSERT INTO tbl_attendance_v3 (id, name, organisation) VALUES (?, ?, ?)");
+        if ( false===$stmt ) die("Attendance data could not be logged. The server returned the following error message: prepare() failed: " . mysqli_error($link));
+
+        $rc = $stmt->bind_param("sss", $id, $certName, $certOrg);
+        if ( false===$rc ) die("Attendance data could not be logged. The server returned the following error message: bind_param() failed: " . mysqli_error($link));
+
+        $rc = $stmt->execute();
+        if ( false===$rc ) die("Attendance data could not be logged. The server returned the following error message: execute() failed: " . mysqli_error($link));
+    }
+
     mysqli_close($link);
 ?>
