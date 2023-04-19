@@ -76,6 +76,11 @@
                 $subTitleStr .= "'".$subTitle."'";
             }
             
+            $certName = str_replace("&amp;", "&", $certName);
+            $title = str_replace("&amp;", "&", $title);
+            $subTitleStr = str_replace("&amp;", "&", $subTitleStr);
+            $name = str_replace("&amp;", "&", $name);
+            
             require('FPDF/fpdf.php');
             
             class PDF extends FPDF
@@ -91,9 +96,6 @@
                     $this->Image('tick.png',15,5,40);
                     // Title
                     $this->Cell(190,35,'Certificate of attendance',0,0,'C');
-                    
-                    // Line break
-                    $this->Ln(20);
                 }
                 
                 // Page footer
@@ -114,6 +116,10 @@
             $pdf->AliasNbPages();
             $pdf->AddPage();
             $pdf->SetFont('Arial','',20);
+            // Line break
+            if (strlen($subTitleStr) < 300) {
+                $pdf->Ln(20);
+            }
             $pdf->ln();
             $pdf->Cell(0,10,'This is to certify that',0,1,'C');
             $pdf->ln();
@@ -129,7 +135,11 @@
             if ($subTitleStr) {
                 $pdf->SetFont('Arial','',20);
                 $pdf->Cell(0,8,'which included the sessions' ,0,1,'C');
-                $pdf->SetFont('Arial','B',20);
+                if (strlen($subTitleStr) < 300) {
+                    $pdf->SetFont('Arial','B',20);
+                } else {
+                    $pdf->SetFont('Arial','B',10);
+                }
                 $pdf->MultiCell(0,8, $subTitleStr,0,'C');
                 $pdf->ln();
                 $pdf->SetFont('Arial','',20);

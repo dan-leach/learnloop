@@ -339,7 +339,7 @@ var app = new Vue({
         };
         xhttp.open("POST", "api-v3/createSession.php", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send("session="+JSON.stringify(this.session));
+        xhttp.send("session="+this.escapeAmpersand(JSON.stringify(this.session)));
       },
       createSessionSeries: function(){
         console.log("Start createSessionSeries...")
@@ -385,7 +385,8 @@ var app = new Vue({
         };
         xhttp.open("POST", "api-v3/createSessionSeries.php", true);
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
-        xhttp.send("session="+JSON.stringify(this.session))
+        xhttp.send("session="+this.escapeAmpersand(JSON.stringify(this.session)))
+        console.log(this.session)
       },
       createQuestion: function(){
         console.log('Start createQuestion...')
@@ -394,14 +395,11 @@ var app = new Vue({
         if (this.question.type == 'checkbox' || this.question.type == 'select'){
           if (this.question.options == '') return
           let optionTitleArray = this.question.options.split(";")
-          console.log(optionTitleArray)
           let options = []
           for (let o in optionTitleArray){
-            console.log(o, optionTitleArray[o])
             let title = optionTitleArray[o]
             if (title.length > 0)options.push({title: title,selected: false})
           }
-          console.log(options)
           this.question.options = options
         }
         $( "#submitCreateQuestion" ).html("<span class='spinner-border spinner-border-sm'></span>  Please wait...")
@@ -946,7 +944,6 @@ var app = new Vue({
             d.setTime(d.getTime() + (1*24*60*60*1000)) //1 day
             let expires = "expires="+ d.toUTCString()
             if (this.session.id) document.cookie = this.session.id+"="+JSON.stringify(this.session) + ";" + expires +  ";path=/;" //stores as cookie with name of session ID
-            console.log("Save progress", document.cookie)
             if (confirm) Swal.fire({
               icon: 'success',
               title: 'Your progress has been saved',
@@ -961,7 +958,6 @@ var app = new Vue({
             let raw = document.cookie
             let split = raw.split("; ")
             let sliced = []
-            console.log(sliced)
             for (let sp of split) sliced.push(sp.slice(7))
             for (let sl of sliced) this.cookies.push(JSON.parse(sl))
           } catch (e) {

@@ -215,34 +215,30 @@
                                 <label :for="'p-'+index">{{tag}}&nbsp;&nbsp;&nbsp;</label>
                             </span>
                         </div>
-                        <div v-if="session.questions">
-                            <br>
-                            <h4>Additional questions</h4>
-                            <div v-for="(question, index) in session.questions">
-                                <h5>{{question.title}}</h5>
-                                <div v-if="question.type == 'text'">
-                                    <textarea rows="8" v-model="question.response" class="form-control" id="question.title" name="question.title" autocomplete="off" required></textarea>
-                                </div>
-                                <div v-if="question.type == 'checkbox'">
-                                    <span v-for="(option, index) in question.options">
-                                        <label>
-                                            <input type="checkbox" value="option.title" v-model="option.selected">
-                                            {{option.title}}
-                                        </label>
-                                        <br>
-                                    </span>
-                                </div>
-                                <div v-if="question.type == 'select'">
-                                    <select v-model="question.response" class="form-control" required>
-                                        <option disabled value="">Please select one</option>
-                                        <option v-for="(option, index) in question.options">{{option.title}}</option>
-                                    </select>
-                                    <div class="invalid-feedback">Please fill out this field.</div>
-                                </div>
-                                <br>
-                            </div>
-                        </div>
                         <br>
+                        <div v-for="(question, index) in session.questions">
+                            <h5>{{question.title}}</h5>
+                            <div v-if="question.type == 'text'">
+                                <textarea rows="8" v-model="question.response" class="form-control" id="question.title" name="question.title" autocomplete="off" required></textarea>
+                            </div>
+                            <div v-if="question.type == 'checkbox'">
+                                <span v-for="(option, index) in question.options">
+                                    <label>
+                                        <input type="checkbox" value="option.title" v-model="option.selected">
+                                        {{option.title}}
+                                    </label>
+                                    <br>
+                                </span>
+                            </div>
+                            <div v-if="question.type == 'select'">
+                                <select v-model="question.response" class="form-control" required>
+                                    <option disabled value="">Please select one</option>
+                                    <option v-for="(option, index) in question.options">{{option.title}}</option>
+                                </select>
+                                <div class="invalid-feedback">Please fill out this field.</div>
+                            </div>
+                            <br>
+                        </div>
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text">Overall score ({{session.feedback.score}}/100):</span>
@@ -263,9 +259,11 @@
             <section v-if="show.giveFeedbackSeries" id="giveFeedbackSeries" v-cloak>
                 <div class="alert alert-warning alert-dismissible">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    If you leave this page without submitting your feedback, LearnLoop will save your progress. Return to this form on the same device within the next 24 hours to pick up where you left off. <a href="/privacy-policy" class="alert-link">Click here to read about how LearnLoop uses cookies.</a>
+                    If you leave this page without submitting your feedback, LearnLoop will save your progress (click on ). Return to this form on the same device within the next 24 hours to pick up where you left off. <a href="/privacy-policy" class="alert-link">Click here to read about how LearnLoop uses cookies.</a>
                 </div>
-                <br><strong>Please provide some feedback for '{{session.title}}' on {{session.date}} organised by {{session.name}}.</strong><br><br>
+                <br><strong>Please provide some feedback for '{{session.title}}' on {{session.date}} organised by {{session.name}}.</strong><br>
+                Click on the <button class="btn btn-secondary btn-sm"><i class="fas fa-pen"></i></button> by each session to provide your feedback.<br>
+                If you did not attend one or more of the sessions listed you can select <button class="btn btn-secondary" >Skip this session</button> after clicking on the <button class="btn btn-secondary btn-sm"><i class="fas fa-pen"></i></button>.<br><br>
                 <h4>Feedback on sessions</h4>
                 <table class="table" id="subsessionTable">
                     <thead>
@@ -651,7 +649,7 @@
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
-                                By default you will receive an email each time feedback for your session is submitted. If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created.
+                                By default you will receive an email when feedback for your session is submitted. To avoid overloading your inbox, no further notifications are sent within 2 hours.<br><br> If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created. You can also disable further notifications later, using a link in the notification email itself.
                             </div>
                         </div>
                     </div>
@@ -949,9 +947,9 @@
                                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                             </div>
                             <div class="modal-body">
-                                By default you will receive an email each time feedback for your session is submitted. If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created.
+                                By default you will receive an email when feedback for your session is submitted. To avoid overloading your inbox, no further notifications are sent within 2 hours.<br><br> If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created. You can also disable further notifications later, using a link in the notification email itself.
                                 <br><br>
-                                Facilitators of each session in this series will receive an email notifying them that the feedback request has been set up. They will also receive email notifications when feedback is submitted, but they can disable these if preferred.
+                                If you provide an email for them, facilitators of each session in this series will receive an email notifying them that the feedback request has been set up. They will also receive email notifications when feedback for their session is submitted, but they can disable these if preferred using a link in the notification email itself.
                             </div>
                         </div>
                     </div>
