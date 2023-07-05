@@ -1,5 +1,4 @@
-link.php
+private/
 PHPMailer/
 FPDF/
 error_log
-adminPinHash.php

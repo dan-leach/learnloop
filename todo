@@ -1,5 +1,3 @@
-Add tags to feedback form
-Extract tags to feedback reports
-Upgrade attendance report to be like viewFeedback
-Update session created green page to look better, and include links to view attendance if required etc
-Limit notification frequency
+Future tasks
+Add tags
+Fix null entry on CSV feedback download
