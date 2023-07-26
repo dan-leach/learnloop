@@ -3,19 +3,27 @@
 <head>
     <title>LearnLoop</title>
 
-    <?php include "assets/dependencies.php";?>
+    <?php include "../assets/dependencies.php";?>
 
 </head>
 <body>
     <div id="app">
-        <nav class="navbar navbar-expand-sm bg-info navbar-light">
+    <nav class="navbar navbar-expand-sm bg-info navbar-light d-flex justify-content-between">
             <a class="navbar-brand" href="/"><img src="/assets/img/logo.png" alt="LearnLoop Logo" height="50"></a>
+            <h2>DEVELOPMENT VERSION</h2>
+            <ul class="nav nav-pills nav-justified">
+                <li class="nav-item">
+                    <p class="nav-link active" >Feedback</p>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="/interact">Interact</a>
+                </li>
+            </ul>
         </nav>
         <div class="container">
-            <br><br>
+            <h1 class="display-4 text-center">Feedback</h1>
             <section v-if="show.welcome" id="welcome" v-cloak>
-                Quickly and easily gather anonymous feedback on teaching.
-                <br><br>
+                <p class="text-center">Quickly and easily gather anonymous feedback on teaching.</p>
                 <div class="card-deck">
                     <div class="card p-2 bg-info" id="giveFeedbackCard">
                         <h4 class="card-title">Give feedback</h4>
@@ -32,7 +40,7 @@
                         <p class="card-text">To set up a new feedback request, and generate a link or QR code to share with attendees, click 'Create new session'.
                             <br><br>
                             <div class="text-center">
-                                <button class="btn btn-primary" id="submitGiveFeedback" v-on:click="hideComponent('welcome'); showComponent('createSession')">Create new session</button>
+                                <button class="btn btn-primary" id="startCreateSession" v-on:click="hideComponent('welcome'); showComponent('createSession')">Create new session</button>
                             </div>
                         </p>
                     </div>
@@ -62,6 +70,7 @@
                         <li>Increased the range of organisations available for attendance register purposes</li>
                         <li>The <a href="/privacy-policy">privacy policy</a> has been updated</li>
                 </div>
+                <br><br>
             </section>
             <section v-if="show.loader" id="loader">
                 <br><br>
@@ -1423,7 +1432,7 @@
                         <p class="card-text">Your anonymous feedback will be returned to the session facilitator.</p>
                         <div v-if="show.certificate">
                             The facilitator has provided a certificate for this session for you to download. Please fill in the details below to generate your certificate.<br>
-                            <form method="post" action="api-v4/" id="fetchCertificateForm" class="needs-validation" novalidate>
+                            <form method="post" action="api-v5/" id="fetchCertificateForm" class="needs-validation" novalidate>
                                 <input value="fetchCertificate" type="text" name="route" readonly hidden>
                                 <input v-model="certificate.id" type="text" name="id" readonly hidden>
                                 <div class="form-group">
@@ -1480,7 +1489,7 @@
             <section v-if="show.viewFeedback" id="viewFeedback" v-cloak>
                 Viewing feedback for <strong>'{{session.title}}'</strong> by <strong>{{session.name}}</strong> on <strong>{{session.date}}</strong>.<br>
                 <br>
-                <form method="post" action="api-v4/">
+                <form method="post" action="api-v5/">
                     <input type="text" name="route" value="fetchFeedbackPDF" readonly hidden>
                     <input v-model="session.id" type="text" name="id" readonly hidden>
                     <input v-model="session.pin" type="text" name="pin" readonly hidden>
@@ -1564,7 +1573,7 @@
             <section v-if="show.viewAttendance" id="viewAttendance" v-cloak>
                 Viewing attendance report for <strong>'{{session.title}}'</strong> by <strong>{{session.name}}</strong> on <strong>{{session.date}}</strong>.<br>
                 <br>
-                <form method="post" action="api-v4/">
+                <form method="post" action="api-v5/">
                     <input type="text" name="route" value="fetchAttendancePDF" readonly hidden>
                     <input v-model="session.id" type="text" name="id" readonly hidden>
                     <input v-model="session.pin" type="text" name="pin" readonly hidden>
@@ -1580,7 +1589,7 @@
                         </div>
                     </div>
                 </form>
-                <form method="post" action="api-v4/">
+                <form method="post" action="api-v5/">
                     <input type="text" name="route" value="fetchAttendanceCSV" readonly hidden>
                     <input v-model="session.id" type="text" name="id" readonly hidden>
                     <input v-model="session.pin" type="text" name="pin" readonly hidden>
@@ -1607,12 +1616,12 @@
             <div id="logger"></div>
             <div id="spacer"></div>
         </div>
-        <?php include 'assets/footer.php'?>
+        <?php include '../assets/footer.php';?>
     </div>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/2.0.2/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/vue@2.6.12"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> <!--add to dependencies-->
-    <script src="app-v4.js"></script>
+    <script src="feedback-app-v5.js"></script>
 </body>
 </html>
 

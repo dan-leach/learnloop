@@ -3,13 +3,13 @@
 <head>
     <title>LearnLoop - Privacy Policy</title>
 
-    <?php include "../dependencies.php";?>
+    <?php include "../assets/dependencies.php";?>
 
 </head>
 <body>
     <div id="app">
         <nav class="navbar navbar-expand-sm bg-info navbar-light">
-            <a class="navbar-brand" href="/"><img src="../logo.png" alt="LearnLoop Logo" height="50"></a>
+            <a class="navbar-brand" href="/"><img src="/assets/img/logo.png" alt="LearnLoop Logo" height="50"></a>
         </nav>
         <div class="container">
             <section>
@@ -58,7 +58,7 @@
             </section>
             <div id="spacer"></div>
         </div>
-        <?php include "../footer.php";?>
+        <?php include "../assets/footer.php";?>
     </div>
 </body>
 </html>

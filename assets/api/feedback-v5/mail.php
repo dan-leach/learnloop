@@ -22,7 +22,7 @@ function sendMail($messageContent, $subject, $email, $name){
     $mail->Subject = $subject;
 
     $mail->isHTML(TRUE);
-    $mail->AddEmbeddedImage('logo.png', 'logo');
+    $mail->AddEmbeddedImage('../logo.png', 'logo');
     /* Set the mail message body. */
     $mail->Body = $messageContent;
 
@@ -321,4 +321,54 @@ function sendSessionClosed($details, $isSubsession){
     return true;
 }
 
+function sendLiveSessionCreatedMessage($questionTitles, $name, $title, $id, $pin, $email){
+
+    $messageContent = addHeader();
+
+    $messageContent .= "
+            <p>Hello " . $name . ",<br><br>
+            A LearnLoop Live session has been successfully created on <a href='https://learnloop.co.uk'>LearnLoop</a> for your session '".$title."'.
+        ";
+
+    $messageContent .= "
+        </p><p>Please keep this email for future reference.</p>
+        <span style='font-size:2em'>Your LearnLoop Live session ID is <strong>".$id."</strong><br>
+        Your LearnLoop Live session PIN is <strong>".$pin."</strong></span><br>
+        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/?resetLivePIN=".$id."'>Reset your PIN</a>.<br>
+    ";
+
+    $messageContent .= "The following questions will be asked: ";
+    $i = 0;
+    foreach ($questionTitles as $qTitle) {
+        $messageContent .= "'" . $qTitle . "'";
+        $i++;
+        if ($i == count($questionTitles)) {
+            $messageContent .= ".<br>";
+        } elseif ($i == count($questionTitles)-1) {
+            $messageContent .= " and ";
+        } else {
+            $messageContent .= ", ";
+        }
+    }
+
+    $messageContent .= "<a href='https://learnloop.co.uk/?editLive=".$id."'>Edit your session</a>.
+        <p style='font-size:1.5em'>How to direct attendees to the LearnLoop Live session</p>
+        You can share the direct link: <a href='https://learnloop.co.uk/?live=".$id."'>learnloop.co.uk/?".$id."</a><br>
+        Or, ask them to go to <a href='https://learnloop.co.uk/'>learnloop.co.uk</a> and enter the session ID.<br>
+        Or, <a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/?live=".$id."&choe=UTF-8&chld=h'> generate a QR code</a> which you can save and insert into your presentation.
+    ";
+
+    $messageContent .= "
+        <p style='font-size:1.5em'>View your LearnLoop Live submissions</p>
+        <p>Go to <a href='https://learnloop.co.uk/?viewLive=".$id."'>learnloop.co.uk/?viewLive=".$id."</a> and enter your PIN to view submissions.<br><br>
+    ";
+    
+    $messageContent .= addFooter(false);
+
+    $subject = 'LearnLoop Live session created: ' . html_entity_decode($title);
+
+    if (!sendMail($messageContent, $subject, $email, $name)) send_error_response("sendMail failed at sendLiveSessionCreatedMessage", 500);
+
+    return true;
+}
 ?>

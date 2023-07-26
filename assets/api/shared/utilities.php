@@ -16,12 +16,12 @@ function pinIsValid($pin, $pinHash){ //check a pin matches pinHash
     return ($pinHash == $hash);
 }
 
-function createUniqueID($link){ // Generate unique short ID
-    $permitted_chars = '123456789abcdefghijklmnpqrstuvwxyzABCDEFGHIJKLMNPQRSTUVWXYZ';
+function createUniqueID($link, $type){ // Generate unique short ID (if live = true, unique in tbl_live_sessions_v?)
+    $permitted_chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
     do {
         $pass = 0;
         $id = substr(str_shuffle($permitted_chars), 0, 6);
-        if (dbSessionExists($id, $link)) {
+        if (dbSessionExists($id, $type, $link)) {
             $id = substr(str_shuffle($permitted_chars), 0, 6);
         } else {
             $pass ++;
@@ -74,7 +74,7 @@ function outputFeedbackPDF($feedback){
         function Footer() {
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
-            $this->Image('logo.png',80,270,50,0,'','https://learnloop.co.uk' );
+            $this->Image('../logo.png',80,270,50,0,'','https://learnloop.co.uk' );
             // Arial italic 8
             $this->SetFont('Arial','',10);
             // Page number
@@ -229,7 +229,7 @@ function outputAttendancePDF($attendance){
         function Footer() {
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
-            $this->Image('logo.png',80,270,50,0,'','https://learnloop.co.uk' );
+            $this->Image('../logo.png',80,270,50,0,'','https://learnloop.co.uk' );
             // Arial italic 8
             $this->SetFont('Arial','',10);
             // Page number
@@ -332,7 +332,7 @@ function outputCertificate($details, $name){
             {
                 // Position at 1.5 cm from bottom
                 $this->SetY(-15);
-                $this->Image('logo.png',80,270,50,0,'','https://learnloop.co.uk');
+                $this->Image('../logo.png',80,270,50,0,'','https://learnloop.co.uk');
                 // Arial italic 8
                 $this->SetFont('Arial','',10);
                 // Page number
