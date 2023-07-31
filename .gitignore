@@ -1,4 +1,2 @@
-private/
-PHPMailer/
-FPDF/
-error_log
+node_modules/
+.vscode/
