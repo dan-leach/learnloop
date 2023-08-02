@@ -1,19 +1,10 @@
 <script setup>
-import { onMounted, ref } from 'vue'
-import Quote from '../../components/Quote.vue'
-import { interactSession } from '../../data/interactSession.js'
-
-onMounted(() => {
-  console.log('FeedbackView mounted')
-})
 </script>
 
 <template>
-  <h1>Interact page</h1>
-  {{ interactSession.id }}
-  <Quote />
+  <h1 class="text-center display-4">Interact</h1>
+  <RouterView></RouterView>
 </template>
 
 <style>
-
 </style>

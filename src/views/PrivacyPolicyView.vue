@@ -1,16 +1,7 @@
 <template>
-    <div class="privacy-policy">
-      <h1>Privacy Policy page</h1>
-    </div>
-  </template>
+  <h1 class="text-center display-4">Privacy Policy</h1>
+</template>
   
-  <style>
-  @media (min-width: 1024px) {
-    .privacy-policy {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-    }
-  }
-  </style>
+<style>
+</style>
   
