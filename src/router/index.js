@@ -3,6 +3,7 @@ import LandingView from '../views/LandingView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
+  linkExactActiveClass: 'active',
   routes: [
     {
       path: '/',
@@ -15,12 +16,17 @@ const router = createRouter({
       // route level code-splitting
       // this generates a separate chunk (About.[hash].js) for this route
       // which is lazy-loaded when the route is visited.
-      component: () => import('../views/FeedbackView.vue')
+      component: () => import('../views/feedback/FeedbackView.vue')
     },
     {
       path: '/interact',
       name: 'interact',
-      component: () => import('../views/InteractView.vue')
+      component: () => import('../views/interact/InteractView.vue')
+    },
+    {
+      path: '/privacy-policy',
+      name: 'privacy-policy',
+      component: () => import('../views/PrivacyPolicyView.vue')
     }
   ]
 })

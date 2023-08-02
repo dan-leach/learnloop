@@ -4,36 +4,48 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
   
-  <nav>
-    <RouterLink to="/">
-      <img alt="LearnLoop logo" class="logo" src="@/assets/logo.png" width="225" />
-    </RouterLink>
+  <nav class="navbar bg-teal">
+    <div class="container-fluid">
+      <RouterLink to="/" class="navbar-brand"><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"/></RouterLink>
 
-    <RouterLink to="/feedback">
-      <span class="nav-item">Feedback</span>
-    </RouterLink>
+        <ul class="navbar-nav nav-pills justify-content-end flex-row">
+          <li class="nav-item">
+            <RouterLink to="/feedback" class="nav-link p-2 m-2">Feedback</RouterLink>
+          </li>
+          <li class="nav-item">
+            <RouterLink to="/interact" class="nav-link p-2 m-2">Interact</RouterLink>
+          </li>
+        </ul>
 
-    <RouterLink to="/interact">
-      <span class="nav-item">Interact</span>
-    </RouterLink>
+    </div>
   </nav>
 
   <RouterView />
 
+  <nav class="navbar bg-teal fixed-bottom justify-content-center">
+    <ul class="navbar-nav nav-pills flex-row">
+      <li class="nav-item">
+        <a class="nav-link p-2 mx-2" href="https://github.com/dan-leach/learnloop" target="_blank">LearnLoop v5.0</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link p-2 mx-2" href="https://danleach.uk" target="_blank">Created by Dan Leach</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link p-2 mx-2" href="mailto:mail@learnloop.co.uk" target="_blank">Contact: mail@learnloop.co.uk</a>
+      </li>
+      <li class="nav-item">
+        <RouterLink class="nav-link p-2 mx-2" to="/privacy-policy">Privacy policy</RouterLink>
+      </li>
+    </ul>
+  </nav>
+
 </template>
 
-<style scoped>
-nav {
-  background-color: #17a2b8;
-}
-.nav-item {
-  color: black;
-  background-color: white;
-  border-radius: .25rem;
-  padding: .5rem 1rem;
-  box-sizing: border-box;
-}
-.nav-item a {
+<style lang="scss" scoped>
 
+.logo {
+  width: 20vw;
+  min-width: 150px;
+  max-width: 180px;
 }
 </style>
