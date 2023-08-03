@@ -1,4 +1,4 @@
-import { reactive } from 'vue'
+import { reactive } from 'vue';
 
 export const feedbackSession = reactive({
   id: '',
@@ -8,6 +8,7 @@ export const feedbackSession = reactive({
   feedback: {
     positive: '',
     constructive: '',
-    score: null
-}
-})
+    score: null,
+    scoreText: '',
+  },
+});
