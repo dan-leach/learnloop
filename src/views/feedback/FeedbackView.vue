@@ -1,10 +1,10 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
   <h1 class="text-center display-4">Feedback</h1>
-  <RouterView></RouterView>
+  <div class="container">
+    <RouterView></RouterView>
+  </div>
 </template>
 
-<style>
-</style>
+<style></style>
