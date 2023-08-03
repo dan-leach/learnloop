@@ -46,7 +46,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="alert alert-secondary alert-dismissible">
+  <div class="alert alert-warning alert-dismissible">
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     <span id="cookieMsg" v-html="cookieMsg"></span>
     <a href="/privacy-policy" class="alert-link"
