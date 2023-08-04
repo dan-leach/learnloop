@@ -1,11 +1,13 @@
 <script setup>
 /*
 ToDo:
-Add Swal2 and test save progress popup
-move fetchDetails into onMounted?
+coookies...
+remainder of api response handling - in comment
+Do I still need the Vue.set or do something with ref()?
 form validation
 submit
 why scoreText not appearing?
+fix api failure defaulting to API timeout rather than offical message
 */
 
 import { onMounted, ref } from 'vue';
@@ -13,38 +15,53 @@ import { useRouter } from 'vue-router';
 import router from '../../router';
 import { feedbackSession } from '../../data/feedbackSession.js';
 import { api } from '../../data/api.js';
+import Swal from 'sweetalert2';
 
-let fetchDetails = () => {
-  let response = api(
-    'feedback',
-    'fetchDetails',
-    feedbackSession.id,
-    null,
-    null
-  );
-  if (response) {
-    if (feedbackSession.id != response.id) {
-      console.error(
-        'feedbackSession.id != response.id',
-        feedbackSession.id,
-        response.id
-      );
-      return;
-    }
-    feedbackSession.title = response.title;
-    feedbackSession.date = response.date;
-    feedbackSession.name = response.name;
-  } else {
-    console.error('api response error');
-  }
-};
+let fetchDetails = () => {};
 
 onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.path.replace(
     '/feedback/',
     ''
   );
-  fetchDetails();
+  api('feedback', 'fetchDetails', feedbackSession.id, null, null).then(
+    function (res) {
+      if (feedbackSession.id != res.id) {
+        console.error(
+          'feedbackSession.id != response.id',
+          feedbackSession.id,
+          response.id
+        );
+        return;
+      }
+      feedbackSession.title = res.title;
+      feedbackSession.date = res.date;
+      feedbackSession.name = res.name;
+      /*
+      feedbackSession.subsessions = (res.subsessions.length > 0) ? res.subsessions : false
+      if (res.questions) feedbackSession.questions = JSON.parse(res.questions)
+      feedbackSession.certificate = (res.certificate == true) ? true : false;
+      feedbackSession.attendance = (res.attendance == true) ? true : false;
+      if (feedbackSession.subsessions) {
+        for (let x in feedbackSession.subsessions) Vue.set(app.session.subsessions[x],'state','To do') //using Vue.set to enable reactivity for subsession state such that 'skipped' and 'completed' appear appropriately
+        app.hideComponent('loader')
+        app.hideComponent('welcome')
+        app.showComponent('giveFeedbackSeries')
+      } else {
+        app.hideComponent('loader')
+        app.hideComponent('welcome')
+        app.showComponent('giveFeedback')
+      }
+      */
+    },
+    function (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unable to load feedback form',
+        text: error,
+      });
+    }
+  );
 });
 
 let saveProgress = (confirm) => {
