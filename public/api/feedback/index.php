@@ -85,61 +85,6 @@ switch ($route) {
         if (is_null($data)) send_error_response("Variable(s) [data] must be defined for findMySessions route", 400);
         echo json_encode(findMySessions($data, $link));
         break;
-
-    //Live//
-    //session creation
-    case "insertLiveSession":
-        if (is_null($data) ) send_error_response("Variable(s) [data] must be defined for insertLiveSession route", 400);
-        echo json_encode(insertLiveSession($data, $link));
-        break;
-    case "loadUpdateLiveDetails":
-        echo json_encode("todo");
-        die();
-        if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for loadUpdateDetails route", 400);
-        echo json_encode(loadUpdateDetails($id, $pin, false, $link));
-        break;
-    case "updateLiveDetails":
-        echo json_encode("todo");
-        die();
-        if (is_null($id) || is_null($pin) || is_null($data)) send_error_response("Variable(s) [id], [pin] and [data] must be defined for updateDetails route", 400);
-        echo json_encode(updateDetails($id, $pin, $data, false, false, null, null, null, $link));
-        break;
-    case "resetLivePIN":
-        echo json_encode("todo");
-        die();
-        if (is_null($id) || is_null($data)) send_error_response("Variable(s) [id] and [data] must be defined for resetPin route", 400);
-        echo json_encode(resetPin($id, $data, $link));
-        break;
-    case "closeLiveSession":
-        echo json_encode("todo");
-        die();
-        if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for closeSession route", 400);
-        echo json_encode(closeSession($id, $pin, false, $link));
-        break;
-
-    case "fetchLiveDetails":
-        if (is_null($id)) send_error_response("Variable(s) [id] must be defined for fetchLiveDetails route", 400);
-        echo json_encode(fetchLiveDetails($id, $link));
-        break;
-    case "insertLiveSubmission":
-        if (is_null($id) || is_null($data)) send_error_response("Variable(s) [id] and [data] must be defined for insertLiveSubmission route", 400);
-        echo json_encode(insertLiveSubmission($id, $data, $link));
-        break;
-
-    case "fetchLiveViewDetails":
-        if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for fetchLiveViewDetails route", 400);
-        echo json_encode(fetchLiveViewDetails($id, $pin, $link));
-        break;
-    case "fetchLiveQuestionSubmissions":
-        echo json_encode("todo");
-        die();
-        if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for fetchFeedback route", 400);
-        echo json_encode(fetchFeedback($id, $pin, $link));
-        break;
-    case "checkLiveQuestionNewSubmissions":
-        echo json_encode("todo");
-        die();
-        break;
     
     default:
         send_error_response("Route [" . $route . "] not found",400);

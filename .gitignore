@@ -29,3 +29,7 @@ coverage
 
 # Private keys
 private/
+
+# PHP libraries
+PHPMailer/
+FPDF/

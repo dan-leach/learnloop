@@ -1,7 +1,6 @@
 <?php
 
-require '../shared/database.php';
-require '../shared/utilities.php';
+require 'database.php';
 require 'mail.php';
 
 //session creation
@@ -226,6 +225,7 @@ function closeSession($id, $pin, $skipChecks, $link){ //marks the session and an
 //give feedback
 function fetchDetails($id, $link){ //returns the session details for $id as json object
     $res = dbSelectDetails($id, $link);
+    $res['questions'] = json_decode($res['questions']);
     unset($res['email']);
     unset($res['lastSent']);
     unset($res['pinHash']);

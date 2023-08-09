@@ -1,5 +1,9 @@
 <?php
 
+require 'shared/mail.php';
+require 'shared/utilities.php';
+require 'private/keys.php';
+
 function handle_error($error){
     sendMail(addHeader().$error."<br><br>".addFooter(false), 'LearnLoop error notification', 'mail@learnloop.co.uk', 'LearnLoop');
     http_response_code(500);
@@ -12,8 +16,6 @@ function send_error_response($msg, $status){
     die(json_encode($msg));
 }
 
-require 'private/keys.php';
-
 if (!isset($_POST['module'])) send_error_response("Module must be defined", 400);
 $module = htmlspecialchars($_POST['module']);
 if (!isset($_POST['route'])) send_error_response("Route must be defined", 400);
@@ -25,9 +27,9 @@ if (isset($_POST['pin'])) $pin = htmlspecialchars($_POST['pin']);
 if (isset($_POST['data'])) $data = json_decode($_POST['data']); //data must be sanitised later
 
 if ($module == 'feedback') {
-    require 'feedback/';
+    require 'feedback/index.php';
 } elseif ($module == 'interact') {
-    require 'interact/';
+    require 'interact/index.php';
 } else {
     send_error_response("[".$module."] is not a valid module", 400);
 }

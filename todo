@@ -4,7 +4,8 @@ Then move on to trying some interact stuff to show proof of concept
 Then go back systematically through porting each function over to v5 architecture
 
 ON DEPLOY:
-1. Add this htaccess:
+
+1. Add this htaccess to enable navigation directly to specified views (rather than only once the root has been loaded):
         <IfModule mod_negotiation.c>
         Options -MultiViews
         </IfModule>
@@ -17,3 +18,7 @@ ON DEPLOY:
         RewriteCond %{REQUEST_FILENAME} !-d
         RewriteRule . /index.html [L]
         </IfModule>
+
+2. Remove the allow CORS from the htaccess in dev.learnloop.co.uk
+3. Update the path to the api in src/data/api.js to be relative not absolute
+4. Check directory privacy attached to api/private/ and api/shared/ 

@@ -26,6 +26,12 @@ const router = createRouter({
           component: () => import('../views/feedback/CreateFeedbackSessionView.vue')
         },
         {
+          path: 'feedbackComplete',
+          name: 'feedbackComplete',
+          component: () => import('../views/feedback/FeedbackCompleteView.vue')
+        },
+        {
+          //this option should always be last else other routes will be interpreted as an id
           path: ':id',
           name: 'giveFeedback',
           component: () => import('../views/feedback/GiveFeedbackView.vue')

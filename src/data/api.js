@@ -1,13 +1,13 @@
-function apiReal(module, route, id, pin, data) {
+function api(module, route, id, pin, data) {
   return new Promise(function (resolve, reject) {
     let timeoutDuration = 10000;
     setTimeout(function () {
       reject(
-        new Error('Error: API timeout after ' + timeoutDuration / 1000 + 's')
+        new Error('Your request timed out. Please check your internet connection.')
       );
     }, timeoutDuration);
     let req = new XMLHttpRequest();
-    req.open('POST', 'api-v4/?' + route);
+    req.open('POST', 'https://dev.learnloop.co.uk/api/');
     req.onload = function () {
       if (req.status == 200) {
         try {
@@ -37,48 +37,18 @@ function apiReal(module, route, id, pin, data) {
     req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     req.send(
       'module=' +
-        module +
-        'route=' +
-        route +
-        '&id=' +
+      module +
+      '&route=' +
+      route +
+      '&id=' +
         id +
         '&pin=' +
         pin +
         '&data=' +
-        data
+        JSON.stringify(data)
     );
     console.log('API request', { module }, { route }, { id }, { pin }, data);
   });
-}
-
-function api(module, route, id, pin, myData) {
-  console.log('dev api request:', module, route, id, pin, myData);
-  if (module == 'feedback') {
-    switch (route) {
-      case 'fetchDetails':
-        return {
-          id: id,
-          title: 'Demo feedback session',
-          name: 'Dan Leach',
-          date: '24/12/2022',
-        };
-      default:
-        return 'route not found';
-    }
-  } else if (module == 'interact') {
-    switch (route) {
-      case 'fetchDetails':
-        return {
-          id: id,
-          title: 'Demo interact session',
-          name: 'Dan Leach',
-        };
-      default:
-        return 'route not found';
-    }
-  } else {
-    return 'module not found';
-  }
 }
 
 export { api };
