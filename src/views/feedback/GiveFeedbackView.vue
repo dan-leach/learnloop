@@ -132,12 +132,20 @@ let noOptionsSelected = (question) => {
 };
 
 let formIsValid = () => {
+  document.getElementById('giveFeedbackForm').classList.add('was-validated');
   if (
     feedbackSession.feedback.positive == '' ||
     feedbackSession.feedback.negative == '' ||
     feedbackSession.feedback.score == null
   )
     return false;
+  for (let i in feedbackSession.subsessions) {
+    let subsession = feedbackSession.subsessions[i];
+    if (subsession.status == 'To do')
+      document
+        .getElementById('subsession' + i + 'Status')
+        .addClass('is-invalid'); //not working!
+  }
   for (let question of feedbackSession.questions) {
     if (question.required) {
       if (question.type == 'text' || question.type == 'select') {
@@ -152,7 +160,6 @@ let formIsValid = () => {
 };
 
 let submit = () => {
-  document.getElementById('giveFeedbackForm').classList.add('was-validated');
   if (!formIsValid()) {
     console.log('form validation failed');
     return;
@@ -222,9 +229,11 @@ let showSubsessionFeedbackModal = (index) => {
               ><br />{{ subsession.name }}
             </td>
             <td>
-              <span class="subsession-status form-control">{{
-                subsession.state
-              }}</span>
+              <span
+                :id="'subsession' + index + 'State'"
+                class="subsession-status form-control"
+                >{{ subsession.state }}</span
+              >
             </td>
 
             <td>
