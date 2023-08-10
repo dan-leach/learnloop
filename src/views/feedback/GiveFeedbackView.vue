@@ -1,6 +1,8 @@
 <script setup>
 /*
 ToDo:
+Add is-invalid or is-valid class to subsession.status in table as appropriate
+redirect to homepage if unable to load form e.g. due to api failure
 check and load cookies if found
 Add icons to subsession table
 Do all the subsession give/edit/skip functions - can this be done directly on the array object rather than shifting back and forth from a separate subsessions object?
@@ -33,16 +35,19 @@ onMounted(() => {
       feedbackSession.title = res.title;
       feedbackSession.date = res.date;
       feedbackSession.name = res.name;
+      feedbackSession.subsessions = res.subsessions;
+      for (let subsession of feedbackSession.subsessions)
+        subsession.state = 'To do';
       feedbackSession.questions = res.questions;
       for (let question of feedbackSession.questions) {
-        if (question.required == undefined) { //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
-          if (question.type == 'text' || question.type == 'select') question.required = true
+        if (question.required == undefined) {
+          //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
+          if (question.type == 'text' || question.type == 'select')
+            question.required = true;
         }
       }
-      feedbackSession.subsessions = res.subsessions
-      for (let subsession of feedbackSession.subsessions) subsession.state = 'To do'
-      feedbackSession.certificate = res.certificate
-      feedbackSession.attendance = res.attendance
+      feedbackSession.certificate = res.certificate;
+      feedbackSession.attendance = res.attendance;
     },
     function (error) {
       Swal.fire({
@@ -122,43 +127,59 @@ let scoreChange = () => {
 };
 
 let noOptionsSelected = (question) => {
-  for (let option of question.options) if (option.selected) return false
-  return true
-}
+  for (let option of question.options) if (option.selected) return false;
+  return true;
+};
 
 let formIsValid = () => {
-  if (feedbackSession.feedback.positive == '' || feedbackSession.feedback.negative == '' || feedbackSession.feedback.score == null) return false
+  if (
+    feedbackSession.feedback.positive == '' ||
+    feedbackSession.feedback.negative == '' ||
+    feedbackSession.feedback.score == null
+  )
+    return false;
   for (let question of feedbackSession.questions) {
     if (question.required) {
       if (question.type == 'text' || question.type == 'select') {
-        if (question.response == null || question.response === 'undefined') return false
+        if (question.response == null || question.response === 'undefined')
+          return false;
       } else if (question.type == '"checkbox') {
-        if (noOptionsSelected(question)) return false
+        if (noOptionsSelected(question)) return false;
       }
     }
   }
-  return true
-}
+  return true;
+};
 
 let submit = () => {
-  document.getElementById('giveFeedbackForm').classList.add("was-validated");
+  document.getElementById('giveFeedbackForm').classList.add('was-validated');
   if (!formIsValid()) {
-    console.log('form validation failed')
-    return
+    console.log('form validation failed');
+    return;
   }
-  api('feedback', 'insertFeedback', feedbackSession.id, null, feedbackSession).then(
+  api(
+    'feedback',
+    'insertFeedback',
+    feedbackSession.id,
+    null,
+    feedbackSession
+  ).then(
     function () {
-      router.push('/feedback/feedbackComplete')
+      router.push('/feedback/feedbackComplete');
     },
-    function(error) {
+    function (error) {
       Swal.fire({
         icon: 'error',
         title: 'Unable submit your feedback',
-        text: error
+        text: error,
       });
     }
-  )
-}
+  );
+};
+
+let showSubsessionFeedbackModal = (index) => {
+  console.log('showSubsessionFeedbackModal', index);
+};
 </script>
 
 <template>
@@ -184,87 +205,190 @@ let submit = () => {
   <strong>{{ feedbackSession.date }}</strong
   >.<br /><br />
   <form id="giveFeedbackForm" class="needs-validation" novalidate>
-    <label class="form-label"
-        >Feedback on sessions:</label
-      >
-    <table class="table" id="subsessionTable">
+    <div v-if="feedbackSession.subsessions.length">
+      <label class="form-label">Feedback on sessions:</label>
+      <table class="table" id="subsessionTable">
         <thead>
-            <tr>
-                <th>Session</th>
-                <th>Status</th>
-                <th></th>
-            </tr>
+          <tr>
+            <th>Session</th>
+            <th>Status</th>
+            <th></th>
+          </tr>
         </thead>
         <tbody>
-            <tr v-for="(subsession, index) in feedbackSession.subsessions">
-                <td><strong>{{subsession.title}}</strong><br>{{subsession.name}}</td>
-                <td>{{subsession.state}}</td>
-                <td><button style="float:right" class="btn btn-secondary btn-sm" id="loadGiveSubsessionFeedback" v-on:click="loadGiveSubsessionFeedback(index)"><i class="fas fa-edit"></i></button></td>
-            </tr>
+          <tr v-for="(subsession, index) in feedbackSession.subsessions">
+            <td>
+              <strong>{{ subsession.title }}</strong
+              ><br />{{ subsession.name }}
+            </td>
+            <td>
+              <span class="subsession-status form-control">{{
+                subsession.state
+              }}</span>
+            </td>
+
+            <td>
+              <button
+                style="float: right"
+                class="btn btn-secondary btn-sm"
+                id="loadGiveSubsessionFeedback"
+                v-on:click.prevent="showSubsessionFeedbackModal(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+              </button>
+            </td>
+          </tr>
         </tbody>
-    </table>
-    <div class="modal" id="giveSubsessionFeedback">
+      </table>
+      <div class="modal" id="giveSubsessionFeedback">
         <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Feedback for '{{feedbackSession.subsession.title}}' by {{feedbackSession.subsession.name}}</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <form id="giveFeedbackSubsessionForm" class="needs-validation" novalidate>
-                        <div class="form-group">
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Positive Comments:</span>
-                                </div>
-                                <textarea rows="8" v-model="feedbackSession.subsession.positive" class="form-control" id="positiveComments" placeholder="Please provide some feedback about what you enjoyed about this session..." name="positive" autocomplete="off" required></textarea>
-                                <div class="invalid-feedback">Please fill out this field.</div>
-                            </div>
-                            <br>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Constructive Comments:</span>
-                                </div>
-                                <textarea rows="8" v-model="feedbackSession.subsession.negative" class="form-control" id="negative" placeholder="Please provide some feedback about ways this session could be improved..." name="negative" autocomplete="off" required></textarea>
-                                <div class="invalid-feedback">Please fill out this field.</div>
-                            </div>
-                            <br>
-                            <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">Overall score (<span id="subsessionScore"></span>/100):</span>
-                                </div>
-                                <input type="range" v-model="feedbackSession.subsession.score" style="width:80%; margin:10px;" id="subsessionScoreRange" placeholder="" name="subsessionScoreRange" autocomplete="off" oninput="app.scoreChange(true)" onchange="app.scoreChange(true)">
-                                <div class="invalid-feedback">Please indicate an overall score using the slider.</div>
-                            </div>
-                            <div class="input-group">
-                                <textarea rows=2 v-model="feedbackSession.subsession.scoreText" class="form-control" id="subsessionScoreText" placeholder="" name="subsessionScoreText" autocomplete="off" readonly></textarea>
-                            </div>
-                        </div>
-                    </form>
-                    <button class="btn btn-primary" id="submitGiveSubsessionFeedback" v-on:click="submitGiveSubsessionFeedback">Give feedback</button>
-                    <button class="btn btn-secondary" id="submitSkipSubsessionFeedback" v-on:click="skipSubsessionFeedback">Skip this session</button>
-                    <a href="#" data-toggle="modal" data-target="#skipSubsessionFeedbackInfo"><i class="fas fa-question-circle fa-2x"></i></a>
-                </div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">
+                Feedback for '{{ feedbackSession.subsession.title }}' by
+                {{ feedbackSession.subsession.name }}
+              </h4>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
             </div>
+            <div class="modal-body">
+              <form
+                id="giveFeedbackSubsessionForm"
+                class="needs-validation"
+                novalidate
+              >
+                <div class="form-group">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text">Positive Comments:</span>
+                    </div>
+                    <textarea
+                      rows="8"
+                      v-model="feedbackSession.subsession.positive"
+                      class="form-control"
+                      id="positiveComments"
+                      placeholder="Please provide some feedback about what you enjoyed about this session..."
+                      name="positive"
+                      autocomplete="off"
+                      required
+                    ></textarea>
+                    <div class="invalid-feedback">
+                      Please fill out this field.
+                    </div>
+                  </div>
+                  <br />
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"
+                        >Constructive Comments:</span
+                      >
+                    </div>
+                    <textarea
+                      rows="8"
+                      v-model="feedbackSession.subsession.negative"
+                      class="form-control"
+                      id="negative"
+                      placeholder="Please provide some feedback about ways this session could be improved..."
+                      name="negative"
+                      autocomplete="off"
+                      required
+                    ></textarea>
+                    <div class="invalid-feedback">
+                      Please fill out this field.
+                    </div>
+                  </div>
+                  <br />
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"
+                        >Overall score (<span id="subsessionScore"></span
+                        >/100):</span
+                      >
+                    </div>
+                    <input
+                      type="range"
+                      v-model="feedbackSession.subsession.score"
+                      style="width: 80%; margin: 10px"
+                      id="subsessionScoreRange"
+                      placeholder=""
+                      name="subsessionScoreRange"
+                      autocomplete="off"
+                      oninput="app.scoreChange(true)"
+                      onchange="app.scoreChange(true)"
+                    />
+                    <div class="invalid-feedback">
+                      Please indicate an overall score using the slider.
+                    </div>
+                  </div>
+                  <div class="input-group">
+                    <textarea
+                      rows="2"
+                      v-model="feedbackSession.subsession.scoreText"
+                      class="form-control"
+                      id="subsessionScoreText"
+                      placeholder=""
+                      name="subsessionScoreText"
+                      autocomplete="off"
+                      readonly
+                    ></textarea>
+                  </div>
+                </div>
+              </form>
+              <button
+                class="btn btn-primary"
+                id="submitGiveSubsessionFeedback"
+                v-on:click="submitGiveSubsessionFeedback"
+              >
+                Give feedback
+              </button>
+              <button
+                class="btn btn-secondary"
+                id="submitSkipSubsessionFeedback"
+                v-on:click="skipSubsessionFeedback"
+              >
+                Skip this session
+              </button>
+              <a
+                href="#"
+                data-toggle="modal"
+                data-target="#skipSubsessionFeedbackInfo"
+                ><i class="fas fa-question-circle fa-2x"></i
+              ></a>
+            </div>
+          </div>
         </div>
-    </div>
-    <div class="modal" id="skipSubsessionFeedbackInfo">
+      </div>
+      <div class="modal" id="skipSubsessionFeedbackInfo">
         <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Skipping feedback for a subsession</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    If you did not attend a particular session within a series you can skip providing feedback by clicking the 'Skip this session' button.<br>
-                    <br>
-                    The feedback you submit for the other sessions will still be submitted as usual.
-                </div>
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title">Skipping feedback for a subsession</h4>
+              <button type="button" class="close" data-dismiss="modal">
+                &times;
+              </button>
             </div>
+            <div class="modal-body">
+              If you did not attend a particular session within a series you can
+              skip providing feedback by clicking the 'Skip this session'
+              button.<br />
+              <br />
+              The feedback you submit for the other sessions will still be
+              submitted as usual.
+            </div>
+          </div>
         </div>
+      </div>
     </div>
-    <div class="text-center"><button class="btn btn-secondary btn-sm" id="saveProgress" v-on:click="saveProgress(true)">Save progress</button></div>
-<!--end of subsession section-->          
+    <div class="text-center">
+      <button
+        class="btn btn-secondary btn-sm"
+        id="saveProgress"
+        v-on:click="saveProgress(true)"
+      >
+        Save progress
+      </button>
+    </div>
     <div>
       <label for="positiveComments" class="form-label"
         >Positive Comments:</label
@@ -295,9 +419,14 @@ let submit = () => {
         autocomplete="off"
         required
       ></textarea>
-      <div class="invalid-feedback">Please provide some constructive comments.</div>
+      <div class="invalid-feedback">
+        Please provide some constructive comments.
+      </div>
     </div>
-    <div v-for="(question, questionIndex) in feedbackSession.questions" class="mt-4">
+    <div
+      v-for="(question, questionIndex) in feedbackSession.questions"
+      class="mt-4"
+    >
       <label for="custom+index" class="form-label">{{ question.title }}:</label>
       <div v-if="question.type == 'text'">
         <textarea
@@ -312,22 +441,38 @@ let submit = () => {
         <div class="invalid-feedback">Please answer this question.</div>
       </div>
       <div v-if="question.type == 'checkbox'">
-        <span v-for="(option, optionIndex) in question.options" class="form-check">
+        <span
+          v-for="(option, optionIndex) in question.options"
+          class="form-check"
+        >
           <input
-            :id="'question['+questionIndex+'];option['+optionIndex+']'"
+            :id="'question[' + questionIndex + '];option[' + optionIndex + ']'"
             class="form-check-input"
             type="checkbox"
             value="option.title"
             v-model="option.selected"
             :required="noOptionsSelected(question) && question.required"
           />
-          <label class="form-check-label" :for="'question['+questionIndex+'];option['+optionIndex+']'">{{ option.title }}</label>
-          <div v-if="optionIndex == question.options.length-1" class="invalid-feedback">Please select at least one checkbox.</div>
+          <label
+            class="form-check-label"
+            :for="'question[' + questionIndex + '];option[' + optionIndex + ']'"
+            >{{ option.title }}</label
+          >
+          <div
+            v-if="optionIndex == question.options.length - 1"
+            class="invalid-feedback"
+          >
+            Please select at least one checkbox.
+          </div>
           <br />
         </span>
       </div>
       <div v-if="question.type == 'select'">
-        <select v-model="question.response" class="form-control" :required="question.required">
+        <select
+          v-model="question.response"
+          class="form-control"
+          :required="question.required"
+        >
           <option disabled value="">Please select one</option>
           <option v-for="(option, index) in question.options">
             {{ option.title }}
@@ -353,7 +498,7 @@ let submit = () => {
         @change="scoreChange"
         required
       />
-      <p class="text-center"> {{ feedbackSession.feedback.scoreText }}</p>
+      <p class="text-center">{{ feedbackSession.feedback.scoreText }}</p>
       <input
         type="text"
         v-model="feedbackSession.feedback.score"
@@ -365,15 +510,13 @@ let submit = () => {
         required
         hidden
       />
-      <div class="invalid-feedback">Please use the slider to indicate an overall score.</div>
+      <div class="invalid-feedback">
+        Please use the slider to indicate an overall score.
+      </div>
     </div>
   </form>
   <div class="text-center mt-4">
-    <button
-      class="btn btn-primary"
-      id="submitGiveFeedback"
-      @click="submit"
-    >
+    <button class="btn btn-primary" id="submitGiveFeedback" @click="submit">
       Give Feedback
     </button>
   </div>
@@ -393,6 +536,6 @@ let submit = () => {
 .form-range::-webkit-slider-runnable-track {
   background-color: #17a2b8;
   height: 0.2rem;
-  margin-top: 0.80rem;
+  margin-top: 0.8rem;
 }
 </style>

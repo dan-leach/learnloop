@@ -1,9 +1,11 @@
-function api(module, route, id, pin, data) {
+function apiReal(module, route, id, pin, data) {
   return new Promise(function (resolve, reject) {
     let timeoutDuration = 10000;
     setTimeout(function () {
       reject(
-        new Error('Your request timed out. Please check your internet connection.')
+        new Error(
+          'Your request timed out. Please check your internet connection.'
+        )
       );
     }, timeoutDuration);
     let req = new XMLHttpRequest();
@@ -37,10 +39,10 @@ function api(module, route, id, pin, data) {
     req.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
     req.send(
       'module=' +
-      module +
-      '&route=' +
-      route +
-      '&id=' +
+        module +
+        '&route=' +
+        route +
+        '&id=' +
         id +
         '&pin=' +
         pin +
@@ -48,6 +50,47 @@ function api(module, route, id, pin, data) {
         JSON.stringify(data)
     );
     console.log('API request', { module }, { route }, { id }, { pin }, data);
+  });
+}
+
+function api(module, route, id, pin, data) {
+  console.log('API DEV request', { module }, { route }, { id }, { pin }, data);
+  return new Promise(function (resolve, reject) {
+    if (module == 'feedback') {
+      if (route == 'fetchDetails') {
+        /*resolve({
+          id: id,
+          title: 'DEV API Title',
+          name: 'DEV API Name',
+          date: '01/02/2003',
+          subsessions: [],
+          questions: [],
+        });*/
+        resolve({
+          id: id,
+          title: 'DEV API Title',
+          name: 'DEV API Name',
+          date: '01/02/2003',
+          subsessions: [
+            {
+              id: 'a12345',
+              title: 'DEV API subsession title 1',
+              name: 'DEV API subsession name 1',
+            },
+            {
+              id: 'b12345',
+              title: 'DEV API subsession title 2',
+              name: 'DEV API subsession name 2',
+            },
+          ],
+          questions: [],
+        });
+      }
+      //add remaining feedback routes here
+    } else if (module == 'interact') {
+      //add interact routes here
+    }
+    reject('API error:  module or route not found in DEV API');
   });
 }
 

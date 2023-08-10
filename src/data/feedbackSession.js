@@ -5,6 +5,8 @@ export const feedbackSession = reactive({
   title: '',
   name: '',
   date: '',
+  subsessions: [],
+  questions: [],
   feedback: {
     positive: '',
     constructive: '',
@@ -21,5 +23,5 @@ export const feedbackSession = reactive({
       score: null,
       scoreText: 'Please use the slider to indicate an overall score',
     },
-  }
+  },
 });
