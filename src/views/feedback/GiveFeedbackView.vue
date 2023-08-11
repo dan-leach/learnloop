@@ -2,6 +2,8 @@
 /*
 Current task:
 make subsessionFeedbackForm actually update the feedbackSession.subsession[index].positive/.negative/.score/.scoreText etc
+Try using v-model https://vuejs.org/guide/components/v-model.html
+or https://vuejs.org/guide/components/props.html#one-way-data-flow
 
 ToDo:
 redirect to homepage if unable to load form e.g. due to api failure
