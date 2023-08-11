@@ -1,13 +1,14 @@
 <script setup>
 /*
+Current task:
+make subsessionFeedbackForm actually update the feedbackSession.subsession[index].positive/.negative/.score/.scoreText etc
+
 ToDo:
-Add is-invalid or is-valid class to subsession.status in table as appropriate
 redirect to homepage if unable to load form e.g. due to api failure
 check and load cookies if found
-Add icons to subsession table
 Do all the subsession give/edit/skip functions - can this be done directly on the array object rather than shifting back and forth from a separate subsessions object?
 Do I still need the Vue.set or do something with ref()?
-  previously: for (let subsession of feedbackSession.subsessions) Vue.set(subsession,'state','To do') //using Vue.set to enable reactivity for subsession state such that 'skipped' and 'completed' appear appropriately
+  previously: for (let subsession of feedbackSession.subsessions) Vue.set(subsession,'status','To do') //using Vue.set to enable reactivity for subsession status such that 'skipped' and 'completed' appear appropriately
 */
 
 import { onMounted, ref } from 'vue';
@@ -16,6 +17,8 @@ import router from '../../router';
 import { feedbackSession } from '../../data/feedbackSession.js';
 import { api } from '../../data/api.js';
 import Swal from 'sweetalert2';
+import Modal from 'bootstrap/js/dist/modal';
+import SubsessionFeedbackForm from '../../components/SubsessionFeedbackForm.vue';
 
 onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.path.replace(
@@ -36,8 +39,14 @@ onMounted(() => {
       feedbackSession.date = res.date;
       feedbackSession.name = res.name;
       feedbackSession.subsessions = res.subsessions;
-      for (let subsession of feedbackSession.subsessions)
-        subsession.state = 'To do';
+      for (let subsession of feedbackSession.subsessions) {
+        subsession.status = 'To do';
+        subsession.positive = '';
+        subsession.negative = '';
+        subsession.score = null;
+        subsession.scoreText =
+          'Please use the slider to indicate an overall score.';
+      }
       feedbackSession.questions = res.questions;
       for (let question of feedbackSession.questions) {
         if (question.required == undefined) {
@@ -133,19 +142,27 @@ let noOptionsSelected = (question) => {
 
 let formIsValid = () => {
   document.getElementById('giveFeedbackForm').classList.add('was-validated');
+  for (let i in feedbackSession.subsessions) {
+    //needs to be first check to ensure correct styling of subsession status table cells before a return false ends the function
+    let subsession = feedbackSession.subsessions[i];
+    let statusElement = document.getElementById('subsession' + i + 'Status');
+    if (subsession.status == 'To do') {
+      statusElement.classList.add('is-invalid');
+      statusElement.classList.remove('is-valid');
+    } else if (
+      subsession.status == 'Skipped' ||
+      subsession.status == 'Complete'
+    ) {
+      statusElement.classList.add('is-valid');
+      statusElement.classList.remove('is-invalid');
+    }
+  }
   if (
     feedbackSession.feedback.positive == '' ||
     feedbackSession.feedback.negative == '' ||
     feedbackSession.feedback.score == null
   )
     return false;
-  for (let i in feedbackSession.subsessions) {
-    let subsession = feedbackSession.subsessions[i];
-    if (subsession.status == 'To do')
-      document
-        .getElementById('subsession' + i + 'Status')
-        .addClass('is-invalid'); //not working!
-  }
   for (let question of feedbackSession.questions) {
     if (question.required) {
       if (question.type == 'text' || question.type == 'select') {
@@ -184,8 +201,21 @@ let submit = () => {
   );
 };
 
+let subsessionFeedbackModal;
 let showSubsessionFeedbackModal = (index) => {
-  console.log('showSubsessionFeedbackModal', index);
+  subsessionFeedbackModal = new Modal(
+    document.getElementById('subsessionFeedbackModal' + index),
+    {
+      backdrop: 'static',
+      keyboard: false,
+      focus: true,
+    }
+  );
+  subsessionFeedbackModal.show();
+};
+let closeSubsessionFeedbackForm = (index) => {
+  subsessionFeedbackModal.hide();
+  feedbackSession.subsessions[index].status = 'Complete';
 };
 </script>
 
@@ -230,9 +260,9 @@ let showSubsessionFeedbackModal = (index) => {
             </td>
             <td>
               <span
-                :id="'subsession' + index + 'State'"
+                :id="'subsession' + index + 'Status'"
                 class="subsession-status form-control"
-                >{{ subsession.state }}</span
+                >{{ subsession.status }}</span
               >
             </td>
 
@@ -249,125 +279,12 @@ let showSubsessionFeedbackModal = (index) => {
           </tr>
         </tbody>
       </table>
-      <div class="modal" id="giveSubsessionFeedback">
-        <div class="modal-dialog modal-lg">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">
-                Feedback for '{{ feedbackSession.subsession.title }}' by
-                {{ feedbackSession.subsession.name }}
-              </h4>
-              <button type="button" class="close" data-dismiss="modal">
-                &times;
-              </button>
-            </div>
-            <div class="modal-body">
-              <form
-                id="giveFeedbackSubsessionForm"
-                class="needs-validation"
-                novalidate
-              >
-                <div class="form-group">
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text">Positive Comments:</span>
-                    </div>
-                    <textarea
-                      rows="8"
-                      v-model="feedbackSession.subsession.positive"
-                      class="form-control"
-                      id="positiveComments"
-                      placeholder="Please provide some feedback about what you enjoyed about this session..."
-                      name="positive"
-                      autocomplete="off"
-                      required
-                    ></textarea>
-                    <div class="invalid-feedback">
-                      Please fill out this field.
-                    </div>
-                  </div>
-                  <br />
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"
-                        >Constructive Comments:</span
-                      >
-                    </div>
-                    <textarea
-                      rows="8"
-                      v-model="feedbackSession.subsession.negative"
-                      class="form-control"
-                      id="negative"
-                      placeholder="Please provide some feedback about ways this session could be improved..."
-                      name="negative"
-                      autocomplete="off"
-                      required
-                    ></textarea>
-                    <div class="invalid-feedback">
-                      Please fill out this field.
-                    </div>
-                  </div>
-                  <br />
-                  <div class="input-group">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text"
-                        >Overall score (<span id="subsessionScore"></span
-                        >/100):</span
-                      >
-                    </div>
-                    <input
-                      type="range"
-                      v-model="feedbackSession.subsession.score"
-                      style="width: 80%; margin: 10px"
-                      id="subsessionScoreRange"
-                      placeholder=""
-                      name="subsessionScoreRange"
-                      autocomplete="off"
-                      oninput="app.scoreChange(true)"
-                      onchange="app.scoreChange(true)"
-                    />
-                    <div class="invalid-feedback">
-                      Please indicate an overall score using the slider.
-                    </div>
-                  </div>
-                  <div class="input-group">
-                    <textarea
-                      rows="2"
-                      v-model="feedbackSession.subsession.scoreText"
-                      class="form-control"
-                      id="subsessionScoreText"
-                      placeholder=""
-                      name="subsessionScoreText"
-                      autocomplete="off"
-                      readonly
-                    ></textarea>
-                  </div>
-                </div>
-              </form>
-              <button
-                class="btn btn-primary"
-                id="submitGiveSubsessionFeedback"
-                v-on:click="submitGiveSubsessionFeedback"
-              >
-                Give feedback
-              </button>
-              <button
-                class="btn btn-secondary"
-                id="submitSkipSubsessionFeedback"
-                v-on:click="skipSubsessionFeedback"
-              >
-                Skip this session
-              </button>
-              <a
-                href="#"
-                data-toggle="modal"
-                data-target="#skipSubsessionFeedbackInfo"
-                ><i class="fas fa-question-circle fa-2x"></i
-              ></a>
-            </div>
-          </div>
-        </div>
-      </div>
+      <SubsessionFeedbackForm
+        v-for="(subsession, index) in feedbackSession.subsessions"
+        :index="index"
+        :subsession="subsession"
+        @closeSubsessionFeedbackForm="closeSubsessionFeedbackForm"
+      />
       <div class="modal" id="skipSubsessionFeedbackInfo">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
