@@ -1,11 +1,44 @@
 <script setup>
+/*
+To do:
+skipSubsessionFeedbackForm()
+Styling of subsessionFeedbackForm on Submit if fails validation
+Swal confirm lose details if skipping after adding details
+Move skip button up?
+*/
+
 import Modal from 'bootstrap/js/dist/modal';
 const props = defineProps(['index', 'subsession']);
 
 const emit = defineEmits(['closeSubsessionFeedbackForm']);
 
+let skipSubsessionFeedbackForm = () => {
+  if (
+    subsession.positive == '' ||
+    subsession.negative == '' ||
+    subsession.score == null
+  ) {
+    /*
+    Swal confirm lose details
+    if cancel then return false
+    if confirm then
+      subsession.positive == '' 
+      subsession.negative == '' 
+      subsession.score == null
+      subsession.status = 'Skipped';
+      emit('closeSubsessionFeedbackForm', props.index);
+    */
+  }
+};
+
 let submitSubsessionFeedbackForm = () => {
-  console.log('submitSubsessionFeedbackForm');
+  if (
+    subsession.positive == '' ||
+    subsession.negative == '' ||
+    subsession.score == null
+  )
+    return false;
+  subsession.status = 'Complete';
   emit('closeSubsessionFeedbackForm', props.index);
 };
 </script>
@@ -113,7 +146,6 @@ let submitSubsessionFeedbackForm = () => {
       ></a>
     </div>
   </div>
-  -->
 </template>
 
 <style scoped></style>

@@ -1,9 +1,8 @@
 <script setup>
 /*
 Current task:
-make subsessionFeedbackForm actually update the feedbackSession.subsession[index].positive/.negative/.score/.scoreText etc
-Try using v-model https://vuejs.org/guide/components/v-model.html
-or https://vuejs.org/guide/components/props.html#one-way-data-flow
+See todo in SubsessionFeedbackForm
+Add skip button to table? (must clear the feedback if already added (after confirmation))
 
 ToDo:
 redirect to homepage if unable to load form e.g. due to api failure
@@ -218,6 +217,7 @@ let showSubsessionFeedbackModal = (index) => {
 let closeSubsessionFeedbackForm = (index) => {
   subsessionFeedbackModal.hide();
   feedbackSession.subsessions[index].status = 'Complete';
+  console.log(feedbackSession.subsessions[index]);
 };
 </script>
 
