@@ -236,6 +236,42 @@ let showSkipSubsessionFeedbackInfo = (index) => {
 let hideSkipSubsessionFeedbackInfo = (index) => {
   skipSubsessionFeedbackInfoModal.hide();
 };
+
+let skipSubsessionFeedback = (index) => {
+  let statusElement = document.getElementById('subsession' + index + 'Status');
+  if (
+    feedbackSession.subsessions[index].positive == '' &&
+    feedbackSession.subsessions[index].negative == '' &&
+    feedbackSession.subsessions[index].score == null
+  ) {
+    feedbackSession.subsessions[index].status = 'Skipped';
+
+    statusElement.classList.remove('is-invalid');
+    statusElement.classList.add('is-valid');
+  } else {
+    Swal.fire({
+      title: 'Skip session?',
+      text:
+        'Your existing feedback for ' +
+        feedbackSession.subsessions[index].title +
+        ' will be lost.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#17a2b8',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Skip',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        feedbackSession.subsessions[index].status = 'Skipped';
+        feedbackSession.subsessions[index].positive = '';
+        feedbackSession.subsessions[index].negative = '';
+        feedbackSession.subsessions[index].score == null;
+        statusElement.classList.remove('is-invalid');
+        statusElement.classList.add('is-valid');
+      }
+    });
+  }
+};
 </script>
 
 <template>
@@ -284,7 +320,7 @@ let hideSkipSubsessionFeedbackInfo = (index) => {
               <strong>{{ subsession.title }}</strong
               ><br />{{ subsession.name }}
             </td>
-            <td>
+            <td class="subsession-status">
               <span
                 :id="'subsession' + index + 'Status'"
                 class="subsession-status form-control"
@@ -304,9 +340,9 @@ let hideSkipSubsessionFeedbackInfo = (index) => {
               <button
                 class="btn btn-secondary btn-sm"
                 id="loadGiveSubsessionFeedback"
-                v-on:click.prevent="showSubsessionFeedbackModal(index)"
+                v-on:click.prevent="skipSubsessionFeedback(index)"
               >
-                <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+                <font-awesome-icon :icon="['fas', 'trash-can']" />
               </button>
             </td>
           </tr>
@@ -503,5 +539,8 @@ let hideSkipSubsessionFeedbackInfo = (index) => {
 }
 .subsession-button {
   width: 90px;
+}
+.subsession-status {
+  width: 120px;
 }
 </style>

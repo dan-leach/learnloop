@@ -15,9 +15,10 @@ import {
   faRotateRight,
   faPenToSquare,
   faQuestionCircle,
+  faTrashCan,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
-library.add(faRotateRight, faPenToSquare, faQuestionCircle);
+library.add(faRotateRight, faPenToSquare, faQuestionCircle, faTrashCan);
 
 const app = createApp(App).component('font-awesome-icon', FontAwesomeIcon);
 
