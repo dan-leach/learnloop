@@ -2,7 +2,9 @@
 /*
 Current task:
 See todo in SubsessionFeedbackForm
-Add skip button to table? (must clear the feedback if already added (after confirmation))
+skipSubsession()
+Swal confirm lose details if skipping after adding details
+New icon for skip button
 
 ToDo:
 redirect to homepage if unable to load form e.g. due to api failure
@@ -214,10 +216,25 @@ let showSubsessionFeedbackModal = (index) => {
   );
   subsessionFeedbackModal.show();
 };
-let closeSubsessionFeedbackForm = (index) => {
+let hideSubsessionFeedbackForm = (index) => {
   subsessionFeedbackModal.hide();
   feedbackSession.subsessions[index].status = 'Complete';
-  console.log(feedbackSession.subsessions[index]);
+};
+
+let skipSubsessionFeedbackInfoModal;
+let showSkipSubsessionFeedbackInfo = (index) => {
+  skipSubsessionFeedbackInfoModal = new Modal(
+    document.getElementById('skipSubsessionFeedbackInfo'),
+    {
+      backdrop: true,
+      keyboard: true,
+      focus: true,
+    }
+  );
+  skipSubsessionFeedbackInfoModal.show();
+};
+let hideSkipSubsessionFeedbackInfo = (index) => {
+  skipSubsessionFeedbackInfoModal.hide();
 };
 </script>
 
@@ -251,7 +268,14 @@ let closeSubsessionFeedbackForm = (index) => {
           <tr>
             <th>Session</th>
             <th>Status</th>
-            <th></th>
+            <th>Feedback</th>
+            <th>
+              Skip<font-awesome-icon
+                :icon="['fas', 'fa-question-circle']"
+                class="mx-2"
+                @click.prevent="showSkipSubsessionFeedbackInfo"
+              />
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -267,10 +291,17 @@ let closeSubsessionFeedbackForm = (index) => {
                 >{{ subsession.status }}</span
               >
             </td>
-
-            <td>
+            <td class="text-center subsession-button">
               <button
-                style="float: right"
+                class="btn btn-secondary btn-sm"
+                id="loadGiveSubsessionFeedback"
+                v-on:click.prevent="showSubsessionFeedbackModal(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'pen-to-square']" />
+              </button>
+            </td>
+            <td class="text-center subsession-button">
+              <button
                 class="btn btn-secondary btn-sm"
                 id="loadGiveSubsessionFeedback"
                 v-on:click.prevent="showSubsessionFeedbackModal(index)"
@@ -285,14 +316,18 @@ let closeSubsessionFeedbackForm = (index) => {
         v-for="(subsession, index) in feedbackSession.subsessions"
         :index="index"
         :subsession="subsession"
-        @closeSubsessionFeedbackForm="closeSubsessionFeedbackForm"
+        @hideSubsessionFeedbackForm="hideSubsessionFeedbackForm"
       />
       <div class="modal" id="skipSubsessionFeedbackInfo">
         <div class="modal-dialog modal-dialog-centered">
           <div class="modal-content">
             <div class="modal-header">
               <h4 class="modal-title">Skipping feedback for a subsession</h4>
-              <button type="button" class="close" data-dismiss="modal">
+              <button
+                type="button"
+                class="close"
+                @click.prevent="hideSkipSubsessionFeedbackInfo"
+              >
                 &times;
               </button>
             </div>
@@ -465,5 +500,8 @@ let closeSubsessionFeedbackForm = (index) => {
   background-color: #17a2b8;
   height: 0.2rem;
   margin-top: 0.8rem;
+}
+.subsession-button {
+  width: 90px;
 }
 </style>

@@ -1,35 +1,13 @@
 <script setup>
 /*
 To do:
-skipSubsessionFeedbackForm()
 Styling of subsessionFeedbackForm on Submit if fails validation
-Swal confirm lose details if skipping after adding details
-Move skip button up?
 */
 
 import Modal from 'bootstrap/js/dist/modal';
 const props = defineProps(['index', 'subsession']);
 
-const emit = defineEmits(['closeSubsessionFeedbackForm']);
-
-let skipSubsessionFeedbackForm = () => {
-  if (
-    subsession.positive == '' ||
-    subsession.negative == '' ||
-    subsession.score == null
-  ) {
-    /*
-    Swal confirm lose details
-    if cancel then return false
-    if confirm then
-      subsession.positive == '' 
-      subsession.negative == '' 
-      subsession.score == null
-      subsession.status = 'Skipped';
-      emit('closeSubsessionFeedbackForm', props.index);
-    */
-  }
-};
+const emit = defineEmits(['hideSubsessionFeedbackForm']);
 
 let submitSubsessionFeedbackForm = () => {
   if (
@@ -39,7 +17,7 @@ let submitSubsessionFeedbackForm = () => {
   )
     return false;
   subsession.status = 'Complete';
-  emit('closeSubsessionFeedbackForm', props.index);
+  emit('hideSubsessionFeedbackForm', props.index);
 };
 </script>
 
@@ -134,16 +112,6 @@ let submitSubsessionFeedbackForm = () => {
       >
         Give feedback
       </button>
-      <button
-        class="btn btn-secondary"
-        id="skipSubsessionFeedbackForm"
-        v-on:click.prevent="skipSubsessionFeedbackForm"
-      >
-        Skip this session
-      </button>
-      <a href="#" data-toggle="modal" data-target="#skipSubsessionFeedbackInfo"
-        ><i class="fas fa-question-circle fa-2x"></i
-      ></a>
     </div>
   </div>
 </template>

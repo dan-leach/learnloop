@@ -14,9 +14,10 @@ import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import {
   faRotateRight,
   faPenToSquare,
+  faQuestionCircle,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
-library.add(faRotateRight, faPenToSquare);
+library.add(faRotateRight, faPenToSquare, faQuestionCircle);
 
 const app = createApp(App).component('font-awesome-icon', FontAwesomeIcon);
 
