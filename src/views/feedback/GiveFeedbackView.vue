@@ -1,17 +1,15 @@
 <script setup>
 /*
 Current task:
-See todo in SubsessionFeedbackForm
-skipSubsession()
-Swal confirm lose details if skipping after adding details
-New icon for skip button
-
 ToDo:
 redirect to homepage if unable to load form e.g. due to api failure
 check and load cookies if found
-Do all the subsession give/edit/skip functions - can this be done directly on the array object rather than shifting back and forth from a separate subsessions object?
-Do I still need the Vue.set or do something with ref()?
-  previously: for (let subsession of feedbackSession.subsessions) Vue.set(subsession,'status','To do') //using Vue.set to enable reactivity for subsession status such that 'skipped' and 'completed' appear appropriately
+
+then:
+check api route works for submit
+Do a build and test the whole give feedback process on dev.learnloop.co.uk
+
+then move on to interact 
 */
 
 import { onMounted, ref } from 'vue';
@@ -145,6 +143,7 @@ let noOptionsSelected = (question) => {
 
 let formIsValid = () => {
   document.getElementById('giveFeedbackForm').classList.add('was-validated');
+  let subsessionsTodo = false;
   for (let i in feedbackSession.subsessions) {
     //needs to be first check to ensure correct styling of subsession status table cells before a return false ends the function
     let subsession = feedbackSession.subsessions[i];
@@ -152,6 +151,7 @@ let formIsValid = () => {
     if (subsession.status == 'To do') {
       statusElement.classList.add('is-invalid');
       statusElement.classList.remove('is-valid');
+      subsessionsTodo = true;
     } else if (
       subsession.status == 'Skipped' ||
       subsession.status == 'Complete'
@@ -160,6 +160,7 @@ let formIsValid = () => {
       statusElement.classList.remove('is-invalid');
     }
   }
+  if (subsessionsTodo) return false;
   if (
     feedbackSession.feedback.positive == '' ||
     feedbackSession.feedback.negative == '' ||
@@ -217,8 +218,16 @@ let showSubsessionFeedbackModal = (index) => {
   subsessionFeedbackModal.show();
 };
 let hideSubsessionFeedbackForm = (index) => {
+  console.log('hide', index);
   subsessionFeedbackModal.hide();
-  feedbackSession.subsessions[index].status = 'Complete';
+  let statusElement = document.getElementById('subsession' + index + 'Status');
+  if (
+    feedbackSession.subsessions[index].status == 'Skipped' ||
+    feedbackSession.subsessions[index].status == 'Complete'
+  ) {
+    statusElement.classList.add('is-valid');
+    statusElement.classList.remove('is-invalid');
+  }
 };
 
 let skipSubsessionFeedbackInfoModal;
@@ -233,9 +242,8 @@ let showSkipSubsessionFeedbackInfo = (index) => {
   );
   skipSubsessionFeedbackInfoModal.show();
 };
-let hideSkipSubsessionFeedbackInfo = (index) => {
+let hideSkipSubsessionFeedbackInfo = () =>
   skipSubsessionFeedbackInfoModal.hide();
-};
 
 let skipSubsessionFeedback = (index) => {
   let statusElement = document.getElementById('subsession' + index + 'Status');

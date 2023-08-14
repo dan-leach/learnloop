@@ -1,10 +1,4 @@
 <script setup>
-/*
-To do:
-Styling of subsessionFeedbackForm on Submit if fails validation
-Why is X close still resulting in 'Complete' status change
-*/
-
 import Modal from 'bootstrap/js/dist/modal';
 const props = defineProps(['index', 'subsession']);
 
@@ -15,13 +9,35 @@ let submitSubsessionFeedbackForm = () => {
     .getElementById('subsessionFeedbackModal' + props.index)
     .classList.add('was-validated');
   if (
-    subsession.positive == '' ||
-    subsession.negative == '' ||
-    subsession.score == null
+    props.subsession.positive == '' ||
+    props.subsession.negative == '' ||
+    props.subsession.score == null
   )
     return false;
-  subsession.status = 'Complete';
+  props.subsession.status = 'Complete';
   emit('hideSubsessionFeedbackForm', props.index);
+};
+
+let scoreChange = () => {
+  let x = props.subsession.score;
+  let y = 'slider error';
+  if (x > 95) {
+    y = "an overwhelmingly excellent session, couldn't be improved";
+  } else if (x > 80) {
+    y = 'an excellent sesssion, minimal grounds for improvement';
+  } else if (x > 70) {
+    y = 'a very good session, minor points for improvement';
+  } else if (x > 60) {
+    y = 'a fairly good session, could be improved further';
+  } else if (x > 40) {
+    y = 'basically sound, but needs further development';
+  } else if (x >= 20) {
+    y = 'not adequate in its current state';
+  } else if (x < 20) {
+    y = 'an extremely poor session';
+  }
+
+  props.subsession.scoreText = y;
 };
 </script>
 
@@ -41,79 +57,79 @@ let submitSubsessionFeedbackForm = () => {
         </div>
         <div class="modal-body">
           <form id="subsessionFeedbackForm" class="needs-validation" novalidate>
-            <div class="form-group">
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">Positive Comments:</span>
-                </div>
-                <textarea
-                  rows="8"
-                  v-model="subsession.positive"
-                  class="form-control"
-                  id="positiveComments"
-                  placeholder="Please provide some feedback about what you enjoyed about this session..."
-                  name="positive"
-                  autocomplete="off"
-                  required
-                ></textarea>
-                <div class="invalid-feedback">Please fill out this field.</div>
+            <div>
+              <label for="positiveComments" class="form-label"
+                >Positive Comments:</label
+              >
+              <textarea
+                rows="5"
+                v-model="subsession.positive"
+                class="form-control"
+                id="positiveComments"
+                placeholder="Please provide some feedback about what you enjoyed about this session..."
+                name="positiveComments"
+                autocomplete="off"
+                required
+              ></textarea>
+              <div class="invalid-feedback">
+                Please provide some positive comments.
               </div>
-              <br />
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text">Constructive Comments:</span>
-                </div>
-                <textarea
-                  rows="8"
-                  v-model="subsession.negative"
-                  class="form-control"
-                  id="negative"
-                  placeholder="Please provide some feedback about ways this session could be improved..."
-                  name="negative"
-                  autocomplete="off"
-                  required
-                ></textarea>
-                <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+            <div class="mt-4">
+              <label for="negativeComments" class="form-label"
+                >Constructive Comments:</label
+              >
+              <textarea
+                rows="5"
+                v-model="subsession.negative"
+                class="form-control"
+                id="negativeComments"
+                placeholder="Please provide some feedback about ways this session could be improved..."
+                name="negativeComments"
+                autocomplete="off"
+                required
+              ></textarea>
+              <div class="invalid-feedback">
+                Please provide some constructive comments.
               </div>
-              <br />
-              <div class="input-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text"
-                    >Overall score (<span id="subsessionScore"></span
-                    >/100):</span
-                  >
-                </div>
-                <input
-                  type="range"
-                  v-model="subsession.score"
-                  style="width: 80%; margin: 10px"
-                  id="subsessionScoreRange"
-                  placeholder=""
-                  name="subsessionScoreRange"
-                  autocomplete="off"
-                  oninput="app.scoreChange(true)"
-                  onchange="app.scoreChange(true)"
-                />
-                <div class="invalid-feedback">
-                  Please indicate an overall score using the slider.
-                </div>
-              </div>
-              <div class="input-group">
-                <textarea
-                  rows="2"
-                  v-model="subsession.scoreText"
-                  class="form-control"
-                  id="subsessionScoreText"
-                  placeholder=""
-                  name="subsessionScoreText"
-                  autocomplete="off"
-                  readonly
-                ></textarea>
+            </div>
+            <div class="mt-4">
+              <label for="score" class="form-label"
+                >Score: {{ subsession.score }}/100</label
+              >
+              <input
+                type="range"
+                v-model="subsession.score"
+                id="scoreRange"
+                placeholder=""
+                class="form-range mx-2"
+                name="scoreRange"
+                autocomplete="off"
+                @input="scoreChange"
+                @change="scoreChange"
+                required
+              />
+              <p class="text-center">
+                {{ subsession.scoreText }}
+              </p>
+              <input
+                type="text"
+                v-model="subsession.score"
+                class="form-control-range"
+                id="score"
+                placeholder=""
+                name="score"
+                autocomplete="off"
+                required
+                hidden
+              />
+              <div class="invalid-feedback">
+                Please use the slider to indicate an overall score.
               </div>
             </div>
           </form>
           <button
-            class="btn btn-primary"
+            class="btn btn-primary text-center"
             id="submitSubsessionFeedbackForm"
             v-on:click.prevent="submitSubsessionFeedbackForm"
           >
