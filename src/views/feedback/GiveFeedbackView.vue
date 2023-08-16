@@ -1,21 +1,17 @@
 <script setup>
 /*
-Current task:
-ToDo:
-redirect to homepage if unable to load form e.g. due to api failure
-check and load cookies if found
-
 then:
 check api route works for submit
 Do a build and test the whole give feedback process on dev.learnloop.co.uk
 
-then move on to interact 
+then move on to interact
 */
 
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import router from '../../router';
 import { feedbackSession } from '../../data/feedbackSession.js';
+import { cookies } from '../../data/cookies.js';
 import { api } from '../../data/api.js';
 import Swal from 'sweetalert2';
 import Modal from 'bootstrap/js/dist/modal';
@@ -28,6 +24,29 @@ onMounted(() => {
   );
   api('feedback', 'fetchDetails', feedbackSession.id, null, null).then(
     function (res) {
+      for (let cookie of cookies) {
+        if (cookie.id == feedbackSession.id) {
+          Swal.fire({
+            title: 'Resume feedback session?',
+            icon: 'info',
+            iconColor: '#17a2b8',
+            text: 'You previously started filling in this feedback form. Would you like to pick up where you left off?',
+            confirmButtonText: "Yes, let's go",
+            confirmButtonColor: '#17a2b8',
+            showDenyButton: true,
+            denyButtonText: 'No, and clear my previous entry',
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+          }).then((result) => {
+            if (result.isConfirmed) {
+              console.log(
+                'Load feedback data from cookie with ID: ' + cookie.id
+              );
+              feedbackSession = cookie;
+            }
+          });
+        }
+      }
       if (feedbackSession.id != res.id) {
         console.error(
           'feedbackSession.id != response.id',
@@ -65,6 +84,7 @@ onMounted(() => {
         title: 'Unable to load feedback form',
         text: error,
       });
+      router.push('/');
     }
   );
 });
@@ -391,7 +411,7 @@ let skipSubsessionFeedback = (index) => {
       <button
         class="btn btn-secondary btn-sm"
         id="saveProgress"
-        v-on:click="saveProgress(true)"
+        v-on:click.prevent="saveProgress(true)"
       >
         Save progress
       </button>

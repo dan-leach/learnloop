@@ -8,6 +8,8 @@ Update api to use modern js fetch
 
 Update quotes to separate out feedback/interact quotes (both on root)
 
+Check cookies work as expected
+
 ON DEPLOY:
 
 1. Add this htaccess to enable navigation directly to specified views (rather than only once the root has been loaded):
