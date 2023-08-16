@@ -1,6 +1,6 @@
 <script setup>
 import router from '../../router'
-import Quote from '../../components/Quote.vue'
+import Quote from '../components/Quote.vue'
 import { interactSession } from '../../data/interactSession.js'
 
 let joinSession = () => {

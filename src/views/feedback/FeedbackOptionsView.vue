@@ -1,6 +1,6 @@
 <script setup>
 import router from '../../router'
-import Quote from '../../components/Quote.vue'
+import Quote from '../components/Quote.vue'
 import { feedbackSession } from '../../data/feedbackSession.js'
 
 let giveFeedback = () => {

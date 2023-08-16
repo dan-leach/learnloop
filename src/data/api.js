@@ -88,7 +88,37 @@ function api(module, route, id, pin, data) {
       }
       //add remaining feedback routes here
     } else if (module == 'interact') {
-      //add interact routes here
+      if (route == 'fetchDetails') {
+        resolve({
+          id: id,
+          title: 'DEV API Title',
+          name: 'DEV API Name',
+          interactions: [
+            {
+              id: 'dev1',
+              type: 'singleChoice',
+              title: 'Choose an option (1)',
+              options: ['a', 'b', 'c', 'd', 'e'],
+              response: '',
+            },
+            {
+              id: 'dev2',
+              type: 'singleChoice',
+              title: 'Choose an option (2)',
+              options: ['a', 'b', 'c', 'd', 'e'],
+              response: '',
+            },
+            {
+              id: 'dev3',
+              type: 'singleChoice',
+              title: 'Choose an option (3)',
+              options: ['a', 'b', 'c', 'd', 'e'],
+              response: '',
+            },
+          ],
+        });
+      }
+      //add remaining interact routes here
     }
     reject('API error:  module or route not found in DEV API');
   });
