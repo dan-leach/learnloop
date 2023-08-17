@@ -1,15 +1,17 @@
 <script setup>
+import { interactSession } from '../../../data/interactSession.js';
 import SingleChoice from './SingleChoice.vue';
 import Toast from '../../../assets/toast.js';
-const props = defineProps(['index', 'currentIndex', 'interaction']);
+const props = defineProps(['currentIndex']);
 
 let submit = () => {
-  switch (props.interaction.type) {
+  switch (interactSession.interactions[props.currentIndex].type) {
     case 'singleChoice':
-      if (props.interaction.response !== '') {
+      if (interactSession.interactions[props.currentIndex].response !== '') {
         //submit api then if pass:
         if (true) {
-          if (!props.interaction.allowMultiple) props.interaction.closed = true;
+          if (!interactSession.interactions[props.currentIndex].allowMultiple)
+            interactSession.interactions[props.currentIndex].closed = true;
           Toast.fire({
             icon: 'success',
             title: 'Your response was submitted',
@@ -24,12 +26,14 @@ let submit = () => {
 </script>
 
 <template>
-  <div v-if="index == currentIndex">
+  <div>
     <div class="d-flex justify-content-center">
       <div>
         <SingleChoice
-          v-if="interaction.type == 'singleChoice'"
-          :interaction="interaction"
+          v-if="
+            interactSession.interactions[currentIndex].type == 'singleChoice'
+          "
+          :interaction="interactSession.interactions[currentIndex]"
           @submit="submit"
         />
       </div>
@@ -40,11 +44,11 @@ let submit = () => {
         id="submit"
         class="btn btn-teal"
         @click="submit"
-        :disabled="interaction.closed"
+        :disabled="interactSession.interactions[currentIndex].closed"
       >
         Submit
       </button>
-      <p>{{ interaction.msg }}</p>
+      <p>{{ interactSession.interactions[currentIndex].msg }}</p>
     </div>
   </div>
 </template>

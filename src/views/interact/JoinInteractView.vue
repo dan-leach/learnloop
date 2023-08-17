@@ -2,7 +2,6 @@
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { interactSession } from '../../data/interactSession.js';
-import { api } from '../../data/api.js';
 import Interaction from './components/Interaction.vue';
 
 let currentIndex = ref(0);
@@ -11,29 +10,6 @@ onMounted(() => {
   interactSession.id = useRouter().currentRoute.value.path.replace(
     '/interact/',
     ''
-  );
-  api('interact', 'fetchDetails', interactSession.id, null, null).then(
-    function (res) {
-      if (interactSession.id != res.id) {
-        console.error(
-          'interactSession.id != response.id',
-          interactSession.id,
-          response.id
-        );
-        return;
-      }
-      interactSession.title = res.title;
-      interactSession.name = res.name;
-      interactSession.interactions = res.interactions;
-    },
-    function (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Unable to join interact session',
-        text: error,
-      });
-      router.push('/');
-    }
   );
 });
 </script>
@@ -44,12 +20,7 @@ onMounted(() => {
     {{ interactSession.name }}.
   </p>
   <div class="container card">
-    <Interaction
-      v-for="(interaction, index) in interactSession.interactions"
-      :index="index"
-      :currentIndex="currentIndex"
-      :interaction="interaction"
-    />
+    <Interaction :currentIndex="currentIndex" />
   </div>
   <div class="text-center m-2">
     <button
@@ -74,5 +45,14 @@ onMounted(() => {
 <style scoped>
 .container {
   max-width: 600px;
+}
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>
