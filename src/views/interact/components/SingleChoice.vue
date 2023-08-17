@@ -1,8 +1,11 @@
 <script setup>
 const props = defineProps(['interaction']);
+const emit = defineEmits(['submit']);
+let submit = () => emit('submit');
 </script>
 
 <template>
+  <p class="text-center">{{ interaction.title }}</p>
   <div v-for="(option, index) in interaction.options" class="form-check">
     <input
       type="radio"

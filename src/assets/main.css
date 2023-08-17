@@ -4,6 +4,14 @@
 .btn-teal {
   background-color: #17a2b8;
 }
-.content-main {
+.btn-teal:hover {
+  background-color: #00606e;
+  color: white;
+}
+.btn-teal:disabled {
+  background-color: #adadad;
+  color: black;
+}
+body {
   background-color: #17a3b813;
 }

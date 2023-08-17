@@ -43,7 +43,7 @@ onMounted(() => {
     You have joined {{ interactSession.title }} organised by
     {{ interactSession.name }}.
   </p>
-  <div class="container">
+  <div class="container card">
     <Interaction
       v-for="(interaction, index) in interactSession.interactions"
       :index="index"
@@ -51,7 +51,7 @@ onMounted(() => {
       :interaction="interaction"
     />
   </div>
-  <div class="text-center">
+  <div class="text-center m-2">
     <button
       v-if="currentIndex > 0"
       @click="currentIndex--"

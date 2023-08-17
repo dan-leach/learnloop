@@ -23,10 +23,8 @@ import { RouterLink, RouterView } from 'vue-router';
       </ul>
     </div>
   </nav>
-  <div class="container-fluid content-main">
-    <div class="container">
-      <RouterView />
-    </div>
+  <div class="container">
+    <RouterView />
   </div>
   <div class="footer-spacer d-none d-md-block">
     <nav class="navbar bg-teal fixed-bottom justify-content-center">
