@@ -39,34 +39,40 @@ onMounted(() => {
 </script>
 
 <template>
-  <h2>Join Interact</h2>
-  <p>
-    Title: {{ interactSession.title }}<br />
-    Name: {{ interactSession.name }}<br />
+  <p class="text-center">
+    You have joined {{ interactSession.title }} organised by
+    {{ interactSession.name }}.
   </p>
-  <Interaction
-    v-for="(interaction, index) in interactSession.interactions"
-    :index="index"
-    :currentIndex="currentIndex"
-    :interaction="interaction"
-  />
-  <br />
-  <button
-    v-if="currentIndex > 0"
-    @click="currentIndex--"
-    class="btn btn-primary me-2"
-  >
-    Previous
-  </button>
-  <button
-    v-if="currentIndex < interactSession.interactions.length - 1"
-    @click="currentIndex++"
-    class="btn btn-primary mw-2"
-  >
-    Next
-  </button>
-  <br />Interaction: {{ currentIndex + 1 }} of
-  {{ interactSession.interactions.length }}
+  <div class="container">
+    <Interaction
+      v-for="(interaction, index) in interactSession.interactions"
+      :index="index"
+      :currentIndex="currentIndex"
+      :interaction="interaction"
+    />
+  </div>
+  <div class="text-center">
+    <button
+      v-if="currentIndex > 0"
+      @click="currentIndex--"
+      class="btn btn-teal me-2"
+    >
+      Previous
+    </button>
+    <button
+      v-if="currentIndex < interactSession.interactions.length - 1"
+      @click="currentIndex++"
+      class="btn btn-teal mw-2"
+    >
+      Next
+    </button>
+    <br />Interaction: {{ currentIndex + 1 }} of
+    {{ interactSession.interactions.length }}
+  </div>
 </template>
 
-<style></style>
+<style scoped>
+.container {
+  max-width: 600px;
+}
+</style>
