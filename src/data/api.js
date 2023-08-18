@@ -127,6 +127,11 @@ function api(module, route, id, pin, data) {
             id: id,
             facilitatorIndex: 2,
           });
+        } else if (route == 'fetchNewSubmissions') {
+          resolve({
+            id: id,
+            newSubmissions: [],
+          });
         }
         //add remaining interact routes here
       }

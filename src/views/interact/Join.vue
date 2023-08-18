@@ -40,7 +40,7 @@ onMounted(() => {
     function (res) {
       if (interactSession.id != res.id) {
         console.error(
-          'interactSession.id != response.id',
+          'interactSession.id != res.id',
           interactSession.id,
           response.id
         );

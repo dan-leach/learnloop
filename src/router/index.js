@@ -44,6 +44,11 @@ const router = createRouter({
           component: () => import('../views/interact/Create.vue'),
         },
         {
+          path: 'host/:id',
+          name: 'interact-host',
+          component: () => import('../views/interact/Host.vue'),
+        },
+        {
           path: ':id',
           name: 'interact-join',
           component: () => import('../views/interact/Join.vue'),
