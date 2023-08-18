@@ -122,6 +122,11 @@ function api(module, route, id, pin, data) {
               },
             ],
           });
+        } else if (route == 'checkCurrentIndex') {
+          resolve({
+            id: id,
+            facilitatorIndex: 2,
+          });
         }
         //add remaining interact routes here
       }

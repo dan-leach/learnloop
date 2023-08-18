@@ -13,7 +13,7 @@ let giveFeedback = () => {
     document.getElementById('feedbackID').classList.add('is-invalid');
   }
 };
-let createFeedbackSession = () => router.push('/feedback/createSession');
+let createFeedbackSession = () => router.push('/feedback/create');
 let moreFeedbackOptions = () => router.push('/feedback');
 
 let joinInteract = () => {
@@ -23,7 +23,7 @@ let joinInteract = () => {
     document.getElementById('interactID').classList.add('is-invalid');
   }
 };
-let createInteractSession = () => router.push('/interact/createSession');
+let createInteractSession = () => router.push('/interact/create');
 let moreInteractOptions = () => router.push('/interact');
 
 onMounted(() => {

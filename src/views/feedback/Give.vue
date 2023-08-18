@@ -213,7 +213,7 @@ let submit = () => {
     feedbackSession
   ).then(
     function () {
-      router.push('/feedback/feedbackComplete');
+      router.push('/feedback/complete');
     },
     function (error) {
       Swal.fire({

@@ -26,7 +26,7 @@ let giveFeedback = () => {
         <p class="card-text">To set up a new feedback request, and generate a link or QR code to share with attendees, click 'Create new session'.
             <br><br>
             <div class="text-center">
-                <button class="btn btn-primary" id="startCreateSession" @click="router.push('/feedback/createSession')">Create new session</button>
+                <button class="btn btn-primary" id="startCreateSession" @click="router.push('/feedback/create')">Create new session</button>
             </div>
         </p>
     </div>
