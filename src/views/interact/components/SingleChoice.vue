@@ -1,7 +1,19 @@
 <script setup>
+import Toast from '../../../assets/Toast.js';
+
 const props = defineProps(['interaction']);
 const emit = defineEmits(['submit']);
-let submit = () => emit('submit');
+
+let submit = () => {
+  if (props.interaction.response !== '') {
+    emit('submit');
+  } else {
+    Toast.fire({
+      icon: 'error',
+      title: 'Please choose an option',
+    });
+  }
+};
 </script>
 
 <template>
@@ -14,8 +26,20 @@ let submit = () => emit('submit');
       :name="'option-' + index"
       :value="index"
       v-model="interaction.response"
+      :disabled="interaction.closed"
     />{{ option }}
     <label class="form-check-label" :for="'option-' + index"></label>
+  </div>
+  <div class="text-center m-2">
+    <button
+      type="button"
+      id="submit"
+      class="btn btn-teal"
+      @click="submit"
+      :disabled="interaction.closed"
+    >
+      Submit
+    </button>
   </div>
 </template>
 

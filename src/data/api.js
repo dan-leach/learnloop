@@ -56,9 +56,10 @@ function apiReal(module, route, id, pin, data) {
 function api(module, route, id, pin, data) {
   console.log('API DEV request', { module }, { route }, { id }, { pin }, data);
   return new Promise(function (resolve, reject) {
-    if (module == 'feedback') {
-      if (route == 'fetchDetails') {
-        /*resolve({
+    setTimeout(() => {
+      if (module == 'feedback') {
+        if (route == 'fetchDetails') {
+          /*resolve({
           id: id,
           title: 'DEV API Title',
           name: 'DEV API Name',
@@ -66,61 +67,66 @@ function api(module, route, id, pin, data) {
           subsessions: [],
           questions: [],
         });*/
-        resolve({
-          id: id,
-          title: 'DEV API Title',
-          name: 'DEV API Name',
-          date: '01/02/2003',
-          subsessions: [
-            {
-              id: 'a12345',
-              title: 'DEV API subsession title 1',
-              name: 'DEV API subsession name 1',
-            },
-            {
-              id: 'b12345',
-              title: 'DEV API subsession title 2',
-              name: 'DEV API subsession name 2',
-            },
-          ],
-          questions: [],
-        });
+          resolve({
+            id: id,
+            title: 'DEV API Title',
+            name: 'DEV API Name',
+            date: '01/02/2003',
+            subsessions: [
+              {
+                id: 'a12345',
+                title: 'DEV API subsession title 1',
+                name: 'DEV API subsession name 1',
+              },
+              {
+                id: 'b12345',
+                title: 'DEV API subsession title 2',
+                name: 'DEV API subsession name 2',
+              },
+            ],
+            questions: [],
+          });
+        }
+        //add remaining feedback routes here
+      } else if (module == 'interact') {
+        if (route == 'fetchDetails') {
+          resolve({
+            id: id,
+            title: 'DEV API Title',
+            name: 'DEV API Name',
+            facilitatorIndex: 0,
+            interactions: [
+              {
+                id: 'dev1',
+                type: 'singleChoice',
+                title: 'Choose an option (1)',
+                options: ['a', 'b', 'c', 'd', 'e'],
+                response: '',
+                allowMultiple: false,
+              },
+              {
+                id: 'dev2',
+                type: 'singleChoice',
+                title: 'Choose an option (2)',
+                options: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+                response: '',
+                allowMultiple: true,
+              },
+              {
+                id: 'dev3',
+                type: 'singleChoice',
+                title: 'Choose an option (3)',
+                options: ['a', 'b', 'c'],
+                response: '',
+                allowMultiple: false,
+              },
+            ],
+          });
+        }
+        //add remaining interact routes here
       }
-      //add remaining feedback routes here
-    } else if (module == 'interact') {
-      if (route == 'fetchDetails') {
-        resolve({
-          id: id,
-          title: 'DEV API Title',
-          name: 'DEV API Name',
-          interactions: [
-            {
-              id: 'dev1',
-              type: 'singleChoice',
-              title: 'Choose an option (1)',
-              options: ['a', 'b', 'c', 'd', 'e'],
-              response: '',
-            },
-            {
-              id: 'dev2',
-              type: 'singleChoice',
-              title: 'Choose an option (2)',
-              options: ['a', 'b', 'c', 'd', 'e'],
-              response: '',
-            },
-            {
-              id: 'dev3',
-              type: 'singleChoice',
-              title: 'Choose an option (3)',
-              options: ['a', 'b', 'c', 'd', 'e'],
-              response: '',
-            },
-          ],
-        });
-      }
-      //add remaining interact routes here
-    }
-    reject('API error:  module or route not found in DEV API');
+      reject('API error:  module or route not found in DEV API');
+    }, 1000);
   });
 }
 

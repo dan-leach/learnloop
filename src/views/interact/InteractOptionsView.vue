@@ -1,35 +1,11 @@
 <script setup>
 import router from '../../router'
 import Quote from '../components/Quote.vue'
-import { api } from '../../data/api.js';
 import { interactSession } from '../../data/interactSession.js'
 
 let joinSession = () => {
     if (interactSession.id) { 
-        api('interact', 'fetchDetails', interactSession.id, null, null).then(
-            function (res) {
-            if (interactSession.id != res.id) {
-                console.error(
-                'interactSession.id != response.id',
-                interactSession.id,
-                response.id
-                );
-                return;
-            }
-            interactSession.title = res.title;
-            interactSession.name = res.name;
-            interactSession.interactions = res.interactions;
-            router.push('/interact/'+interactSession.id)
-            },
-            function (error) {
-            Swal.fire({
-                icon: 'error',
-                title: 'Unable to join interact session',
-                text: error,
-            });
-            router.push('/');
-            }
-        );
+        router.push('/interact/' + interactSession.id);
     } else {
         document.getElementById("sessionID").classList.add("is-invalid")
     }

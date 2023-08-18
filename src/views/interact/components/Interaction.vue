@@ -1,26 +1,24 @@
 <script setup>
 import { interactSession } from '../../../data/interactSession.js';
 import SingleChoice from './SingleChoice.vue';
-import Toast from '../../../assets/toast.js';
+import Toast from '../../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
 
 let submit = () => {
-  switch (interactSession.interactions[props.currentIndex].type) {
+  let interaction = interactSession.interactions[props.currentIndex];
+  switch (interaction.type) {
     case 'singleChoice':
-      if (interactSession.interactions[props.currentIndex].response !== '') {
-        //submit api then if pass:
-        if (true) {
-          if (!interactSession.interactions[props.currentIndex].allowMultiple)
-            interactSession.interactions[props.currentIndex].closed = true;
-          Toast.fire({
-            icon: 'success',
-            title: 'Your response was submitted',
-          });
-        } else {
-          //add an error notification
-        }
-        break;
+      //submit api then if pass:
+      if (true) {
+        if (!interaction.allowMultiple) interaction.closed = true;
+        Toast.fire({
+          icon: 'success',
+          title: 'Your response was submitted',
+        });
+      } else {
+        //add an error notification
       }
+      break;
   }
 };
 </script>
@@ -37,18 +35,6 @@ let submit = () => {
           @submit="submit"
         />
       </div>
-    </div>
-    <div class="text-center m-2">
-      <button
-        type="button"
-        id="submit"
-        class="btn btn-teal"
-        @click="submit"
-        :disabled="interactSession.interactions[currentIndex].closed"
-      >
-        Submit
-      </button>
-      <p>{{ interactSession.interactions[currentIndex].msg }}</p>
     </div>
   </div>
 </template>
