@@ -12,7 +12,7 @@ import { interactSession } from '../../data/interactSession.js';
 import { config } from '../../data/config.js';
 import Swal from 'sweetalert2';
 import Loading from '../components/Loading.vue';
-import Interaction from './components/Interaction.vue';
+import HostInteraction from './components/HostInteraction.vue';
 
 const loading = ref(true);
 const showInteraction = ref(true);
@@ -138,7 +138,11 @@ onMounted(() => {
       </p>
 
       <Transition name="slide-up">
-        <div v-if="showInteraction" class="card m-2">Submissions</div>
+        <HostInteraction
+          v-if="showInteraction"
+          :currentIndex="currentIndex"
+          class="container card m-2"
+        />
       </Transition>
 
       <div class="developer-panel card m-2 mt-5">

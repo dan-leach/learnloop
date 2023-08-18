@@ -1,8 +1,6 @@
 Current:
-use const in declarations in views/Home.vue
-check all buttons for Home.vue, feedback/Home.vue and interact/Home.vue are working properly
-Add transitions to feedback as for interact
-Create facilitator view for interact session
+work on views/interact/components/host/SingleChoice.vue
+
 Add fullscreen view / full window view for facilitator view
 Add spinners to buttons awaiting API response
 Why does clicking on create (feedback) result in feedbackSession.id = 'create'????

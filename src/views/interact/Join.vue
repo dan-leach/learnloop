@@ -5,7 +5,7 @@ import { api } from '../../data/api.js';
 import { interactSession } from '../../data/interactSession.js';
 import { config } from '../../data/config.js';
 import Loading from '../components/Loading.vue';
-import Interaction from './components/Interaction.vue';
+import JoinInteraction from './components/JoinInteraction.vue';
 
 const loading = ref(true);
 const showInteraction = ref(true);
@@ -89,7 +89,7 @@ onMounted(() => {
           <div class="side-content"></div>
           <!--side-content on left too to ensure Interaction panel remains center-->
           <div class="container card m-2">
-            <Interaction :currentIndex="currentIndex" />
+            <JoinInteraction :currentIndex="currentIndex" />
           </div>
           <div class="side-content align-self-center">
             <Transition name="fade" appear>

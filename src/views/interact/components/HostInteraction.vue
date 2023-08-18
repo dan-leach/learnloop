@@ -1,26 +1,8 @@
 <script setup>
 import { interactSession } from '../../../data/interactSession.js';
-import SingleChoice from './SingleChoice.vue';
+import SingleChoice from './host/SingleChoice.vue';
 import Toast from '../../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
-
-let submit = () => {
-  let interaction = interactSession.interactions[props.currentIndex];
-  switch (interaction.type) {
-    case 'singleChoice':
-      //submit api then if pass:
-      if (true) {
-        if (!interaction.allowMultiple) interaction.closed = true;
-        Toast.fire({
-          icon: 'success',
-          title: 'Your response was submitted',
-        });
-      } else {
-        //add an error notification
-      }
-      break;
-  }
-};
 </script>
 
 <template>
@@ -32,7 +14,6 @@ let submit = () => {
             interactSession.interactions[currentIndex].type == 'singleChoice'
           "
           :interaction="interactSession.interactions[currentIndex]"
-          @submit="submit"
         />
       </div>
     </div>
