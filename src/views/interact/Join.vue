@@ -17,7 +17,9 @@ const checkCurrentIndex = () => {
     function (res) {
       facilitatorIndex.value = res.facilitatorIndex;
     },
-    function (error) {}
+    function (error) {
+      console.log('checkCurrentIndex failed', error);
+    }
   );
 };
 
@@ -50,7 +52,10 @@ onMounted(() => {
       facilitatorIndex.value = res.facilitatorIndex;
       currentIndex.value = res.facilitatorIndex;
       loading.value = false;
-      setInterval(checkCurrentIndex, config.interact.join.currentIndexPollInterval);
+      setInterval(
+        checkCurrentIndex,
+        config.interact.join.currentIndexPollInterval
+      );
     },
     function (error) {
       Swal.fire({

@@ -30,17 +30,13 @@ onMounted(() => {
   if (document.cookie) {
     try {
       let raw = document.cookie;
-      console.log(raw);
       let split = raw.split('; ');
-      console.log(split);
       let sliced = [];
       for (let sp of split) {
         let index = sp.indexOf('=');
         sliced.push(sp.slice(index + 1));
       }
-      console.log(sliced);
       for (let sl of sliced) cookies.push(JSON.parse(sl));
-      console.log(cookies);
     } catch (e) {
       console.log(e);
     }

@@ -1,3 +1,11 @@
+Current:
+use const in declarations in views/Home.vue
+check all buttons for Home.vue, feedback/Home.vue and interact/Home.vue are working properly
+Add transitions to feedback as for interact
+Create facilitator view for interact session
+
+
+
 Complete full Give Feedback including api to provide feedback works in principle for v5
 Then move on to trying some interact stuff to show proof of concept
 Then go back systematically through porting each function over to v5 architecture

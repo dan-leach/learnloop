@@ -15,6 +15,207 @@ import Swal from 'sweetalert2';
 import Modal from 'bootstrap/js/dist/modal';
 import SubsessionFeedbackForm from './components/SubsessionFeedbackForm.vue';
 
+const saveProgress = (confirm) => {
+  const d = new Date();
+  d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000); //1 day
+  let expires = 'expires=' + d.toUTCString();
+  if (feedbackSession.id)
+    document.cookie =
+      feedbackSession.id +
+      '=' +
+      JSON.stringify(feedbackSession) +
+      ';' +
+      expires +
+      ';path=/;'; //stores as cookie with name of session ID
+  console.log(
+    document.cookie.includes(feedbackSession.id)
+      ? 'saveProgress success'
+      : 'saveProgress fail'
+  );
+  if (confirm) {
+    if (document.cookie.includes(feedbackSession.id)) {
+      Swal.fire({
+        icon: 'success',
+        title: 'Your progress has been saved',
+        text: 'Return to this form on the same device within the next 24 hours to pick up where you left off.',
+      });
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unable to save your progress',
+        text: "You can still submit your feedback, but you'll need to fill in the form in one sitting, rather than saving and returning to it later.",
+      });
+    }
+  }
+  return document.cookie.includes(feedbackSession.id) ? true : false;
+};
+
+const cookieMsg = ref(
+  saveProgress(false)
+    ? "If you can't complete your feedback in one sitting, click the 'Save progress' button below and return to this form on the same device within the next 24 hours to pick up where you left off."
+    : "LearnLoop isn't able to save your progress right now as cookies seem to be disabled. You won't be able to save your progress, but can still complete this form in one sitting."
+);
+
+const scoreChange = () => {
+  let x = feedbackSession.feedback.score;
+  let y = 'slider error';
+  if (x > 95) {
+    y = "an overwhelmingly excellent session, couldn't be improved";
+  } else if (x > 80) {
+    y = 'an excellent sesssion, minimal grounds for improvement';
+  } else if (x > 70) {
+    y = 'a very good session, minor points for improvement';
+  } else if (x > 60) {
+    y = 'a fairly good session, could be improved further';
+  } else if (x > 40) {
+    y = 'basically sound, but needs further development';
+  } else if (x >= 20) {
+    y = 'not adequate in its current state';
+  } else if (x < 20) {
+    y = 'an extremely poor session';
+  }
+  feedbackSession.feedback.scoreText = y;
+};
+
+const noOptionsSelected = (question) => {
+  for (let option of question.options) if (option.selected) return false;
+  return true;
+};
+
+const formIsValid = () => {
+  document.getElementById('giveFeedbackForm').classList.add('was-validated');
+  let subsessionsTodo = false;
+  for (let i in feedbackSession.subsessions) {
+    //needs to be first check to ensure correct styling of subsession status table cells before a return false ends the function
+    let subsession = feedbackSession.subsessions[i];
+    let statusElement = document.getElementById('subsession' + i + 'Status');
+    if (subsession.status == 'To do') {
+      statusElement.classList.add('is-invalid');
+      statusElement.classList.remove('is-valid');
+      subsessionsTodo = true;
+    } else if (
+      subsession.status == 'Skipped' ||
+      subsession.status == 'Complete'
+    ) {
+      statusElement.classList.add('is-valid');
+      statusElement.classList.remove('is-invalid');
+    }
+  }
+  if (subsessionsTodo) return false;
+  if (
+    feedbackSession.feedback.positive == '' ||
+    feedbackSession.feedback.negative == '' ||
+    feedbackSession.feedback.score == null
+  )
+    return false;
+  for (let question of feedbackSession.questions) {
+    if (question.required) {
+      if (question.type == 'text' || question.type == 'select') {
+        if (question.response == null || question.response === 'undefined')
+          return false;
+      } else if (question.type == '"checkbox') {
+        if (noOptionsSelected(question)) return false;
+      }
+    }
+  }
+  return true;
+};
+
+const submit = () => {
+  if (!formIsValid()) {
+    console.log('form validation failed');
+    return;
+  }
+  api(
+    'feedback',
+    'insertFeedback',
+    feedbackSession.id,
+    null,
+    feedbackSession
+  ).then(
+    function () {
+      router.push('/feedback/complete');
+    },
+    function (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unable submit your feedback',
+        text: error,
+      });
+    }
+  );
+};
+
+const subsessionFeedbackModal = new Modal(
+  document.getElementById('subsessionFeedbackModal' + index),
+  {
+    backdrop: 'static',
+    keyboard: false,
+    focus: true,
+  }
+);
+const showSubsessionFeedbackModal = (index) => subsessionFeedbackModal.show();
+const hideSubsessionFeedbackForm = (index) => {
+  subsessionFeedbackModal.hide();
+  let statusElement = document.getElementById('subsession' + index + 'Status');
+  if (
+    feedbackSession.subsessions[index].status == 'Skipped' ||
+    feedbackSession.subsessions[index].status == 'Complete'
+  ) {
+    statusElement.classList.add('is-valid');
+    statusElement.classList.remove('is-invalid');
+  }
+};
+
+const skipSubsessionFeedbackInfoModal = new Modal(
+  document.getElementById('skipSubsessionFeedbackInfo'),
+  {
+    backdrop: true,
+    keyboard: true,
+    focus: true,
+  }
+);
+const showSkipSubsessionFeedbackInfo = () =>
+  skipSubsessionFeedbackInfoModal.show();
+const hideSkipSubsessionFeedbackInfo = () =>
+  skipSubsessionFeedbackInfoModal.hide();
+
+const skipSubsessionFeedback = (index) => {
+  let statusElement = document.getElementById('subsession' + index + 'Status');
+  if (
+    feedbackSession.subsessions[index].positive == '' &&
+    feedbackSession.subsessions[index].negative == '' &&
+    feedbackSession.subsessions[index].score == null
+  ) {
+    feedbackSession.subsessions[index].status = 'Skipped';
+
+    statusElement.classList.remove('is-invalid');
+    statusElement.classList.add('is-valid');
+  } else {
+    Swal.fire({
+      title: 'Skip session?',
+      text:
+        'Your existing feedback for ' +
+        feedbackSession.subsessions[index].title +
+        ' will be lost.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#17a2b8',
+      cancelButtonColor: '#6c757d',
+      confirmButtonText: 'Skip',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        feedbackSession.subsessions[index].status = 'Skipped';
+        feedbackSession.subsessions[index].positive = '';
+        feedbackSession.subsessions[index].negative = '';
+        feedbackSession.subsessions[index].score == null;
+        statusElement.classList.remove('is-invalid');
+        statusElement.classList.add('is-valid');
+      }
+    });
+  }
+};
+
 onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.path.replace(
     '/feedback/',
@@ -88,225 +289,13 @@ onMounted(() => {
     }
   );
 });
-
-let saveProgress = (confirm) => {
-  const d = new Date();
-  d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000); //1 day
-  let expires = 'expires=' + d.toUTCString();
-  if (feedbackSession.id)
-    document.cookie =
-      feedbackSession.id +
-      '=' +
-      JSON.stringify(feedbackSession) +
-      ';' +
-      expires +
-      ';path=/;'; //stores as cookie with name of session ID
-  console.log(
-    document.cookie.includes(feedbackSession.id)
-      ? 'saveProgress success'
-      : 'saveProgress fail'
-  );
-  if (confirm) {
-    if (document.cookie.includes(feedbackSession.id)) {
-      Swal.fire({
-        icon: 'success',
-        title: 'Your progress has been saved',
-        text: 'Return to this form on the same device within the next 24 hours to pick up where you left off.',
-      });
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: 'Unable to save your progress',
-        text: "You can still submit your feedback, but you'll need to fill in the form in one sitting, rather than saving and returning to it later.",
-      });
-    }
-  }
-  return document.cookie.includes(feedbackSession.id) ? true : false;
-};
-
-let cookieMsg = ref(
-  saveProgress(false)
-    ? "If you can't complete your feedback in one sitting, click the 'Save progress' button below and return to this form on the same device within the next 24 hours to pick up where you left off."
-    : "LearnLoop isn't able to save your progress right now as cookies seem to be disabled. You won't be able to save your progress, but can still complete this form in one sitting."
-);
-
-let viewPrivacy = () => {
-  router.push('/privacy-policy');
-};
-
-let scoreChange = () => {
-  let x = feedbackSession.feedback.score;
-  let y = 'slider error';
-  if (x > 95) {
-    y = "an overwhelmingly excellent session, couldn't be improved";
-  } else if (x > 80) {
-    y = 'an excellent sesssion, minimal grounds for improvement';
-  } else if (x > 70) {
-    y = 'a very good session, minor points for improvement';
-  } else if (x > 60) {
-    y = 'a fairly good session, could be improved further';
-  } else if (x > 40) {
-    y = 'basically sound, but needs further development';
-  } else if (x >= 20) {
-    y = 'not adequate in its current state';
-  } else if (x < 20) {
-    y = 'an extremely poor session';
-  }
-
-  feedbackSession.feedback.scoreText = y;
-};
-
-let noOptionsSelected = (question) => {
-  for (let option of question.options) if (option.selected) return false;
-  return true;
-};
-
-let formIsValid = () => {
-  document.getElementById('giveFeedbackForm').classList.add('was-validated');
-  let subsessionsTodo = false;
-  for (let i in feedbackSession.subsessions) {
-    //needs to be first check to ensure correct styling of subsession status table cells before a return false ends the function
-    let subsession = feedbackSession.subsessions[i];
-    let statusElement = document.getElementById('subsession' + i + 'Status');
-    if (subsession.status == 'To do') {
-      statusElement.classList.add('is-invalid');
-      statusElement.classList.remove('is-valid');
-      subsessionsTodo = true;
-    } else if (
-      subsession.status == 'Skipped' ||
-      subsession.status == 'Complete'
-    ) {
-      statusElement.classList.add('is-valid');
-      statusElement.classList.remove('is-invalid');
-    }
-  }
-  if (subsessionsTodo) return false;
-  if (
-    feedbackSession.feedback.positive == '' ||
-    feedbackSession.feedback.negative == '' ||
-    feedbackSession.feedback.score == null
-  )
-    return false;
-  for (let question of feedbackSession.questions) {
-    if (question.required) {
-      if (question.type == 'text' || question.type == 'select') {
-        if (question.response == null || question.response === 'undefined')
-          return false;
-      } else if (question.type == '"checkbox') {
-        if (noOptionsSelected(question)) return false;
-      }
-    }
-  }
-  return true;
-};
-
-let submit = () => {
-  if (!formIsValid()) {
-    console.log('form validation failed');
-    return;
-  }
-  api(
-    'feedback',
-    'insertFeedback',
-    feedbackSession.id,
-    null,
-    feedbackSession
-  ).then(
-    function () {
-      router.push('/feedback/complete');
-    },
-    function (error) {
-      Swal.fire({
-        icon: 'error',
-        title: 'Unable submit your feedback',
-        text: error,
-      });
-    }
-  );
-};
-
-let subsessionFeedbackModal;
-let showSubsessionFeedbackModal = (index) => {
-  subsessionFeedbackModal = new Modal(
-    document.getElementById('subsessionFeedbackModal' + index),
-    {
-      backdrop: 'static',
-      keyboard: false,
-      focus: true,
-    }
-  );
-  subsessionFeedbackModal.show();
-};
-let hideSubsessionFeedbackForm = (index) => {
-  console.log('hide', index);
-  subsessionFeedbackModal.hide();
-  let statusElement = document.getElementById('subsession' + index + 'Status');
-  if (
-    feedbackSession.subsessions[index].status == 'Skipped' ||
-    feedbackSession.subsessions[index].status == 'Complete'
-  ) {
-    statusElement.classList.add('is-valid');
-    statusElement.classList.remove('is-invalid');
-  }
-};
-
-let skipSubsessionFeedbackInfoModal;
-let showSkipSubsessionFeedbackInfo = (index) => {
-  skipSubsessionFeedbackInfoModal = new Modal(
-    document.getElementById('skipSubsessionFeedbackInfo'),
-    {
-      backdrop: true,
-      keyboard: true,
-      focus: true,
-    }
-  );
-  skipSubsessionFeedbackInfoModal.show();
-};
-let hideSkipSubsessionFeedbackInfo = () =>
-  skipSubsessionFeedbackInfoModal.hide();
-
-let skipSubsessionFeedback = (index) => {
-  let statusElement = document.getElementById('subsession' + index + 'Status');
-  if (
-    feedbackSession.subsessions[index].positive == '' &&
-    feedbackSession.subsessions[index].negative == '' &&
-    feedbackSession.subsessions[index].score == null
-  ) {
-    feedbackSession.subsessions[index].status = 'Skipped';
-
-    statusElement.classList.remove('is-invalid');
-    statusElement.classList.add('is-valid');
-  } else {
-    Swal.fire({
-      title: 'Skip session?',
-      text:
-        'Your existing feedback for ' +
-        feedbackSession.subsessions[index].title +
-        ' will be lost.',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#17a2b8',
-      cancelButtonColor: '#6c757d',
-      confirmButtonText: 'Skip',
-    }).then((result) => {
-      if (result.isConfirmed) {
-        feedbackSession.subsessions[index].status = 'Skipped';
-        feedbackSession.subsessions[index].positive = '';
-        feedbackSession.subsessions[index].negative = '';
-        feedbackSession.subsessions[index].score == null;
-        statusElement.classList.remove('is-invalid');
-        statusElement.classList.add('is-valid');
-      }
-    });
-  }
-};
 </script>
 
 <template>
   <div class="alert alert-warning alert-dismissible">
     <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     <span id="cookieMsg">{{ cookieMsg }}</span>
-    <span class="alert-link" @click="viewPrivacy">
+    <span class="alert-link" @click="router.push('/privacy-policy')">
       Read about how LearnLoop uses cookies.</span
     >
   </div>
