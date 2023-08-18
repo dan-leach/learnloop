@@ -1,12 +1,9 @@
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
-  <h2>Feedback submitted</h2>
+  <h1 class="text-center display-4">Feedback</h1>
+  Feedback submitted<br />
   Certificate...
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

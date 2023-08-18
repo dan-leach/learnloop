@@ -27,6 +27,22 @@ library.add(
   faCircleChevronRight
 );
 
+import { cookies } from './data/cookies.js';
+if (document.cookie) {
+  try {
+    const raw = document.cookie;
+    const splits = raw.split('; ');
+    const sliced = [];
+    for (let split of splits) {
+      const index = split.indexOf('=');
+      sliced.push(split.slice(index + 1));
+    }
+    for (let slice of sliced) cookies.push(JSON.parse(slice));
+  } catch (e) {
+    console.log(e);
+  }
+}
+
 const app = createApp(App).component('font-awesome-icon', FontAwesomeIcon);
 
 app.use(router);

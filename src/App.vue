@@ -8,19 +8,6 @@ import { RouterLink, RouterView } from 'vue-router';
       <RouterLink to="/" class="navbar-brand"
         ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
       /></RouterLink>
-
-      <ul class="navbar-nav nav-pills justify-content-end flex-row">
-        <li class="nav-item">
-          <RouterLink to="/feedback" class="nav-link p-2 m-2"
-            >Feedback</RouterLink
-          >
-        </li>
-        <li class="nav-item">
-          <RouterLink to="/interact" class="nav-link p-2 m-2"
-            >Interact</RouterLink
-          >
-        </li>
-      </ul>
     </div>
   </nav>
   <div class="container">

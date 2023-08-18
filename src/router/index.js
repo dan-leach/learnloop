@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import HomeView from '../views/Home.vue';
+import Home from '../views/Home.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -8,32 +8,27 @@ const router = createRouter({
     {
       path: '/',
       name: 'home',
-      component: HomeView,
+      component: Home,
     },
     {
       path: '/feedback',
       name: 'feedback',
-      component: () => import('../views/feedback/Home.vue'), // lazy-loaded when the route is visited
+      redirect: '/',
       children: [
         {
-          path: '',
-          name: 'feedbackOptions',
-          component: () => import('../views/feedback/Options.vue'),
-        },
-        {
-          path: 'feedbackCreate',
+          path: 'feedback-create',
           name: 'create',
           component: () => import('../views/feedback/Create.vue'),
         },
         {
           path: 'complete',
-          name: 'feedbackComplete',
+          name: 'feedback-complete',
           component: () => import('../views/feedback/Complete.vue'),
         },
         {
           //this option should always be last else other routes will be interpreted as an id
           path: ':id',
-          name: 'feedbackGive',
+          name: 'feedback-give',
           component: () => import('../views/feedback/Give.vue'),
         },
       ],
@@ -41,21 +36,16 @@ const router = createRouter({
     {
       path: '/interact',
       name: 'interact',
-      component: () => import('../views/interact/Home.vue'),
+      redirect: '/',
       children: [
         {
-          path: '',
-          name: 'interactOptions',
-          component: () => import('../views/interact/Options.vue'),
-        },
-        {
           path: 'create',
-          name: 'interactCreate',
+          name: 'interact-create',
           component: () => import('../views/interact/Create.vue'),
         },
         {
           path: ':id',
-          name: 'interactJoin',
+          name: 'interact-join',
           component: () => import('../views/interact/Join.vue'),
         },
       ],
@@ -67,7 +57,7 @@ const router = createRouter({
     },
     {
       path: '/:pathMatch(.*)*',
-      name: 'NotFound',
+      name: 'not-found',
       component: () => import('../views/NotFound.vue'),
     },
   ],

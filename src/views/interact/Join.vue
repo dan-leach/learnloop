@@ -75,6 +75,7 @@ onMounted(() => {
       <Loading />
     </div>
     <div v-else>
+      <h1 class="text-center display-4">Interact</h1>
       <p class="text-center">
         You have joined {{ interactSession.title }} organised by
         {{ interactSession.name }}.
@@ -93,7 +94,7 @@ onMounted(() => {
           <div class="side-content align-self-center">
             <Transition name="fade" appear>
               <div
-                class="card background-teal text-center p-2"
+                class="card bg-teal text-center p-2"
                 v-show="currentIndex != facilitatorIndex"
                 @click="goToInteraction(facilitatorIndex)"
               >

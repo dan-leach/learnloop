@@ -4,7 +4,6 @@ import router from '../router';
 import Quote from './components/Quote.vue';
 import { feedbackSession } from '../data/feedbackSession.js';
 import { interactSession } from '../data/interactSession.js';
-import { cookies } from '../data/cookies.js';
 
 const giveFeedback = () => {
   if (feedbackSession.id) {
@@ -23,23 +22,6 @@ const joinInteract = () => {
     document.getElementById('interactID').classList.add('is-invalid');
   }
 };
-
-onMounted(() => {
-  if (document.cookie) {
-    try {
-      const raw = document.cookie;
-      const splits = raw.split('; ');
-      const sliced = [];
-      for (let split of splits) {
-        const index = split.indexOf('=');
-        sliced.push(split.slice(index + 1));
-      }
-      for (let slice of sliced) cookies.push(JSON.parse(slice));
-    } catch (e) {
-      console.log(e);
-    }
-  }
-});
 </script>
 
 <template>
@@ -71,15 +53,35 @@ onMounted(() => {
             Give feedback
           </button>
         </div>
-        <button
-          class="btn btn-primary m-2"
-          @click="router.push('/feedback/create')"
-        >
-          Create a new feedback session
-        </button>
-        <button class="btn btn-primary m-2" @click="router.push('/feedback')">
-          More feedback options
-        </button>
+        <ul class="nav nav-pills justify-content-center">
+          <li class="nav-item m-2">
+            <button
+              class="nav-link active"
+              @click="router.push('/feedback/create')"
+            >
+              Create a new feedback session
+            </button>
+          </li>
+          <li class="nav-item dropdown m-2">
+            <button
+              class="nav-link active dropdown-toggle"
+              data-bs-toggle="dropdown"
+              href="#"
+            >
+              More options
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#">Edit existing session</a>
+              </li>
+              <li><a class="dropdown-item" href="#">View feedback</a></li>
+              <li><a class="dropdown-item" href="#">View attendance</a></li>
+              <li><a class="dropdown-item" href="#">Close session</a></li>
+              <li><a class="dropdown-item" href="#">Reset PIN</a></li>
+              <li><a class="dropdown-item" href="#">Find my sessions</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
       <div class="card p-2 m-2 bg-teal">
         <h1 class="text-center">Interact</h1>
@@ -102,15 +104,36 @@ onMounted(() => {
             Join session
           </button>
         </div>
-        <button
-          class="btn btn-primary m-2"
-          @click="router.push('/interact/create')"
-        >
-          Create a new interact session
-        </button>
-        <button class="btn btn-primary m-2" @click="router.push('/interact')">
-          More interact options
-        </button>
+        <ul class="nav nav-pills justify-content-center">
+          <li class="nav-item m-2">
+            <button
+              class="nav-link active"
+              @click="router.push('/interact/create')"
+            >
+              Create a new interact session
+            </button>
+          </li>
+          <li class="nav-item dropdown m-2">
+            <button
+              class="nav-link active dropdown-toggle"
+              data-bs-toggle="dropdown"
+              href="#"
+            >
+              More options
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" href="#">Edit existing session</a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="#">Host existing session</a>
+              </li>
+              <li><a class="dropdown-item" href="#">View attendance</a></li>
+              <li><a class="dropdown-item" href="#">Reset PIN</a></li>
+              <li><a class="dropdown-item" href="#">Find my sessions</a></li>
+            </ul>
+          </li>
+        </ul>
       </div>
     </div>
     <Quote />

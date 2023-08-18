@@ -297,6 +297,7 @@ onMounted(() => {
       <Loading />
     </div>
     <div v-else>
+      <h1 class="text-center display-4">Feedback</h1>
       <div class="alert alert-warning alert-dismissible">
         <button
           type="button"
