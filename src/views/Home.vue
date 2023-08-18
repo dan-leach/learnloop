@@ -6,42 +6,39 @@ import { feedbackSession } from '../data/feedbackSession.js';
 import { interactSession } from '../data/interactSession.js';
 import { cookies } from '../data/cookies.js';
 
-let giveFeedback = () => {
+const giveFeedback = () => {
   if (feedbackSession.id) {
+    document.getElementById('feedbackID').classList.remove('is-invalid');
     router.push('/feedback/' + feedbackSession.id);
   } else {
     document.getElementById('feedbackID').classList.add('is-invalid');
   }
 };
-let createFeedbackSession = () => router.push('/feedback/create');
-let moreFeedbackOptions = () => router.push('/feedback');
 
-let joinInteract = () => {
+const joinInteract = () => {
   if (interactSession.id) {
+    document.getElementById('interactID').classList.remove('is-invalid');
     router.push('/interact/' + interactSession.id);
   } else {
     document.getElementById('interactID').classList.add('is-invalid');
   }
 };
-let createInteractSession = () => router.push('/interact/create');
-let moreInteractOptions = () => router.push('/interact');
 
 onMounted(() => {
   if (document.cookie) {
     try {
-      let raw = document.cookie;
-      let split = raw.split('; ');
-      let sliced = [];
-      for (let sp of split) {
-        let index = sp.indexOf('=');
-        sliced.push(sp.slice(index + 1));
+      const raw = document.cookie;
+      const splits = raw.split('; ');
+      const sliced = [];
+      for (let split of splits) {
+        const index = split.indexOf('=');
+        sliced.push(split.slice(index + 1));
       }
-      for (let sl of sliced) cookies.push(JSON.parse(sl));
+      for (let slice of sliced) cookies.push(JSON.parse(slice));
     } catch (e) {
       console.log(e);
     }
   }
-  console.log('HomeView mounted');
 });
 </script>
 
@@ -74,10 +71,13 @@ onMounted(() => {
             Give feedback
           </button>
         </div>
-        <button class="btn btn-primary m-2" @click="createFeedbackSession">
+        <button
+          class="btn btn-primary m-2"
+          @click="router.push('/feedback/create')"
+        >
           Create a new feedback session
         </button>
-        <button class="btn btn-primary m-2" @click="moreFeedbackOptions">
+        <button class="btn btn-primary m-2" @click="router.push('/feedback')">
           More feedback options
         </button>
       </div>
@@ -102,10 +102,13 @@ onMounted(() => {
             Join session
           </button>
         </div>
-        <button class="btn btn-primary m-2" @click="createInteractSession">
+        <button
+          class="btn btn-primary m-2"
+          @click="router.push('/interact/create')"
+        >
           Create a new interact session
         </button>
-        <button class="btn btn-primary m-2" @click="moreInteractOptions">
+        <button class="btn btn-primary m-2" @click="router.push('/interact')">
           More interact options
         </button>
       </div>

@@ -93,7 +93,7 @@ onMounted(() => {
           <div class="side-content align-self-center">
             <Transition name="fade" appear>
               <div
-                class="card catch-up text-center p-2"
+                class="card background-teal text-center p-2"
                 v-show="currentIndex != facilitatorIndex"
                 @click="goToInteraction(facilitatorIndex)"
               >
@@ -137,9 +137,6 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.catch-up {
-  background-color: #17a2b8;
-}
 .side-content {
   width: 10vw;
 }
@@ -148,28 +145,5 @@ onMounted(() => {
 }
 .container {
   max-width: 600px;
-}
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.5s ease;
-}
-
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-.slide-up-enter-active,
-.slide-up-leave-active {
-  transition: all 0.25s ease-out;
-}
-
-.slide-up-enter-from {
-  opacity: 0;
-  transform: translateY(30px);
-}
-
-.slide-up-leave-to {
-  opacity: 0;
-  transform: translateY(-30px);
 }
 </style>

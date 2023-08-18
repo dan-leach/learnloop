@@ -1,3 +1,4 @@
+/*colors*/
 .bg-teal {
   background-color: #17a2b8;
 }
@@ -14,4 +15,29 @@
 }
 body {
   background-color: #17a3b813;
+}
+
+/*transitions*/
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.slide-up-enter-active,
+.slide-up-leave-active {
+  transition: all 0.25s ease-out;
+}
+
+.slide-up-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.slide-up-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
 }
