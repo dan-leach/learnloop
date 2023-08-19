@@ -1,4 +1,7 @@
-export const config = {
+import { reactive } from 'vue';
+
+export const config = reactive({
+  isFullscreen: false,
   feedback: {},
   interact: {
     join: {
@@ -8,4 +11,4 @@ export const config = {
       newSubmissionsPollInterval: 3000,
     },
   },
-};
+});

@@ -1,19 +1,24 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router';
+import { config } from './data/config.js';
 </script>
 
 <template>
-  <nav class="navbar bg-teal">
+  <nav id="header" v-if="!config.isFullscreen" class="navbar bg-teal">
     <div class="container-fluid">
       <RouterLink to="/" class="navbar-brand"
         ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
       /></RouterLink>
     </div>
   </nav>
-  <div class="container">
+  <div id="app-view" :class="{ container: !config.isFullscreen }">
     <RouterView />
   </div>
-  <div class="footer-spacer d-none d-md-block">
+  <div
+    id="footer"
+    v-if="!config.isFullscreen"
+    class="footer-spacer d-none d-md-block"
+  >
     <nav class="navbar bg-teal fixed-bottom justify-content-center">
       <ul class="navbar-nav nav-pills flex-row">
         <li class="nav-item">

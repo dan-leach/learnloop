@@ -19,25 +19,6 @@ const loading = ref(true);
 const showInteraction = ref(true);
 const currentIndex = ref(0);
 
-const goFullScreen = () => {
-  // ? use https://vueuse.org/core/useFullscreen/
-  const element = document.getElementById('host-main');
-  const requestMethod =
-    element.requestFullScreen ||
-    element.webkitRequestFullScreen ||
-    element.mozRequestFullScreen ||
-    element.msRequestFullScreen;
-
-  if (requestMethod) {
-    requestMethod.call(element);
-  } else {
-    Toast.fire({
-      icon: 'error',
-      title: "Your device doesn't support full screen",
-    });
-  }
-};
-
 const goToInteraction = (index) => {
   showInteraction.value = false;
   currentIndex.value = index;
@@ -187,48 +168,24 @@ onMounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <h1 class="text-center display-4">Interact</h1>
-      <p class="text-center">
+      <h1 v-if="!config.isFullscreen" class="text-center display-4">
+        Interact
+      </h1>
+      <p v-if="!config.isFullscreen" class="text-center">
         {{ interactSession.title }} | {{ interactSession.name }}
       </p>
-      <span @click="goFullScreen"> Go full screen</span>
-      <div id="host-main">
-        <Transition name="slide-up">
-          <HostInteraction
-            v-if="showInteraction"
-            :currentIndex="currentIndex"
-            class="container card m-2"
-          />
-        </Transition>
-      </div>
-      <div class="developer-panel card m-2 mt-5">
-        <!--remove this developer panel for deployment-->
-        <div class="text-center m-2">
-          <span>Developer Panel</span><br />
-          <button
-            v-if="currentIndex > 0"
-            @click="goToInteraction(currentIndex - 1)"
-            class="btn btn-teal me-2"
-          >
-            Previous
-          </button>
-          <button
-            v-if="currentIndex < interactSession.interactions.length - 1"
-            @click="goToInteraction(currentIndex + 1)"
-            class="btn btn-teal mw-2"
-          >
-            Next
-          </button>
-          <br />Interaction: {{ currentIndex + 1 }} of
-          {{ interactSession.interactions.length }}
-        </div>
-      </div>
+      <Transition name="slide-up">
+        <HostInteraction
+          v-if="showInteraction"
+          :currentIndex="currentIndex"
+          class="card m-2"
+          :class="{ container: !config.isFullscreen }"
+          @goForward="goToInteraction(currentIndex + 1)"
+          @goBack="goToInteraction(currentIndex - 1)"
+        />
+      </Transition>
     </div>
   </Transition>
 </template>
 
-<style scoped>
-.developer-panel {
-  background-color: lightgrey;
-}
-</style>
+<style scoped></style>
