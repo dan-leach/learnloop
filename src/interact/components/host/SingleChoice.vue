@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, watch } from 'vue';
-import Toast from '../../../assets/Toast.js';
 import Chart from 'chart.js/auto';
 
 const props = defineProps(['interaction']);

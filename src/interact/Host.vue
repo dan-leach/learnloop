@@ -11,12 +11,32 @@ import { api } from '../data/api.js';
 import { interactSession } from '../data/interactSession.js';
 import { config } from '../data/config.js';
 import Swal from 'sweetalert2';
+import Toast from '../assets/Toast.js';
 import Loading from '../components/Loading.vue';
 import HostInteraction from './components/HostInteraction.vue';
 
 const loading = ref(true);
 const showInteraction = ref(true);
 const currentIndex = ref(0);
+
+const goFullScreen = () => {
+  // ? use https://vueuse.org/core/useFullscreen/
+  const element = document.getElementById('host-main');
+  const requestMethod =
+    element.requestFullScreen ||
+    element.webkitRequestFullScreen ||
+    element.mozRequestFullScreen ||
+    element.msRequestFullScreen;
+
+  if (requestMethod) {
+    requestMethod.call(element);
+  } else {
+    Toast.fire({
+      icon: 'error',
+      title: "Your device doesn't support full screen",
+    });
+  }
+};
 
 const goToInteraction = (index) => {
   showInteraction.value = false;
@@ -166,20 +186,21 @@ onMounted(() => {
     <div v-if="loading">
       <Loading />
     </div>
-    <div v-else id="host-main">
+    <div v-else>
       <h1 class="text-center display-4">Interact</h1>
       <p class="text-center">
         {{ interactSession.title }} | {{ interactSession.name }}
       </p>
-
-      <Transition name="slide-up">
-        <HostInteraction
-          v-if="showInteraction"
-          :currentIndex="currentIndex"
-          class="container card m-2"
-        />
-      </Transition>
-
+      <span @click="goFullScreen"> Go full screen</span>
+      <div id="host-main">
+        <Transition name="slide-up">
+          <HostInteraction
+            v-if="showInteraction"
+            :currentIndex="currentIndex"
+            class="container card m-2"
+          />
+        </Transition>
+      </div>
       <div class="developer-panel card m-2 mt-5">
         <!--remove this developer panel for deployment-->
         <div class="text-center m-2">
