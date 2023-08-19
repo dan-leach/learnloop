@@ -169,6 +169,8 @@ function api(module, route, id, pin, data) {
               },
             ],
           });
+        } else if (route == 'insertSubmission') {
+          resolve(true);
         }
         //add remaining interact routes here
       }

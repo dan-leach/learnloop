@@ -1,7 +1,7 @@
 <script setup>
 import Toast from '../../../assets/Toast.js';
 
-const props = defineProps(['interaction']);
+const props = defineProps(['interaction', 'spinner', 'btnSubmitText']);
 const emit = defineEmits(['submit']);
 
 let submit = () => {
@@ -38,7 +38,8 @@ let submit = () => {
       @click="submit"
       :disabled="interaction.closed"
     >
-      Submit
+      <span v-if="spinner" class="spinner-border spinner-border-sm"></span>
+      {{ btnSubmitText }}
     </button>
   </div>
 </template>

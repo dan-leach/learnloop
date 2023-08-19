@@ -43,6 +43,7 @@ const joinInteract = () => {
             autocomplete="off"
             class="form-control"
             v-model="feedbackSession.id"
+            @keyup.enter="giveFeedback"
           />
           <button
             type="button"
@@ -94,6 +95,7 @@ const joinInteract = () => {
             autocomplete="off"
             class="form-control"
             v-model="interactSession.id"
+            @keyup.enter="joinInteract"
           />
           <button
             type="button"

@@ -12,23 +12,30 @@ const showInteraction = ref(true);
 const currentIndex = ref(0);
 const facilitatorIndex = ref(0);
 
-const checkCurrentIndex = () => {
-  api('interact', 'checkCurrentIndex', interactSession.id, null, null).then(
-    function (res) {
-      facilitatorIndex.value = res.facilitatorIndex;
-    },
-    function (error) {
-      console.log('checkCurrentIndex failed', error);
-    }
-  );
-};
-
 const goToInteraction = (index) => {
   showInteraction.value = false;
   currentIndex.value = index;
   setTimeout(() => {
     showInteraction.value = true;
   }, 250);
+};
+
+const checkCurrentIndex = () => {
+  api('interact', 'checkCurrentIndex', interactSession.id, null, null).then(
+    function (res) {
+      facilitatorIndex.value = res.facilitatorIndex;
+      if (
+        interactSession.interactions[currentIndex.value].response === '' ||
+        interactSession.interactions[currentIndex.value].closed
+      ) {
+        if (currentIndex.value != facilitatorIndex.value)
+          goToInteraction(facilitatorIndex.value);
+      }
+    },
+    function (error) {
+      console.log('checkCurrentIndex failed', error);
+    }
+  );
 };
 
 onMounted(() => {
@@ -103,7 +110,6 @@ onMounted(() => {
                   class="display-5"
                 />
                 Go to current
-                {{ currentIndex }}/{{ facilitatorIndex }}
               </div>
             </Transition>
           </div>

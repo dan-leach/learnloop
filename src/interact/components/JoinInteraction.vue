@@ -1,25 +1,46 @@
 <script setup>
+import { ref } from 'vue';
+import { api } from '../../data/api.js';
 import { interactSession } from '../../data/interactSession.js';
 import SingleChoice from './join/SingleChoice.vue';
+import Swal from 'sweetalert2';
 import Toast from '../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
 
-let submit = () => {
+let spinner = ref(false);
+let btnSubmitText = ref('Submit');
+
+const submit = () => {
   let interaction = interactSession.interactions[props.currentIndex];
-  switch (interaction.type) {
-    case 'singleChoice':
-      //submit api then if pass:
-      if (true) {
-        if (!interaction.allowMultiple) interaction.closed = true;
-        Toast.fire({
-          icon: 'success',
-          title: 'Your response was submitted',
-        });
+  interaction.closed = true;
+  spinner.value = true;
+  btnSubmitText.value = 'Please wait';
+  api('interact', 'insertSubmission', interactSession.id, null, null).then(
+    function (res) {
+      Toast.fire({
+        icon: 'success',
+        title: 'Your response was submitted',
+      });
+      spinner.value = false;
+      if (interaction.allowMultiple) {
+        interaction.closed = false;
+        btnSubmitText.value = 'Submit another response';
+        interaction.response = '';
       } else {
-        //add an error notification
+        btnSubmitText.value = 'Done';
       }
-      break;
-  }
+    },
+    function (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unable to submit your response',
+        text: error,
+      });
+      interaction.closed = false;
+      spinner.value = false;
+      btnSubmitText.value = 'Try again?';
+    }
+  );
 };
 </script>
 
@@ -32,6 +53,8 @@ let submit = () => {
             interactSession.interactions[currentIndex].type == 'singleChoice'
           "
           :interaction="interactSession.interactions[currentIndex]"
+          :spinner="spinner"
+          :btnSubmitText="btnSubmitText"
           @submit="submit"
         />
       </div>
