@@ -9,7 +9,7 @@ const emit = defineEmits(['goForward', 'goBack']);
 
 const toggleFullscreen = () => {
   config.isFullscreen = !config.isFullscreen;
-  const element = document.body;
+  const element = document.documentElement;
   if (config.isFullscreen) {
     const fullMethod =
       element.requestFullScreen ||
@@ -18,12 +18,11 @@ const toggleFullscreen = () => {
       element.msRequestFullScreen;
 
     if (fullMethod) {
-      console.log('Fullscreen', fullMethod);
       fullMethod.call(element);
     } else {
       Toast.fire({
         icon: 'error',
-        title: "Your device doesn't support full screen",
+        title: 'Error launching full screen. Try pressing F11 instead.',
       });
     }
   } else {
@@ -32,10 +31,7 @@ const toggleFullscreen = () => {
       element.webkitExitFullscreen ||
       element.mozCancelFullScreen ||
       element.msExitFullscreen;
-    if (exitMethod) {
-      console.log('Fullscreen exit', exitMethod);
-      exitMethod.call(element);
-    }
+    if (exitMethod) exitMethod.call(element);
   }
 };
 </script>

@@ -34,9 +34,29 @@ const config = {
     ],
   },
   options: {
+    plugins: {
+      legend: {
+        display: false,
+      },
+    },
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          // Include a dollar sign in the ticks
+          callback: function (value, index, ticks) {
+            return Number.isInteger(value) ? value : '';
+          },
+        },
+        grid: {
+          color: function (context) {
+            if (Number.isInteger(context.tick.value)) {
+              return '#adadad';
+            } else {
+              return '#00000000';
+            }
+          },
+        },
       },
     },
   },
