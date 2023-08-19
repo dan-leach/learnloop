@@ -99,24 +99,36 @@ function api(module, route, id, pin, data) {
               {
                 id: 'dev1',
                 type: 'singleChoice',
-                title: 'Choose an option (1)',
-                options: ['a', 'b', 'c', 'd', 'e'],
+                chart: 'bar',
+                title: 'What is your favourite cheese?',
+                options: ['Feta', 'Cheddar', 'Halloumi', 'Gorganzola', 'Gouda'],
                 response: '',
                 allowMultiple: false,
               },
               {
                 id: 'dev2',
                 type: 'singleChoice',
-                title: 'Choose an option (2)',
-                options: ['a', 'b', 'c', 'd', 'e', 'f', 'g'],
+                chart: 'bar',
+                title: 'What is your training grade?',
+                options: [
+                  'ST1',
+                  'ST2',
+                  'ST3',
+                  'ST4',
+                  'ST5',
+                  'ST6',
+                  'ST7',
+                  'ST8',
+                ],
                 response: '',
                 allowMultiple: true,
               },
               {
                 id: 'dev3',
                 type: 'singleChoice',
-                title: 'Choose an option (3)',
-                options: ['a', 'b', 'c'],
+                chart: 'bar',
+                title: 'Are you LTFT?',
+                options: ['Yes', 'No'],
                 response: '',
                 allowMultiple: false,
               },
@@ -130,7 +142,32 @@ function api(module, route, id, pin, data) {
         } else if (route == 'fetchNewSubmissions') {
           resolve({
             id: id,
-            newSubmissions: [],
+            newSubmissions: [
+              {
+                id: '1',
+                data: 0,
+              },
+              {
+                id: '2',
+                data: 0,
+              },
+              {
+                id: '3',
+                data: 2,
+              },
+              {
+                id: '4',
+                data: 3,
+              },
+              {
+                id: '5',
+                data: 3,
+              },
+              {
+                id: '6',
+                data: 4,
+              },
+            ],
           });
         }
         //add remaining interact routes here

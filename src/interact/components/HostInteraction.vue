@@ -7,22 +7,20 @@ const props = defineProps(['currentIndex']);
 
 <template>
   <div>
-    <div class="d-flex justify-content-center">
-      <div>
-        <SingleChoice
-          v-if="
-            interactSession.interactions[currentIndex].type == 'singleChoice'
-          "
-          :interaction="interactSession.interactions[currentIndex]"
-        />
-      </div>
+    <p class="text-center">
+      {{ interactSession.interactions[currentIndex].title }}
+    </p>
+    <div class="d-flex justify-content-center chart-area">
+      <SingleChoice
+        v-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
+        :interaction="interactSession.interactions[currentIndex]"
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
-.interactionComponentType {
-  margin-right: auto;
-  margin-left: auto;
+.chart-area {
+  height: 50vh;
 }
 </style>

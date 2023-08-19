@@ -51,7 +51,7 @@ const fetchNewSubmissions = () => {
         );
         return;
       }
-      if (res.newSubmissions.length) submissions.push(res.newSubmissions);
+      for (let submission of res.newSubmissions) submissions.push(submission);
     },
     function (error) {
       console.log('fetchNewSubmissions failed', error);
@@ -79,9 +79,12 @@ const fetchDetails = () => {
       interactSession.title = res.title;
       interactSession.name = res.name;
       interactSession.interactions = res.interactions;
-      for (let interaction of interactSession.interactions)
+      for (let interaction of interactSession.interactions) {
         interaction.submissions = [];
+        interaction.submissionsCount = 0;
+      }
       loading.value = false;
+      fetchNewSubmissions();
       setInterval(
         fetchNewSubmissions,
         config.interact.host.newSubmissionsPollInterval
@@ -103,6 +106,12 @@ onMounted(() => {
     '/interact/host/',
     ''
   );
+  //dev only
+  interactSession.id = 'abc';
+  interactSession.pin = '123';
+  fetchDetails();
+  return;
+  //
   if (interactSession.id == '/interact/host' || interactSession.id == '') {
     Swal.fire({
       title: 'Enter session ID and PIN',
@@ -122,6 +131,7 @@ onMounted(() => {
       },
     }).then((result) => {
       if (result.isConfirmed) {
+        history.replaceState({}, '', interactSession.id);
         fetchDetails();
       } else {
         router.push('/');
@@ -156,7 +166,7 @@ onMounted(() => {
     <div v-if="loading">
       <Loading />
     </div>
-    <div v-else>
+    <div v-else id="host-main">
       <h1 class="text-center display-4">Interact</h1>
       <p class="text-center">
         {{ interactSession.title }} | {{ interactSession.name }}
