@@ -99,7 +99,7 @@ function api(module, route, id, pin, data) {
               {
                 id: 'dev1',
                 type: 'singleChoice',
-                chart: 'bar',
+                chart: 'doughnut',
                 title: 'What is your favourite cheese?',
                 options: ['Feta', 'Cheddar', 'Halloumi', 'Gorganzola', 'Gouda'],
                 response: '',

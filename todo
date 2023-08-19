@@ -1,9 +1,8 @@
 Current:
-work on views/interact/components/host/SingleChoice.vue
+add system for generating sufficient colours ?just have max 10 options
 
 Add fullscreen view / full window view for facilitator view
 Add spinners to buttons awaiting API response
-
 
 Complete full Give Feedback including api to provide feedback works in principle for v5
 Then move on to trying some interact stuff to show proof of concept

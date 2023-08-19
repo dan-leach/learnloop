@@ -59,7 +59,11 @@ const toggleFullscreen = () => {
       </li>
       <li class="nav-item">
         <button class="btn btn-lg" @click="toggleFullscreen">
-          <font-awesome-icon :icon="['fas', 'maximize']" />
+          <font-awesome-icon
+            v-if="!config.isFullscreen"
+            :icon="['fas', 'maximize']"
+          />
+          <font-awesome-icon v-else :icon="['fas', 'minimize']" />
         </button>
       </li>
       <li class="nav-item">

@@ -19,6 +19,7 @@ import {
   faCircleChevronRight,
   faCircleChevronLeft,
   faMaximize,
+  faMinimize,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
 library.add(
@@ -28,7 +29,8 @@ library.add(
   faTrashCan,
   faCircleChevronRight,
   faCircleChevronLeft,
-  faMaximize
+  faMaximize,
+  faMinimize
 );
 
 import { cookies } from './data/cookies.js';
