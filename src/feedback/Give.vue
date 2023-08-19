@@ -1,10 +1,10 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import router from '../../router';
-import { feedbackSession } from '../../data/feedbackSession.js';
-import { cookies } from '../../data/cookies.js';
-import { api } from '../../data/api.js';
+import router from '../router';
+import { feedbackSession } from '../data/feedbackSession.js';
+import { cookies } from '../data/cookies.js';
+import { api } from '../data/api.js';
 import Loading from '../components/Loading.vue';
 import Swal from 'sweetalert2';
 import Modal from 'bootstrap/js/dist/modal';

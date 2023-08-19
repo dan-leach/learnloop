@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
-import router from '../router';
+import router from './router';
 import Quote from './components/Quote.vue';
-import { feedbackSession } from '../data/feedbackSession.js';
-import { interactSession } from '../data/interactSession.js';
+import { feedbackSession } from './data/feedbackSession.js';
+import { interactSession } from './data/interactSession.js';
 
 const giveFeedback = () => {
   if (feedbackSession.id) {
@@ -126,7 +126,9 @@ const joinInteract = () => {
                 <a class="dropdown-item" href="#">Edit existing session</a>
               </li>
               <li>
-                <a class="dropdown-item" href="#">Host existing session</a>
+                <a class="dropdown-item" @click="router.push('/interact/host/')"
+                  >Host existing session</a
+                >
               </li>
               <li><a class="dropdown-item" href="#">View attendance</a></li>
               <li><a class="dropdown-item" href="#">Reset PIN</a></li>

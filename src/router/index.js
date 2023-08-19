@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
+import Home from '../Home.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -16,20 +16,20 @@ const router = createRouter({
       redirect: '/',
       children: [
         {
-          path: 'feedback-create',
-          name: 'create',
-          component: () => import('../views/feedback/Create.vue'),
+          path: 'create',
+          name: 'feedback-create',
+          component: () => import('../feedback/Create.vue'),
         },
         {
           path: 'complete',
           name: 'feedback-complete',
-          component: () => import('../views/feedback/Complete.vue'),
+          component: () => import('../feedback/Complete.vue'),
         },
         {
           //this option should always be last else other routes will be interpreted as an id
           path: ':id',
           name: 'feedback-give',
-          component: () => import('../views/feedback/Give.vue'),
+          component: () => import('../feedback/Give.vue'),
         },
       ],
     },
@@ -41,29 +41,29 @@ const router = createRouter({
         {
           path: 'create',
           name: 'interact-create',
-          component: () => import('../views/interact/Create.vue'),
+          component: () => import('../interact/Create.vue'),
         },
         {
-          path: 'host/:id',
+          path: 'host/:id?', //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
           name: 'interact-host',
-          component: () => import('../views/interact/Host.vue'),
+          component: () => import('../interact/Host.vue'),
         },
         {
           path: ':id',
           name: 'interact-join',
-          component: () => import('../views/interact/Join.vue'),
+          component: () => import('../interact/Join.vue'),
         },
       ],
     },
     {
       path: '/privacy-policy',
       name: 'privacy-policy',
-      component: () => import('../views/PrivacyPolicy.vue'),
+      component: () => import('../PrivacyPolicy.vue'),
     },
     {
       path: '/:pathMatch(.*)*',
       name: 'not-found',
-      component: () => import('../views/NotFound.vue'),
+      component: () => import('../NotFound.vue'),
     },
   ],
 });

@@ -6,10 +6,10 @@ add to goToInteraction an api call to update the facilitatorIndex to then be pol
 
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import router from '../../router';
-import { api } from '../../data/api.js';
-import { interactSession } from '../../data/interactSession.js';
-import { config } from '../../data/config.js';
+import router from '../router';
+import { api } from '../data/api.js';
+import { interactSession } from '../data/interactSession.js';
+import { config } from '../data/config.js';
 import Swal from 'sweetalert2';
 import Loading from '../components/Loading.vue';
 import HostInteraction from './components/HostInteraction.vue';
@@ -59,70 +59,95 @@ const fetchNewSubmissions = () => {
   );
 };
 
+const fetchDetails = () => {
+  api(
+    'interact',
+    'fetchDetails',
+    interactSession.id,
+    interactSession.pin,
+    null
+  ).then(
+    function (res) {
+      if (interactSession.id != res.id) {
+        console.error(
+          'interactSession.id != res.id',
+          interactSession.id,
+          response.id
+        );
+        return;
+      }
+      interactSession.title = res.title;
+      interactSession.name = res.name;
+      interactSession.interactions = res.interactions;
+      for (let interaction of interactSession.interactions)
+        interaction.submissions = [];
+      loading.value = false;
+      setInterval(
+        fetchNewSubmissions,
+        config.interact.host.newSubmissionsPollInterval
+      );
+    },
+    function (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Unable to launch interact session hosting',
+        text: error,
+      });
+      router.push('/');
+    }
+  );
+};
+
 onMounted(() => {
   interactSession.id = useRouter().currentRoute.value.path.replace(
     '/interact/host/',
     ''
   );
-  Swal.fire({
-    title: 'Enter session PIN',
-    html:
-      'You will need your session PIN which you can find in the email you received when your session was created. <br>' +
-      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
-    showCancelButton: true,
-    confirmButtonColor: '#007bff',
-    preConfirm: () => {
-      interactSession.pin = document.getElementById('swalFormPin').value;
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      if (!interactSession.pin) {
-        Swal.fire({
-          icon: 'error',
-          text: 'Your PIN cannot be blank.',
-        });
+  if (interactSession.id == '/interact/host' || interactSession.id == '') {
+    Swal.fire({
+      title: 'Enter session ID and PIN',
+      html:
+        'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
+        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">' +
+        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      preConfirm: () => {
+        interactSession.id = document.getElementById('swalFormId').value;
+        interactSession.pin = document.getElementById('swalFormPin').value;
+        if (interactSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
+        if (interactSession.pin == '')
+          Swal.showValidationMessage('Please enter your PIN');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetchDetails();
+      } else {
         router.push('/');
       }
-      api(
-        'interact',
-        'fetchDetails',
-        interactSession.id,
-        interactSession.pin,
-        null
-      ).then(
-        function (res) {
-          if (interactSession.id != res.id) {
-            console.error(
-              'interactSession.id != res.id',
-              interactSession.id,
-              response.id
-            );
-            return;
-          }
-          interactSession.title = res.title;
-          interactSession.name = res.name;
-          interactSession.interactions = res.interactions;
-          for (let interaction of interactSession.interactions)
-            interaction.submissions = [];
-          loading.value = false;
-          setInterval(
-            fetchNewSubmissions,
-            config.interact.host.newSubmissionsPollInterval
-          );
-        },
-        function (error) {
-          Swal.fire({
-            icon: 'error',
-            title: 'Unable to launch interact session hosting',
-            text: error,
-          });
-          router.push('/');
-        }
-      );
-    } else {
-      router.push('/');
-    }
-  });
+    });
+  } else {
+    Swal.fire({
+      title: 'Enter session PIN',
+      html:
+        'You will need your session PIN which you can find in the email you received when your session was created. <br>' +
+        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+      showCancelButton: true,
+      confirmButtonColor: '#007bff',
+      preConfirm: () => {
+        interactSession.pin = document.getElementById('swalFormPin').value;
+        if (interactSession.pin == '')
+          Swal.showValidationMessage('Please enter your PIN');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetchDetails();
+      } else {
+        router.push('/');
+      }
+    });
+  }
 });
 </script>
 

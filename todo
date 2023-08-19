@@ -3,7 +3,6 @@ work on views/interact/components/host/SingleChoice.vue
 
 Add fullscreen view / full window view for facilitator view
 Add spinners to buttons awaiting API response
-Why does clicking on create (feedback) result in feedbackSession.id = 'create'????
 
 
 Complete full Give Feedback including api to provide feedback works in principle for v5

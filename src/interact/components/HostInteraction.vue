@@ -1,7 +1,7 @@
 <script setup>
-import { interactSession } from '../../../data/interactSession.js';
+import { interactSession } from '../../data/interactSession.js';
 import SingleChoice from './host/SingleChoice.vue';
-import Toast from '../../../assets/Toast.js';
+import Toast from '../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
 </script>
 

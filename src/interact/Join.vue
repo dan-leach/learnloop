@@ -1,9 +1,9 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { api } from '../../data/api.js';
-import { interactSession } from '../../data/interactSession.js';
-import { config } from '../../data/config.js';
+import { api } from '../data/api.js';
+import { interactSession } from '../data/interactSession.js';
+import { config } from '../data/config.js';
 import Loading from '../components/Loading.vue';
 import JoinInteraction from './components/JoinInteraction.vue';
 
