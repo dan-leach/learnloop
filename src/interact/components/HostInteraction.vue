@@ -57,7 +57,11 @@ const toggleFullscreen = () => {
     </div>
     <ul class="nav nav-justified m-2">
       <li class="nav-item">
-        <button class="btn btn-lg" @click="emit('goBack')">
+        <button
+          v-if="currentIndex > 0"
+          class="btn btn-lg"
+          @click="emit('goBack')"
+        >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
         </button>
       </li>
@@ -71,7 +75,11 @@ const toggleFullscreen = () => {
         </button>
       </li>
       <li class="nav-item">
-        <button class="btn btn-lg" @click="emit('goForward')">
+        <button
+          v-if="currentIndex < interactSession.interactions.length - 1"
+          class="btn btn-lg"
+          @click="emit('goForward')"
+        >
           <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
         </button>
       </li>

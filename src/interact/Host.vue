@@ -1,9 +1,4 @@
 <script setup>
-/*
-Todo:
-add to goToInteraction an api call to update the facilitatorIndex to then be polled by attendees
-*/
-
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import router from '../router';
