@@ -32,7 +32,14 @@ switch ($route) {
         if (is_null($id) || is_null($pin) || is_null($data)) send_error_response("Variable(s) [id], [pin] and [data] must be defined for updateFacilitatorIndex route", 400);
         echo json_encode(updateFacilitatorIndex($id, $pin, $data, $link));
         break;
-    
+    case "fetchSubmissionCount":
+        if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for fetchSubmissionCount route", 400);
+        echo json_encode(fetchSubmissionCount($id, $pin, $link));
+        break;
+    case "deleteSubmissions":
+        if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for deleteSubmissions route", 400);
+        echo json_encode(deleteSubmissions($id, $pin, $link));
+        break;
     default:
         send_error_response("Route [" . $route . "] not found in interact module",400);
 }

@@ -5,5 +5,6 @@ export const interactSession = reactive({
   pin: '',
   title: '',
   name: '',
+  submissionCount: 0,
   interactions: [],
 });

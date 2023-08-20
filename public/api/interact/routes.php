@@ -54,4 +54,15 @@ function updateFacilitatorIndex($id, $pin, $data, $link){
     if (dbUpdateFacilitatorIndex($id, $data, $link)) return true;
     send_error_response("dbUpdateFacilitatorIndex failed for an unknown reason", 500);
 }
+function fetchSubmissionCount($id, $pin, $link){
+    $sessionDetails = dbSelectDetails($id, $link);
+    if (!pinIsValid($pin, $sessionDetails['pinHash'])) send_error_response("Invalid pin", 401);
+    return (dbCountSubmissions($id, $link));
+}
+function deleteSubmissions($id, $pin, $link){
+    $sessionDetails = dbSelectDetails($id, $link);
+    if (!pinIsValid($pin, $sessionDetails['pinHash'])) send_error_response("Invalid pin", 401);
+    if (dbDeleteSubmissions($id, $link)) return true;
+    send_error_response("deleteSubmissions failed for an unknown reason", 500);
+}
 ?>

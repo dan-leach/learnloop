@@ -112,5 +112,50 @@ function dbInsertSubmissiion($id, $interactionIndex, $response, $link){
     return true;
 }
 
+function dbCountSubmissions($id, $link){
+    if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
+    
+    $stmt = $link->prepare("SELECT COUNT(id) AS submissionCount FROM tbl_interact_submissions_dev WHERE sessionId = ?");
+    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->bind_param("s",$id);
+    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->execute();
+    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
+
+    $result = $stmt->get_result();
+    if ( false===$result ) send_error_response("get_result() failed: " . mysqli_error($link), 500);
+
+    $row_cnt = $result->num_rows;
+    if($row_cnt > 0){
+        while($r = mysqli_fetch_assoc($result)) {
+            $res = $r;
+        }
+    }
+
+    $result->close();
+    $stmt->close();
+
+    return $res['submissionCount'];
+}
+
+function dbDeleteSubmissions($id, $link){
+    if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
+    
+    $stmt = $link->prepare("DELETE FROM tbl_interact_submissions_dev WHERE sessionId = ?");
+    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->bind_param("s",$id);
+    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->execute();
+    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
+
+    $stmt->close();
+
+    return true;
+}
+
 
 ?>

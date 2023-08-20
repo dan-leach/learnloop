@@ -11,7 +11,6 @@ import { api } from '../data/api.js';
 import { interactSession } from '../data/interactSession.js';
 import { config } from '../data/config.js';
 import Swal from 'sweetalert2';
-import Toast from '../assets/Toast.js';
 import Loading from '../components/Loading.vue';
 import HostInteraction from './components/HostInteraction.vue';
 
@@ -34,10 +33,28 @@ const updateFacilitatorIndex = () => {
   );
 };
 
+const fetchSubmissionCount = () => {
+  api(
+    'interact',
+    'fetchSubmissionCount',
+    interactSession.id,
+    interactSession.pin,
+    null
+  ).then(
+    function (res) {
+      interactSession.submissionCount = res;
+    },
+    function (error) {
+      console.log('updateFacilitatorIndex failed', error);
+    }
+  );
+};
+
 const goToInteraction = (index) => {
   showInteraction.value = false;
   currentIndex.value = index;
   updateFacilitatorIndex();
+  if (index == 0) fetchSubmissionCount();
   interactSession.interactions[currentIndex.value].submissions = [];
   setTimeout(() => {
     showInteraction.value = true;
@@ -94,6 +111,7 @@ const fetchDetailsHost = () => {
         interaction.submissionsCount = 0;
       }
       loading.value = false;
+      fetchSubmissionCount();
       updateFacilitatorIndex();
       setInterval(
         fetchNewSubmissions,
@@ -124,14 +142,14 @@ onMounted(() => {
         '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">' +
         '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
       showCancelButton: true,
-      confirmButtonColor: '#007bff',
+      confirmButtonColor: '#17a2b8',
       preConfirm: () => {
         interactSession.id = document.getElementById('swalFormId').value;
         interactSession.pin = document.getElementById('swalFormPin').value;
-        if (interactSession.id == '')
-          Swal.showValidationMessage('Please enter a session ID');
         if (interactSession.pin == '')
           Swal.showValidationMessage('Please enter your PIN');
+        if (interactSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
       },
     }).then((result) => {
       if (result.isConfirmed) {
@@ -148,7 +166,7 @@ onMounted(() => {
         'You will need your session PIN which you can find in the email you received when your session was created. <br>' +
         '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
       showCancelButton: true,
-      confirmButtonColor: '#007bff',
+      confirmButtonColor: '#17a2b8',
       preConfirm: () => {
         interactSession.pin = document.getElementById('swalFormPin').value;
         if (interactSession.pin == '')
