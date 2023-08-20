@@ -94,8 +94,7 @@ onMounted(() => {
     <div v-else>
       <h1 class="text-center display-4">Interact</h1>
       <p class="text-center">
-        You have joined {{ interactSession.title }} organised by
-        {{ interactSession.name }}.
+        {{ interactSession.title }} | {{ interactSession.name }}
       </p>
       <Transition name="slide-up">
         <div

@@ -94,7 +94,7 @@ const fetchDetailsHost = () => {
         interaction.submissionsCount = 0;
       }
       loading.value = false;
-      fetchNewSubmissions();
+      updateFacilitatorIndex();
       setInterval(
         fetchNewSubmissions,
         config.interact.host.newSubmissionsPollInterval
