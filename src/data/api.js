@@ -1,24 +1,27 @@
-function apiReal(module, route, id, pin, data) {
+import { config } from './config.js';
+
+function api(module, route, id, pin, data) {
   return new Promise(function (resolve, reject) {
-    let timeoutDuration = 10000;
     setTimeout(function () {
       reject(
         new Error(
           'Your request timed out. Please check your internet connection.'
         )
       );
-    }, timeoutDuration);
+    }, config.api.timeoutDuration);
     let req = new XMLHttpRequest();
     req.open('POST', 'https://dev.learnloop.co.uk/api/');
     req.onload = function () {
       if (req.status == 200) {
         try {
-          console.log('API response', JSON.parse(req.response));
+          if (config.client.showApiConsole)
+            console.log('-->', JSON.parse(req.response));
+          resolve(JSON.parse(req.response));
         } catch (e) {
-          console.log('API response', req.response);
+          console.log('-->', req.response);
           console.error('Error outputting API response as parsed object', e);
+          reject(req.response);
         }
-        resolve(JSON.parse(req.response));
       } else {
         try {
           console.error('API error', JSON.parse(req.response));
@@ -49,11 +52,11 @@ function apiReal(module, route, id, pin, data) {
         '&data=' +
         JSON.stringify(data)
     );
-    console.log('API request', { module }, { route }, { id }, { pin }, data);
+    if (config.client.showApiConsole) console.log(route, data ? data : '');
   });
 }
 
-function api(module, route, id, pin, data) {
+function apiDev(module, route, id, pin, data) {
   console.log('API DEV request', { module }, { route }, { id }, { pin }, data);
   return new Promise(function (resolve, reject) {
     setTimeout(() => {

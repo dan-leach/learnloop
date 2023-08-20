@@ -1,9 +1,11 @@
 <script setup>
 import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import router from '../router';
 import { api } from '../data/api.js';
 import { interactSession } from '../data/interactSession.js';
 import { config } from '../data/config.js';
+import Swal from 'sweetalert2';
 import Loading from '../components/Loading.vue';
 import JoinInteraction from './components/JoinInteraction.vue';
 
@@ -20,11 +22,12 @@ const goToInteraction = (index) => {
   }, 250);
 };
 
-const checkCurrentIndex = () => {
-  api('interact', 'checkCurrentIndex', interactSession.id, null, null).then(
+const fetchFacilitatorIndex = () => {
+  api('interact', 'fetchFacilitatorIndex', interactSession.id, null, null).then(
     function (res) {
-      facilitatorIndex.value = res.facilitatorIndex;
+      facilitatorIndex.value = res;
       if (
+        currentIndex.value == 0 ||
         interactSession.interactions[currentIndex.value].response === '' ||
         interactSession.interactions[currentIndex.value].closed
       ) {
@@ -33,7 +36,7 @@ const checkCurrentIndex = () => {
       }
     },
     function (error) {
-      console.log('checkCurrentIndex failed', error);
+      console.log('fetchFacilitatorIndex failed', error);
     }
   );
 };
@@ -49,7 +52,7 @@ onMounted(() => {
         console.error(
           'interactSession.id != res.id',
           interactSession.id,
-          response.id
+          res.id
         );
         return;
       }
@@ -60,7 +63,7 @@ onMounted(() => {
       currentIndex.value = res.facilitatorIndex;
       loading.value = false;
       setInterval(
-        checkCurrentIndex,
+        fetchFacilitatorIndex,
         config.interact.join.currentIndexPollInterval
       );
     },

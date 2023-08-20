@@ -1,7 +1,6 @@
 import { reactive } from 'vue';
 
 export const config = reactive({
-  isFullscreen: false,
   feedback: {},
   interact: {
     join: {
@@ -10,5 +9,12 @@ export const config = reactive({
     host: {
       newSubmissionsPollInterval: 3000,
     },
+  },
+  client: {
+    isFullscreen: false,
+    showApiConsole: true,
+  },
+  api: {
+    timeoutDuration: 10000,
   },
 });

@@ -3,6 +3,7 @@ import { ref } from 'vue';
 import { api } from '../../data/api.js';
 import { interactSession } from '../../data/interactSession.js';
 import SingleChoice from './join/SingleChoice.vue';
+import WaitingRoom from './join/WaitingRoom.vue';
 import Swal from 'sweetalert2';
 import Toast from '../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
@@ -15,7 +16,10 @@ const submit = () => {
   interaction.closed = true;
   spinner.value = true;
   btnSubmitText.value = 'Please wait';
-  api('interact', 'insertSubmission', interactSession.id, null, null).then(
+  api('interact', 'insertSubmission', interactSession.id, null, {
+    interactionIndex: props.currentIndex,
+    response: interaction.response,
+  }).then(
     function (res) {
       Toast.fire({
         icon: 'success',
@@ -56,6 +60,11 @@ const submit = () => {
           :spinner="spinner"
           :btnSubmitText="btnSubmitText"
           @submit="submit"
+        />
+        <WaitingRoom
+          v-if="
+            interactSession.interactions[currentIndex].type == 'waitingRoom'
+          "
         />
       </div>
     </div>

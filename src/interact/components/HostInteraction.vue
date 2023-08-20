@@ -1,5 +1,6 @@
 <script setup>
 import { interactSession } from '../../data/interactSession.js';
+import WaitingRoom from './host/WaitingRoom.vue';
 import SingleChoice from './host/SingleChoice.vue';
 import { config } from '../../data/config.js';
 import Toast from '../../assets/Toast.js';
@@ -8,9 +9,9 @@ const props = defineProps(['currentIndex']);
 const emit = defineEmits(['goForward', 'goBack']);
 
 const toggleFullscreen = () => {
-  config.isFullscreen = !config.isFullscreen;
+  config.client.isFullscreen = !config.client.isFullscreen;
   const element = document.documentElement;
-  if (config.isFullscreen) {
+  if (config.client.isFullscreen) {
     const fullMethod =
       element.requestFullScreen ||
       element.webkitRequestFullScreen ||
@@ -44,11 +45,14 @@ const toggleFullscreen = () => {
     <div
       id="chart-area"
       class="d-flex justify-content-center chart-area m-4"
-      :class="{ fullscreen: config.isFullscreen }"
+      :class="{ fullscreen: config.client.isFullscreen }"
     >
       <SingleChoice
         v-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
         :interaction="interactSession.interactions[currentIndex]"
+      />
+      <WaitingRoom
+        v-if="interactSession.interactions[currentIndex].type == 'waitingRoom'"
       />
     </div>
     <ul class="nav nav-justified m-2">
@@ -60,7 +64,7 @@ const toggleFullscreen = () => {
       <li class="nav-item">
         <button class="btn btn-lg" @click="toggleFullscreen">
           <font-awesome-icon
-            v-if="!config.isFullscreen"
+            v-if="!config.client.isFullscreen"
             :icon="['fas', 'maximize']"
           />
           <font-awesome-icon v-else :icon="['fas', 'minimize']" />

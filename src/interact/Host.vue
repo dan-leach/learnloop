@@ -19,9 +19,26 @@ const loading = ref(true);
 const showInteraction = ref(true);
 const currentIndex = ref(0);
 
+const updateFacilitatorIndex = () => {
+  api(
+    'interact',
+    'updateFacilitatorIndex',
+    interactSession.id,
+    interactSession.pin,
+    currentIndex.value
+  ).then(
+    function () {},
+    function (error) {
+      console.log('updateFacilitatorIndex failed', error);
+    }
+  );
+};
+
 const goToInteraction = (index) => {
   showInteraction.value = false;
   currentIndex.value = index;
+  updateFacilitatorIndex();
+  interactSession.interactions[currentIndex.value].submissions = [];
   setTimeout(() => {
     showInteraction.value = true;
   }, 250);
@@ -38,21 +55,13 @@ const fetchNewSubmissions = () => {
     'fetchNewSubmissions',
     interactSession.id,
     interactSession.pin,
-    JSON.stringify({
+    {
       interactionIndex: currentIndex.value,
       lastSubmissionId: lastSubmissionId,
-    })
+    }
   ).then(
     function (res) {
-      if (interactSession.id != res.id) {
-        console.error(
-          'interactSession.id != res.id',
-          interactSession.id,
-          response.id
-        );
-        return;
-      }
-      for (let submission of res.newSubmissions) submissions.push(submission);
+      for (let submission of res) submissions.push(submission);
     },
     function (error) {
       console.log('fetchNewSubmissions failed', error);
@@ -107,12 +116,6 @@ onMounted(() => {
     '/interact/host/',
     ''
   );
-  //dev only
-  interactSession.id = 'abc';
-  interactSession.pin = '123';
-  fetchDetails();
-  return;
-  //
   if (interactSession.id == '/interact/host' || interactSession.id == '') {
     Swal.fire({
       title: 'Enter session ID and PIN',
@@ -154,6 +157,7 @@ onMounted(() => {
     }).then((result) => {
       if (result.isConfirmed) {
         fetchDetails();
+        updateFacilitatorIndex();
       } else {
         router.push('/');
       }
@@ -168,10 +172,10 @@ onMounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <h1 v-if="!config.isFullscreen" class="text-center display-4">
+      <h1 v-if="!config.client.isFullscreen" class="text-center display-4">
         Interact
       </h1>
-      <p v-if="!config.isFullscreen" class="text-center">
+      <p v-if="!config.client.isFullscreen" class="text-center">
         {{ interactSession.title }} | {{ interactSession.name }}
       </p>
       <Transition name="slide-up">
@@ -179,7 +183,7 @@ onMounted(() => {
           v-if="showInteraction"
           :currentIndex="currentIndex"
           class="card m-2"
-          :class="{ container: !config.isFullscreen }"
+          :class="{ container: !config.client.isFullscreen }"
           @goForward="goToInteraction(currentIndex + 1)"
           @goBack="goToInteraction(currentIndex - 1)"
         />

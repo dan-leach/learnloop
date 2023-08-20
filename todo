@@ -35,3 +35,4 @@ ON DEPLOY:
 2. Remove the allow CORS from the htaccess in dev.learnloop.co.uk
 3. Update the path to the api in src/data/api.js to be relative not absolute
 4. Check directory privacy attached to api/private/ and api/shared/ 
+5. re-enable sendMail for errors in api/index.php

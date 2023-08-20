@@ -66,7 +66,7 @@ const config = {
       labels: props.interaction.options,
       datasets: [
         {
-          data: [300, 50, 100],
+          data: optionCounts,
           backgroundColor: [
             'rgb(255, 99, 132)',
             'rgb(54, 162, 235)',
@@ -95,7 +95,7 @@ watch(props.interaction, () => {
   for (let i = 0; i < props.interaction.options.length; i++)
     optionCounts[i] = 0;
   for (let submission of props.interaction.submissions)
-    optionCounts[submission.data]++;
+    optionCounts[submission.response]++;
   chart.update();
 });
 
