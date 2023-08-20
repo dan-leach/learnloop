@@ -69,10 +69,10 @@ const fetchNewSubmissions = () => {
   );
 };
 
-const fetchDetails = () => {
+const fetchDetailsHost = () => {
   api(
     'interact',
-    'fetchDetails',
+    'fetchDetailsHost',
     interactSession.id,
     interactSession.pin,
     null
@@ -136,7 +136,7 @@ onMounted(() => {
     }).then((result) => {
       if (result.isConfirmed) {
         history.replaceState({}, '', interactSession.id);
-        fetchDetails();
+        fetchDetailsHost();
       } else {
         router.push('/');
       }
@@ -156,7 +156,7 @@ onMounted(() => {
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        fetchDetails();
+        fetchDetailsHost();
         updateFacilitatorIndex();
       } else {
         router.push('/');

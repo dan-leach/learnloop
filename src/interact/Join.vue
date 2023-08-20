@@ -26,9 +26,16 @@ const fetchFacilitatorIndex = () => {
   api('interact', 'fetchFacilitatorIndex', interactSession.id, null, null).then(
     function (res) {
       facilitatorIndex.value = res;
+      console.log(
+        currentIndex.value,
+        interactSession.interactions[currentIndex.value].response,
+        interactSession.interactions[currentIndex.value].closed
+      );
       if (
         currentIndex.value == 0 ||
         interactSession.interactions[currentIndex.value].response === '' ||
+        interactSession.interactions[currentIndex.value].response ===
+          undefined ||
         interactSession.interactions[currentIndex.value].closed
       ) {
         if (currentIndex.value != facilitatorIndex.value)
@@ -90,7 +97,6 @@ onMounted(() => {
         You have joined {{ interactSession.title }} organised by
         {{ interactSession.name }}.
       </p>
-
       <Transition name="slide-up">
         <div
           class="d-flex justify-content-around flex-wrap"
@@ -112,46 +118,19 @@ onMounted(() => {
                   :icon="['fas', 'circle-chevron-right']"
                   class="display-5"
                 />
-                Go to current
+                Catch up to facilitator
               </div>
             </Transition>
           </div>
         </div>
       </Transition>
-
-      <div class="container developer-panel card mt-5">
-        <!--remove this developer panel for deployment-->
-        <div class="text-center m-2">
-          <span>Developer Panel</span><br />
-          <button
-            v-if="currentIndex > 0"
-            @click="goToInteraction(currentIndex - 1)"
-            class="btn btn-teal me-2"
-          >
-            Previous
-          </button>
-          <button
-            v-if="currentIndex < interactSession.interactions.length - 1"
-            @click="goToInteraction(currentIndex + 1)"
-            class="btn btn-teal mw-2"
-          >
-            Next
-          </button>
-          <br />Interaction: {{ currentIndex + 1 }} of
-          {{ interactSession.interactions.length }}
-          <br />Facilitator: {{ facilitatorIndex + 1 }}
-        </div>
-      </div>
     </div>
   </Transition>
 </template>
 
 <style scoped>
 .side-content {
-  width: 10vw;
-}
-.developer-panel {
-  background-color: lightgrey;
+  width: 150px;
 }
 .container {
   max-width: 600px;
