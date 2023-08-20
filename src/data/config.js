@@ -11,6 +11,7 @@ export const config = reactive({
     },
   },
   client: {
+    url: 'https://dev.learnloop.co.uk',
     isFullscreen: false,
     showApiConsole: true,
   },

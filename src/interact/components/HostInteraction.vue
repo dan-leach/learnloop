@@ -39,6 +39,10 @@ const toggleFullscreen = () => {
 
 <template>
   <div id="interaction-view">
+    <p v-if="currentIndex != 0" class="text-center p-1">
+      To join go to LearnLoop.co.uk and use the code
+      <span class="join-id-top p-1">{{ interactSession.id }}</span>
+    </p>
     <p class="display-6 text-center">
       {{ interactSession.interactions[currentIndex].title }}
     </p>
@@ -47,12 +51,12 @@ const toggleFullscreen = () => {
       class="d-flex justify-content-center chart-area m-4"
       :class="{ fullscreen: config.client.isFullscreen }"
     >
+      <WaitingRoom
+        v-if="interactSession.interactions[currentIndex].type == 'waitingRoom'"
+      />
       <SingleChoice
         v-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
         :interaction="interactSession.interactions[currentIndex]"
-      />
-      <WaitingRoom
-        v-if="interactSession.interactions[currentIndex].type == 'waitingRoom'"
       />
     </div>
     <ul class="nav nav-justified m-2">
@@ -92,6 +96,12 @@ const toggleFullscreen = () => {
   height: 50vh;
 }
 .chart-area.fullscreen {
-  height: 80vh;
+  height: 75vh;
+}
+.join-id-top {
+  background-color: #17a2b8;
+  color: white;
+  font-family: serif;
+  font-size: 1.2rem;
 }
 </style>

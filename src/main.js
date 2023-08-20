@@ -20,7 +20,7 @@ import {
   faCircleChevronLeft,
   faMaximize,
   faMinimize,
-  faHourglassHalf,
+  faUsersRectangle,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
 library.add(
@@ -32,7 +32,7 @@ library.add(
   faCircleChevronLeft,
   faMaximize,
   faMinimize,
-  faHourglassHalf
+  faUsersRectangle
 );
 
 import { cookies } from './data/cookies.js';

@@ -1,6 +1,7 @@
 <script setup>
 import { interactSession } from '../../../data/interactSession.js';
 import { api } from '../../../data/api.js';
+import { config } from '../../../data/config.js';
 import Swal from 'sweetalert2';
 import Toast from '../../../assets/Toast.js';
 
@@ -41,15 +42,30 @@ const deleteSubmissions = () => {
 </script>
 
 <template>
-  <div class="text-center m-4">
-    <p>
-      <font-awesome-icon
-        :icon="['fas', 'hourglass-half']"
-        class="display-1 m-4"
-      />
-    </p>
-    <p class="display-6">Click the right arrow to start your session.</p>
-    <div v-if="interactSession.submissionCount" class="m-5">
+  <div>
+    <div class="text-center m-4 d-flex justify-content-around">
+      <div class="align-self-center me-4">
+        <img
+          :src="
+            'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' +
+            config.client.url +
+            '/interact/' +
+            interactSession.id +
+            '&choe=UTF-8&chld=q|1'
+          "
+        />
+      </div>
+      <div class="align-self-center">
+        <p class="join-instructions">
+          Scan the QR code, or<br />go to LearnLoop.co.uk<br />
+          and use the code:
+        </p>
+        <p class="m-2">
+          <span class="join-id px-4">{{ interactSession.id }}</span>
+        </p>
+      </div>
+    </div>
+    <div v-if="interactSession.submissionCount" class="text-center m-5">
       <p>
         This interact session already has
         {{ interactSession.submissionCount }} submission{{
@@ -63,4 +79,17 @@ const deleteSubmissions = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style>
+.join-instructions {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 300;
+}
+.join-id {
+  font-size: 3rem;
+  font-family: serif;
+  border: 2px solid #17a2b8;
+  border-radius: 25px;
+  color: #17a2b8;
+}
+</style>

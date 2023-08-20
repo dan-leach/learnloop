@@ -124,6 +124,21 @@ const fetchDetailsHost = () => {
   );
 };
 
+window.onbeforeunload = function () {
+  api(
+    'interact',
+    'updateFacilitatorIndex',
+    interactSession.id,
+    interactSession.pin,
+    0
+  ).then(
+    function () {},
+    function (error) {
+      console.log('updateFacilitatorIndex failed', error);
+    }
+  );
+};
+
 onMounted(() => {
   interactSession.id = useRouter().currentRoute.value.path.replace(
     '/interact/host/',
