@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, watch } from 'vue';
+import { config } from '../../../data/config.js';
 import Chart from 'chart.js/auto';
 
 const props = defineProps(['interaction']);
@@ -7,7 +8,7 @@ const props = defineProps(['interaction']);
 const optionCounts = [];
 for (let i = 0; i < props.interaction.options.length; i++) optionCounts.push(0);
 
-const config = {
+const chartConfig = {
   bar: {
     type: 'bar',
     data: {
@@ -15,13 +16,6 @@ const config = {
       datasets: [
         {
           data: optionCounts,
-          backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(255, 159, 64)',
-            'rgb(255, 205, 86)',
-            'rgb(75, 192, 192)',
-            'rgb(54, 162, 235)',
-          ],
         },
       ],
     },
@@ -67,11 +61,6 @@ const config = {
       datasets: [
         {
           data: optionCounts,
-          backgroundColor: [
-            'rgb(255, 99, 132)',
-            'rgb(54, 162, 235)',
-            'rgb(255, 205, 86)',
-          ],
           hoverOffset: 4,
         },
       ],
@@ -102,7 +91,7 @@ watch(props.interaction, () => {
 onMounted(() => {
   chart = new Chart(
     document.getElementById('barChart'),
-    config[props.interaction.chart]
+    chartConfig[props.interaction.chart]
   );
 });
 </script>
