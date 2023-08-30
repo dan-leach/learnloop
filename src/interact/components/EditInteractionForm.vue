@@ -1,32 +1,35 @@
 <script setup>
 import {ref, watch} from 'vue'
+import { interactSession } from '../../data/interactSession.js';
 import { config } from '../../data/config.js';
 import Swal from 'sweetalert2';
 
-const props = defineProps(['index', 'interaction']);
+const props = defineProps(['index']);
 const emit = defineEmits(['hideEditInteractionModal']);
 
-let prompt = ref('');
-let type = ref('');
-let options = ref([]);
-let settings = ref({});
-if (props.interaction.value) {
-  console.log(props.interaction.value)
-  prompt.value = props.interaction.prompt
-  type.value = props.interaction.type
-  options.value = props.interaction.options
-  settings.value = props.interaction.settings
-}
-watch(type, () => settings.value = config.interact.create.interactions.types[type.value].settings)
+let prompt = ref('')
+let type = ref('')
+let options = ref([])
+let settings = ref({})
 
+if (props.index > -1) {
+  const interaction = interactSession.interactions[props.index]
+  prompt.value = interaction.prompt
+  type.value = interaction.type
+  options.value = interaction.options
+  settings.value = interaction.settings
+}
+
+watch(type, () => {
+  if (type.value) settings.value = config.interact.create.interactions.types[type.value].settings
+})
 
 let newOption = ref('');
 const addOption = () => {
   if (newOption.value) {
-    console.log(options)
     options.value.push(newOption.value)
     newOption.value = ''
-    if (props.interaction.type.config.selectedLimit) if (props.interaction.type.config.selectedLimit.max == options.value.length-1) props.interaction.type.config.selectedLimit.max++
+    if (settings.value.selectedLimit) if (settings.value.selectedLimit.max == options.value.length-1) settings.value.selectedLimit.max++
   } else {
     document.getElementById('newOption').classList.add('is-invalid')
     setTimeout(() => document.getElementById('newOption').classList.remove('is-invalid'), 3000)
@@ -35,32 +38,59 @@ const addOption = () => {
 const removeOption = (index) => options.value.splice(index,1)
 const sortOption = (index, x) => options.value.splice(index+x, 0, options.value.splice(index, 1)[0])
 
-let showExtraSettings = ref(false)
+let showSettings = ref(false)
+
+const checkNumberWithinLimits = (number, min, max) => {
+  if (max < min) return 1
+  else if (number < min) return min
+  else if (number > max) return max
+  else return number
+}
+const checkMinMax = (minimum, maximum) => {
+  minimum.value = checkNumberWithinLimits(minimum.value, minimum.min, minimum.max)
+  maximum.value = checkNumberWithinLimits(maximum.value, maximum.min, maximum.max)
+  if (maximum.value < minimum.value) maximum.value = minimum.value
+  return {maximum: maximum, minimum: minimum}
+}
 
 let submit = () => {
   newOption.value = ''
   document.getElementById('editInteractionModal' + props.index).classList.add('was-validated');
-  if (!prompt || !type) return false;
-  if (settings.optionsLimit == 0) options.value = []
-  if (options.value.length > settings.optionsLimit) {
+  if (settings.value.optionsLimit == 0) {
+    options.value = []
+  } else if (options.value.length < config.interact.create.interactions.minimumOptions){
     Swal.fire({
       icon: 'error',
-      title: 'Too many options added',
-      text: "You can have up to " + settings.optionsLimit + " options for the interaction type selected.",
+      title: 'Too few options added',
+      text: "You need to add at least " + config.interact.create.interactions.minimumOptions + " options.",
     });
     return false;
   }
-  emit('hideEditInteractionModal', props.index, {prompt: prompt.value, type: type.value, options: options.value, settings: settings.value});
-  if (props.interaction.value) {
-    props.interaction.prompt = prompt.value
-    props.interaction.type = type.value
-    props.interaction.options = options.value
-    props.interaction.settings = settings.value
-  } else {
-    prompt.value = ''
-    type.value = undefined
-    options.value.splice(0)
+  if (options.value.length > settings.value.optionsLimit) {
+    Swal.fire({
+      icon: 'error',
+      title: 'Too many options added',
+      text: "You can have up to " + settings.value.optionsLimit + " options for the interaction type selected.",
+    });
+    return false;
   }
+  if (!prompt.value || !type.value) return false;
+  if (props.index == -1) {
+    interactSession.interactions.push(
+      {
+        prompt: prompt.value,
+        type: type.value,
+        options: [...options.value],
+        settings: {...settings.value},
+      }
+    )
+    prompt.value = ''
+    type.value = ''
+    options.value = []
+    settings.value = {}
+  }
+  emit('hideEditInteractionModal', props.index);
+  document.getElementById('editInteractionModal' + props.index).classList.remove('was-validated');
 };
 
 </script>
@@ -71,9 +101,10 @@ let submit = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">
-            {{(index<0)? 'Add' : 'Edit'}} an interaction
+            {{(index<0)? 'Add an' : 'Edit'}} interaction
           </h4>
           <button
+            v-if="index==-1"
             type="button"
             class="btn-close"
             @click.prevent="emit('hideEditInteractionModal', null)"
@@ -85,7 +116,7 @@ let submit = () => {
               <label for="prompt" class="form-label"
                 >Prompt:</label
               >
-              <input type="text" v-model="prompt" class="form-control" id="prompt" placeholder="Prompt for this interaction..." name="prompt" autocomplete="off" required>
+              <input type="text" v-model="prompt" class="form-control" id="prompt" placeholder="Question or instruction to attendees..." name="prompt" autocomplete="off" required>
               <div class="invalid-feedback">
                 Please provide a prompt for this interaction.
               </div>
@@ -107,14 +138,7 @@ let submit = () => {
                 <label for="newOption" class="form-label"
                   >Options:</label
                 >
-                <table class="table" id="optionsTable" v-if="options">
-                  <thead>
-                    <tr>
-                      <th></th>
-                      <th>Option</th>
-                      <th></th>
-                    </tr>
-                  </thead>
+                <table class="table" id="optionsTable">
                   <tbody>
                     <tr v-for="(option, index) in options">
                       <td>
@@ -131,26 +155,26 @@ let submit = () => {
                   <button class="btn btn-success btn-sm" @click.prevent="addOption" :disabled="options.length >= settings.optionsLimit">Add</button>
                 </div>
                 <div class="invalid-feedback">
-                  Please define options for this interaction.
+                  Please provide some options for this interaction.
                 </div>
               </div>
               <div class="card">
                 <div class="card-header">
-                  <button id="btnExtraSettings" class="btn" @click="showExtraSettings = !showExtraSettings">
-                    <span class="me-2">Extra settings</span><font-awesome-icon v-if="!showExtraSettings" :icon="['fas', 'chevron-down']" /> <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
+                  <button id="btnExtraSettings" class="btn" @click="showSettings = !showSettings">
+                    <span class="me-2">Settings</span><font-awesome-icon v-if="!showSettings" :icon="['fas', 'chevron-down']" /> <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
                   </button>
                 </div>
-                <div v-if="showExtraSettings">
+                <div v-if="showSettings">
                   <div class="card-body">
                     <div v-if="settings.selectedLimit" class="mb-4">
                       <label for="selectedLimit" class="form-label"
-                        >How many options can attendees select:</label
+                        >Number of options attendees must select:</label
                       >
                       <div class="input-group" id="selectedLimit">
-                        <span class="input-group-text">At least:</span>
-                        <input type="number" v-model="interaction.type.config.selectedLimit.min" min="1" :max="options.length" class="form-control" id="selectedLimitMin" name="selectedLimit" autocomplete="off">
-                        <span class="input-group-text ms-2">Not more than:</span>
-                        <input type="number" v-model="interaction.type.config.selectedLimit.max" min="1" :max="options.length" class="form-control" id="selectedLimitMax" placeholder="1" name="selectedLimit" autocomplete="off">
+                        <span class="input-group-text">Minimum:</span>
+                        <input type="number" v-model="settings.selectedLimit.min" @change="settings.selectedLimit.min = checkMinMax({value: settings.selectedLimit.min, min: 1, max: options.length}, {value: settings.selectedLimit.max, min: 1, max: options.length}).minimum.value" min="1" :max="(options.length) ? options.length : 1" class="form-control" id="selectedLimitMin" name="selectedLimit" autocomplete="off">
+                        <span class="input-group-text ms-2">Maximum:</span>
+                        <input type="number" v-model="settings.selectedLimit.max" @change="settings.selectedLimit.max = checkMinMax({value: settings.selectedLimit.min, min: 1, max: options.length}, {value: settings.selectedLimit.max, min: 1, max: options.length}).maximum.value" min="1" :max="(options.length) ? options.length : 1" class="form-control" id="selectedLimitMax" placeholder="1" name="selectedLimit" autocomplete="off">
                       </div>
                       <div class="invalid-feedback">
                         Please enter appropriate values.
@@ -158,11 +182,17 @@ let submit = () => {
                     </div>
                     <div v-if="settings.submissionLimit" class="mb-4">
                       <label for="submissionLimit" class="form-label"
-                        >Allow attendees to submit multiple answers:</label
+                        >Number of times attendees can submit a response to this interaction:</label
                       >
                       <div class="input-group" id="submissionLimit">
-                        <span class="input-group-text">Up to:</span>
-                        <input type="number" v-model="settings.submissionLimit" min="1" :max="config.interact.create.interactions.submissionLimitMax" class="form-control" id="selectedLimitMin" name="selectedLimit" autocomplete="off" required>
+                        <span class="input-group-text">Maximum:</span>
+                        <input type="number" v-model.lazy="settings.submissionLimit" @change="settings.submissionLimit = checkNumberWithinLimits(settings.submissionLimit, 1, config.interact.create.interactions.submissionLimitMax)" min="1" :max="config.interact.create.interactions.submissionLimitMax" class="form-control" id="selectedLimitMin" name="selectedLimit" autocomplete="off" required>
+                      </div>
+                    </div>
+                    <div v-if="settings.hideResponses != undefined" class="mb-4">
+                      <div class="form-check form-switch">
+                        <input v-bind="settings.hideResponses" class="form-check-input" type="checkbox" id="hideResponses" name="hideResponses">
+                        <label class="form-check-label" for="hideResponses">Hide attendee responses until you reveal them</label>
                       </div>
                     </div>
                   </div>
@@ -177,7 +207,7 @@ let submit = () => {
               id="submitEditInteractForm"
               v-on:click.prevent="submit"
             >
-            {{(index<0)? 'Add' : 'Edit'}} interaction
+            {{(index<0)? 'Add' : 'Update'}} interaction
             </button>
           </div>
         </div>
@@ -186,11 +216,8 @@ let submit = () => {
   </div>
 </template>
 
-<style>
-.collapsed .extraSettingsHide {
-  display: none;
-}
-:not(.collapsed).extraSettingsShow {
-  display: none;
+<style scoped>
+.form-check-input:checked {
+  background-color: #17a2b8;
 }
 </style>

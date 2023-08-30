@@ -13,6 +13,10 @@
   background-color: #adadad;
   color: black;
 }
+.btn-teal:focus {
+  background-color: #03cceb;
+  color: black;
+}
 
 body {
   background-color: #17a3b813;
@@ -41,4 +45,12 @@ body {
 .slide-up-leave-to {
   opacity: 0;
   transform: translateY(-30px);
+}
+
+/*misc*/
+td, th {
+  vertical-align: middle;
+}
+.btn-right {
+  float: right;
 }

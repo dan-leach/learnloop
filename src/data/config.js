@@ -18,7 +18,8 @@ export const config = reactive({
             charts: ['bar', 'doughnut'],
             settings: {
               optionsLimit: 10, //fixed
-              submissionLimit: 1 //default - can be changed by facilitator
+              submissionLimit: 1, //default - can be changed by facilitator
+              hideResponses: false
             }
           },
           multipleChoice: {
@@ -31,7 +32,8 @@ export const config = reactive({
                 min: 1, //default - can be changed by facilitator
                 max: 1 //will automatically increase to the number of options unless changed
               },
-              submissionLimit: 1
+              submissionLimit: 1,
+              hideResponses: false
             }
           },
           text: {
@@ -43,11 +45,13 @@ export const config = reactive({
                 min: 1,
                 max: 50
               },
-              submissionLimit: 10
+              submissionLimit: 10,
+              hideResponses: false
             }
           }
         },
-        submissionLimitMax: 100
+        submissionLimitMax: 100,
+        minimumOptions: 2
       }
     }
   },

@@ -1,6 +1,7 @@
 <script setup>
 import { interactSession } from '../data/interactSession.js';
 import { api } from '../data/api.js';
+import { config } from '../data/config.js';
 import Modal from 'bootstrap/js/dist/modal';
 import EditInteractionForm from './components/EditInteractionForm.vue';
 
@@ -16,14 +17,11 @@ const showEditInteractionForm = (index) => {
   );
   editInteractionModal.show();
 };
-const hideEditInteractionModal = (index, newInteraction) => {
-  if (index == -1) interactSession.interactions.push(newInteraction)
+const hideEditInteractionModal = (index) => {
   editInteractionModal.hide();
 }
-
-const removeInteraction = (index) => {
-  console.log('todo')
-}
+const sortInteraction = (index, x) => interactSession.interactions.splice(index+x, 0, interactSession.interactions.splice(index, 1)[0])
+const removeInteraction = (index) => interactSession.interactions.splice(index, 1)
 </script>
 
 <template>
@@ -60,36 +58,33 @@ const removeInteraction = (index) => {
           <th>Prompt</th>
           <th>Type</th>
           <th></th>
-          <th></th>
+          <th><button class="btn btn-success btn-sm btn-right" id="btnAddInteraction" @click.prevent="showEditInteractionForm(-1)">Add <i class="fas fa-plus"></i></button></th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="(interaction, index) in interactSession.interactions">
           <td>
-              <button v-if="index != 0" style="float:left" class="btn btn-default btn-sm" id="btnSortUp" v-on:click="sortInteraction(index, -1)"><i class="fas fa-chevron-up"></i></button>
-              <button v-if="index != interactSession.interactions.length-1" style="float:left" class="btn btn-default btn-sm" id="btnSortDown" v-on:click="sortInteraction(index, 1)"><i class="fas fa-chevron-down"></i></button>
+              <button v-if="index != 0" style="float:left" class="btn btn-default btn-sm" id="btnSortUp" @click="sortInteraction(index, -1)"><i class="fas fa-chevron-up"></i></button>
+              <button v-if="index != interactSession.interactions.length-1" style="float:left" class="btn btn-default btn-sm" id="btnSortDown" @click="sortInteraction(index, 1)"><i class="fas fa-chevron-down"></i></button>
           </td>
           <td>{{interaction.prompt}}</td>
-          <td>{{interaction.type}}</td>
-          <td><button style="float:right" class="btn btn-secondary btn-sm" id="btnEditInteraction" @click="showEditInteractionForm(index)"><font-awesome-icon v-if="!showExtraSettings" :icon="['fas', 'edit']" /></button></td>
-          <td><button style="float:right" class="btn btn-danger btn-sm" id="btnRemoveInteraction" @click="removeInteraction(index)"><font-awesome-icon v-if="!showExtraSettings" :icon="['fas', 'trash-can']" /></button></td>
+          <td>{{config.interact.create.interactions.types[interaction.type].name}}</td>
+          <td><button class="btn btn-secondary btn-sm btn-right" id="btnEditInteraction" @click="showEditInteractionForm(index)"><font-awesome-icon :icon="['fas', 'edit']" /></button></td>
+          <td><button class="btn btn-danger btn-sm btn-right" id="btnRemoveInteraction" @click="removeInteraction(index)"><font-awesome-icon :icon="['fas', 'trash-can']" /></button></td>
         </tr>
       </tbody>
     </table>
     <EditInteractionForm
       v-for="(interaction, index) in interactSession.interactions"
       :index="index"
-      :interaction="interaction"
       @hideEditInteractionModal="hideEditInteractionModal"
     />
-    <button style="float:right;" class="btn btn-success btn-sm" id="btnAddInteraction" @click.prevent="showEditInteractionForm(-1)">Add <i class="fas fa-plus"></i></button>
     <EditInteractionForm
       index=-1
-      :interaction="{}"
       @hideEditInteractionModal="hideEditInteractionModal"
     />
-    <div class="text-center">
-        <button class="btn btn-primary" id="submitCreateSession" v-on:click="submit">Create interact session</button>
+    <div class="text-center mt-4">
+        <button class="btn btn-teal" id="submitCreateSession" @click="submit">Create interact session</button>
     </div>
 </template>
 
