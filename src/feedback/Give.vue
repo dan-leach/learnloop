@@ -152,7 +152,7 @@ const showSubsessionFeedbackModal = (index) => {
   );
   subsessionFeedbackModal.show();
 };
-const hideSubsessionFeedbackForm = (index) => {
+const hideSubsessionFeedbackModal = (index) => {
   subsessionFeedbackModal.hide();
   let statusElement = document.getElementById('subsession' + index + 'Status');
   if (
@@ -224,9 +224,9 @@ onMounted(() => {
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
-          'feedbackSession.id != response.id',
+          'feedbackSession.id != res.id',
           feedbackSession.id,
-          response.id
+          res.id
         );
         return;
       }
@@ -379,7 +379,7 @@ onMounted(() => {
             v-for="(subsession, index) in feedbackSession.subsessions"
             :index="index"
             :subsession="subsession"
-            @hideSubsessionFeedbackForm="hideSubsessionFeedbackForm"
+            @hideSubsessionFeedbackModal="hideSubsessionFeedbackModal"
           />
           <div class="modal" id="skipSubsessionFeedbackInfo">
             <div class="modal-dialog modal-dialog-centered">

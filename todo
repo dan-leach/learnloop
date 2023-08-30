@@ -1,4 +1,6 @@
 Current:
+working on add interaction modal form in interact/Create.vue and interact/components/EditInteractionForm.vue
+
 add system for generating sufficient colours ?just have max 10 options
 
 Add spinners to buttons awaiting API response - is this finished?

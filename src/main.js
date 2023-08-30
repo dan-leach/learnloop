@@ -18,6 +18,8 @@ import {
   faTrashCan,
   faCircleChevronRight,
   faCircleChevronLeft,
+  faChevronDown,
+  faChevronUp,
   faMaximize,
   faMinimize,
   faUsersRectangle,
@@ -30,6 +32,8 @@ library.add(
   faTrashCan,
   faCircleChevronRight,
   faCircleChevronLeft,
+  faChevronDown,
+  faChevronUp,
   faMaximize,
   faMinimize,
   faUsersRectangle

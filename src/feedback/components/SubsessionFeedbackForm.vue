@@ -2,7 +2,7 @@
 import Modal from 'bootstrap/js/dist/modal';
 const props = defineProps(['index', 'subsession']);
 
-const emit = defineEmits(['hideSubsessionFeedbackForm']);
+const emit = defineEmits(['hideSubsessionFeedbackModal']);
 
 let submitSubsessionFeedbackForm = () => {
   document
@@ -15,7 +15,7 @@ let submitSubsessionFeedbackForm = () => {
   )
     return false;
   props.subsession.status = 'Complete';
-  emit('hideSubsessionFeedbackForm', props.index);
+  emit('hideSubsessionFeedbackModal', props.index);
 };
 
 let scoreChange = () => {
@@ -52,7 +52,7 @@ let scoreChange = () => {
           <button
             type="button"
             class="btn-close"
-            @click.prevent="emit('hideSubsessionFeedbackForm', props.index)"
+            @click.prevent="emit('hideSubsessionFeedbackModal', props.index)"
           ></button>
         </div>
         <div class="modal-body">
