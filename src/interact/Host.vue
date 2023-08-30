@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted, ref } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import router from '../router';
 import { api } from '../data/api.js';
@@ -124,21 +124,6 @@ const fetchDetailsHost = () => {
   );
 };
 
-window.onbeforeunload = function () {
-  api(
-    'interact',
-    'updateFacilitatorIndex',
-    interactSession.id,
-    interactSession.pin,
-    0
-  ).then(
-    function () {},
-    function (error) {
-      console.log('updateFacilitatorIndex failed', error);
-    }
-  );
-};
-
 onMounted(() => {
   interactSession.id = useRouter().currentRoute.value.path.replace(
     '/interact/host/',
@@ -191,6 +176,21 @@ onMounted(() => {
       }
     });
   }
+});
+
+onBeforeUnmount(() => {
+  api(
+    'interact',
+    'updateFacilitatorIndex',
+    interactSession.id,
+    interactSession.pin,
+    0
+  ).then(
+    function () {},
+    function (error) {
+      console.log('updateFacilitatorIndex failed', error);
+    }
+  );
 });
 </script>
 
