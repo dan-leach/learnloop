@@ -1,10 +1,11 @@
 Current:
+Do interact insertSession route in API then build interact Created view
+Then test whole process of session creation --> host/join
 
+Styling/harmonisation:
 move add buttons for questions/sessions etc into table head
-
 add system for generating sufficient colours ?just have max 10 options
-
-Add spinners to buttons awaiting API response - is this finished?
+Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
 
 Complete full Give Feedback including api to provide feedback works in principle for v5
 Then move on to trying some interact stuff to show proof of concept
@@ -13,8 +14,6 @@ Then go back systematically through porting each function over to v5 architectur
 Create readme and changelog
 
 Update api to use modern js fetch
-
-Update quotes to separate out feedback/interact quotes (both on root)
 
 Check cookies work as expected
 

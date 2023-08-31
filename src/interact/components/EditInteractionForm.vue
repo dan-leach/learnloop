@@ -146,7 +146,7 @@ let submit = () => {
             v-if="index == -1"
             type="button"
             class="btn-close"
-            @click.prevent="emit('hideEditInteractionModal', null)"
+            @click.prevent="emit('hideEditInteractionModal')"
           ></button>
         </div>
         <div class="modal-body">

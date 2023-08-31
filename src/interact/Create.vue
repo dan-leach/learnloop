@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { interactSession } from '../data/interactSession.js';
 import { api } from '../data/api.js';
 import { config } from '../data/config.js';
@@ -19,13 +20,16 @@ const showEditInteractionForm = (index) => {
   editInteractionModal.show();
 };
 const hideEditInteractionModal = (index, interaction) => {
-  if (index == -1) {
+  if (!index) {
+    //user did not submit the form, closed using the X. Do nothing except hide the modal
+  } else if (index == -1) {
     interactSession.interactions.push(JSON.parse(interaction));
   } else {
     interactSession.interactions[index] = JSON.parse(interaction);
   }
   editInteractionModal.hide();
 };
+
 const sortInteraction = (index, x) =>
   interactSession.interactions.splice(
     index + x,
@@ -40,6 +44,57 @@ const removeInteraction = (index) => {
   }).then((result) => {
     if (result.isConfirmed) interactSession.interactions.splice(index, 1);
   });
+};
+
+let btnSubmit = ref({
+  text: 'Create interact session',
+  wait: false,
+});
+const formIsValid = () => {
+  document
+    .getElementById('createSessionSeriesForm')
+    .classList.add('was-validated');
+  if (!interactSession.interactions.length) {
+    Swal.fire({
+      title: 'No interactions added',
+      text: "You need to add at least 1 interaction to your session. Use the green 'Add' button.",
+      icon: 'error',
+      confirmButtonColor: '#17a2b8',
+    });
+    return false;
+  }
+  if (
+    !interactSession.title ||
+    !interactSession.date ||
+    !interactSession.name ||
+    !interactSession.email
+  )
+    return false;
+  return true;
+};
+const submit = () => {
+  if (!formIsValid()) return false;
+  btnSubmit.value.text = 'Please wait...';
+  btnSubmit.value.wait = true;
+  api('interact', 'insertSession', null, null, interactSession).then(
+    function (res) {
+      btnSubmit.value.text = 'Create interact session';
+      btnSubmit.value.wait = true;
+      interactSession.id = res.id;
+      interactSession.pin = res.pin;
+      router.push('/interact/created');
+    },
+    function (error) {
+      btnSubmit.value.text = 'Retry creating interact session?';
+      btnSubmit.value.wait = false;
+      Swal.fire({
+        title: 'Error creating interact session',
+        text: error,
+        icon: 'error',
+        confirmButtonColor: '#17a2b8',
+      });
+    }
+  );
 };
 </script>
 
@@ -178,8 +233,17 @@ const removeInteraction = (index) => {
     @hideEditInteractionModal="hideEditInteractionModal"
   />
   <div class="text-center mt-4">
-    <button class="btn btn-teal" id="submitCreateSession" @click="submit">
-      Create interact session
+    <button
+      class="btn btn-teal"
+      id="submitCreateSession"
+      @click="submit"
+      :disabled="btnSubmit.wait"
+    >
+      <span
+        v-if="btnSubmit.wait"
+        class="spinner-border spinner-border-sm me-2"
+      ></span
+      >{{ btnSubmit.text }}
     </button>
   </div>
 </template>
