@@ -19,8 +19,8 @@ export const config = reactive({
             settings: {
               optionsLimit: 10, //fixed
               submissionLimit: 1, //default - can be changed by facilitator
-              hideResponses: false
-            }
+              hideResponses: false,
+            },
           },
           multipleChoice: {
             name: 'Multiple choice',
@@ -28,13 +28,13 @@ export const config = reactive({
             charts: ['bar', 'doughnut'],
             settings: {
               optionsLimit: 10,
-              selectedLimit: { 
+              selectedLimit: {
                 min: 1, //default - can be changed by facilitator
-                max: 1 //will automatically increase to the number of options unless changed
+                max: 1, //will automatically increase to the number of options unless changed
               },
               submissionLimit: 1,
-              hideResponses: false
-            }
+              hideResponses: false,
+            },
           },
           text: {
             name: 'Text',
@@ -43,17 +43,17 @@ export const config = reactive({
               optionsLimit: 0,
               characterLimit: {
                 min: 1,
-                max: 50
+                max: 50,
               },
               submissionLimit: 10,
-              hideResponses: false
-            }
-          }
+              hideResponses: false,
+            },
+          },
         },
         submissionLimitMax: 100,
-        minimumOptions: 2
-      }
-    }
+        minimumOptions: 2,
+      },
+    },
   },
   client: {
     url: 'https://dev.learnloop.co.uk',
