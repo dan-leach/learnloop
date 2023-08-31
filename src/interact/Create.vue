@@ -4,6 +4,7 @@ import { api } from '../data/api.js';
 import { config } from '../data/config.js';
 import Modal from 'bootstrap/js/dist/modal';
 import EditInteractionForm from './components/EditInteractionForm.vue';
+import Swal from 'sweetalert2';
 
 let editInteractionModal;
 const showEditInteractionForm = (index) => {
@@ -31,8 +32,15 @@ const sortInteraction = (index, x) =>
     0,
     interactSession.interactions.splice(index, 1)[0]
   );
-const removeInteraction = (index) =>
-  interactSession.interactions.splice(index, 1);
+const removeInteraction = (index) => {
+  Swal.fire({
+    title: 'Remove this interaction?',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+  }).then((result) => {
+    if (result.isConfirmed) interactSession.interactions.splice(index, 1);
+  });
+};
 </script>
 
 <template>
@@ -106,7 +114,6 @@ const removeInteraction = (index) =>
         <th></th>
         <th>Prompt</th>
         <th>Type</th>
-        <th></th>
         <th>
           <button
             class="btn btn-success btn-sm btn-right"
@@ -144,20 +151,18 @@ const removeInteraction = (index) =>
         </td>
         <td>
           <button
+            class="btn btn-danger btn-sm btn-right ms-4"
+            id="btnRemoveInteraction"
+            @click="removeInteraction(index)"
+          >
+            <font-awesome-icon :icon="['fas', 'trash-can']" />
+          </button>
+          <button
             class="btn btn-secondary btn-sm btn-right"
             id="btnEditInteraction"
             @click="showEditInteractionForm(index)"
           >
             <font-awesome-icon :icon="['fas', 'edit']" />
-          </button>
-        </td>
-        <td>
-          <button
-            class="btn btn-danger btn-sm btn-right"
-            id="btnRemoveInteraction"
-            @click="removeInteraction(index)"
-          >
-            <font-awesome-icon :icon="['fas', 'trash-can']" />
           </button>
         </td>
       </tr>
