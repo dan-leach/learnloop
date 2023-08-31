@@ -48,9 +48,13 @@ body {
 }
 
 /*misc*/
-td, th {
+td,
+th {
   vertical-align: middle;
 }
 .btn-right {
   float: right;
+}
+.btn-left {
+  float: left;
 }

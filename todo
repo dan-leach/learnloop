@@ -1,6 +1,4 @@
 Current:
-working on add interaction modal form in interact/Create.vue and interact/components/EditInteractionForm.vue
-sort the min-max issue with a standalone function. need to check the min-max when the type changes from singleChoice to multipleChoice
 
 move add buttons for questions/sessions etc into table head
 

@@ -197,20 +197,20 @@ let submit = () => {
                 <table class="table" id="optionsTable">
                   <tbody>
                     <tr v-for="(option, index) in options">
-                      <td>
+                      <td class="p-0 ps-2">
                         <button
                           v-if="index != 0"
-                          style="float: left"
-                          class="btn btn-default btn-sm"
+                          class="btn btn-default btn-sm p-0"
                           id="btnSortUp"
                           @click.prevent="sortOption(index, -1)"
                         >
-                          <font-awesome-icon :icon="['fas', 'chevron-up']" />
-                        </button>
+                          <font-awesome-icon
+                            :icon="['fas', 'chevron-up']"
+                          /></button
+                        ><br />
                         <button
                           v-if="index != options.length - 1"
-                          style="float: left"
-                          class="btn btn-default btn-sm"
+                          class="btn btn-default btn-sm p-0"
                           id="btnSortDown"
                           @click.prevent="sortOption(index, 1)"
                         >

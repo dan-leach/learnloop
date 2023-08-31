@@ -120,24 +120,22 @@ const removeInteraction = (index) =>
     </thead>
     <tbody>
       <tr v-for="(interaction, index) in interactSession.interactions">
-        <td>
+        <td class="p-0 ps-2">
           <button
             v-if="index != 0"
-            style="float: left"
-            class="btn btn-default btn-sm"
+            class="btn btn-default btn-sm p-0"
             id="btnSortUp"
             @click="sortInteraction(index, -1)"
           >
-            <i class="fas fa-chevron-up"></i>
-          </button>
+            <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+          ><br />
           <button
             v-if="index != interactSession.interactions.length - 1"
-            style="float: left"
-            class="btn btn-default btn-sm"
+            class="btn btn-default btn-sm p-0"
             id="btnSortDown"
             @click="sortInteraction(index, 1)"
           >
-            <i class="fas fa-chevron-down"></i>
+            <font-awesome-icon :icon="['fas', 'chevron-down']" />
           </button>
         </td>
         <td>{{ interaction.prompt }}</td>
