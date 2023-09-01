@@ -63,12 +63,7 @@ const formIsValid = () => {
     });
     return false;
   }
-  if (
-    !interactSession.title ||
-    !interactSession.date ||
-    !interactSession.name ||
-    !interactSession.email
-  )
+  if (!interactSession.title || !interactSession.name || !interactSession.email)
     return false;
   return true;
 };
@@ -117,20 +112,6 @@ const submit = () => {
         required
       />
       <div class="invalid-feedback">Please fill out this field.</div>
-    </div>
-    <div class="mt-4">
-      <label for="date">Session series date:</label>
-      <input
-        type="date"
-        v-model="interactSession.date"
-        class="form-control"
-        id="date"
-        placeholder="dd/mm/yyyy"
-        name="date"
-        autocomplete="off"
-        required
-      />
-      <div class="invalid-feedback">Please select a date.</div>
     </div>
     <div class="mt-4">
       <label for="name">Facilitator name:</label>
