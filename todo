@@ -1,5 +1,6 @@
 Current:
-Do interact insertSession route in API then build interact Created view
+Build interact session created view
+Transition group for tables
 Then test whole process of session creation --> host/join
 
 Styling/harmonisation:

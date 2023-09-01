@@ -1,5 +1,6 @@
 <script setup>
 import { ref } from 'vue';
+import router from '../router';
 import { interactSession } from '../data/interactSession.js';
 import { api } from '../data/api.js';
 import { config } from '../data/config.js';
@@ -71,10 +72,11 @@ const submit = () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
+  interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
   api('interact', 'insertSession', null, null, interactSession).then(
     function (res) {
       btnSubmit.value.text = 'Create interact session';
-      btnSubmit.value.wait = true;
+      btnSubmit.value.wait = false;
       interactSession.id = res.id;
       interactSession.pin = res.pin;
       router.push('/interact/created');

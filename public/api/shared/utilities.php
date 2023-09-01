@@ -16,12 +16,12 @@ function pinIsValid($pin, $pinHash){ //check a pin matches pinHash
     return ($pinHash == $hash);
 }
 
-function createUniqueID($link, $type){ // Generate unique short ID (if live = true, unique in tbl_live_sessions_v?)
+function createUniqueID($link){ // Generate unique short ID
     $permitted_chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
     do {
         $pass = 0;
         $id = substr(str_shuffle($permitted_chars), 0, 6);
-        if (dbSessionExists($id, $type, $link)) {
+        if (dbSessionExists($id, $link)) {
             $id = substr(str_shuffle($permitted_chars), 0, 6);
         } else {
             $pass ++;

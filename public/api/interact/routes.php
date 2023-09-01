@@ -3,6 +3,37 @@
 require 'database.php';
 require 'mail.php';
 
+//create
+function insertSession($data, $link){
+    $res = new stdClass();
+    $res->id = createUniqueID($link);
+    $res->pin = createPin();
+    $pinHash = hashPin($res->pin);
+    
+    //sanitize and validate
+    $errMsg = "";
+
+    $name = htmlspecialchars($data->name);
+    if (strlen($name) == 0) $errMsg .= "Name is blank. ";
+    $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
+    if (!$isSubsession && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errMsg .= "Email is not valid. ";
+    $title = htmlspecialchars($data->title);
+    if (strlen($title) == 0) $errMsg .= "Title is blank. ";
+    if (sizeof($data->interactions) < 1) {
+        $errMsg .= "No interactions defined. ";
+    } else {
+        $interactions = json_encode($data->interactions);
+    }
+
+    if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
+       
+    if (!dbInsertSession($res->id, $name, $email, $title, $interactions, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
+
+    //if ($email) sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $tags, $certificate, $attendance, $questions, $res->id, $res->pin, $email);
+
+    return $res;
+}
+
 //join
 function fetchDetails($id, $link){
     $res = dbSelectDetails($id, $link);
@@ -21,7 +52,7 @@ function insertSubmission($id, $data, $link){
     
     //sanitize and validate
     $interactionIndex = $data->interactionIndex;
-    if (filter_var($int, FILTER_VALIDATE_INT)) send_error_response("interactionIndex must be of type [integer]", 400);
+    if (filter_var($interactionIndex, FILTER_VALIDATE_INT)) send_error_response("interactionIndex must be of type [integer]", 400);
     $response = htmlspecialchars($data->response);
     if (strlen($response) == 0) send_error_response("Response cannot be blank", 400);
         

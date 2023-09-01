@@ -6,6 +6,11 @@ $link = mysqli_connect("localhost", "learnloop_app", $dbKey, "learnloop_data");
 
 //select route
 switch ($route) {
+    //create
+    case "insertSession":
+        if (is_null($data)) send_error_response("Variable(s) [data] must be defined for insertSession route", 400);
+        echo json_encode(insertSession($data, $link));
+        break;
     //join
     case "fetchDetails":
         if (is_null($id)) send_error_response("Variable(s) [id] must be defined for fetchDetails route", 400);
