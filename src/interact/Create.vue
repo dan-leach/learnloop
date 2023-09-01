@@ -100,7 +100,7 @@ const submit = () => {
   >
   <form id="createSessionSeriesForm" class="needs-validation" novalidate>
     <div>
-      <label for="title">Session series title:</label>
+      <label for="title">Session title:</label>
       <input
         type="text"
         v-model="interactSession.title"
