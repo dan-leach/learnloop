@@ -1,10 +1,12 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, onBeforeUnmount} from 'vue'
+import router from '../router';
 import { interactSession } from '../data/interactSession.js';
 import { config } from '../data/config.js';
 import Toast from '../assets/Toast.js';
-interactSession.id = 'abc123'
-interactSession.pin = '123456'
+import Swal from 'sweetalert2';
+
+if (!interactSession.id || !interactSession.pin) router.push('/interact/create')
 
 const link = ref({})
 link.value.join = config.client.url + '/' + interactSession.id
@@ -48,9 +50,17 @@ const copyImg = async (src) => {
     }
   );
 }
+
+onBeforeUnmount(() => {
+  interactSession.id = ''
+  interactSession.pin = ''
+  interactSession.name = ''
+  interactSession.title = ''
+  interactSession.interactions = []
+})
 </script>
 
-<template>
+<template v-once>
   <h1 class="text-center display-4">Interact</h1>
   <p>Your session was created successfully.</p>
   <div class="d-flex flex-wrap flex-fill justify-content-around">

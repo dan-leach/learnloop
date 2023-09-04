@@ -1,9 +1,13 @@
 <?php
 
+$tblSessions = 'tbl_interact_sessions_dev';
+$tblSubmissions = 'tbl_interact_submissions_dev';
+
 function dbSessionExists($id, $link){ //returns true if $id already exists in table
+    global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
 
-    $stmt = $link->prepare("SELECT * FROM tbl_interact_sessions_dev WHERE id = ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSessions WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -25,7 +29,8 @@ function dbSessionExists($id, $link){ //returns true if $id already exists in ta
 }
 
 function dbInsertSession($id, $name, $email, $title, $interactions, $pinHash, $link) { //inserts session $data with $id and $pinHash
-    $stmt = $link->prepare("INSERT INTO tbl_interact_sessions_dev (id, name, email, title, interactions, pinHash) VALUES (?, ?, ?, ?, ?, ?)");
+    global $tblSessions;
+    $stmt = $link->prepare("INSERT INTO $tblSessions (id, name, email, title, interactions, pinHash) VALUES (?, ?, ?, ?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("ssssss",$id, $name, $email, $title, $interactions, $pinHash);
@@ -38,9 +43,10 @@ function dbInsertSession($id, $name, $email, $title, $interactions, $pinHash, $l
 }
 
 function dbSelectDetails($id, $link){ //returns the session details for $id as a php object
+    global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("SELECT * FROM tbl_interact_sessions_dev WHERE id = ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSessions WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -68,9 +74,10 @@ function dbSelectDetails($id, $link){ //returns the session details for $id as a
 }
 
 function dbSelectFacilitatorIndex($id, $link){ //returns the facilitator Index for $id as a php object
+    global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("SELECT facilitatorIndex FROM tbl_interact_sessions_dev WHERE id = ?");
+    $stmt = $link->prepare("SELECT facilitatorIndex FROM $tblSessions WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -98,10 +105,11 @@ function dbSelectFacilitatorIndex($id, $link){ //returns the facilitator Index f
 }
 
 function dbSelectNewSubmissions($id, $interactionIndex, $lastSubmissionId, $link){ //returns the session details for $id as a php object
+    global $tblSubmissions;
     $res = array();
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("SELECT * FROM tbl_interact_submissions_dev WHERE sessionId = ? AND interactionIndex = ? AND id > ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSubmissions WHERE sessionId = ? AND interactionIndex = ? AND id > ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("sss",$id,$interactionIndex, $lastSubmissionId);
@@ -127,7 +135,8 @@ function dbSelectNewSubmissions($id, $interactionIndex, $lastSubmissionId, $link
 }
 
 function dbUpdateFacilitatorIndex($id, $newIndex, $link) {
-    $stmt = $link->prepare("UPDATE tbl_interact_sessions_dev SET facilitatorIndex = ? WHERE id = ?");
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET facilitatorIndex = ? WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
     $rc = $stmt->bind_param("ss",$newIndex, $id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
@@ -137,7 +146,8 @@ function dbUpdateFacilitatorIndex($id, $newIndex, $link) {
 }
 
 function dbInsertSubmissiion($id, $interactionIndex, $response, $link){
-    $stmt = $link->prepare("INSERT INTO tbl_interact_submissions_dev (sessionId, interactionIndex, response) VALUES (?, ?, ?)");
+    global $tblSubmissions;
+    $stmt = $link->prepare("INSERT INTO $tblSubmissions (sessionId, interactionIndex, response) VALUES (?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("sss",$id, $interactionIndex, $response);
@@ -150,9 +160,10 @@ function dbInsertSubmissiion($id, $interactionIndex, $response, $link){
 }
 
 function dbCountSubmissions($id, $link){
+    global $tblSubmissions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("SELECT COUNT(id) AS submissionCount FROM tbl_interact_submissions_dev WHERE sessionId = ?");
+    $stmt = $link->prepare("SELECT COUNT(id) AS submissionCount FROM $tblSubmissions WHERE sessionId = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -178,9 +189,10 @@ function dbCountSubmissions($id, $link){
 }
 
 function dbDeleteSubmissions($id, $link){
+    global $tblSubmissions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("DELETE FROM tbl_interact_submissions_dev WHERE sessionId = ?");
+    $stmt = $link->prepare("DELETE FROM $tblSubmissions WHERE sessionId = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);

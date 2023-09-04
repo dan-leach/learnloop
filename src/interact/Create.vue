@@ -164,53 +164,57 @@ const submit = () => {
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(interaction, index) in interactSession.interactions">
-        <td class="p-0 ps-2">
-          <button
-            v-if="index != 0"
-            class="btn btn-default btn-sm p-0"
-            id="btnSortUp"
-            @click="sortInteraction(index, -1)"
-          >
-            <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
-          ><br />
-          <button
-            v-if="index != interactSession.interactions.length - 1"
-            class="btn btn-default btn-sm p-0"
-            id="btnSortDown"
-            @click="sortInteraction(index, 1)"
-          >
-            <font-awesome-icon :icon="['fas', 'chevron-down']" />
-          </button>
-        </td>
-        <td>{{ interaction.prompt }}</td>
-        <td>
-          {{ config.interact.create.interactions.types[interaction.type].name }}
-        </td>
-        <td>
-          <button
-            class="btn btn-danger btn-sm btn-right ms-4"
-            id="btnRemoveInteraction"
-            @click="removeInteraction(index)"
-          >
-            <font-awesome-icon :icon="['fas', 'trash-can']" />
-          </button>
-          <button
-            class="btn btn-secondary btn-sm btn-right"
-            id="btnEditInteraction"
-            @click="showEditInteractionForm(index)"
-          >
-            <font-awesome-icon :icon="['fas', 'edit']" />
-          </button>
-        </td>
-      </tr>
+      <template v-for="(interaction, index) in interactSession.interactions">
+        <tr v-if="interaction.type != 'waitingRoom'">
+          <td class="p-0 ps-2">
+            <button
+              v-if="index != 0"
+              class="btn btn-default btn-sm p-0"
+              id="btnSortUp"
+              @click="sortInteraction(index, -1)"
+            >
+              <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+            ><br />
+            <button
+              v-if="index != interactSession.interactions.length - 1"
+              class="btn btn-default btn-sm p-0"
+              id="btnSortDown"
+              @click="sortInteraction(index, 1)"
+            >
+              <font-awesome-icon :icon="['fas', 'chevron-down']" />
+            </button>
+          </td>
+          <td>{{ interaction.prompt }}</td>
+          <td>
+            {{ config.interact.create.interactions.types[interaction.type].name }}
+          </td>
+          <td>
+            <button
+              class="btn btn-danger btn-sm btn-right ms-4"
+              id="btnRemoveInteraction"
+              @click="removeInteraction(index)"
+            >
+              <font-awesome-icon :icon="['fas', 'trash-can']" />
+            </button>
+            <button
+              class="btn btn-secondary btn-sm btn-right"
+              id="btnEditInteraction"
+              @click="showEditInteractionForm(index)"
+            >
+              <font-awesome-icon :icon="['fas', 'edit']" />
+            </button>
+          </td>
+        </tr>
+      </template>
     </tbody>
   </table>
-  <EditInteractionForm
-    v-for="(interaction, index) in interactSession.interactions"
-    :index="index"
-    @hideEditInteractionModal="hideEditInteractionModal"
-  />
+  <template v-for="(interaction, index) in interactSession.interactions">
+    <EditInteractionForm
+      v-if="interaction.type != 'waitingRoom'"
+      :index="index"
+      @hideEditInteractionModal="hideEditInteractionModal"
+    />
+  </template>
   <EditInteractionForm
     index="-1"
     @hideEditInteractionModal="hideEditInteractionModal"
