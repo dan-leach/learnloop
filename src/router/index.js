@@ -49,6 +49,11 @@ const router = createRouter({
           component: () => import('../interact/Created.vue'),
         },
         {
+          path: 'joining-instructions/:id?',
+          name: 'joining-instructions',
+          component: () => import('../interact/JoiningInstructions.vue'),
+        },
+        {
           path: 'host/:id?', //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
           name: 'interact-host',
           component: () => import('../interact/Host.vue'),
