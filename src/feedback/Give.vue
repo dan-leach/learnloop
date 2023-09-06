@@ -215,11 +215,7 @@ const skipSubsessionFeedback = (index) => {
   }
 };
 
-onMounted(() => {
-  feedbackSession.id = useRouter().currentRoute.value.path.replace(
-    '/feedback/',
-    ''
-  );
+const fetchDetails = () => {
   api('feedback', 'fetchDetails', feedbackSession.id, null, null).then(
     function (res) {
       if (feedbackSession.id != res.id) {
@@ -288,6 +284,41 @@ onMounted(() => {
       router.push('/');
     }
   );
+};
+
+onMounted(() => {
+  feedbackSession.id = useRouter().currentRoute.value.path.replace(
+    '/feedback/',
+    ''
+  );
+  if (
+    feedbackSession.id == '/feedback' ||
+    feedbackSession.id == '/feedback/' ||
+    feedbackSession.id == ''
+  ) {
+    Swal.fire({
+      title: 'Enter session ID',
+      html:
+        'You will need a session ID provided by your facilitator. <br>' +
+        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',
+      showCancelButton: true,
+      confirmButtonColor: '#17a2b8',
+      preConfirm: () => {
+        feedbackSession.id = document.getElementById('swalFormId').value;
+        if (feedbackSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        history.replaceState({}, '', feedbackSession.id);
+        fetchDetails();
+      } else {
+        router.push('/');
+      }
+    });
+  } else {
+    fetchDetails();
+  }
 });
 </script>
 

@@ -13,7 +13,6 @@ const router = createRouter({
     {
       path: '/feedback',
       name: 'feedback',
-      redirect: '/',
       children: [
         {
           path: 'create',
@@ -27,7 +26,7 @@ const router = createRouter({
         },
         {
           //this option should always be last else other routes will be interpreted as an id
-          path: ':id',
+          path: ':id?',
           name: 'feedback-give',
           component: () => import('../feedback/Give.vue'),
         },
@@ -36,7 +35,6 @@ const router = createRouter({
     {
       path: '/interact',
       name: 'interact',
-      redirect: '/',
       children: [
         {
           path: 'create',
@@ -59,7 +57,7 @@ const router = createRouter({
           component: () => import('../interact/Host.vue'),
         },
         {
-          path: ':id',
+          path: ':id?',
           name: 'interact-join',
           component: () => import('../interact/Join.vue'),
         },

@@ -129,7 +129,11 @@ onMounted(() => {
     '/interact/host/',
     ''
   );
-  if (interactSession.id == '/interact/host' || interactSession.id == '') {
+  if (
+    interactSession.id == '/interact/host' ||
+    interactSession.id == '/interact/host/' ||
+    interactSession.id == ''
+  ) {
     Swal.fire({
       title: 'Enter session ID and PIN',
       html:

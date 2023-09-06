@@ -48,11 +48,7 @@ const fetchFacilitatorIndex = () => {
   );
 };
 
-onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.path.replace(
-    '/interact/',
-    ''
-  );
+const fetchDetails = () => {
   api('interact', 'fetchDetails', interactSession.id, null, null).then(
     function (res) {
       if (interactSession.id != res.id) {
@@ -83,6 +79,37 @@ onMounted(() => {
       router.push('/');
     }
   );
+};
+
+onMounted(() => {
+  interactSession.id = useRouter().currentRoute.value.path.replace(
+    '/interact/',
+    ''
+  );
+  if (interactSession.id == '/interact/host' || interactSession.id == '') {
+    Swal.fire({
+      title: 'Enter session ID',
+      html:
+        'You will need a session ID provided by your facilitator. <br>' +
+        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',
+      showCancelButton: true,
+      confirmButtonColor: '#17a2b8',
+      preConfirm: () => {
+        interactSession.id = document.getElementById('swalFormId').value;
+        if (interactSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        history.replaceState({}, '', interactSession.id);
+        fetchDetails();
+      } else {
+        router.push('/');
+      }
+    });
+  } else {
+    fetchDetails();
+  }
 });
 </script>
 
