@@ -195,8 +195,8 @@ let submit = () => {
               <div v-if="settings.optionsLimit" class="mb-4">
                 <label for="newOption" class="form-label">Options:</label>
                 <table class="table" id="optionsTable">
-                  <tbody>
-                    <tr v-for="(option, index) in options">
+                  <TransitionGroup name="list" tag="tbody">
+                    <tr v-for="(option, index) in options" :key="option">
                       <td class="p-0 ps-2">
                         <button
                           v-if="index != 0"
@@ -229,7 +229,7 @@ let submit = () => {
                         </button>
                       </td>
                     </tr>
-                  </tbody>
+                  </TransitionGroup>
                 </table>
                 <div class="input-group mb-3">
                   <input

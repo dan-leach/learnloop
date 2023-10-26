@@ -1,7 +1,7 @@
 <script setup>
 import Toast from '../../../assets/Toast.js';
 
-const props = defineProps(['interaction', 'spinner', 'btnSubmitText']);
+const props = defineProps(['interaction', 'spinner', 'btnSubmitText', 'btnSubmitBelowText']);
 const emit = defineEmits(['submit']);
 
 let submit = () => {
@@ -17,7 +17,7 @@ let submit = () => {
 </script>
 
 <template>
-  <p class="text-center">{{ interaction.title }}</p>
+  <p class="text-center"><strong>{{ interaction.prompt }}</strong></p>
   <div v-for="(option, index) in interaction.options" class="form-check">
     <input
       type="radio"
@@ -30,18 +30,25 @@ let submit = () => {
     />{{ option }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
-  <div class="text-center m-2">
+  <div class="text-center">
     <button
       type="button"
       id="submit"
-      class="btn btn-teal"
+      class="btn btn-teal mt-4"
       @click="submit"
       :disabled="interaction.closed"
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>
       {{ btnSubmitText }}
     </button>
+    <p class="btnSubmitBelowText">{{ btnSubmitBelowText }}</p>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.btnSubmitBelowText {
+  font-size: small;
+  font-weight: lighter;
+  
+}
+</style>

@@ -40,7 +40,7 @@ const fetchSubmissionCount = () => {
       interactSession.submissionCount = res;
     },
     function (error) {
-      console.log('updateFacilitatorIndex failed', error);
+      console.log('fetchSubmissionCount failed', error);
     }
   );
 };

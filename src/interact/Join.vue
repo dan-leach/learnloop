@@ -62,6 +62,7 @@ const fetchDetails = () => {
       interactSession.title = res.title;
       interactSession.name = res.name;
       interactSession.interactions = res.interactions;
+      for (let interaction of interactSession.interactions) interaction.submissionCount = 0
       facilitatorIndex.value = res.facilitatorIndex;
       currentIndex.value = res.facilitatorIndex;
       loading.value = false;

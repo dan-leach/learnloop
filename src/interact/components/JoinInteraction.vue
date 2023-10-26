@@ -10,6 +10,7 @@ const props = defineProps(['currentIndex']);
 
 let spinner = ref(false);
 let btnSubmitText = ref('Submit');
+let btnSubmitBelowText = ref('');
 
 const submit = () => {
   let interaction = interactSession.interactions[props.currentIndex];
@@ -26,12 +27,16 @@ const submit = () => {
         title: 'Your response was submitted',
       });
       spinner.value = false;
-      if (interaction.allowMultiple) {
+      interaction.submissionCount++;
+      console.log(interaction.submissionCount, interaction.settings.submissionLimit)
+      if (interaction.submissionCount < interaction.settings.submissionLimit) {
         interaction.closed = false;
-        btnSubmitText.value = 'Submit another response';
+        btnSubmitText.value = 'Submit';
+        btnSubmitBelowText.value = 'You may submit multiple responses'
         interaction.response = '';
       } else {
         btnSubmitText.value = 'Done';
+        btnSubmitBelowText.value = (interaction.submissionCount == interaction.settings.submissionLimit) ? 'You have reached the submission limit' : ''
       }
     },
     function (error) {
@@ -59,6 +64,7 @@ const submit = () => {
           :interaction="interactSession.interactions[currentIndex]"
           :spinner="spinner"
           :btnSubmitText="btnSubmitText"
+          :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
         />
         <WaitingRoom

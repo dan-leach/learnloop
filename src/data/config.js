@@ -7,7 +7,7 @@ export const config = reactive({
       currentIndexPollInterval: 3000,
     },
     host: {
-      newSubmissionsPollInterval: 10000,
+      newSubmissionsPollInterval: 3000,
     },
     create: {
       interactions: {

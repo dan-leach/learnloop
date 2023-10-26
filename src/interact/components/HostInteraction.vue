@@ -1,6 +1,7 @@
 <script setup>
 import { interactSession } from '../../data/interactSession.js';
 import WaitingRoom from './host/WaitingRoom.vue';
+import HideResponses from './host/HideResponses.vue';
 import SingleChoice from './host/SingleChoice.vue';
 import { config } from '../../data/config.js';
 
@@ -27,6 +28,11 @@ const emit = defineEmits(['goForward', 'goBack']);
         >
           <WaitingRoom
             v-if="interactSession.interactions[currentIndex].type == 'waitingRoom'"
+          />
+          <HideResponses
+            v-else-if="interactSession.interactions[currentIndex].settings.hideResponses"
+            @showResponses="interactSession.interactions[currentIndex].settings.hideResponses = false"
+            :interaction="interactSession.interactions[currentIndex]"
           />
           <SingleChoice
             v-else-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
