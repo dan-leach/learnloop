@@ -36,14 +36,14 @@ export const config = reactive({
               hideResponses: false,
             },
           },
-          text: {
-            name: 'Text',
-            id: 'text',
+          shortText: {
+            name: 'Short text',
+            id: 'shortText',
             settings: {
               optionsLimit: 0,
               characterLimit: {
                 min: 1,
-                max: 50,
+                max: 200,
               },
               submissionLimit: 10,
               hideResponses: false,

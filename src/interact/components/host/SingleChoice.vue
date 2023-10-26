@@ -16,6 +16,18 @@ const chartConfig = {
       datasets: [
         {
           data: optionCounts,
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.5)',
+            'rgba(66, 245, 215, 0.5)',
+            'rgba(255, 159, 64, 0.5)',
+            'rgba(255, 205, 86, 0.5)',
+            'rgba(245, 66, 227, 0.5)',
+            'rgba(75, 192, 192, 0.5)',
+            'rgba(54, 162, 235, 0.5)',
+            'rgba(153, 102, 255, 0.5)',
+            'rgba(161, 163, 167, 0.5)',
+            'rgba(176, 245, 66, 0.5)'
+          ],
         },
       ],
     },
@@ -87,10 +99,9 @@ watch(props.interaction, () => {
 });
 
 onMounted(() => {
-  props.interaction.chartType = "bar" //remove once set at session creation time
   chart = new Chart(
     document.getElementById('chart'),
-    chartConfig[props.interaction.chartType]
+    chartConfig[props.interaction.chart]
   );
 });
 </script>

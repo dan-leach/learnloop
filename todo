@@ -1,11 +1,9 @@
 Current:
-Transition group for tables - not working for table row - perhaps create component div instead? https://vuejs.org/examples/#list-transition
 Then test whole process of session creation --> host/join
 Create global tblName variables for feedback api module
 
 Styling/harmonisation:
 move add buttons for questions/sessions etc into table head
-add system for generating sufficient colours ?just have max 10 options
 Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
 
 Complete full Give Feedback including api to provide feedback works in principle for v5

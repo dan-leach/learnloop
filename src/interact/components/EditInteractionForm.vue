@@ -11,6 +11,8 @@ let prompt = ref('');
 let type = ref('');
 let options = ref([]);
 let settings = ref({});
+let chart = ref('');
+let charts = ref('');
 
 if (props.index > -1) {
   const interaction = interactSession.interactions[props.index];
@@ -21,9 +23,11 @@ if (props.index > -1) {
 }
 
 watch(type, (newType, oldType) => {
-  if (type.value)
+  if (type.value) {
     settings.value =
       config.interact.create.interactions.types[type.value].settings;
+    charts.value = config.interact.create.interactions.types[type.value].charts;
+  }
   if (settings.value.selectedLimit) {
     settings.value.selectedLimit.max = options.value.length;
     keepSelectedLimitsWithinMinMax();
@@ -118,6 +122,7 @@ let submit = () => {
     JSON.stringify({
       prompt: prompt.value,
       type: type.value,
+      chart: chart.value,
       options: options.value,
       settings: settings.value,
     })
@@ -125,6 +130,8 @@ let submit = () => {
   if (props.index == -1) {
     prompt.value = '';
     type.value = '';
+    chart.value = '';
+    charts.value = [];
     options.value = [];
     settings.value = {};
   }
@@ -192,6 +199,30 @@ let submit = () => {
               </div>
             </div>
             <div v-if="type">
+              <div v-if="charts" class="mb-4">
+                <label for="type" class="form-label">Chart type:</label>
+                <select
+                  v-model="chart"
+                  class="form-control"
+                  id="chart"
+                  name="chart"
+                  autocomplete="off"
+                  required
+                >
+                  <option disabled value="">
+                    Please select a chart type
+                  </option>
+                  <option
+                    v-for="chart in charts"
+                    :value="chart"
+                  >
+                    {{ (chart.charAt(0).toUpperCase() + chart.slice(1)) }}
+                  </option>
+                </select>
+                <div class="invalid-feedback">
+                  Please select a chart type.
+                </div>
+              </div>
               <div v-if="settings.optionsLimit" class="mb-4">
                 <label for="newOption" class="form-label">Options:</label>
                 <table class="table" id="optionsTable">
@@ -331,6 +362,23 @@ let submit = () => {
                           class="form-control"
                           id="selectedLimitMin"
                           name="selectedLimit"
+                          autocomplete="off"
+                          required
+                        />
+                      </div>
+                    </div>
+                    <div v-if="settings.characterLimit" class="mb-4">
+                      <label for="characterLimit" class="form-label"
+                        >Character limit for each response:</label
+                      >
+                      <div class="input-group" id="characterLimit">
+                        <span class="input-group-text">Maximum:</span>
+                        <input
+                          type="number"
+                          v-model.lazy="settings.characterLimit.max"
+                          class="form-control"
+                          id="characterLimit"
+                          name="characterLimit"
                           autocomplete="off"
                           required
                         />

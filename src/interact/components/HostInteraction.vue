@@ -3,6 +3,8 @@ import { interactSession } from '../../data/interactSession.js';
 import WaitingRoom from './host/WaitingRoom.vue';
 import HideResponses from './host/HideResponses.vue';
 import SingleChoice from './host/SingleChoice.vue';
+import MultipleChoice from './host/MultipleChoice.vue';
+import ShortText from './host/ShortText.vue';
 import { config } from '../../data/config.js';
 
 const props = defineProps(['currentIndex']);
@@ -36,6 +38,14 @@ const emit = defineEmits(['goForward', 'goBack']);
           />
           <SingleChoice
             v-else-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
+            :interaction="interactSession.interactions[currentIndex]"
+          />
+          <MultipleChoice
+            v-else-if="interactSession.interactions[currentIndex].type == 'multipleChoice'"
+            :interaction="interactSession.interactions[currentIndex]"
+          />
+          <ShortText
+            v-else-if="interactSession.interactions[currentIndex].type == 'shortText'"
             :interaction="interactSession.interactions[currentIndex]"
           />
         </div>

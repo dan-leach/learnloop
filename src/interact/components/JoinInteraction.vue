@@ -2,8 +2,10 @@
 import { ref } from 'vue';
 import { api } from '../../data/api.js';
 import { interactSession } from '../../data/interactSession.js';
-import SingleChoice from './join/SingleChoice.vue';
 import WaitingRoom from './join/WaitingRoom.vue';
+import SingleChoice from './join/SingleChoice.vue';
+import MultipleChoice from './join/MultipleChoice.vue';
+import ShortText from './join/ShortText.vue';
 import Swal from 'sweetalert2';
 import Toast from '../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
@@ -56,7 +58,12 @@ const submit = () => {
 <template>
   <div>
     <div class="d-flex justify-content-center">
-      <div>
+      <div class="full-width">
+        <WaitingRoom
+          v-if="
+            interactSession.interactions[currentIndex].type == 'waitingRoom'
+          "
+        />
         <SingleChoice
           v-if="
             interactSession.interactions[currentIndex].type == 'singleChoice'
@@ -67,10 +74,25 @@ const submit = () => {
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
         />
-        <WaitingRoom
+        <MultipleChoice
           v-if="
-            interactSession.interactions[currentIndex].type == 'waitingRoom'
+            interactSession.interactions[currentIndex].type == 'multipleChoice'
           "
+          :interaction="interactSession.interactions[currentIndex]"
+          :spinner="spinner"
+          :btnSubmitText="btnSubmitText"
+          :btnSubmitBelowText="btnSubmitBelowText"
+          @submit="submit"
+        />
+        <ShortText
+          v-if="
+            interactSession.interactions[currentIndex].type == 'shortText'
+          "
+          :interaction="interactSession.interactions[currentIndex]"
+          :spinner="spinner"
+          :btnSubmitText="btnSubmitText"
+          :btnSubmitBelowText="btnSubmitBelowText"
+          @submit="submit"
         />
       </div>
     </div>
@@ -78,6 +100,9 @@ const submit = () => {
 </template>
 
 <style scoped>
+.full-width {
+  width: 100%
+}
 .interactionComponentType {
   margin-right: auto;
   margin-left: auto;
