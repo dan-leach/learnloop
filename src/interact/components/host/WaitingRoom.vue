@@ -43,7 +43,7 @@ const deleteSubmissions = () => {
 
 <template>
   <div>
-    <div class="text-center m-4 d-flex justify-content-around">
+    <div class="join-panel text-center m-2 p-2 d-flex justify-content-around">
       <div class="align-self-center me-4">
         <img
           :src="
@@ -57,11 +57,11 @@ const deleteSubmissions = () => {
       </div>
       <div class="align-self-center">
         <p class="join-instructions">
-          Scan the QR code, or<br />go to LearnLoop.co.uk<br />
-          and use the code:
+          Scan the QR code, or<br />go to <strong>LearnLoop.co.uk</strong><br />
+          and enter this code <br />in the interact panel:
         </p>
         <p class="m-2">
-          <span class="join-id px-4">{{ interactSession.id }}</span>
+          <span class="join-id px-4 py-1">{{ interactSession.id }}</span>
         </p>
       </div>
     </div>
@@ -89,7 +89,12 @@ const deleteSubmissions = () => {
   font-size: 3rem;
   font-family: serif;
   border: 2px solid #17a2b8;
-  border-radius: 25px;
+  border-radius: 15px;
   color: #17a2b8;
+}
+.join-panel {
+  background-color: white;
+  border: 1px solid #0000002d;
+  border-radius: 5px;
 }
 </style>

@@ -163,10 +163,10 @@ const submit = () => {
         </th>
       </tr>
     </thead>
-    <tbody>
-      <template v-for="(interaction, index) in interactSession.interactions">
-        <tr v-if="interaction.type != 'waitingRoom'">
-          <td class="p-0 ps-2">
+    <TransitionGroup name="list" tag="tbody">
+      <template v-for="(interaction, index) in interactSession.interactions" :key="interaction">
+        <tr> 
+          <td class="p-0 ps-2" v-if="interaction.type != 'waitingRoom'">
             <button
               v-if="index != 0"
               class="btn btn-default btn-sm p-0"
@@ -184,11 +184,11 @@ const submit = () => {
               <font-awesome-icon :icon="['fas', 'chevron-down']" />
             </button>
           </td>
-          <td>{{ interaction.prompt }}</td>
-          <td>
+          <td v-if="interaction.type != 'waitingRoom'">{{ interaction.prompt }}</td>
+          <td v-if="interaction.type != 'waitingRoom'">
             {{ config.interact.create.interactions.types[interaction.type].name }}
           </td>
-          <td>
+          <td v-if="interaction.type != 'waitingRoom'">
             <button
               class="btn btn-danger btn-sm btn-right ms-4"
               id="btnRemoveInteraction"
@@ -206,7 +206,7 @@ const submit = () => {
           </td>
         </tr>
       </template>
-    </tbody>
+    </TransitionGroup>
   </table>
   <template v-for="(interaction, index) in interactSession.interactions">
     <EditInteractionForm
@@ -235,4 +235,16 @@ const submit = () => {
   </div>
 </template>
 
-<style></style>
+<style>
+.list-move,
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+</style>

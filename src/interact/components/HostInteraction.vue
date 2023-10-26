@@ -3,62 +3,37 @@ import { interactSession } from '../../data/interactSession.js';
 import WaitingRoom from './host/WaitingRoom.vue';
 import SingleChoice from './host/SingleChoice.vue';
 import { config } from '../../data/config.js';
-import Toast from '../../assets/Toast.js';
 
 const props = defineProps(['currentIndex']);
 const emit = defineEmits(['goForward', 'goBack']);
 
-const toggleFullscreen = () => {
-  config.client.isFullscreen = !config.client.isFullscreen;
-  const element = document.documentElement;
-  if (config.client.isFullscreen) {
-    const fullMethod =
-      element.requestFullScreen ||
-      element.webkitRequestFullScreen ||
-      element.mozRequestFullScreen ||
-      element.msRequestFullScreen;
-
-    if (fullMethod) {
-      fullMethod.call(element);
-    } else {
-      Toast.fire({
-        icon: 'error',
-        title: 'Error launching full screen. Try pressing F11 instead.',
-      });
-    }
-  } else {
-    const exitMethod =
-      element.exitFullscreen ||
-      element.webkitExitFullscreen ||
-      element.mozCancelFullScreen ||
-      element.msExitFullscreen;
-    if (exitMethod) exitMethod.call(element);
-  }
-};
 </script>
 
 <template>
-  <div id="interaction-view">
-    <p v-if="currentIndex != 0" class="text-center p-1">
+  <div id="interaction-view" :class="{ fullscreen: config.client.isFullscreen }">
+    <p v-if="currentIndex != 0" class="text-center m-1">
       To join go to LearnLoop.co.uk and use the code
       <span class="join-id-top p-1">{{ interactSession.id }}</span>
     </p>
-    <p class="display-6 text-center">
-      {{ interactSession.interactions[currentIndex].title }}
+    <p v-if="interactSession.interactions[currentIndex].type != 'waitingRoom'" class="display-6 text-center m-1">
+      {{ interactSession.interactions[currentIndex].prompt }}
     </p>
-    <div
-      id="chart-area"
-      class="d-flex justify-content-center chart-area m-4"
-      :class="{ fullscreen: config.client.isFullscreen }"
-    >
-      <WaitingRoom
-        v-if="interactSession.interactions[currentIndex].type == 'waitingRoom'"
-      />
-      <SingleChoice
-        v-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
-        :interaction="interactSession.interactions[currentIndex]"
-      />
-    </div>
+      <Transition mode="out-in">
+        <div
+          id="chart-area"
+          class="d-flex justify-content-center chart-area mx-4"
+          :class="{ fullscreen: config.client.isFullscreen }"
+          :key="'index'+currentIndex"
+        >
+          <WaitingRoom
+            v-if="interactSession.interactions[currentIndex].type == 'waitingRoom'"
+          />
+          <SingleChoice
+            v-else-if="interactSession.interactions[currentIndex].type == 'singleChoice'"
+            :interaction="interactSession.interactions[currentIndex]"
+          />
+        </div>
+      </Transition>
     <ul class="nav nav-justified m-2">
       <li class="nav-item">
         <button
@@ -67,15 +42,6 @@ const toggleFullscreen = () => {
           @click="emit('goBack')"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
-        </button>
-      </li>
-      <li class="nav-item">
-        <button class="btn btn-lg" @click="toggleFullscreen">
-          <font-awesome-icon
-            v-if="!config.client.isFullscreen"
-            :icon="['fas', 'maximize']"
-          />
-          <font-awesome-icon v-else :icon="['fas', 'minimize']" />
         </button>
       </li>
       <li class="nav-item">
@@ -96,12 +62,25 @@ const toggleFullscreen = () => {
   height: 50vh;
 }
 .chart-area.fullscreen {
-  height: 75vh;
+  height: 80vh;
+}
+#interaction-view.fullscreen {
+  background-color: transparent;
 }
 .join-id-top {
   background-color: #17a2b8;
   color: white;
   font-family: serif;
   font-size: 1.2rem;
+}
+
+.v-enter-active,
+.v-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.v-enter-from,
+.v-leave-to {
+  opacity: 0;
 }
 </style>

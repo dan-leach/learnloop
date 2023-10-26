@@ -8,9 +8,9 @@ import { config } from '../data/config.js';
 import Swal from 'sweetalert2';
 import Loading from '../components/Loading.vue';
 import HostInteraction from './components/HostInteraction.vue';
+import Toast from '../assets/Toast.js';
 
 const loading = ref(true);
-const showInteraction = ref(true);
 const currentIndex = ref(0);
 
 const updateFacilitatorIndex = () => {
@@ -46,14 +46,19 @@ const fetchSubmissionCount = () => {
 };
 
 const goToInteraction = (index) => {
-  showInteraction.value = false;
+  if (currentIndex.value == 0 && index == 1) {
+    config.client.isFullscreen = true
+    Toast.fire({
+      icon: 'info',
+      title: 'Press F11 to toggle fullscreen.',
+    });
+  } else if (index == 0) {
+    config.client.isFullscreen = false
+  }
   currentIndex.value = index;
   updateFacilitatorIndex();
   if (index == 0) fetchSubmissionCount();
   interactSession.interactions[currentIndex.value].submissions = [];
-  setTimeout(() => {
-    showInteraction.value = true;
-  }, 250);
 };
 
 const fetchNewSubmissions = () => {
@@ -108,6 +113,7 @@ const fetchDetailsHost = () => {
       loading.value = false;
       fetchSubmissionCount();
       updateFacilitatorIndex();
+      fetchNewSubmissions();
       setInterval(
         fetchNewSubmissions,
         config.interact.host.newSubmissionsPollInterval
@@ -210,16 +216,13 @@ onBeforeUnmount(() => {
       <p v-if="!config.client.isFullscreen" class="text-center">
         {{ interactSession.title }} | {{ interactSession.name }}
       </p>
-      <Transition name="slide-up">
-        <HostInteraction
-          v-if="showInteraction"
-          :currentIndex="currentIndex"
-          class="card m-2"
-          :class="{ container: !config.client.isFullscreen }"
-          @goForward="goToInteraction(currentIndex + 1)"
-          @goBack="goToInteraction(currentIndex - 1)"
-        />
-      </Transition>
+      <HostInteraction
+        :currentIndex="currentIndex"
+        class="m-2"
+        :class="{ container: !config.client.isFullscreen }"
+        @goForward="goToInteraction(currentIndex + 1)"
+        @goBack="goToInteraction(currentIndex - 1)"
+      />
     </div>
   </Transition>
 </template>

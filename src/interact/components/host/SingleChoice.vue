@@ -29,7 +29,6 @@ const chartConfig = {
         y: {
           beginAtZero: true,
           ticks: {
-            // Include a dollar sign in the ticks
             callback: function (value, index, ticks) {
               return Number.isInteger(value) ? value : '';
             },
@@ -83,21 +82,28 @@ let chart;
 watch(props.interaction, () => {
   for (let i = 0; i < props.interaction.options.length; i++)
     optionCounts[i] = 0;
-  for (let submission of props.interaction.submissions)
-    optionCounts[submission.response]++;
+  for (let submission of props.interaction.submissions) optionCounts[parseInt(submission.response)]++;
   chart.update();
 });
 
 onMounted(() => {
+  props.interaction.chartType = "bar" //remove once set at session creation time
   chart = new Chart(
-    document.getElementById('barChart'),
-    chartConfig[props.interaction.chart]
+    document.getElementById('chart'),
+    chartConfig[props.interaction.chartType]
   );
 });
 </script>
 
 <template>
-  <canvas id="barChart"></canvas>
+  <canvas id="chart" class="p-2"></canvas>
 </template>
 
-<style scoped></style>
+<style scoped>
+#chart {
+  background-color: white;
+  border: 1px solid #0000002d;
+  border-radius: 5px;
+  max-height: 80vh;
+}
+</style>

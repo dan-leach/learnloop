@@ -52,7 +52,7 @@ function insertSubmission($id, $data, $link){
     
     //sanitize and validate
     $interactionIndex = $data->interactionIndex;
-    if (filter_var($interactionIndex, FILTER_VALIDATE_INT)) send_error_response("interactionIndex must be of type [integer]", 400);
+    if (!filter_var($interactionIndex, FILTER_VALIDATE_INT)) send_error_response("interactionIndex must be of type [integer]", 400);
     $response = htmlspecialchars($data->response);
     if (strlen($response) == 0) send_error_response("Response cannot be blank", 400);
         

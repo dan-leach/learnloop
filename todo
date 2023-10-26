@@ -1,5 +1,4 @@
 Current:
-Check out: https://github.com/chillerlan/php-qrcode for ?using own API for QR generation with image?
 Transition group for tables - not working for table row - perhaps create component div instead? https://vuejs.org/examples/#list-transition
 Then test whole process of session creation --> host/join
 Create global tblName variables for feedback api module
