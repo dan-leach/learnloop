@@ -11,6 +11,11 @@ switch ($route) {
         if (is_null($data)) send_error_response("Variable(s) [data] must be defined for insertSession route", 400);
         echo json_encode(insertSession($data, $link));
         break;
+    //update
+    case "resetPin":
+        if (is_null($id) || is_null($data)) send_error_response("Variable(s) [id] and [data] must be defined for resetPin route", 400);
+        echo json_encode(resetPin($id, $data, $link));
+        break;
     //join
     case "fetchDetails":
         if (is_null($id)) send_error_response("Variable(s) [id] must be defined for fetchDetails route", 400);
@@ -44,6 +49,11 @@ switch ($route) {
     case "deleteSubmissions":
         if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for deleteSubmissions route", 400);
         echo json_encode(deleteSubmissions($id, $pin, $link));
+        break;
+    //utilities
+    case "findMySessions":
+        if (is_null($data)) send_error_response("Variable(s) [data] must be defined for findMySessions route", 400);
+        echo json_encode(findMySessions($data, $link));
         break;
     default:
         send_error_response("Route [" . $route . "] not found in interact module",400);

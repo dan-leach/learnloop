@@ -192,13 +192,13 @@ function setNotificationPreference($id, $pin, $data, $link){ //sets the notifica
     $res .= ($data) ? "ON" : "OFF";
     return $res;
 }
-function resetPIN($id, $data, $link){ //resets the pin for $id
+function resetPin($id, $data, $link){ //resets the pin for $id
     $details = dbSelectDetails($id, $link);
     if ($data != $details['email']) send_error_response("The email you provided does not match the facilitator email for '".$details['title']."'.", 500);
     if ($details['closed']) send_error_response("This feedback request has been closed.", 500);
     $pin = createPin();
     $pinHash = hashPin($pin);
-    if (!dbUpdatePinHash($id, $pinHash, $link)) send_error_response("dbSetNotificationPreference failed for an unknown reason", 500);
+    if (!dbUpdatePinHash($id, $pinHash, $link)) send_error_response("dbUpdatePinHash failed for an unknown reason", 500);
     sendResetPin($details['name'], $details['title'], $details['email'], $pin);
     return "A new PIN has been emailed to you";
 }

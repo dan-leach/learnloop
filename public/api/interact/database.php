@@ -206,5 +206,46 @@ function dbDeleteSubmissions($id, $link){
     return true;
 }
 
+function dbUpdatePinHash($id, $pinHash, $link){ //updates the pinhash for $id
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET pinHash = ? WHERE id = ?");
+    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
+    $rc = $stmt->bind_param("ss",$pinHash, $id);
+    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
+    $rc = $stmt->execute();
+    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
+    return true;
+}
+
+function dbFetchDetailsByEmail($email, $link){
+    global $tblSessions;
+    if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
+    
+    $stmt = $link->prepare("SELECT * FROM $tblSessions WHERE email = ?");
+    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->bind_param("s",$email);
+    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->execute();
+    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
+
+    $result = $stmt->get_result();
+    if ( false===$result ) send_error_response("get_result() failed: " . mysqli_error($link), 500);
+
+    $res = array();
+    $row_cnt = $result->num_rows;
+    if($row_cnt > 0){
+        while($r = mysqli_fetch_assoc($result)) {
+            array_push($res, $r);
+        }
+    }
+
+    $result->close();
+    $stmt->close();
+
+    return $res;
+}
+
 
 ?>

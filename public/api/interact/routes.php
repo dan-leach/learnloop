@@ -16,7 +16,6 @@ function insertSession($data, $link){
     $name = htmlspecialchars($data->name);
     if (strlen($name) == 0) $errMsg .= "Name is blank. ";
     $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
-    if (!$isSubsession && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errMsg .= "Email is not valid. ";
     $title = htmlspecialchars($data->title);
     if (strlen($title) == 0) $errMsg .= "Title is blank. ";
     if (sizeof($data->interactions) < 1) {
@@ -29,9 +28,21 @@ function insertSession($data, $link){
        
     if (!dbInsertSession($res->id, $name, $email, $title, $interactions, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
 
-    //if ($email) sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $tags, $certificate, $attendance, $questions, $res->id, $res->pin, $email);
+    if ($email) sendSessionCreatedMessage($name, $title, $interactions, $res->id, $res->pin, $email);
 
     return $res;
+}
+
+//update
+function resetPin($id, $data, $link){ //resets the pin for $id
+    $details = dbSelectDetails($id, $link);
+    $email = json_decode($data);
+    if ($email != $details['email']) send_error_response("The email you provided does not match the facilitator email for '".$details['title']."'.", 400);
+    $pin = createPin();
+    $pinHash = hashPin($pin);
+    if (!dbUpdatePinHash($id, $pinHash, $link)) send_error_response("dbUpdatePinHash failed for an unknown reason", 500);
+    sendResetPin($details['name'], $details['title'], $details['email'], $pin);
+    return "A new PIN has been emailed to you";
 }
 
 //join
@@ -76,7 +87,7 @@ function fetchDetailsHost($id, $pin, $link){
 function fetchNewSubmissions($id, $pin, $data, $link){
     $sessionDetails = dbSelectDetails($id, $link);
     if (!pinIsValid($pin, $sessionDetails['pinHash'])) send_error_response("Invalid pin", 401);
-    $res = dbSelectNewSubmissions($id, $data->interactionIndex, $data->lastSubmissionId, $link);    
+    $res = dbSelectNewSubmissions($id, $data->interactionIndex, $data->lastSubmissionId, $link);
     return $res;
 }
 function updateFacilitatorIndex($id, $pin, $data, $link){
@@ -95,5 +106,16 @@ function deleteSubmissions($id, $pin, $link){
     if (!pinIsValid($pin, $sessionDetails['pinHash'])) send_error_response("Invalid pin", 401);
     if (dbDeleteSubmissions($id, $link)) return true;
     send_error_response("deleteSubmissions failed for an unknown reason", 500);
+}
+
+//utilities
+function findMySessions($data, $link){
+    $email = filter_var(json_decode($data), FILTER_SANITIZE_EMAIL);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) send_error_response("Invalid email.", 401);
+    $foundDetails = dbFetchDetailsByEmail($email, $link);
+    if (count($foundDetails)>0){
+        if (!sendFoundSessions($foundDetails, $email)) send_error_response("sendFoundSessions failed for an unknown reason", 500);
+    }
+    return "If any sessions were found matching your email the details have been emailed to you.";
 }
 ?>

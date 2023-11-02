@@ -1,5 +1,9 @@
 import { config } from './config.js';
 
+function escapeAmpersand(str) {
+  return str.replace(/&/g, "%26")
+}
+
 function api(module, route, id, pin, data) {
   return new Promise(function (resolve, reject) {
     setTimeout(function () {
@@ -50,7 +54,7 @@ function api(module, route, id, pin, data) {
         '&pin=' +
         pin +
         '&data=' +
-        JSON.stringify(data)
+        escapeAmpersand(JSON.stringify(data))
     );
     if (config.client.showApiConsole) console.log(route, data ? data : '');
   });
