@@ -72,7 +72,7 @@ const submit = () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
-  interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
+  if (interactSession.interactions[0].type != 'waitingRoom') interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
   api('interact', 'insertSession', null, null, interactSession).then(
     function (res) {
       btnSubmit.value.text = 'Create interact session';

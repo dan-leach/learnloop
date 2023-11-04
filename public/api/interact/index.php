@@ -16,6 +16,10 @@ switch ($route) {
         if (is_null($id) || is_null($data)) send_error_response("Variable(s) [id] and [data] must be defined for resetPin route", 400);
         echo json_encode(resetPin($id, $data, $link));
         break;
+    case "updateSession":
+        if (is_null($id) || is_null($pin) || is_null($data)) send_error_response("Variable(s) [id], [pin] and [data] must be defined for updateSession route", 400);
+        echo json_encode(updateSession($id, $pin, $data, $link));
+        break;
     //join
     case "fetchDetails":
         if (is_null($id)) send_error_response("Variable(s) [id] must be defined for fetchDetails route", 400);

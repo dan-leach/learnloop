@@ -208,7 +208,7 @@ const findMySessions = (module) => {
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="#">Edit existing session</a>
+                <a class="dropdown-item" @click="router.push('/interact/edit/')">Edit existing session</a>
               </li>
               <li>
                 <a class="dropdown-item" @click="router.push('/interact/host/')"

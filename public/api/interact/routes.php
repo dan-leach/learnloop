@@ -37,12 +37,38 @@ function insertSession($data, $link){
 function resetPin($id, $data, $link){ //resets the pin for $id
     $details = dbSelectDetails($id, $link);
     $email = json_decode($data);
-    if ($email != $details['email']) send_error_response("The email you provided does not match the facilitator email for '".$details['title']."'.", 400);
+    if ($email != $details['email']) send_error_response("The email you provided does not match the facilitator email for '".htmlspecialchars_decode($details['title'])."'.", 400);
     $pin = createPin();
     $pinHash = hashPin($pin);
     if (!dbUpdatePinHash($id, $pinHash, $link)) send_error_response("dbUpdatePinHash failed for an unknown reason", 500);
     sendResetPin($details['name'], $details['title'], $details['email'], $pin);
     return "A new PIN has been emailed to you";
+}
+function updateSession($id, $pin, $data, $link){
+    $res = dbSelectDetails($id, $link);
+    if (!pinIsValid($pin, $res['pinHash'])) send_error_response("Invalid pin", 401);
+
+    //sanitize and validate
+    $errMsg = "";
+
+    $name = htmlspecialchars($data->name);
+    if (strlen($name) == 0) $errMsg .= "Name is blank. ";
+    $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
+    $title = htmlspecialchars($data->title);
+    if (strlen($title) == 0) $errMsg .= "Title is blank. ";
+    if (sizeof($data->interactions) < 1) {
+        $errMsg .= "No interactions defined. ";
+    } else {
+        $interactions = json_encode($data->interactions);
+    }
+
+    if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
+       
+    if (!dbUpdateSession($id, $name, $email, $title, $interactions, $link)) send_error_response("dbUpdateSession failed for an unknown reason", 500);
+
+    if ($email) sendSessionUpdatedMessage($name, $title, $interactions, $id, $email);
+
+    return true;
 }
 
 //join
@@ -77,7 +103,6 @@ function insertSubmission($id, $data, $link){
 function fetchDetailsHost($id, $pin, $link){
     $res = dbSelectDetails($id, $link);
     if (!pinIsValid($pin, $res['pinHash'])) send_error_response("Invalid pin", 401);
-    unset($res['email']);
     unset($res['pinHash']);
     $res['name'] = htmlspecialchars_decode($res['name']);
     $res['title'] = htmlspecialchars_decode($res['title']);

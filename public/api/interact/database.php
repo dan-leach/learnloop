@@ -42,6 +42,20 @@ function dbInsertSession($id, $name, $email, $title, $interactions, $pinHash, $l
     return true;
 }
 
+function dbUpdateSession($id, $name, $email, $title, $interactions, $link) { //inserts session $data with $id and $pinHash
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET name = ?, email = ?, title = ?, interactions = ? WHERE id = ?");
+    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->bind_param("sssss", $name, $email, $title, $interactions, $id);
+    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
+
+    $rc = $stmt->execute();
+    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
+    
+    return true;
+}
+
 function dbSelectDetails($id, $link){ //returns the session details for $id as a php object
     global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
