@@ -109,6 +109,7 @@ const findMySessions = (module) => {
 
 <template>
   <main>
+    <p class="text-center display-6">This is the development version of LearnLoop.</p>
     <p class="text-center m-4">
       Welcome to LearnLoop. Please select from the options below.
     </p>
@@ -215,7 +216,6 @@ const findMySessions = (module) => {
                   >Host existing session</a
                 >
               </li>
-              <li><a class="dropdown-item" href="#">View attendance</a></li>
               <li><a class="dropdown-item" @click="resetPin('interact')">Reset PIN</a></li>
               <li><a class="dropdown-item" @click="findMySessions('interact')">Find my sessions</a></li>
             </ul>

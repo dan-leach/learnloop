@@ -66,6 +66,8 @@ function updateSession($id, $pin, $data, $link){
        
     if (!dbUpdateSession($id, $name, $email, $title, $interactions, $link)) send_error_response("dbUpdateSession failed for an unknown reason", 500);
 
+    if (!dbDeleteSubmissions($id, $link)) send_error_response("dbDeleteSubmissions failed for an unknown reason", 500);
+
     if ($email) sendSessionUpdatedMessage($name, $title, $interactions, $id, $email);
 
     return true;

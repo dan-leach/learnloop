@@ -1,4 +1,5 @@
 Current:
+API side - updateSession - should set new IDs for each interaction so that previous submissions are not linked
 Then test whole process of session creation --> host/join
 Create global tblName variables for feedback api module
 
