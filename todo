@@ -3,11 +3,11 @@ Current:
 Copy changes to dev server api to repo
 
 Add ? help buttons
-Create global tblName variables for feedback api module
 
 Styling/harmonisation:
 Check Swal button colors correct
 move add buttons for questions/sessions etc into table head
+check group transition applied everywhere
 Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
 
 Complete full Give Feedback including api to provide feedback works in principle for v5
