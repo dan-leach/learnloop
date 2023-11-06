@@ -20,6 +20,11 @@ const router = createRouter({
           component: () => import('../feedback/Create.vue'),
         },
         {
+          path: 'created',
+          name: 'feedback-created',
+          component: () => import('../feedback/Created.vue'),
+        },
+        {
           path: 'complete',
           name: 'feedback-complete',
           component: () => import('../feedback/Complete.vue'),

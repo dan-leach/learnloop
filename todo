@@ -1,6 +1,8 @@
 Current:
-API side - updateSession - should set new IDs for each interaction so that previous submissions are not linked
-Then test whole process of session creation --> host/join
+Add questions/certificate and other options to create feedback session
+Copy changes to dev server api to repo
+
+Add ? help buttons
 Create global tblName variables for feedback api module
 
 Styling/harmonisation:

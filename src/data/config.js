@@ -59,6 +59,7 @@ export const config = reactive({
     url: 'https://dev.learnloop.co.uk',
     isFullscreen: false,
     showApiConsole: true,
+    subsessionEmailPrompt: true,
   },
   api: {
     timeoutDuration: 10000,
