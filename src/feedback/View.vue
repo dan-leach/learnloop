@@ -53,7 +53,7 @@ const fetchFeedback = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
-        title: 'Unable to load feedback form',
+        title: 'Unable to load feedback report',
         text: error,
       });
       router.push('/');
