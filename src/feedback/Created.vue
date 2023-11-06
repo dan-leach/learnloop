@@ -14,7 +14,7 @@ link.value.give = config.client.url + '/feedback/' + feedbackSession.id;
 link.value.view = config.client.url + '/feedback/host/' + feedbackSession.id;
 link.value.qr =
   'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
-  link.value.join +
+  link.value.give +
   '&choe=UTF-8&chld=h|1';
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
@@ -96,8 +96,8 @@ onBeforeUnmount(() => {
   <div class="d-flex justify-content-around align-items-center flex-wrap">
     <div>
       <div class="text-center p-4 mb-4 shadow">
-        <p @click="copyText(link.join)" class="display-6">
-          {{ link.join.replace('https://', '') }}
+        <p @click="copyText(link.give)" class="display-6">
+          {{ link.give.replace('https://', '') }}
           <button v-if="clipboard" class="btn btn-outline-dark">
             <font-awesome-icon :icon="['fas', 'copy']" />
           </button>
@@ -127,14 +127,14 @@ onBeforeUnmount(() => {
       config.client.url.replace('https://', '')
     }}</a>
     and enter the session ID: <strong>{{ feedbackSession.id }}</strong> in the
-    feedback panel, or you can use the QR code above if and embed this in a
+    feedback panel, or you can use the QR code above and embed this in a
     presentation.
   </p>
 
   <h2>How to view your feedback</h2>
   <div class="d-flex text-center justify-content-around">
     <p @click="copyText(link.view)" class="display-6 p-4 shadow">
-      {{ link.host.replace('https://', '') }}
+      {{ link.view.replace('https://', '') }}
       <button v-if="clipboard" class="btn btn-outline-dark">
         <font-awesome-icon :icon="['fas', 'copy']" />
       </button>
