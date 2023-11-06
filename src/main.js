@@ -24,6 +24,8 @@ import {
   faMinimize,
   faUsersRectangle,
   faCopy,
+  faCheck,
+  faTimes,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
 library.add(
@@ -38,7 +40,9 @@ library.add(
   faMaximize,
   faMinimize,
   faUsersRectangle,
-  faCopy
+  faCopy,
+  faCheck,
+  faTimes
 );
 
 import { cookies } from './data/cookies.js';

@@ -72,7 +72,8 @@ const submit = () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
-  if (interactSession.interactions[0].type != 'waitingRoom') interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
+  if (interactSession.interactions[0].type != 'waitingRoom')
+    interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
   api('interact', 'insertSession', null, null, interactSession).then(
     function (res) {
       btnSubmit.value.text = 'Create interact session';
@@ -164,8 +165,11 @@ const submit = () => {
       </tr>
     </thead>
     <TransitionGroup name="list" tag="tbody">
-      <template v-for="(interaction, index) in interactSession.interactions" :key="interaction">
-        <tr> 
+      <template
+        v-for="(interaction, index) in interactSession.interactions"
+        :key="interaction"
+      >
+        <tr>
           <td class="p-0 ps-2" v-if="interaction.type != 'waitingRoom'">
             <button
               v-if="index != 0"
@@ -184,9 +188,13 @@ const submit = () => {
               <font-awesome-icon :icon="['fas', 'chevron-down']" />
             </button>
           </td>
-          <td v-if="interaction.type != 'waitingRoom'">{{ interaction.prompt }}</td>
           <td v-if="interaction.type != 'waitingRoom'">
-            {{ config.interact.create.interactions.types[interaction.type].name }}
+            {{ interaction.prompt }}
+          </td>
+          <td v-if="interaction.type != 'waitingRoom'">
+            {{
+              config.interact.create.interactions.types[interaction.type].name
+            }}
           </td>
           <td v-if="interaction.type != 'waitingRoom'">
             <button

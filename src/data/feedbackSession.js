@@ -8,6 +8,9 @@ export const feedbackSession = reactive({
   date: '',
   subsessions: [],
   questions: [],
+  certificate: true,
+  notifications: true,
+  attendance: true,
   feedback: {
     positive: '',
     constructive: '',
