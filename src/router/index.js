@@ -25,9 +25,24 @@ const router = createRouter({
           component: () => import('../feedback/Created.vue'),
         },
         {
+          path: 'edit/:id?',
+          name: 'feedback-edit',
+          component: () => import('../feedback/Edit.vue'),
+        },
+        {
           path: 'complete',
           name: 'feedback-complete',
           component: () => import('../feedback/Complete.vue'),
+        },
+        {
+          path: 'view/:id?',
+          name: 'feedback-view',
+          component: () => import('../feedback/View.vue'),
+        },
+        {
+          path: 'attendance/:id?',
+          name: 'feedback-attendance',
+          component: () => import('../feedback/Attendance.vue'),
         },
         {
           //this option should always be last else other routes will be interpreted as an id

@@ -26,90 +26,134 @@ const joinInteract = () => {
 };
 
 const resetPin = (module) => {
-  let id = ''
-  let email = ''
+  let id = '';
+  let email = '';
   Swal.fire({
     title: 'Reset PIN',
     html:
-      'You will need your session ID which you can find in emails relating to your session, or in the link to your feedback form.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>'+
-      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input">' + 
+      'You will need your session ID which you can find in emails relating to your session, or in the link to your feedback form.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>' +
+      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input">' +
       '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
     confirmButtonColor: '#007bff',
     preConfirm: () => {
-      id = document.getElementById('swalFormId').value,
-      email = document.getElementById('swalFormEmail').value
-    }
+      (id = document.getElementById('swalFormId').value),
+        (email = document.getElementById('swalFormEmail').value);
+    },
   }).then((result) => {
     if (result.isConfirmed) {
       if (!id || !email) {
         Swal.fire({
           icon: 'error',
-          text: 'Please enter a session ID and facilitator email.'
-        })
-        return
+          text: 'Please enter a session ID and facilitator email.',
+        });
+        return;
       }
       api(module, 'resetPin', id, null, JSON.stringify(email)).then(
-        function(res) {
+        function (res) {
           Swal.fire({
             icon: 'success',
-            text: res
-          })
+            text: res,
+          });
         },
-        function(error) {
+        function (error) {
           Swal.fire({
             icon: 'error',
-            text: error
-          })
+            text: error,
+          });
         }
-      )
+      );
     }
-  })
-}
+  });
+};
 
 const findMySessions = (module) => {
-  let email = ''
+  let email = '';
   Swal.fire({
     title: 'Find my sessions',
     html:
-      'Enter your email below and we\'ll email you with a list of any sessions you\'ve created previously.'+
+      "Enter your email below and we'll email you with a list of any sessions you've created previously." +
       '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
     confirmButtonColor: '#007bff',
     preConfirm: () => {
-      email = document.getElementById('swalFormEmail').value
-    }
+      email = document.getElementById('swalFormEmail').value;
+    },
   }).then((result) => {
     if (result.isConfirmed) {
       if (!email) {
         Swal.fire({
           icon: 'error',
-          text: 'Please enter a facilitator email.'
-        })
-        return
+          text: 'Please enter a facilitator email.',
+        });
+        return;
       }
       api(module, 'findMySessions', null, null, JSON.stringify(email)).then(
-        function(res) {
+        function (res) {
           Swal.fire({
             icon: 'success',
-            text: res
-          })
+            text: res,
+          });
         },
-        function(error) {
+        function (error) {
           Swal.fire({
             icon: 'error',
-            text: error
-          })
+            text: error,
+          });
         }
-      )
+      );
     }
-  })
-}
+  });
+};
+
+const closeSession = (module) => {
+  let id = '';
+  let pin = '';
+  Swal.fire({
+    title: 'Close session',
+    html:
+      'You will need your session ID and PIN which you can find in the email you received when your session was created.<br><br>Please be aware that once closed a session cannot be reopend to further feedback.<br>' +
+      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input">' +
+      '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input">',
+    showCancelButton: true,
+    confirmButtonColor: '#007bff',
+    preConfirm: () => {
+      (id = document.getElementById('swalFormId').value),
+        (pin = document.getElementById('swalFormPin').value);
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      if (!id || !pin) {
+        Swal.fire({
+          icon: 'error',
+          text: 'Please enter a session ID and PIN.',
+        });
+        return;
+      }
+      api(module, 'closeSession', id, pin, null).then(
+        function (res) {
+          Swal.fire({
+            icon: 'success',
+            text: res,
+          });
+        },
+        function (error) {
+          Swal.fire({
+            icon: 'error',
+            text: error,
+          });
+        }
+      );
+    }
+  });
+};
 </script>
 
 <template>
   <main>
-    <p class="text-center display-6">This is the development version of LearnLoop.</p>
+    <p class="text-center display-6">
+      This is the development version of LearnLoop.
+    </p>
     <p class="text-center m-4">
       Welcome to LearnLoop. Please select from the options below.
     </p>
@@ -157,13 +201,37 @@ const findMySessions = (module) => {
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" href="#">Edit existing session</a>
+                <a class="dropdown-item" @click="router.push('/feedback/edit/')"
+                  >Edit existing session</a
+                >
               </li>
-              <li><a class="dropdown-item" href="#">View feedback</a></li>
-              <li><a class="dropdown-item" href="#">View attendance</a></li>
-              <li><a class="dropdown-item" href="#">Close session</a></li>
-              <li><a class="dropdown-item" href="#">Reset PIN</a></li>
-              <li><a class="dropdown-item" href="#">Find my sessions</a></li>
+              <li>
+                <a class="dropdown-item" @click="router.push('/feedback/view/')"
+                  >View feedback</a
+                >
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  @click="router.push('/feedback/attendance/')"
+                  >View attendance</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="closeSession('feedback')"
+                  >Close session</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="resetPin('feedback')"
+                  >Reset PIN</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="findMySessions('feedback')"
+                  >Find my sessions</a
+                >
+              </li>
             </ul>
           </li>
         </ul>
@@ -209,15 +277,25 @@ const findMySessions = (module) => {
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" @click="router.push('/interact/edit/')">Edit existing session</a>
+                <a class="dropdown-item" @click="router.push('/interact/edit/')"
+                  >Edit existing session</a
+                >
               </li>
               <li>
                 <a class="dropdown-item" @click="router.push('/interact/host/')"
                   >Host existing session</a
                 >
               </li>
-              <li><a class="dropdown-item" @click="resetPin('interact')">Reset PIN</a></li>
-              <li><a class="dropdown-item" @click="findMySessions('interact')">Find my sessions</a></li>
+              <li>
+                <a class="dropdown-item" @click="resetPin('interact')"
+                  >Reset PIN</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="findMySessions('interact')"
+                  >Find my sessions</a
+                >
+              </li>
             </ul>
           </li>
         </ul>

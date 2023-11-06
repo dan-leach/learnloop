@@ -226,6 +226,15 @@ const fetchDetails = () => {
         );
         return;
       }
+      if (res.closed) {
+        Swal.fire({
+          icon: 'error',
+          title: 'Unable to load feedback form',
+          text: 'This feedback request has been closed by the facilitator.',
+        });
+        router.push('/');
+        return;
+      }
       feedbackSession.title = res.title;
       feedbackSession.date = res.date;
       feedbackSession.name = res.name;
