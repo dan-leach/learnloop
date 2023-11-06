@@ -6,7 +6,6 @@ import { api } from '../data/api.js';
 import router from '../router';
 import Swal from 'sweetalert2';
 
-feedbackSession.id = 'GE3KMw';
 if (!feedbackSession.id) router.push('/feedback/');
 
 const orgChange = () => {
