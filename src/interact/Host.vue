@@ -50,6 +50,7 @@ const goToInteraction = (index) => {
     config.client.isFullscreen = true
     Toast.fire({
       icon: 'info',
+      iconColor: '#17a2b8',
       title: 'Press F11 to toggle fullscreen.',
     });
   } else if (index == 0) {
@@ -122,8 +123,10 @@ const fetchDetailsHost = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to launch interact session hosting',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
       router.push('/');
     }

@@ -74,8 +74,10 @@ const fetchDetails = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to join interact session',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
       router.push('/');
     }

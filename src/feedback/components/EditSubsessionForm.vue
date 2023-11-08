@@ -37,6 +37,7 @@ let submit = () => {
         title: "Are you sure you don't want to provide a facilitator email?",
         text: "If you don't provide an email for the facilitator of this session they won't be able to view their feedback directly. As the organiser, you will still be able to view feedback for their session and share it with them manually if you wish. Click 'Cancel' if you want to return and enter a faciltator email.",
         showCancelButton: true,
+        confirmButtonColor: '#17a2b8',
       }).then((result) => {
         if (result.isConfirmed) {
           createSubsession();
@@ -63,7 +64,9 @@ let submit = () => {
       function (error) {
         Swal.fire({
           icon: 'error',
+          iconColor: '#17a2b8',
           text: error,
+          confirmButtonColor: '#17a2b8',
         });
         btnSubmit.text = 'Retry add to series?';
         btnSubmit.wait = false;

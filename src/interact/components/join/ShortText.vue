@@ -11,11 +11,13 @@ let submit = () => {
   if (length < minLength) {
     Toast.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Your response must be at least '+minLength+' characters in length',
     });
   } else if (length > maxLength) {
     Toast.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Your response cannot be more than '+maxLength+' characters in length',
     });
   } else {

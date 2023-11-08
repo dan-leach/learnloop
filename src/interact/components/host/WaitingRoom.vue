@@ -10,6 +10,7 @@ const deleteSubmissions = () => {
     title: 'Delete submissions?',
     text: "Once previous submissions have been deleted they can't be restored.",
     icon: 'warning',
+    iconColor: '#17a2b8',
     showCancelButton: true,
     confirmButtonColor: '#17a2b8',
     confirmButtonText: 'Delete',
@@ -25,6 +26,7 @@ const deleteSubmissions = () => {
         function () {
           Toast.fire({
             icon: 'success',
+            iconColor: '#17a2b8',
             title: 'Submissions have been cleared',
           });
           interactSession.submissionCount = 0;
@@ -32,8 +34,10 @@ const deleteSubmissions = () => {
         function (error) {
           Swal.fire({
             icon: 'error',
+            iconColor: '#17a2b8',
             title: 'Unable to delete previous submissions',
             text: error,
+            confirmButtonColor: '#17a2b8',
           });
         }
       );

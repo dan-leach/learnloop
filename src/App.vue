@@ -1,6 +1,8 @@
 <script setup>
 import { RouterLink, RouterView } from 'vue-router';
 import { config } from './data/config.js';
+
+import Toast from './assets/Toast.js';
 </script>
 
 <template>

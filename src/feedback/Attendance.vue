@@ -36,8 +36,10 @@ const fetchAttendance = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to load attendance report',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
       router.push('/');
     }

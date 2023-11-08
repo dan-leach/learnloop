@@ -95,22 +95,26 @@ let submit = () => {
   ) {
     Swal.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Too few options added',
       text:
         'You need to add at least ' +
         config.interact.create.interactions.minimumOptions +
         ' options.',
+      confirmButtonColor: '#17a2b8',
     });
     return false;
   }
   if (options.value.length > settings.value.optionsLimit) {
     Swal.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Too many options added',
       text:
         'You can have up to ' +
         settings.value.optionsLimit +
         ' options for the interaction type selected.',
+      confirmButtonColor: '#17a2b8',
     });
     return false;
   }

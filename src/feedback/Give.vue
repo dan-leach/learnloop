@@ -33,14 +33,18 @@ const saveProgress = (confirm) => {
     if (document.cookie.includes(feedbackSession.id)) {
       Swal.fire({
         icon: 'success',
+        iconColor: '#17a2b8',
         title: 'Your progress has been saved',
         text: 'Return to this form on the same device within the next 24 hours to pick up where you left off.',
+        confirmButtonColor: '#17a2b8',
       });
     } else {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to save your progress',
         text: "You can still submit your feedback, but you'll need to fill in the form in one sitting, rather than saving and returning to it later.",
+        confirmButtonColor: '#17a2b8',
       });
     }
   }
@@ -133,8 +137,10 @@ const submit = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable submit your feedback',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
     }
   );
@@ -198,9 +204,9 @@ const skipSubsessionFeedback = (index) => {
       title: 'Skip session?',
       text: 'Your existing feedback for ' + subsession.title + ' will be lost.',
       icon: 'warning',
+      iconColor: '#17a2b8',
       showCancelButton: true,
       confirmButtonColor: '#17a2b8',
-      cancelButtonColor: '#6c757d',
       confirmButtonText: 'Skip',
     }).then((result) => {
       if (result.isConfirmed) {
@@ -229,8 +235,10 @@ const fetchDetails = () => {
       if (res.closed) {
         Swal.fire({
           icon: 'error',
+          iconColor: '#17a2b8',
           title: 'Unable to load feedback form',
           text: 'This feedback request has been closed by the facilitator.',
+          confirmButtonColor: '#17a2b8',
         });
         router.push('/');
         return;
@@ -287,8 +295,10 @@ const fetchDetails = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to load feedback form',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
       router.push('/');
     }

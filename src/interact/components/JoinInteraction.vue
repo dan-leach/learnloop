@@ -26,6 +26,7 @@ const submit = () => {
     function (res) {
       Toast.fire({
         icon: 'success',
+        iconColor: '#17a2b8',
         title: 'Your response was submitted',
       });
       spinner.value = false;
@@ -44,8 +45,10 @@ const submit = () => {
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to submit your response',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
       interaction.closed = false;
       spinner.value = false;

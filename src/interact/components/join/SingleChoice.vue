@@ -10,6 +10,7 @@ let submit = () => {
   } else {
     Toast.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Please choose an option',
     });
   }

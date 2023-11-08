@@ -14,11 +14,13 @@ let submit = () => {
   if (selectedCount < selectedMin) {
     Toast.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Please select at least ' + selectedMin + ' option(s)',
     });
   } else if (selectedCount > selectedMax) {
     Toast.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'Please select no more than ' + selectedMax + ' option(s)',
     });
   } else {

@@ -42,7 +42,7 @@ library.add(
   faUsersRectangle,
   faCopy,
   faCheck,
-  faTimes
+  faTimes,
 );
 
 import { cookies } from './data/cookies.js';

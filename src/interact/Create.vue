@@ -60,6 +60,7 @@ const formIsValid = () => {
       title: 'No interactions added',
       text: "You need to add at least 1 interaction to your session. Use the green 'Add' button.",
       icon: 'error',
+      iconColor: '#17a2b8',
       confirmButtonColor: '#17a2b8',
     });
     return false;
@@ -89,6 +90,7 @@ const submit = () => {
         title: 'Error creating interact session',
         text: error,
         icon: 'error',
+        iconColor: '#17a2b8',
         confirmButtonColor: '#17a2b8',
       });
     }

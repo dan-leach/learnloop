@@ -64,6 +64,7 @@ const formIsValid = () => {
       title: 'No interactions added',
       text: "You need to add at least 1 interaction to your session. Use the green 'Add' button.",
       icon: 'error',
+      iconColor: '#17a2b8',
       confirmButtonColor: '#17a2b8',
     });
     return false;
@@ -84,6 +85,7 @@ const submit = () => {
       Swal.fire({
         title: 'Interact session updated',
         icon: 'success',
+        iconColor: '#17a2b8',
         confirmButtonColor: '#17a2b8',
       });
       router.push('/');
@@ -100,6 +102,7 @@ const submit = () => {
         title: 'Error updating interact session',
         text: error,
         icon: 'error',
+        iconColor: '#17a2b8',
         confirmButtonColor: '#17a2b8',
       });
     }
@@ -134,15 +137,19 @@ const fetchDetailsHost = () => {
       loading.value = false;
       Swal.fire({
         icon: 'warning',
+        iconColor: '#17a2b8',
         title: 'Previous responses will be deleted',
-        text: 'If you make changes to your interact session, any previous responses by attendees will be deleted.'
+        text: 'If you make changes to your interact session, any previous responses by attendees will be deleted.',
+        confirmButtonColor: '#17a2b8',
       });
     },
     function (error) {
       Swal.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Unable to edit interact session',
         text: error,
+        confirmButtonColor: '#17a2b8',
       });
       router.push('/');
     }

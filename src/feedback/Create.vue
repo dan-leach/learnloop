@@ -16,6 +16,7 @@ const toggleSingleSeries = () => {
         title: 'Lose sessions',
         text: 'You have added sessions to this feedback request. If you switch back to requesting feedback for a single session you will lose this progress. Continue?',
         showCancelButton: true,
+        confirmButtonColor: '#dc3545',
       }).then((result) => {
         if (result.isConfirmed) {
           feedbackSession.subsessions = [];
@@ -34,9 +35,11 @@ const toggleSingleSeries = () => {
 const seriesInfo = () => {
   Swal.fire({
     icon: 'info',
+    iconColor: '#17a2b8',
     title: 'Collect feedback for multiple sessions (Optional)',
     html: '<div class="text-start">You are currently requesting feedback for a single session. Alternatively, you can create a session series where attendees can provide feedback for multiple sessions (for example, a teaching day with different presenters) using a single link.<br><br>As the organiser you will be able to view all feedback collected, individual presenters can view the feedback for just their session.</div>',
     width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
@@ -84,9 +87,11 @@ let hasQuestions = ref(false);
 const questionsInfo = () => {
   Swal.fire({
     icon: 'info',
+    iconColor: '#17a2b8',
     title: 'Custom questions (Optional)',
     html: '<div class="text-start">If the standard feedback form doesn\'t cover everything you want to ask, you can add additional questions.</div>',
     width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
@@ -97,18 +102,22 @@ const toggleCertificate = () => {
 const certificateInfo = () => {
   Swal.fire({
     icon: 'info',
+    iconColor: '#17a2b8',
     title: 'Certificate of attendance (Optional)',
     html: '<div class="text-start">By default attendees of your session will be able to download a certificate of attendance after completing the feedback form. This is a good way of encouraging attendees to provide feedback.<br><br> You can disable the certificate if you prefer. Attendees will still be able to provide feedback but will not be given the option to download a certificate afterwards.</div>',
     width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const notificationsInfo = () => {
   Swal.fire({
     icon: 'info',
+    iconColor: '#17a2b8',
     title: 'Email notifications when feedback submitted (Optional)',
     html: '<div class="text-start">By default you will receive an email when feedback for your session is submitted. To avoid overloading your inbox, no further notifications are sent within 2 hours.<br><br>If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created. You can also disable further notifications later, using a link in the notification email itself.<br><br>If you provide an email for them, facilitators of each session in this series will receive an email notifying them that the feedback request has been set up. They will also receive email notifications when feedback for their session is submitted, but they can disable these if preferred using a link in the notification email itself.</div>',
     width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
@@ -116,7 +125,9 @@ const toggleAttendance = () => {
   if (!feedbackSession.attendance && !feedbackSession.certificate) {
     Swal.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       text: "You must enable the 'Certificate of Attendance' option to be able to use the 'Register of Attendance' option.",
+      confirmButtonColor: '#17a2b8',
     });
   } else {
     feedbackSession.attendance = !feedbackSession.attendance;
@@ -125,9 +136,11 @@ const toggleAttendance = () => {
 const attendanceInfo = () => {
   Swal.fire({
     icon: 'info',
+    iconColor: '#17a2b8',
     title: 'Register of attendance (Optional)',
     html: '<div class="text-start">By default you will be able to generate an attendance report of people who have attended your session. The attendance report shows the name and organisation of each attendee who downloads a certificate of attendance. The attendee details are not linked to their feedback. To reduce the risk of attendees being linked to their feedback you will only be able to view a register of attendance once you have received at least 3 feedback submissions.<br><br>The certificate option must be enabled for the attendance register to be available.</div>',
     width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
@@ -142,8 +155,10 @@ const formIsValid = () => {
   if (isSeries.value && !feedbackSession.subsessions.length)
     Swal.fire({
       icon: 'error',
+      iconColor: '#17a2b8',
       title: 'No sessions added to your session series',
       text: 'You need to add at least one session to your session series, or switch back to creating a feedback request for a single session.',
+      confirmButtonColor: '#17a2b8',
     });
   return true;
 };
@@ -166,6 +181,7 @@ const submit = () => {
         title: 'Error creating feedback session',
         text: error,
         icon: 'error',
+        iconColor: '#17a2b8',
         confirmButtonColor: '#17a2b8',
       });
     }

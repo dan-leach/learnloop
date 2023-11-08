@@ -24,12 +24,15 @@ const copyText = (string) => {
     function () {
       Toast.fire({
         icon: 'success',
+        iconColor: '#17a2b8',
+        iconColor: '#17a2b8',
         title: 'Copied',
       });
     },
     function (error) {
       Toast.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Error copying to clipboard: ' + error,
       });
     }
@@ -43,12 +46,14 @@ const copyImg = async (src) => {
     function () {
       Toast.fire({
         icon: 'success',
+        iconColor: '#17a2b8',
         title: 'Copied',
       });
     },
     function (error) {
       Toast.fire({
         icon: 'error',
+        iconColor: '#17a2b8',
         title: 'Error copying to clipboard: ' + error,
       });
     }
