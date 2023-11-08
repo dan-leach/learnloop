@@ -44,8 +44,10 @@ switch ($route) {
         echo json_encode(insertFeedback($id, false, null, $data, $link));
         break;
     case "fetchCertificate":
-        if (isset($_POST['name'])) $name = htmlspecialchars($_POST['name']);
-        if (isset($_POST['organisation'])) $organisation = htmlspecialchars($_POST['organisation']);
+        //if (isset($_POST['name'])) $name = htmlspecialchars($_POST['name']);
+        //if (isset($_POST['organisation'])) $organisation = htmlspecialchars($_POST['organisation']);
+        $name = "Dan";
+        $organisation = "UHBW";
         if (is_null($id) || is_null($name) || is_null($organisation)) send_error_response("Variable(s) [id], [name] and [organisation] must be defined for fetchCertificate route", 400);
         fetchCertificate($id, $name, $organisation, $link);
         break;

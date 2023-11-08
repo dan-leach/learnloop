@@ -1,15 +1,15 @@
 <?php
 
-function dbSessionExists($id, $type, $link){ //returns true if $id already exists in table
+$tblSessions = 'tbl_feedback_sessions_dev';
+$tblSubmissions = 'tbl_feedback_submissions_dev';
+$tblAttendance = 'tbl_feedback_attendance_dev';
+
+function dbSessionExists($id, $link){ //returns true if $id already exists in table
+    global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
 
-    if ($type == 'feedback') {
-        $stmt = $link->prepare("SELECT * FROM tbl_sessions_v4 WHERE id = ?");
-    } else if ($type == 'live') {
-        $stmt = $link->prepare("SELECT * FROM tbl_live_sessions_v5 WHERE id = ?");
-    } else if ($type == 'question') {
-        $stmt = $link->prepare("SELECT * FROM tbl_live_questions_v5 WHERE id = ?");
-    }
+    $stmt = $link->prepare("SELECT * FROM $tblSessions WHERE id = ?");
+    
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -31,7 +31,8 @@ function dbSessionExists($id, $type, $link){ //returns true if $id already exist
 }
 
 function dbInsertSession($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $tags, $pinHash, $link) { //inserts session $data with $id and $pinHash
-    $stmt = $link->prepare("INSERT INTO tbl_sessions_v4 (id, name, email, title, date, questions, certificate, subsessions, isSubsession, notifications, attendance, tags, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    global $tblSessions;
+    $stmt = $link->prepare("INSERT INTO $tblSessions (id, name, email, title, date, questions, certificate, subsessions, isSubsession, notifications, attendance, tags, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("sssssssssssss",$id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $tags, $pinHash);
@@ -44,9 +45,10 @@ function dbInsertSession($id, $name, $email, $title, $date, $questions, $certifi
 }
 
 function dbSelectDetails($id, $link){ //returns the session details for $id as a php object
+    global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("SELECT * FROM tbl_sessions_v4 WHERE id = ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSessions WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -74,7 +76,8 @@ function dbSelectDetails($id, $link){ //returns the session details for $id as a
 }
 
 function dbUpdateDetails($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $tags, $link){ //updates the session with new data
-    $stmt = $link->prepare("UPDATE tbl_sessions_v4 SET name = ?, email = ?, title = ?, date = ?, questions = ?, certificate = ?, subsessions = ?, notifications = ?, attendance = ?, tags = ? WHERE id = ?");
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET name = ?, email = ?, title = ?, date = ?, questions = ?, certificate = ?, subsessions = ?, notifications = ?, attendance = ?, tags = ? WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
     $rc = $stmt->bind_param("sssssssssss", $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $tags, $id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
@@ -84,6 +87,7 @@ function dbUpdateDetails($id, $name, $email, $title, $date, $questions, $certifi
 }
 
 function dbInsertFeedback($id, $data, $link){ //inserts data into feedback for $id
+    global $tblSubmissions;
     $errMsg = "";
     $positive = htmlspecialchars($data->feedback->positive);
     if (strlen($positive) == 0) $errMsg .= "Positive comments cannot be blank. ";
@@ -96,7 +100,7 @@ function dbInsertFeedback($id, $data, $link){ //inserts data into feedback for $
 
     if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
 
-    $stmt = $link->prepare("INSERT INTO tbl_feedback_v4 (id, positive, negative, questions, score, tags) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $link->prepare("INSERT INTO $tblSubmissions (id, positive, negative, questions, score, tags) VALUES (?, ?, ?, ?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("ssssss",$id, $positive, $negative, $questions, $score, $tags);
@@ -109,7 +113,8 @@ function dbInsertFeedback($id, $data, $link){ //inserts data into feedback for $
 }
 
 function dbUpdateNotificationLastSent($id, $link){ //updates the notification lastSent datetime to now for $id
-    $stmt = $link->prepare("UPDATE tbl_sessions_v4 SET lastSent = NOW() WHERE id = ?");
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET lastSent = NOW() WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
     $rc = $stmt->bind_param("s",$id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
@@ -119,12 +124,12 @@ function dbUpdateNotificationLastSent($id, $link){ //updates the notification la
 }
 
 function dbSelectFeedback($id, $link){ //returns the session details for $id as a php object
-    
+    global $tblSubmissions;
     $res = dbSelectDetails($id, $link);
 
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
 
-    $stmt = $link->prepare("SELECT * FROM tbl_feedback_v4 WHERE id = ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSubmissions WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -162,13 +167,14 @@ function dbSelectFeedback($id, $link){ //returns the session details for $id as 
 }
 
 function dbSelectAttendance($id, $link){ //returns the session attendance for $id as a php object
+    global $tblAttendance;
     $res = dbSelectDetails($id, $link);
 
     if (!$res['attendance']) send_error_response("The attendance register for this session is disabled.", 400);
 
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
 
-    $stmt = $link->prepare("SELECT name, organisation FROM tbl_attendance_v4 WHERE id = ? ORDER BY organisation, name");
+    $stmt = $link->prepare("SELECT name, organisation FROM $tblAttendance WHERE id = ? ORDER BY organisation, name");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$id);
@@ -198,7 +204,8 @@ function dbSelectAttendance($id, $link){ //returns the session attendance for $i
 }
 
 function dbSetNotificationPreference($id, $data, $link){ //updates the notifications for $id as per $data
-    $stmt = $link->prepare("UPDATE tbl_sessions_v4 SET notifications = ? WHERE id = ?");
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET notifications = ? WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
     $rc = $stmt->bind_param("ss",$data, $id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
@@ -208,7 +215,8 @@ function dbSetNotificationPreference($id, $data, $link){ //updates the notificat
 }
 
 function dbUpdatePinHash($id, $pinHash, $link){ //updates the pinhash for $id
-    $stmt = $link->prepare("UPDATE tbl_sessions_v4 SET pinHash = ? WHERE id = ?");
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET pinHash = ? WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
     $rc = $stmt->bind_param("ss",$pinHash, $id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
@@ -218,7 +226,8 @@ function dbUpdatePinHash($id, $pinHash, $link){ //updates the pinhash for $id
 }
 
 function dbCloseSession($id, $link){ //closes a session for $id
-    $stmt = $link->prepare("UPDATE tbl_sessions_v4 SET closed = true WHERE id = ?");
+    global $tblSessions;
+    $stmt = $link->prepare("UPDATE $tblSessions SET closed = true WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
     $rc = $stmt->bind_param("s", $id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
@@ -228,9 +237,10 @@ function dbCloseSession($id, $link){ //closes a session for $id
 }
 
 function dbFetchDetailsByEmail($email, $link){
+    global $tblSessions;
     if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
     
-    $stmt = $link->prepare("SELECT * FROM tbl_sessions_v4 WHERE email = ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSessions WHERE email = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s",$email);
@@ -257,7 +267,8 @@ function dbFetchDetailsByEmail($email, $link){
 }
 
 function dbInsertAttendance($id, $name, $organisation, $link){
-    $stmt = $link->prepare("INSERT INTO tbl_attendance_v4 (id, name, organisation) VALUES (?, ?, ?)");
+    global $tblAttendance;
+    $stmt = $link->prepare("INSERT INTO $tblAttendance (id, name, organisation) VALUES (?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("sss",$id, $name, $organisation);
@@ -267,145 +278,6 @@ function dbInsertAttendance($id, $name, $organisation, $link){
     if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
     
     return true;
-}
-
-function dbInsertLiveSession($id, $name, $email, $title, $questions, $pinHash, $link) { //inserts live session $data with $id and $pinHash
-    $stmt = $link->prepare("INSERT INTO tbl_live_sessions_v5 (id, name, email, title, questions, pinHash) VALUES (?, ?, ?, ?, ?, ?)");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->bind_param("ssssss",$id, $name, $email, $title, $questions, $pinHash);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-    
-    return true;
-}
-
-function dbInsertLiveQuestion($id, $sessionID, $title, $type, $options, $link) { //inserts live session $data with $id and $pinHash
-    $stmt = $link->prepare("INSERT INTO tbl_live_questions_v5 (id, sessionID, title, type, options) VALUES (?, ?, ?, ?, ?)");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->bind_param("sssss",$id, $sessionID, $title, $type, $options);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-    
-    return true;
-}
-
-function dbInsertLiveSubmission($questionID, $submission, $link) { //inserts live session $data with $id and $pinHash
-    $stmt = $link->prepare("INSERT INTO tbl_live_submissions_v5 (questionID, submission) VALUES (?, ?)");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->bind_param("ss", $questionID, $submission);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-    
-    return true;
-}
-
-function dbUpdateLiveQuestionLastSubmissionChecksum($questionID, $lastSubmissionChecksum, $link){ //updates the lastSubmissionChecksum for questionID
-    $stmt = $link->prepare("UPDATE tbl_live_questions_v5 SET lastSubmissionChecksum = ? WHERE id = ?");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-    $rc = $stmt->bind_param("ss", $lastSubmissionChecksum, $questionID);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-    return true;
-}
-
-function dbSelectLiveDetails($id, $link){ //returns the session details for $id as a php object
-    if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
-    
-    $stmt = $link->prepare("SELECT * FROM tbl_live_sessions_v5 WHERE id = ?");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->bind_param("s",$id);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-
-    $result = $stmt->get_result();
-    if ( false===$result ) send_error_response("get_result() failed: " . mysqli_error($link), 500);
-
-    $row_cnt = $result->num_rows;
-    if($row_cnt > 0){
-        while($r = mysqli_fetch_assoc($result)) {
-            $res = $r;
-        }
-    } else {
-        send_error_response("No live session matching ID: ".$id, 404);
-    }
-
-    $result->close();
-    $stmt->close();
-
-    return $res;
-}
-
-function dbSelectLiveQuestionDetails($questionID, $link){ //returns the session details for $id as a php object
-    if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
-    
-    $stmt = $link->prepare("SELECT * FROM tbl_live_questions_v5 WHERE id = ?");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->bind_param("s",$questionID);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-
-    $result = $stmt->get_result();
-    if ( false===$result ) send_error_response("get_result() failed: " . mysqli_error($link), 500);
-
-    $row_cnt = $result->num_rows;
-    if($row_cnt > 0){
-        while($r = mysqli_fetch_assoc($result)) {
-            $res = $r;
-        }
-    } else {
-        send_error_response("No live question matching ID: ".$questionID, 404);
-    }
-
-    $result->close();
-    $stmt->close();
-
-    return $res;
-}
-
-function dbSelectLiveQuestionSubmissions($questionID, $link){
-    
-    if($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
-
-    $stmt = $link->prepare("SELECT * FROM tbl_live_submissions_v5 WHERE id = ?");
-    if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->bind_param("s",$questionID);
-    if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
-
-    $rc = $stmt->execute();
-    if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
-
-    $result = $stmt->get_result();
-    if ( false===$result ) send_error_response("get_result() failed: " . mysqli_error($link), 500);
-
-    $row_cnt = $result->num_rows;
-    $res = array();
-    if($row_cnt > 0){
-        while($r = mysqli_fetch_assoc($result)) {
-            array_push($res, html_entity_decode($r['response']));
-        }
-    }
-
-    $result->close();
-    $stmt->close();
-
-    return $res;
 }
 
 ?>

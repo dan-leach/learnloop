@@ -74,7 +74,7 @@ function outputFeedbackPDF($feedback){
         function Footer() {
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
-            $this->Image('../logo.png',80,270,50,0,'','https://learnloop.co.uk' );
+            $this->Image('shared/logo.png',80,270,50,0,'','https://learnloop.co.uk' );
             // Arial italic 8
             $this->SetFont('Arial','',10);
             // Page number
@@ -229,7 +229,7 @@ function outputAttendancePDF($attendance){
         function Footer() {
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
-            $this->Image('../logo.png',80,270,50,0,'','https://learnloop.co.uk' );
+            $this->Image('shared/logo.png',80,270,50,0,'','https://learnloop.co.uk' );
             // Arial italic 8
             $this->SetFont('Arial','',10);
             // Page number
@@ -322,7 +322,7 @@ function outputCertificate($details, $name){
                 $this->SetFont('Arial','B',30);
                 // Move to the right
                 $this->Cell(15);
-                $this->Image('tick.png',15,5,40);
+                $this->Image('shared/tick.png',15,5,40);
                 // Title
                 $this->Cell(190,35,'Certificate of attendance',0,0,'C');
             }
@@ -332,7 +332,7 @@ function outputCertificate($details, $name){
             {
                 // Position at 1.5 cm from bottom
                 $this->SetY(-15);
-                $this->Image('../logo.png',80,270,50,0,'','https://learnloop.co.uk');
+                $this->Image('shared/logo.png',80,270,50,0,'','https://learnloop.co.uk');
                 // Arial italic 8
                 $this->SetFont('Arial','',10);
                 // Page number

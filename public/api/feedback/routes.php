@@ -364,7 +364,7 @@ function fetchAttendanceCSV($id, $pin, $link){ //returns the session attendance 
 
 //utilities
 function checkEmailIsValid($data){
-    if (!filter_var($data, FILTER_VALIDATE_EMAIL)) send_error_response("Invalid email", 400);
+    if (!filter_var(json_decode($data), FILTER_VALIDATE_EMAIL)) send_error_response("Invalid email", 400);
     return "Email is valid";
 }
 function findMySessions($data, $link){
