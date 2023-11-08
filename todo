@@ -1,9 +1,8 @@
 Current:
-
-Add ? help buttons
+Convert feedback/create custom questions - add question modal --> component like for subsessions or interactions
+Add ? help buttons to interact module
 
 Styling/harmonisation:
-Check Swal button colors correct
 move add buttons for questions/sessions etc into table head
 check group transition applied everywhere
 Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
