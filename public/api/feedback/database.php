@@ -30,12 +30,12 @@ function dbSessionExists($id, $link){ //returns true if $id already exists in ta
     return $res;
 }
 
-function dbInsertSession($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $tags, $pinHash, $link) { //inserts session $data with $id and $pinHash
+function dbInsertSession($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $pinHash, $link) { //inserts session $data with $id and $pinHash
     global $tblSessions;
-    $stmt = $link->prepare("INSERT INTO $tblSessions (id, name, email, title, date, questions, certificate, subsessions, isSubsession, notifications, attendance, tags, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $link->prepare("INSERT INTO $tblSessions (id, name, email, title, date, questions, certificate, subsessions, isSubsession, notifications, attendance, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
-    $rc = $stmt->bind_param("sssssssssssss",$id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $tags, $pinHash);
+    $rc = $stmt->bind_param("ssssssssssss",$id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $pinHash);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->execute();
@@ -75,11 +75,11 @@ function dbSelectDetails($id, $link){ //returns the session details for $id as a
     return $res;
 }
 
-function dbUpdateDetails($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $tags, $link){ //updates the session with new data
+function dbUpdateDetails($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $link){ //updates the session with new data
     global $tblSessions;
-    $stmt = $link->prepare("UPDATE $tblSessions SET name = ?, email = ?, title = ?, date = ?, questions = ?, certificate = ?, subsessions = ?, notifications = ?, attendance = ?, tags = ? WHERE id = ?");
+    $stmt = $link->prepare("UPDATE $tblSessions SET name = ?, email = ?, title = ?, date = ?, questions = ?, certificate = ?, subsessions = ?, notifications = ?, attendance = ? WHERE id = ?");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-    $rc = $stmt->bind_param("sssssssssss", $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $tags, $id);
+    $rc = $stmt->bind_param("ssssssssss", $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $id);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
     $rc = $stmt->execute();
     if ( false===$rc ) send_error_response("execute() failed: " . mysqli_error($link), 500);
@@ -95,15 +95,14 @@ function dbInsertFeedback($id, $data, $link){ //inserts data into feedback for $
     if (strlen($negative) == 0) $errMsg .= "Constructive comments cannot be blank. ";
     $score = filter_var($data->feedback->score, FILTER_SANITIZE_NUMBER_INT);
     if (!filter_var($score, FILTER_SANITIZE_NUMBER_INT)) $errMsg .= "Score is not a valid number. ";
-    $tags = (isset($data->tags)) ? json_encode($data->tags) : '[]';
     $questions = ($data->questions) ? json_encode($data->questions) : '[]';
 
     if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
 
-    $stmt = $link->prepare("INSERT INTO $tblSubmissions (id, positive, negative, questions, score, tags) VALUES (?, ?, ?, ?, ?, ?)");
+    $stmt = $link->prepare("INSERT INTO $tblSubmissions (id, positive, negative, questions, score) VALUES (?, ?, ?, ?, ?)");
     if ( false===$stmt ) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
-    $rc = $stmt->bind_param("ssssss",$id, $positive, $negative, $questions, $score, $tags);
+    $rc = $stmt->bind_param("sssss",$id, $positive, $negative, $questions, $score);
     if ( false===$rc ) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->execute();

@@ -1,6 +1,6 @@
 <?php
 
-function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $seriesName, $seriesTitle, $notifications, $tags, $certificate, $attendance, $questions, $id, $pin, $email){
+function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $seriesName, $seriesTitle, $notifications, $certificate, $attendance, $questions, $id, $pin, $email){
 
     $messageContent = addHeader();
 
@@ -75,7 +75,7 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
     return true;
 }
 
-function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $seriesName, $seriesTitle, $notifications, $tags, $certificate, $attendance, $questions, $id, $email){
+function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $seriesName, $seriesTitle, $notifications, $certificate, $attendance, $questions, $id, $email){
 
     $messageContent = addHeader();
 

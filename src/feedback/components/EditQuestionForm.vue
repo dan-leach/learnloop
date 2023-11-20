@@ -34,7 +34,7 @@ watch(type, (newType, oldType) => {
 let newOption = ref('');
 const addOption = () => {
   if (newOption.value) {
-    options.value.push(newOption.value);
+    options.value.push({title: newOption.value});
     newOption.value = '';
     if (settings.value.selectedLimit)
       if (settings.value.selectedLimit.max == options.value.length - 1)
@@ -212,7 +212,7 @@ let submit = () => {
                           <font-awesome-icon :icon="['fas', 'chevron-down']" />
                         </button>
                       </td>
-                      <td>{{ option }}</td>
+                      <td>{{ option.title }}</td>
                       <td>
                         <button
                           style="float: right"
@@ -272,6 +272,22 @@ let submit = () => {
                 </div>
                 <div v-if="showSettings">
                   <div class="card-body">
+                    <div
+                      class="mb-4"
+                    >
+                      <div class="form-check form-switch">
+                        <input
+                          v-model="settings.required"
+                          class="form-check-input"
+                          type="checkbox"
+                          id="required"
+                          name="required"
+                        />
+                        <label class="form-check-label" for="required"
+                          >Make a response to this question compulsory</label
+                        >
+                      </div>
+                    </div>
                     <div v-if="settings.selectedLimit" class="mb-4">
                       <label for="selectedLimit" class="form-label"
                         >Number of options respondents must select:</label

@@ -26,6 +26,7 @@ import {
   faCopy,
   faCheck,
   faTimes,
+  faAsterisk,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
 library.add(
@@ -43,6 +44,7 @@ library.add(
   faCopy,
   faCheck,
   faTimes,
+  faAsterisk
 );
 
 import { cookies } from './data/cookies.js';

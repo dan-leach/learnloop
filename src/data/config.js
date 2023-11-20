@@ -5,14 +5,15 @@ export const config = reactive({
     create: {
       questions: {
         types: {
-          shortText: {
-            name: 'Short text',
-            id: 'shortText',
+          text: {
+            name: 'Text',
+            id: 'text',
             settings: {
+              required: true,
               optionsLimit: 0,
               characterLimit: {
                 min: 1,
-                max: 200,
+                max: 500,
               },
             }
           },
@@ -20,17 +21,15 @@ export const config = reactive({
             name: 'Drop-down select',
             id: 'select',
             settings: {
+              required: true,
               optionsLimit: 20,
-              selectedLimit: {
-                min: 1, //default - can be changed by facilitator
-                max: 1, //will automatically increase to the number of options unless changed
-              },
             }
           },
           checkbox: {
             name: 'Checkboxes',
             id: 'checkbox',
             settings: {
+              required: true,
               optionsLimit: 20,
               selectedLimit: {
                 min: 1, //default - can be changed by facilitator

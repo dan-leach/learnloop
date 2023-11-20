@@ -19,7 +19,6 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
     if (!$isSubsession && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errMsg .= "Email is not valid. ";
     $title = htmlspecialchars($data->title);
     if (strlen($title) == 0) $errMsg .= "Title is blank. ";
-    $tags = '[]';
 
     if ($isSubsession) {
         $date = $parentSessionDate;
@@ -62,13 +61,13 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
     
     $subsessions = ($subsessionIDs) ? json_encode($subsessionIDs) : '[]';
     
-    if (!dbInsertSession($res->id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $tags, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
+    if (!dbInsertSession($res->id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
     
     $d = date_create($date);
     $date = date_format($d, 'd/m/Y');
     $res->date = $date;
 
-    if ($email) sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $tags, $certificate, $attendance, $questions, $res->id, $res->pin, $email);
+    if ($email) sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $certificate, $attendance, $questions, $res->id, $res->pin, $email);
 
     return $res;
 }
@@ -110,7 +109,6 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
     if (!$isSubsession && !filter_var($email, FILTER_VALIDATE_EMAIL)) $errMsg .= "Email is not valid. ";
     $title = htmlspecialchars($data->title);
     if (strlen($title) == 0) $errMsg .= "Title is blank. ";
-    $tags = '[]';
 
     if ($isSubsession) {
         $date = $parentSessionDate;
@@ -167,16 +165,16 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
         }
     }
     $subsessions = ($subsessionIDs) ? json_encode($subsessionIDs) : '[]';
-    if (!dbUpdateDetails($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $tags, $link)) send_error_response("dbUpdateDetails failed for an unknown reason", 500);
+    if (!dbUpdateDetails($id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $notifications, $attendance, $link)) send_error_response("dbUpdateDetails failed for an unknown reason", 500);
     $d = date_create($date);
     $date = date_format($d, 'd/m/Y');
     if ($firstTimeEmailProvided) {
         $pin = createPin();
         $pinHash = hashPin($pin);
         dbUpdatePinHash($id, $pinHash, $link);
-        sendSessionCreatedMessage(true, null, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $tags, $certificate, $attendance, $questions, $id, $pin, $email);
+        sendSessionCreatedMessage(true, null, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $certificate, $attendance, $questions, $id, $pin, $email);
     } else {
-        sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $tags, $certificate, $attendance, $questions, $id, $email);
+        sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $parentSessionName, $parentSessionTitle, $notifications, $certificate, $attendance, $questions, $id, $email);
     }
     return "Session updated successfully.";
 }

@@ -11,6 +11,7 @@ import Modal from 'bootstrap/js/dist/modal';
 import SubsessionFeedbackForm from './components/SubsessionFeedbackForm.vue';
 
 let loading = ref(true);
+let submitted = ref(false);
 
 const saveProgress = (confirm) => {
   const d = new Date();
@@ -77,9 +78,12 @@ const scoreChange = () => {
   feedbackSession.feedback.scoreText = y;
 };
 
-const noOptionsSelected = (question) => {
-  for (let option of question.options) if (option.selected) return false;
-  return true;
+const validNumberOfOptionsSelected = (question) => {
+  if (!question.settings.required) return true
+  let count = 0
+  for (let option of question.options) if (option.selected) count++;
+  if (count > question.settings.selectedLimit.max || count < question.settings.selectedLimit.min) return false
+  return true
 };
 const formIsValid = () => {
   document.getElementById('giveFeedbackForm').classList.add('was-validated');
@@ -108,22 +112,25 @@ const formIsValid = () => {
   )
     return false;
   for (let question of feedbackSession.questions) {
-    if (question.required) {
+    if (question.settings.required) {
       if (question.type == 'text' || question.type == 'select') {
-        if (question.response == null || question.response === 'undefined')
+        if (question.response == null || question.response === 'undefined' || question.response == '')
           return false;
-      } else if (question.type == '"checkbox') {
-        if (noOptionsSelected(question)) return false;
+      } else if (question.type == 'checkbox') {
+        if (!validNumberOfOptionsSelected(question)) return false;
       }
     }
   }
   return true;
 };
 const submit = () => {
+  submitted.value = true
   if (!formIsValid()) {
     console.log('form validation failed');
     return;
   }
+  console.log(feedbackSession)
+  return
   api(
     'feedback',
     'insertFeedback',
@@ -257,10 +264,11 @@ const fetchDetails = () => {
       }
       feedbackSession.questions = res.questions;
       for (let question of feedbackSession.questions) {
-        if (question.required == undefined) {
+        question.response = ''
+        if (question.settings.required == undefined) {
           //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
           if (question.type == 'text' || question.type == 'select')
-            question.required = true;
+            question.settings.required = true;
         }
       }
       feedbackSession.certificate = res.certificate;
@@ -359,20 +367,13 @@ onMounted(() => {
           Read about how LearnLoop uses cookies.</span
         >
       </div>
-      <div class="text-center">
-        <button
-          class="btn btn-secondary btn-sm"
-          id="saveProgress"
-          @click="saveProgress(true)"
-        >
-          Save progress
-        </button>
-      </div>
       <br />Please provide some feedback to
       <strong>{{ feedbackSession.name }}</strong> regarding their session
       <strong>'{{ feedbackSession.title }}'</strong> delivered on
       <strong>{{ feedbackSession.date }}</strong
-      >.<br /><br />
+      >.<br><br>
+      <sup><font-awesome-icon :icon="['fas', 'asterisk']" size="2xs" style="color: #ff0000;" class="float-right" /></sup> Indicates questions to which a response is required
+      <br /><br />
       <form id="giveFeedbackForm" class="needs-validation" novalidate>
         <div v-if="feedbackSession.subsessions.length">
           <label class="form-label">Feedback on sessions:</label>
@@ -469,7 +470,7 @@ onMounted(() => {
         </div>
         <div>
           <label for="positiveComments" class="form-label"
-            >Positive Comments:</label
+            >Positive Comments <sup><font-awesome-icon :icon="['fas', 'asterisk']" size="2xs" style="color: #ff0000;" class="float-right" /></sup></label
           >
           <textarea
             rows="5"
@@ -487,7 +488,7 @@ onMounted(() => {
         </div>
         <div class="mt-4">
           <label for="negativeComments" class="form-label"
-            >Constructive Comments:</label
+            >Constructive Comments <sup><font-awesome-icon :icon="['fas', 'asterisk']" size="2xs" style="color: #ff0000;" class="float-right" /></sup></label
           >
           <textarea
             rows="5"
@@ -508,17 +509,19 @@ onMounted(() => {
           class="mt-4"
         >
           <label for="custom+index" class="form-label"
-            >{{ question.title }}:</label
+            >{{ question.title }}  <sup v-if="question.settings.required"><font-awesome-icon :icon="['fas', 'asterisk']" size="2xs" style="color: #ff0000;" class="float-right" /></sup></label
           >
           <div v-if="question.type == 'text'">
             <textarea
-              rows="5"
+              :rows="parseInt(question.settings.characterLimit.max/100)"
+              :minlength="question.settings.characterLimit.min"
+              :maxlength="question.settings.characterLimit.max"
               v-model="question.response"
               class="form-control"
               id="question.title"
               name="question.title"
               autocomplete="off"
-              :required="question.required"
+              :required="question.settings.required"
             ></textarea>
             <div class="invalid-feedback">Please answer this question.</div>
           </div>
@@ -532,10 +535,11 @@ onMounted(() => {
                   'question[' + questionIndex + '];option[' + optionIndex + ']'
                 "
                 class="form-check-input"
+                :class="(!validNumberOfOptionsSelected(question) && submitted) ? 'is-invalid' : ''"
                 type="checkbox"
                 value="option.title"
                 v-model="option.selected"
-                :required="noOptionsSelected(question) && question.required"
+                :required="!validNumberOfOptionsSelected(question) && question.settings.required"
               />
               <label
                 class="form-check-label"
@@ -548,7 +552,7 @@ onMounted(() => {
                 v-if="optionIndex == question.options.length - 1"
                 class="invalid-feedback"
               >
-                Please select at least one checkbox.
+                {{ (question.settings.selectedLimit.min == question.settings.selectedLimit.max) ? 'Please select exactly ' + question.settings.selectedLimit.min + ' options.' : 'Please select between ' + question.settings.selectedLimit.min + ' and ' + question.settings.selectedLimit.max + ' options.' }}
               </div>
               <br />
             </span>
@@ -557,10 +561,10 @@ onMounted(() => {
             <select
               v-model="question.response"
               class="form-control"
-              :required="question.required"
+              :required="question.settings.required"
             >
               <option disabled value="">Please select one</option>
-              <option v-for="(option, index) in question.options">
+              <option v-for="option in question.options" :value="option.title">
                 {{ option.title }}
               </option>
             </select>
