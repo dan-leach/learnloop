@@ -198,6 +198,8 @@ onMounted(() => {
   if (routeName == 'home' && id) {
     if (id.charAt(0)=='i') router.push('/interact/'+id)
     else router.push('/feedback/'+id)
+  } else {
+    router.push('/')
   }
 })
 </script>
@@ -275,6 +277,11 @@ onMounted(() => {
               <li>
                 <a class="dropdown-item" @click="resetPin('feedback')"
                   >Reset PIN</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="setNotificationPreference()"
+                  >Set notification preferences</a
                 >
               </li>
               <li>

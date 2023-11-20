@@ -11,7 +11,7 @@ if (!feedbackSession.id || !feedbackSession.pin)
 
 const link = ref({});
 link.value.give = config.client.url + '/' + feedbackSession.id;
-link.value.view = config.client.url + '/feedback/host/' + feedbackSession.id;
+link.value.view = config.client.url + '/feedback/view/' + feedbackSession.id;
 link.value.qr =
   'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
   link.value.give +

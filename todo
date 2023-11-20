@@ -2,6 +2,8 @@ Current:
 Add i or f at start of session ID to allow ID queries to root
 Add ? help buttons to interact module
 
+Preview of feedback form, question, interaction
+
 Styling/harmonisation:
 move add buttons for questions/sessions etc into table head
 check group transition applied everywhere

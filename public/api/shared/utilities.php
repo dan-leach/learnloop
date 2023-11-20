@@ -16,13 +16,26 @@ function pinIsValid($pin, $pinHash){ //check a pin matches pinHash
     return ($pinHash == $hash);
 }
 
-function createUniqueID($link){ // Generate unique short ID
-    $permitted_chars = '23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ';
+function buildID($module){
+    $permitted_chars = '23456789abcdeghjkmnpqrstuvwxyzABCDEGHJKMNPQRSTUVWXYZ';
+    $id = '';
+    if ($module == 'feedback') {
+        $id = 'f';
+    } else if ($module == 'interact') {
+        $id = 'i';
+    } else {
+        send_error_response("Module [".$module."] not recognised at buildID", 400);
+    }
+    $id .= substr(str_shuffle($permitted_chars), 0, 5);
+    return $id;
+}
+
+function createUniqueID($link, $module){ // Generate unique short ID
     do {
         $pass = 0;
-        $id = substr(str_shuffle($permitted_chars), 0, 6);
+        $id = buildID($module);
         if (dbSessionExists($id, $link)) {
-            $id = substr(str_shuffle($permitted_chars), 0, 6);
+            $id = buildID($module);
         } else {
             $pass ++;
         }
@@ -55,8 +68,12 @@ function organiseQuestionFeedback($questions, $questionFeedback){
                         array_push($question->responses, $response->response);
                     } else {
                         foreach($question->options as $option) {
-                            if ($question->type == 'checkbox') if (str_contains($response->response, $option->title)) $option->count ++;
                             if ($question->type == 'select') if ($response->response == $option->title) $option->count ++;
+                            if ($question->type == 'checkbox') {
+                                foreach($response->options as $rOption) {
+                                    if ($rOption->title == $option->title && $rOption->selected) $option->count ++;
+                                }
+                            }
                         }
                     }
                 }

@@ -6,7 +6,7 @@ require 'mail.php';
 //create
 function insertSession($data, $link){
     $res = new stdClass();
-    $res->id = createUniqueID($link);
+    $res->id = createUniqueID($link, 'interact');
     $res->pin = createPin();
     $pinHash = hashPin($res->pin);
     

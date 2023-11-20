@@ -179,4 +179,7 @@ const submit = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.form-label {
+  font-size: 1.3rem;
+}</style>

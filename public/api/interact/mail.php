@@ -9,7 +9,7 @@ function sendSessionCreatedMessage($name, $title, $interactions, $id, $pin, $ema
         A interact session has been successfully created on <a href='https://learnloop.co.uk'>LearnLoop</a> for your session '".$title."'. Please keep this email for future reference.</p>
         <span style='font-size:2em'>Your session ID is <strong>".$id."</strong><br>
         Your session PIN is <strong>".$pin."</strong></span><br>
-        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/interact/?resetPIN=".$id."'>Reset your PIN</a>.<br>
+        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/interact/resetPIN/".$id."'>Reset your PIN</a>.<br>
         <br>
         Your session contains the following interactions:<br>
     ";
@@ -19,15 +19,15 @@ function sendSessionCreatedMessage($name, $title, $interactions, $id, $pin, $ema
     }
     
     $messageContent .= "
-        <br><a href='https://learnloop.co.uk/interact/?edit=".$id."'>Edit your session</a>.
+        <br><a href='https://learnloop.co.uk/interact/edit/".$id."'>Edit your session</a>.
         <p style='font-size:1.5em'>How to launch your interact session</p>
-        Go to <a href='https://learnloop.co.uk/interact/host/?".$id."'>learnloop.co.uk/interact/host/?".$id."</a> and enter your session PIN.
+        Go to <a href='https://learnloop.co.uk/interact/host/".$id."'>learnloop.co.uk/interact/host/".$id."</a> and enter your session PIN.
         <p style='font-size:1.5em'>How to direct attendees to the interact session</p>
         When you launch your session instructions will appear onscreen for attendees to follow. Alternatively you can:
         <ul>
-            <li>share the direct link: <a href='https://learnloop.co.uk/interact/?".$id."'>learnloop.co.uk/interact/?".$id."</a></li>
+            <li>share the direct link: <a href='https://learnloop.co.uk/".$id."'>learnloop.co.uk/".$id."</a></li>
             <li>ask them to go to <a href='https://learnloop.co.uk/interact'>learnloop.co.uk/interact</a> and enter the session ID</li>
-            <li><a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/interact/?".$id."&choe=UTF-8&chld=h'> generate a QR code</a> for your attendees to scan</li>
+            <li><a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/".$id."&choe=UTF-8&chld=h'> generate a QR code</a> for your attendees to scan</li>
         </ul>
         <br>
     ";
@@ -50,7 +50,7 @@ function sendSessionUpdatedMessage($name, $title, $interactions, $id, $email){
         Your interact session '".$title."' has been successfully updated on <a href='https://learnloop.co.uk'>LearnLoop</a>.
         </p>
         <span style='font-size:2em'>Your session ID is <strong>".$id."</strong></span><br>
-        Refer to the email sent when you session was created for your PIN or <a href='https://learnloop.co.uk/interact/?resetPIN=".$id."'>reset your PIN</a>.<br>
+        Refer to the email sent when you session was created for your PIN or <a href='https://learnloop.co.uk/interact/resetPIN/".$id."'>reset your PIN</a>.<br>
         <br>
         Your session contains the following interactions:<br>
     ";
@@ -60,15 +60,15 @@ function sendSessionUpdatedMessage($name, $title, $interactions, $id, $email){
     }
 
     $messageContent .= "
-        <br><a href='https://learnloop.co.uk/interact/?edit=".$id."'>Make further changes to your session</a>.
+        <br><a href='https://learnloop.co.uk/interact/edit/".$id."'>Make further changes to your session</a>.
         <p style='font-size:1.5em'>How to launch your interact session</p>
-        Go to <a href='https://learnloop.co.uk/interact/host/?".$id."'>learnloop.co.uk/interact/host/?".$id."</a> and enter your session PIN.
+        Go to <a href='https://learnloop.co.uk/interact/host/".$id."'>learnloop.co.uk/interact/host/".$id."</a> and enter your session PIN.
         <p style='font-size:1.5em'>How to direct attendees to the interact session</p>
         When you launch your session instructions will appear onscreen for attendees to follow. Alternatively you can:
         <ul>
-            <li>share the direct link: <a href='https://learnloop.co.uk/interact/?".$id."'>learnloop.co.uk/interact/?".$id."</a></li>
+            <li>share the direct link: <a href='https://learnloop.co.uk/".$id."'>learnloop.co.uk/".$id."</a></li>
             <li>ask them to go to <a href='https://learnloop.co.uk/interact'>learnloop.co.uk/interact</a> and enter the session ID</li>
-            <li><a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/interact/?".$id."&choe=UTF-8&chld=h'> generate a QR code</a> for your attendees to scan</li>
+            <li><a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/".$id."&choe=UTF-8&chld=h'> generate a QR code</a> for your attendees to scan</li>
         </ul>
         <br>
     ";
@@ -115,7 +115,7 @@ function sendFoundSessions($foundDetails, $email){
     foreach ($foundDetails as $details) {
         $messageContent .= "
             <p style='font-size:1.2em'>" . $details['title'] . "<br>
-            Session ID:  " . $details['id'] . " | <a href='https://learnloop.co.uk/interact/?resetPIN=" . $details['id'] . "'>Reset PIN</a></p>
+            Session ID:  " . $details['id'] . " | <a href='https://learnloop.co.uk/interact/resetPIN/" . $details['id'] . "'>Reset PIN</a></p>
         ";
     }
 

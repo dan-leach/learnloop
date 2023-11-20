@@ -109,7 +109,6 @@ const showEditQuestionForm = (index) => {
   editQuestionModal.show();
 };
 const hideEditQuestionModal = (index, question) => {
-  console.log(question);
   if (!index) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
   } else if (index == -1) {

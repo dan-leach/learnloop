@@ -15,7 +15,7 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
         </p><p>Please keep this email for future reference.</p>
         <span style='font-size:2em'>Your session ID is <strong>".$id."</strong><br>
         Your session PIN is <strong>".$pin."</strong></span><br>
-        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/?resetPIN=".$id."'>Reset your PIN</a>.<br>
+        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/feedback/resetPIN/".$id."'>Reset your PIN</a>.<br>
     ";
 
     if ($subsessionTitles) {
@@ -40,7 +40,7 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
         $messageContent .= "<br>";
     }
 
-    $messageContent .= "<a href='https://learnloop.co.uk/?edit=".$id."'>Edit your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
+    $messageContent .= "<a href='https://learnloop.co.uk/feedback/edit/".$id."'>Edit your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
         <p style='font-size:1.5em'>How to direct attendees to the feedback form</p>
     ";
 
@@ -50,20 +50,20 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
         ";
     } else {
         $messageContent .= "
-            You can share the direct link: <a href='https://learnloop.co.uk/?".$id."'>learnloop.co.uk/?".$id."</a><br>
-            Or, ask them to go to <a href='https://learnloop.co.uk'>learnloop.co.uk</a> and enter the session ID.<br>
-            Or, <a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/?".$id."&choe=UTF-8&chld=h'> generate a QR code</a> which you can save and insert into your presentation.
+            You can share the direct link: <a href='https://learnloop.co.uk/".$id."'>learnloop.co.uk/".$id."</a><br>
+            Or, ask them to go to <a href='https://learnloop.co.uk/feedback'>learnloop.co.uk</a> and enter the session ID.<br>
+            Or, <a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/".$id."&choe=UTF-8&chld=h'> generate a QR code</a> which you can save and insert into your presentation.
         ";
         if (!$isSubsession && $certificate) $messageContent .= "<br>Don't forget to let your attendees know that they'll be able to download a certificate of attendance after completing feedback.";
     }
 
     $messageContent .= "
         <p style='font-size:1.5em'>View your feedback</p>
-        <p>Go to <a href='https://learnloop.co.uk/?view=".$id."'>learnloop.co.uk/?view=".$id."</a> and enter your PIN to retrieve submitted feedback.<br>";
+        <p>Go to <a href='https://learnloop.co.uk/feedback/view/".$id."'>learnloop.co.uk/feedback/view/".$id."</a> and enter your PIN to retrieve submitted feedback.<br>";
         $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. " : "Email notification of feedback submissions is <strong>disabled</strong>. ";
-        $messageContent .= "<a href='https://learnloop.co.uk/?notifications=" . $id . "'>Update your notification preferences</a>.<br>
+        $messageContent .= "<a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Update your notification preferences</a>.<br>
     ";
-    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/?attendance=".$id."'>View attendance register</a>.<br>";
+    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/feedback/attendance/".$id."'>View attendance register</a>.<br>";
     $messageContent .= "<br>";
     
     $messageContent .= addFooter($isSubsession);
@@ -89,7 +89,7 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
     $messageContent .= "
         </p>
         <span style='font-size:2em'>Your session ID is <strong>".$id."</strong></span><br>
-        Refer to the email sent when you session was created for your PIN or <a href='https://learnloop.co.uk/?resetPIN=".$id."'>reset your PIN</a>.<br>
+        Refer to the email sent when you session was created for your PIN or <a href='https://learnloop.co.uk/feedback/resetPIN/".$id."'>reset your PIN</a>.<br>
     ";
 
     if ($subsessionTitles) {
@@ -114,7 +114,7 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
         $messageContent .= "<br>";
     }
 
-    $messageContent .= "<a href='https://learnloop.co.uk/?edit=".$id."'>Make further edits to your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
+    $messageContent .= "<a href='https://learnloop.co.uk/feedback/edit/".$id."'>Make further edits to your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
         <p style='font-size:1.5em'>How to direct attendees to the feedback form</p>
     ";
 
@@ -124,20 +124,20 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
         ";
     } else {
         $messageContent .= "
-            You can share the direct link: <a href='https://learnloop.co.uk/?".$id."'>learnloop.co.uk/?".$id."</a><br>
-            Or, ask them to go to <a href='https://learnloop.co.uk'>learnloop.co.uk</a> and enter the session ID.<br>
-            Or, <a href='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=https://learnloop.co.uk/?".$id."'> generate a QR code</a> which you can save and insert into your presentation.
+            You can share the direct link: <a href='https://learnloop.co.uk/".$id."'>learnloop.co.uk/".$id."</a><br>
+            Or, ask them to go to <a href='https://learnloop.co.uk/feedback'>learnloop.co.uk/feedback</a> and enter the session ID.<br>
+            Or, <a href='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=https://learnloop.co.uk/".$id."'> generate a QR code</a> which you can save and insert into your presentation.
         ";
         if (!$isSubsession && $certificate) $messageContent .= "<br>Don't forget to let your attendees know that they'll be able to download a certificate of attendance after completing feedback.";
     }
 
     $messageContent .= "
         <p style='font-size:1.5em'>View your feedback</p>
-        <p>Go to <a href='https://learnloop.co.uk/?view=".$id."'>learnloop.co.uk/?view=".$id."</a> and enter your PIN to retrieve submitted feedback.<br>";
+        <p>Go to <a href='https://learnloop.co.uk/view/".$id."'>learnloop.co.uk/view/".$id."</a> and enter your PIN to retrieve submitted feedback.<br>";
         $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. " : "Email notification of feedback submissions is <strong>disabled</strong>. ";
-        $messageContent .= "<a href='https://learnloop.co.uk/?notifications=" . $id . "'>Update your notification preferences</a>.<br>
+        $messageContent .= "<a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Update your notification preferences</a>.<br>
     ";
-    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/?attendance=".$id."'>View attendance register</a>.<br>";
+    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/feedback/attendance/".$id."'>View attendance register</a>.<br>";
     $messageContent .= "<br>";
     
     $messageContent .= addFooter($isSubsession);
@@ -164,9 +164,9 @@ function sendFeedbackNotification($isSubsession, $date, $name, $title, $seriesNa
         
     $messageContent .= "
         </p><p style='font-size:1.5em'>View your feedback</p>
-        <p>Go to <a href='https://learnloop.co.uk/?view=".$id."'>learnloop.co.uk/?view=".$id."</a> and enter your PIN (refer to session creation email, or <a href='https://learnloop.co.uk/?resetPIN=".$id."'>reset your PIN</a>) to retrieve submitted feedback.<br>
+        <p>Go to <a href='https://learnloop.co.uk/feedback/view/".$id."'>learnloop.co.uk/feedback/view/".$id."</a> and enter your PIN (refer to session creation email, or <a href='https://learnloop.co.uk/feedback/resetPIN/".$id."'>reset your PIN</a>) to retrieve submitted feedback.<br>
         Please note, to avoid overloading your inbox, no further notifications will be sent for feedback submitted within the next 2 hours.</p>
-        <p><a href='https://learnloop.co.uk/?notifications=" . $id . "'>Update your notification preferences</a> if you don't want to receive these emails.</p>
+        <p><a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Update your notification preferences</a> if you don't want to receive these emails.</p>
     ";
     
     $messageContent .= addFooter(false);
@@ -190,7 +190,7 @@ function sendNotificationPreferenceStatus($id, $date, $name, $title, $email, $no
     ";
 
     $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. " : "Email notification of feedback submissions is <strong>disabled</strong>. ";
-    $messageContent .= "<br><br><a href='https://learnloop.co.uk/?notifications=".$id."'>Click here</a> to update your notification preferences.<br><br>";
+    $messageContent .= "<br><br><a href='https://learnloop.co.uk/feedback/notifications/".$id."'>Click here</a> to update your notification preferences.<br><br>";
 
     $messageContent .= addFooter(false);
 
@@ -234,7 +234,7 @@ function sendFoundSessions($foundDetails, $email){
     foreach ($foundDetails as $details) {
         $messageContent .= "
             <p style='font-size:1.2em'>" . $details['title'] . "<br>
-            Date: " . formatDateHuman($details['date']) . " | Session ID:  " . $details['id'] . " | Status: " . ($details['closed'] ? "closed" : "open") . " | <a href='https://learnloop.co.uk/?resetPIN=" . $details['id'] . "'>Reset PIN</a></p>
+            Date: " . formatDateHuman($details['date']) . " | Session ID:  " . $details['id'] . " | Status: " . ($details['closed'] ? "closed" : "open") . " | <a href='https://learnloop.co.uk/feedback/resetPIN/" . $details['id'] . "'>Reset PIN</a></p>
         ";
     }
 
@@ -271,54 +271,4 @@ function sendSessionClosed($details, $isSubsession){
     return true;
 }
 
-function sendLiveSessionCreatedMessage($questionTitles, $name, $title, $id, $pin, $email){
-
-    $messageContent = addHeader();
-
-    $messageContent .= "
-            <p>Hello " . $name . ",<br><br>
-            A LearnLoop Live session has been successfully created on <a href='https://learnloop.co.uk'>LearnLoop</a> for your session '".$title."'.
-        ";
-
-    $messageContent .= "
-        </p><p>Please keep this email for future reference.</p>
-        <span style='font-size:2em'>Your LearnLoop Live session ID is <strong>".$id."</strong><br>
-        Your LearnLoop Live session PIN is <strong>".$pin."</strong></span><br>
-        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/?resetLivePIN=".$id."'>Reset your PIN</a>.<br>
-    ";
-
-    $messageContent .= "The following questions will be asked: ";
-    $i = 0;
-    foreach ($questionTitles as $qTitle) {
-        $messageContent .= "'" . $qTitle . "'";
-        $i++;
-        if ($i == count($questionTitles)) {
-            $messageContent .= ".<br>";
-        } elseif ($i == count($questionTitles)-1) {
-            $messageContent .= " and ";
-        } else {
-            $messageContent .= ", ";
-        }
-    }
-
-    $messageContent .= "<a href='https://learnloop.co.uk/?editLive=".$id."'>Edit your session</a>.
-        <p style='font-size:1.5em'>How to direct attendees to the LearnLoop Live session</p>
-        You can share the direct link: <a href='https://learnloop.co.uk/?live=".$id."'>learnloop.co.uk/?".$id."</a><br>
-        Or, ask them to go to <a href='https://learnloop.co.uk/'>learnloop.co.uk</a> and enter the session ID.<br>
-        Or, <a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/?live=".$id."&choe=UTF-8&chld=h'> generate a QR code</a> which you can save and insert into your presentation.
-    ";
-
-    $messageContent .= "
-        <p style='font-size:1.5em'>View your LearnLoop Live submissions</p>
-        <p>Go to <a href='https://learnloop.co.uk/?viewLive=".$id."'>learnloop.co.uk/?viewLive=".$id."</a> and enter your PIN to view submissions.<br><br>
-    ";
-    
-    $messageContent .= addFooter(false);
-
-    $subject = 'LearnLoop Live session created: ' . html_entity_decode($title);
-
-    if (!sendMail($messageContent, $subject, $email, $name)) send_error_response("sendMail failed at sendLiveSessionCreatedMessage", 500);
-
-    return true;
-}
 ?>

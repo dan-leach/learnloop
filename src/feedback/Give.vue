@@ -129,8 +129,6 @@ const submit = () => {
     console.log('form validation failed');
     return;
   }
-  console.log(feedbackSession)
-  return
   api(
     'feedback',
     'insertFeedback',
@@ -556,7 +554,7 @@ onMounted(() => {
               class="form-control"
               :required="question.settings.required"
             >
-              <option disabled value="">Please select one</option>
+              <option disabled value="">Please select an option...</option>
               <option v-for="option in question.options" :value="option.title">
                 {{ option.title }}
               </option>
