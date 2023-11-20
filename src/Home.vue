@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
 import { api } from './data/api.js';
 import router from './router';
 import Quote from './components/Quote.vue';
@@ -25,33 +26,70 @@ const joinInteract = () => {
   }
 };
 
-const resetPin = (module) => {
-  let id = '';
+const resetPin = (module, id) => {
+  if (!id) id = ''
   let email = '';
   Swal.fire({
     title: 'Reset PIN',
     html:
-      'You will need your session ID which you can find in emails relating to your session, or in the link to your feedback form.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>' +
-      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input">' +
+      'You will need your session ID which you can find in emails relating to your session.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>' +
+      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="'+id+'">' +
       '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
     confirmButtonColor: '#17a2b8',
     preConfirm: () => {
-      (id = document.getElementById('swalFormId').value),
-        (email = document.getElementById('swalFormEmail').value);
+      (id = document.getElementById('swalFormId').value);
+      (email = document.getElementById('swalFormEmail').value);
+      if (email == '') Swal.showValidationMessage('Please enter an email');
+      if (id == '') Swal.showValidationMessage('Please enter a session ID');
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      if (!id || !email) {
-        Swal.fire({
-          icon: 'error',
-          iconColor: '#17a2b8',
-          text: 'Please enter a session ID and facilitator email.',
-          confirmButtonColor: '#17a2b8',
-        });
-        return;
-      }
       api(module, 'resetPin', id, null, JSON.stringify(email)).then(
+        function (res) {
+          Swal.fire({
+            icon: 'success',
+            iconColor: '#17a2b8',
+            text: res,
+            confirmButtonColor: '#17a2b8',
+          });
+        },
+        function (error) {
+          Swal.fire({
+            icon: 'error',
+            iconColor: '#17a2b8',
+            text: error,
+            confirmButtonColor: '#17a2b8',
+          });
+        }
+      );
+    }
+  });
+};
+
+const setNotificationPreference = (id) => {
+  if (!id) id = ''
+  let pin = '';
+  let notifications = true;
+  Swal.fire({
+    title: 'Set notification preferences',
+    html:
+      'You will need your session ID and PIN which you can find in the email you received when your session was created.' +
+      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="'+id+'">' +
+      '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input"><br><br>' +
+      'Set notifications <select id="swalFormNotifications" type="select" class="swal2-input"><option value=true>On</option><option value=false>Off</option></select>',
+    showCancelButton: true,
+    confirmButtonColor: '#17a2b8',
+    preConfirm: () => {
+      (id = document.getElementById('swalFormId').value);
+      (pin = document.getElementById('swalFormPin').value);
+      if (pin == '') Swal.showValidationMessage('Please enter your PIN');
+      if (id == '') Swal.showValidationMessage('Please enter a session ID');
+      (notifications = document.getElementById('swalFormNotifications').value);
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      api('feedback', 'setNotificationPreference', id, pin, notifications).then(
         function (res) {
           Swal.fire({
             icon: 'success',
@@ -84,18 +122,10 @@ const findMySessions = (module) => {
     confirmButtonColor: '#17a2b8',
     preConfirm: () => {
       email = document.getElementById('swalFormEmail').value;
+      if (email == '') Swal.showValidationMessage('Please enter an email');
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      if (!email) {
-        Swal.fire({
-          icon: 'error',
-          iconColor: '#17a2b8',
-          text: 'Please enter a facilitator email.',
-          confirmButtonColor: '#17a2b8',
-        });
-        return;
-      }
       api(module, 'findMySessions', null, null, JSON.stringify(email)).then(
         function (res) {
           Swal.fire({
@@ -130,20 +160,13 @@ const closeSession = (module) => {
     showCancelButton: true,
     confirmButtonColor: '#17a2b8',
     preConfirm: () => {
-      (id = document.getElementById('swalFormId').value),
-        (pin = document.getElementById('swalFormPin').value);
+      (id = document.getElementById('swalFormId').value);
+      (pin = document.getElementById('swalFormPin').value);
+      if (pin == '') Swal.showValidationMessage('Please enter a session PIN');
+      if (id == '') Swal.showValidationMessage('Please enter a session ID');
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      if (!id || !pin) {
-        Swal.fire({
-          icon: 'error',
-          iconColor: '#17a2b8',
-          text: 'Please enter a session ID and PIN.',
-          confirmButtonColor: '#17a2b8',
-        });
-        return;
-      }
       api(module, 'closeSession', id, pin, null).then(
         function (res) {
           Swal.fire({
@@ -165,13 +188,22 @@ const closeSession = (module) => {
     }
   });
 };
+
+onMounted(() => {
+  let id = useRouter().currentRoute.value.params.id
+  let routeName = useRouter().currentRoute.value.name;
+  if (routeName == 'interact-resetPIN') resetPin('interact', id)
+  if (routeName == 'feedback-resetPIN') resetPin('feedback', id)
+  if (routeName == 'feedback-notifications') setNotificationPreference(id)
+  if (routeName == 'home' && id) {
+    if (id.charAt(0)=='i') router.push('/interact/'+id)
+    else router.push('/feedback/'+id)
+  }
+})
 </script>
 
 <template>
   <main>
-    <p class="text-center display-6">
-      This is the development version of LearnLoop.
-    </p>
     <p class="text-center m-4">
       Welcome to LearnLoop. Please select from the options below.
     </p>

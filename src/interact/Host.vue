@@ -134,61 +134,31 @@ const fetchDetailsHost = () => {
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.path.replace(
-    '/interact/host/',
-    ''
-  );
-  if (
-    interactSession.id == '/interact/host' ||
-    interactSession.id == '/interact/host/' ||
-    interactSession.id == ''
-  ) {
-    Swal.fire({
-      title: 'Enter session ID and PIN',
-      html:
-        'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">' +
-        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
-      showCancelButton: true,
-      confirmButtonColor: '#17a2b8',
-      preConfirm: () => {
-        interactSession.id = document.getElementById('swalFormId').value;
-        interactSession.pin = document.getElementById('swalFormPin').value;
-        if (interactSession.pin == '')
-          Swal.showValidationMessage('Please enter your PIN');
-        if (interactSession.id == '')
-          Swal.showValidationMessage('Please enter a session ID');
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, '', interactSession.id);
-        fetchDetailsHost();
-      } else {
-        router.push('/');
-      }
-    });
-  } else {
-    Swal.fire({
-      title: 'Enter session PIN',
-      html:
-        'You will need your session PIN which you can find in the email you received when your session was created. <br>' +
-        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
-      showCancelButton: true,
-      confirmButtonColor: '#17a2b8',
-      preConfirm: () => {
-        interactSession.pin = document.getElementById('swalFormPin').value;
-        if (interactSession.pin == '')
-          Swal.showValidationMessage('Please enter your PIN');
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        fetchDetailsHost();
-        updateFacilitatorIndex();
-      } else {
-        router.push('/');
-      }
-    });
-  }
+  interactSession.id = useRouter().currentRoute.value.params.id
+  Swal.fire({
+    title: 'Enter session ID and PIN',
+    html:
+      'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
+      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="'+interactSession.id+'">' +
+      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+    showCancelButton: true,
+    confirmButtonColor: '#17a2b8',
+    preConfirm: () => {
+      interactSession.id = document.getElementById('swalFormId').value;
+      interactSession.pin = document.getElementById('swalFormPin').value;
+      if (interactSession.pin == '')
+        Swal.showValidationMessage('Please enter your PIN');
+      if (interactSession.id == '')
+        Swal.showValidationMessage('Please enter a session ID');
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      history.replaceState({}, '', interactSession.id);
+      fetchDetailsHost();
+    } else {
+      router.push('/');
+    }
+  });
 });
 
 onBeforeUnmount(() => {

@@ -314,15 +314,8 @@ const fetchDetails = () => {
 };
 
 onMounted(() => {
-  feedbackSession.id = useRouter().currentRoute.value.path.replace(
-    '/feedback/',
-    ''
-  );
-  if (
-    feedbackSession.id == '/feedback' ||
-    feedbackSession.id == '/feedback/' ||
-    feedbackSession.id == ''
-  ) {
+  feedbackSession.id = useRouter().currentRoute.value.params.id
+  if (!feedbackSession.id) {
     Swal.fire({
       title: 'Enter session ID',
       html:

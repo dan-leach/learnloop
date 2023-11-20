@@ -4,13 +4,12 @@ import router from '../router';
 import { interactSession } from '../data/interactSession.js';
 import { config } from '../data/config.js';
 import Toast from '../assets/Toast.js';
-import Swal from 'sweetalert2';
 
 if (!interactSession.id || !interactSession.pin)
   router.push('/interact/create');
 
 const link = ref({});
-link.value.join = config.client.url + '/interact/' + interactSession.id;
+link.value.join = config.client.url + '/' + interactSession.id;
 link.value.host = config.client.url + '/interact/host/' + interactSession.id;
 link.value.qr =
   'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +

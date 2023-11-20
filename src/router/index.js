@@ -6,11 +6,6 @@ const router = createRouter({
   linkActiveClass: 'active',
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Home,
-    },
-    {
       path: '/feedback',
       name: 'feedback',
       children: [
@@ -43,6 +38,11 @@ const router = createRouter({
           path: 'attendance/:id?',
           name: 'feedback-attendance',
           component: () => import('../feedback/Attendance.vue'),
+        },
+        {
+          path: 'notifications/:id?',
+          name: 'feedback-notifications',
+          component: Home,
         },
         {
           //this option should always be last else other routes will be interpreted as an id
@@ -82,6 +82,11 @@ const router = createRouter({
           component: () => import('../interact/Edit.vue'),
         },
         {
+          path: 'resetPIN/:id?', //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
+          name: 'interact-resetPIN',
+          component: Home,
+        },
+        {
           path: ':id?',
           name: 'interact-join',
           component: () => import('../interact/Join.vue'),
@@ -94,9 +99,9 @@ const router = createRouter({
       component: () => import('../PrivacyPolicy.vue'),
     },
     {
-      path: '/:pathMatch(.*)*',
-      name: 'not-found',
-      component: () => import('../NotFound.vue'),
+      path: '/:id?',
+      name: 'home',
+      component: Home,
     },
   ],
 });

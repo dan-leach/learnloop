@@ -91,15 +91,8 @@ const fetchDetails = () => {
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.path.replace(
-    '/interact/joining-instructions/',
-    ''
-  );
-  if (
-    interactSession.id == '/interact/joining-instructions/' ||
-    interactSession.id == '/interact/joining-instructions' ||
-    interactSession.id == ''
-  ) {
+  interactSession.id = useRouter().currentRoute.value.params.id
+  if (!interactSession.id) {
     Swal.fire({
       title: 'Enter session ID',
       html: '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',

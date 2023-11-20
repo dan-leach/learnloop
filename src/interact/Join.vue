@@ -85,11 +85,8 @@ const fetchDetails = () => {
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.path.replace(
-    '/interact/',
-    ''
-  );
-  if (interactSession.id == '/interact/host' || interactSession.id == '') {
+  interactSession.id = useRouter().currentRoute.value.params.id
+  if (!interactSession.id) {
     Swal.fire({
       title: 'Enter session ID',
       html:

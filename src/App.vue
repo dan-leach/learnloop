@@ -11,6 +11,7 @@ import Toast from './assets/Toast.js';
       <RouterLink to="/" class="navbar-brand"
         ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
       /></RouterLink>
+      <p class="fs-3 text-danger">This is the development version of LearnLoop</p>
     </div>
   </nav>
   <div id="app-view" :class="{ container: !config.client.isFullscreen }">

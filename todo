@@ -1,4 +1,5 @@
 Current:
+Add i or f at start of session ID to allow ID queries to root
 Add ? help buttons to interact module
 
 Styling/harmonisation:
@@ -18,6 +19,7 @@ Check cookies work as expected
 
 BEFORE BUILD:
 1. Remove form actions 'https://dev.learnloop.co.uk/api' change to 'api/'
+2. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
 
 ON DEPLOY:
 1. Add this htaccess to enable navigation directly to specified views (rather than only once the root has been loaded):

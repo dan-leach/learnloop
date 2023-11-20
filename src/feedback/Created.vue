@@ -10,7 +10,7 @@ if (!feedbackSession.id || !feedbackSession.pin)
   router.push('/feedback/create');
 
 const link = ref({});
-link.value.give = config.client.url + '/feedback/' + feedbackSession.id;
+link.value.give = config.client.url + '/' + feedbackSession.id;
 link.value.view = config.client.url + '/feedback/host/' + feedbackSession.id;
 link.value.qr =
   'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
