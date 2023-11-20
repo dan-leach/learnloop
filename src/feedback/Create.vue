@@ -6,6 +6,7 @@ import { api } from '../data/api.js';
 import { config } from '../data/config.js';
 import Modal from 'bootstrap/js/dist/modal';
 import EditSubsessionForm from './components/EditSubsessionForm.vue';
+import EditQuestionForm from './components/EditQuestionForm.vue';
 import Swal from 'sweetalert2';
 
 let isSeries = ref(false);
@@ -92,6 +93,46 @@ const questionsInfo = () => {
     html: '<div class="text-start">If the standard feedback form doesn\'t cover everything you want to ask, you can add additional questions.</div>',
     width: '60%',
     confirmButtonColor: '#17a2b8',
+  });
+};
+
+let editQuestionModal;
+const showEditQuestionForm = (index) => {
+  editQuestionModal = new Modal(
+    document.getElementById('editQuestionModal' + index),
+    {
+      backdrop: 'static',
+      keyboard: false,
+      focus: true,
+    }
+  );
+  editQuestionModal.show();
+};
+const hideEditQuestionModal = (index, question) => {
+  console.log(question);
+  if (!index) {
+    //user did not submit the form, closed using the X. Do nothing except hide the modal
+  } else if (index == -1) {
+    feedbackSession.questions.push(JSON.parse(question));
+  } else {
+    feedbackSession.questions[index] = JSON.parse(question);
+  }
+  editQuestionModal.hide();
+};
+
+const sortQuestion = (index, x) =>
+  feedbackSession.questions.splice(
+    index + x,
+    0,
+    feedbackSession.questions.splice(index, 1)[0]
+  );
+const removeQuestion = (index) => {
+  Swal.fire({
+    title: 'Remove this question?',
+    showCancelButton: true,
+    confirmButtonColor: '#dc3545',
+  }).then((result) => {
+    if (result.isConfirmed) feedbackSession.questions.splice(index, 1);
   });
 };
 
@@ -373,196 +414,80 @@ const submit = () => {
       />
     </span>
     <div v-if="hasQuestions">
-      <h2>Custom questions</h2>
+      <h2 class="mt-4">Questions</h2>
       <table class="table" id="questionsTable">
         <thead>
           <tr>
+            <th></th>
             <th>Question</th>
             <th>Type</th>
-            <th></th>
-            <th></th>
+            <th>
+              <button
+                class="btn btn-success btn-sm btn-right"
+                id="btnAddQuestion"
+                @click.prevent="showEditQuestionForm(-1)"
+              >
+                Add <i class="fas fa-plus"></i>
+              </button>
+            </th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="(question, index) in feedbackSession.questions">
-            <td>{{ question.title }}</td>
-            <td>{{ question.type }}</td>
-            <td>
-              <button
-                style="float: right"
-                class="btn btn-secondary btn-sm"
-                id="btnEditQuestion"
-                v-on:click="editQuestion(index)"
-              >
-                <i class="fas fa-edit"></i>
-              </button>
-            </td>
-            <td>
-              <button
-                style="float: right"
-                class="btn btn-danger btn-sm"
-                id="btnRemoveQuestion"
-                v-on:click="removeQuestion(index)"
-              >
-                <i class="fas fa-times"></i>
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <button
-        style="float: right"
-        class="btn btn-success btn-sm"
-        id="btnAddQuestion"
-        data-toggle="modal"
-        data-target="#addQuestion"
-        data-backdrop="static"
-      >
-        Add <i class="fas fa-plus"></i>
-      </button>
-      <div class="modal" id="addQuestion">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Add a custom question</h4>
-              <button type="button" class="close" data-dismiss="modal">
-                &times;
-              </button>
-            </div>
-            <div class="modal-body">
-              <form id="createQuestionForm" class="needs-validation" novalidate>
-                <div class="form-group">
-                  <label for="title">Question title:</label>
-                  <input
-                    type="text"
-                    v-model="question.title"
-                    class="form-control"
-                    id="questionTitle"
-                    placeholder="Please enter your question..."
-                    name="title"
-                    autocomplete="off"
-                    required
-                  />
-                  <div class="invalid-feedback">
-                    Please fill out this field.
-                  </div>
-                </div>
-                <div class="form-group">
-                  <label for="type"
-                    >Question type:
-                    <a
-                      href="#"
-                      data-toggle="modal"
-                      data-target="#questionTypeInfo"
-                      ><i class="fas fa-question-circle fa-1x"></i></a
-                  ></label>
-                  <select
-                    v-model="question.type"
-                    id="questionType"
-                    class="form-control"
-                    required
-                  >
-                    <option disabled value="">
-                      Please select question type
-                    </option>
-                    <option value="text">Text</option>
-                    <option value="checkbox">Checkboxes</option>
-                    <option value="select">Drop-down select</option>
-                  </select>
-                  <div class="invalid-feedback">
-                    Please fill out this field.
-                  </div>
-                </div>
-                <div
-                  class="form-group"
-                  v-if="
-                    question.type == 'select' || question.type == 'checkbox'
-                  "
+        <TransitionGroup name="list" tag="tbody">
+          <template
+            v-for="(question, index) in feedbackSession.questions"
+            :key="question"
+          >
+            <tr>
+              <td class="p-0 ps-2">
+                <button
+                  v-if="index != 0"
+                  class="btn btn-default btn-sm p-0"
+                  id="btnSortUp"
+                  @click="sortQuestion(index, -1)"
                 >
-                  <label for="type"
-                    >Question options:
-                    <a
-                      href="#"
-                      data-toggle="modal"
-                      data-target="#questionOptionsInfo"
-                      ><i class="fas fa-question-circle fa-1x"></i></a
-                  ></label>
-                  <input
-                    type="text"
-                    v-model="question.options"
-                    class="form-control"
-                    id="questionOptions"
-                    placeholder="Please enter the question options..."
-                    name="options"
-                    autocomplete="off"
-                    required
-                  />
-                  <div class="invalid-feedback">
-                    Please fill out this field.
-                  </div>
-                </div>
-              </form>
-              <br /><br />
-              <button
-                class="btn btn-primary"
-                id="submitCreateQuestion"
-                v-on:click="createQuestion"
-              >
-                Add question
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal" id="questionTypeInfo">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Question type info</h4>
-              <button type="button" class="close" data-dismiss="modal">
-                &times;
-              </button>
-            </div>
-            <div class="modal-body">
-              There are three question types:
-              <ul>
-                <li>
-                  Text - a free-text area for attendees to type into, similar to
-                  the positive or constructive comment inputs on the default
-                  form
-                </li>
-                <li>
-                  Checkboxes - a series of checkboxes which attendees can select
-                  from. Attendees can select as many options as apply, or none.
-                </li>
-                <li>
-                  Drop-down select - a series of options in a drop-down menu.
-                  Attendees must select only one option.
-                </li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="modal" id="questionOptionsInfo">
-        <div class="modal-dialog modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h4 class="modal-title">Question options info</h4>
-              <button type="button" class="close" data-dismiss="modal">
-                &times;
-              </button>
-            </div>
-            <div class="modal-body">
-              Please enter each option separated by a semicolon <code>;</code
-              ><br />
-              <br />
-              e.g. <code>option 1;option 2; option 3</code>
-            </div>
-          </div>
-        </div>
-      </div>
-      <br /><br />
+                  <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+                ><br />
+                <button
+                  v-if="index != feedbackSession.questions.length - 1"
+                  class="btn btn-default btn-sm p-0"
+                  id="btnSortDown"
+                  @click="sortQuestion(index, 1)"
+                >
+                  <font-awesome-icon :icon="['fas', 'chevron-down']" />
+                </button>
+              </td>
+              <td>{{ question.title }}</td>
+              <td>{{ config.feedback.create.questions.types[question.type].name }}</td>
+              <td>
+                <button
+                  class="btn btn-danger btn-sm btn-right ms-4"
+                  id="btnRemoveQuestion"
+                  @click="removeQuestion(index)"
+                >
+                  <font-awesome-icon :icon="['fas', 'trash-can']" />
+                </button>
+                <button
+                  class="btn btn-secondary btn-sm btn-right"
+                  id="btnEditQuestion"
+                  @click="showEditQuestionForm(index)"
+                >
+                  <font-awesome-icon :icon="['fas', 'edit']" />
+                </button>
+              </td>
+            </tr>
+          </template>
+        </TransitionGroup>
+      </table>
+      <template v-for="(question, index) in feedbackSession.questions">
+        <EditQuestionForm
+          :index="index"
+          @hideEditQuestionModal="hideEditQuestionModal"
+        />
+      </template>
+      <EditQuestionForm
+        index="-1"
+        @hideEditQuestionModal="hideEditQuestionModal"
+      />
     </div>
   </div>
   <div class="my-4">

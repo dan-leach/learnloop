@@ -1,7 +1,48 @@
 import { reactive } from 'vue';
 
 export const config = reactive({
-  feedback: {},
+  feedback: {
+    create: {
+      questions: {
+        types: {
+          shortText: {
+            name: 'Short text',
+            id: 'shortText',
+            settings: {
+              optionsLimit: 0,
+              characterLimit: {
+                min: 1,
+                max: 200,
+              },
+            }
+          },
+          select: {
+            name: 'Drop-down select',
+            id: 'select',
+            settings: {
+              optionsLimit: 20,
+              selectedLimit: {
+                min: 1, //default - can be changed by facilitator
+                max: 1, //will automatically increase to the number of options unless changed
+              },
+            }
+          },
+          checkbox: {
+            name: 'Checkboxes',
+            id: 'checkbox',
+            settings: {
+              optionsLimit: 20,
+              selectedLimit: {
+                min: 1, //default - can be changed by facilitator
+                max: 1, //will automatically increase to the number of options unless changed
+              },
+            }
+          }
+        },
+        minimumOptions: 2
+      }
+    }
+  },
   interact: {
     join: {
       currentIndexPollInterval: 3000,
