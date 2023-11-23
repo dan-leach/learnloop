@@ -2,32 +2,32 @@ Current:
 Add i or f at start of session ID to allow ID queries to root
 Add ? help buttons to interact module
 
-Preview of feedback form, question, interaction
-
-Styling/harmonisation:
-move add buttons for questions/sessions etc into table head
+Later:
+check how old feedback sessions function on the new frontend and api
+Privacy policy
 check group transition applied everywhere
 Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
-
-Complete full Give Feedback including api to provide feedback works in principle for v5
-Then move on to trying some interact stuff to show proof of concept
-Then go back systematically through porting each function over to v5 architecture
-
-Create readme and changelog
-
-Update api to use modern js fetch
-
+Check buttons same style everywhere
 Check cookies work as expected
 
+Improvements:
+Preview of feedback form, question, interaction
+Prevent subsession update email when that subsession hasn't changed
+Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
+Create readme and changelog
+Update api to use modern js fetch
+
 BEFORE BUILD:
+
 1. Remove form actions 'https://dev.learnloop.co.uk/api' change to 'api/'
 2. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
 
 ON DEPLOY:
-1. Add this htaccess to enable navigation directly to specified views (rather than only once the root has been loaded):
-        <IfModule mod_negotiation.c>
-        Options -MultiViews
-        </IfModule>
+
+1.  Add this htaccess to enable navigation directly to specified views (rather than only once the root has been loaded):
+    <IfModule mod_negotiation.c>
+    Options -MultiViews
+    </IfModule>
 
         <IfModule mod_rewrite.c>
         RewriteEngine On
@@ -38,7 +38,7 @@ ON DEPLOY:
         RewriteRule . /index.html [L]
         </IfModule>
 
-2. Remove the allow CORS from the htaccess in dev.learnloop.co.uk
-3. Update the path to the api in src/data/api.js to be relative not absolute
-4. Check directory privacy attached to api/private/ and api/shared/ 
-5. re-enable sendMail for errors in api/index.php
+2.  Remove the allow CORS from the htaccess in dev.learnloop.co.uk
+3.  Update the path to the api in src/data/api.js to be relative not absolute
+4.  Check directory privacy attached to api/private/ and api/shared/
+5.  re-enable sendMail for errors in api/index.php

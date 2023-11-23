@@ -1,12 +1,12 @@
 <script setup>
-import { ref } from 'vue';
-import { feedbackSession } from '../data/feedbackSession.js';
-import { config } from '../data/config.js';
-import { api } from '../data/api.js';
-import router from '../router';
-import Swal from 'sweetalert2';
+import { ref } from "vue";
+import { feedbackSession } from "../data/feedbackSession.js";
+import { config } from "../data/config.js";
+import { api } from "../data/api.js";
+import router from "../router";
+import Swal from "sweetalert2";
 
-if (!feedbackSession.id) router.push('/feedback/');
+if (!feedbackSession.id) router.push("/feedback/");
 
 const orgChange = () => {
   if (
@@ -14,20 +14,20 @@ const orgChange = () => {
     feedbackSession.attendee.region == -1
   ) {
     feedbackSession.attendee.region = -1;
-    feedbackSession.attendee.organisation = '';
+    feedbackSession.attendee.organisation = "";
   }
 };
 
 let lockForm = ref(false);
 const submit = () => {
   document
-    .getElementById('fetchCertificateForm')
-    .classList.add('was-validated');
+    .getElementById("fetchCertificateForm")
+    .classList.add("was-validated");
   if (!feedbackSession.attendee.name || !feedbackSession.attendee.organisation)
     return false;
   lockForm.value = true;
   console.log('TODO: set action of form to "api/"');
-  document.getElementById('fetchCertificateForm').submit();
+  document.getElementById("fetchCertificateForm").submit();
 };
 </script>
 
@@ -105,8 +105,8 @@ const submit = () => {
         <select
           v-model="feedbackSession.attendee.organisation"
           class="form-control"
-          id="attendeeOrganisation"
-          name="attendeeOrganisation"
+          id="attendeeOrganisationSelect"
+          name="attendeeOrganisationSelect"
           autocomplete="off"
           @change="orgChange"
           :disabled="lockForm"
@@ -157,6 +157,13 @@ const submit = () => {
         readonly
         hidden
       />
+      <input
+        v-model="feedbackSession.attendee.organisation"
+        type="text"
+        name="attendeeOrganisation"
+        readonly
+        hidden
+      />
       <p>
         <small
           ><strong
@@ -182,4 +189,5 @@ const submit = () => {
 <style scoped>
 .form-label {
   font-size: 1.3rem;
-}</style>
+}
+</style>

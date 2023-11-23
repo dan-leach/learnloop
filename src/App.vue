@@ -1,8 +1,8 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router';
-import { config } from './data/config.js';
+import { RouterLink, RouterView } from "vue-router";
+import { config } from "./data/config.js";
 
-import Toast from './assets/Toast.js';
+import Toast from "./assets/Toast.js";
 </script>
 
 <template>
@@ -11,7 +11,9 @@ import Toast from './assets/Toast.js';
       <RouterLink to="/" class="navbar-brand"
         ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
       /></RouterLink>
-      <p class="fs-3 text-danger">This is the development version of LearnLoop</p>
+      <p class="fs-3 text-danger">
+        This is the development version of LearnLoop
+      </p>
     </div>
   </nav>
   <div id="app-view" :class="{ container: !config.client.isFullscreen }">
@@ -66,5 +68,14 @@ import Toast from './assets/Toast.js';
 }
 .footer-spacer {
   min-height: 70px;
+}
+
+.nav-link.active {
+  background-color: #17a2b8;
+  color: black;
+}
+.nav-link:hover {
+  background-color: #00606e;
+  color: white;
 }
 </style>

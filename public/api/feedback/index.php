@@ -6,13 +6,13 @@ $link = mysqli_connect("localhost", "learnloop_app", $dbKey, "learnloop_data");
 
 //select route
 switch ($route) {
-    //session creation
+        //session creation
     case "insertSession":
-        if (is_null($data) ) send_error_response("Variable(s) [data] must be defined for insertSession route", 400);
+        if (is_null($data)) send_error_response("Variable(s) [data] must be defined for insertSession route", 400);
         echo json_encode(insertSession($data, false, null, null, null, $link));
         break;
 
-    //session updates
+        //session updates
     case "loadUpdateDetails":
         if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for loadUpdateDetails route", 400);
         echo json_encode(loadUpdateDetails($id, $pin, false, $link));
@@ -25,7 +25,7 @@ switch ($route) {
         if (is_null($id) || is_null($pin) || is_null($data)) send_error_response("Variable(s) [id], [pin] and [data] must be defined for setNotificationPreference route", 400);
         echo json_encode(setNotificationPreference($id, $pin, $data, $link));
         break;
-    case "resetPIN":
+    case "resetPin":
         if (is_null($id) || is_null($data)) send_error_response("Variable(s) [id] and [data] must be defined for resetPin route", 400);
         echo json_encode(resetPin($id, $data, $link));
         break;
@@ -34,7 +34,7 @@ switch ($route) {
         echo json_encode(closeSession($id, $pin, false, $link));
         break;
 
-    //give feedback
+        //give feedback
     case "fetchDetails":
         if (is_null($id)) send_error_response("Variable(s) [id] must be defined for fetchDetails route", 400);
         echo json_encode(fetchDetails($id, $link));
@@ -44,15 +44,13 @@ switch ($route) {
         echo json_encode(insertFeedback($id, false, null, $data, $link));
         break;
     case "fetchCertificate":
-        //if (isset($_POST['name'])) $name = htmlspecialchars($_POST['name']);
-        //if (isset($_POST['organisation'])) $organisation = htmlspecialchars($_POST['organisation']);
-        $name = "Dan";
-        $organisation = "UHBW";
+        if (isset($_POST['attendeeName'])) $name = htmlspecialchars($_POST['attendeeName']);
+        if (isset($_POST['attendeeOrganisation'])) $organisation = htmlspecialchars($_POST['attendeeOrganisation']);
         if (is_null($id) || is_null($name) || is_null($organisation)) send_error_response("Variable(s) [id], [name] and [organisation] must be defined for fetchCertificate route", 400);
         fetchCertificate($id, $name, $organisation, $link);
         break;
 
-    //view feedback
+        //view feedback
     case "fetchFeedback":
         if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for fetchFeedback route", 400);
         echo json_encode(fetchFeedback($id, $pin, $link));
@@ -64,7 +62,7 @@ switch ($route) {
         echo fetchFeedbackPDF($id, $pin, $subID, $link);
         break;
 
-    //view attendance
+        //view attendance
     case "fetchAttendance":
         if (is_null($id) || is_null($pin)) send_error_response("Variable(s) [id] and [pin] must be defined for fetchAttendance route", 400);
         echo json_encode(fetchAttendance($id, $pin, $link));
@@ -78,7 +76,7 @@ switch ($route) {
         echo json_encode(fetchAttendanceCSV($id, $pin, $link));
         break;
 
-    //utilities
+        //utilities
     case "checkEmailIsValid":
         if (is_null($data)) send_error_response("Variable(s) [data] must be defined for checkEmailIsValid route", 400);
         echo json_encode(checkEmailIsValid($data));
@@ -87,11 +85,9 @@ switch ($route) {
         if (is_null($data)) send_error_response("Variable(s) [data] must be defined for findMySessions route", 400);
         echo json_encode(findMySessions($data, $link));
         break;
-    
+
     default:
-        send_error_response("Route [" . $route . "] not found in feedback module",400);
+        send_error_response("Route [" . $route . "] not found in feedback module", 400);
 }
 
 mysqli_close($link);
-
-?>

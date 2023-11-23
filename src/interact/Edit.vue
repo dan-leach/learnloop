@@ -1,23 +1,23 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import { useRouter } from 'vue-router';
-import router from '../router';
-import { interactSession } from '../data/interactSession.js';
-import { api } from '../data/api.js';
-import { config } from '../data/config.js';
-import Loading from '../components/Loading.vue';
-import Modal from 'bootstrap/js/dist/modal';
-import EditInteractionForm from './components/EditInteractionForm.vue';
-import Swal from 'sweetalert2';
+import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router";
+import router from "../router";
+import { interactSession } from "../data/interactSession.js";
+import { api } from "../data/api.js";
+import { config } from "../data/config.js";
+import Loading from "../components/Loading.vue";
+import Modal from "bootstrap/js/dist/modal";
+import EditInteractionForm from "./components/EditInteractionForm.vue";
+import Swal from "sweetalert2";
 
 const loading = ref(true);
 
 let editInteractionModal;
 const showEditInteractionForm = (index) => {
   editInteractionModal = new Modal(
-    document.getElementById('editInteractionModal' + index),
+    document.getElementById("editInteractionModal" + index),
     {
-      backdrop: 'static',
+      backdrop: "static",
       keyboard: false,
       focus: true,
     }
@@ -43,29 +43,29 @@ const sortInteraction = (index, x) =>
   );
 const removeInteraction = (index) => {
   Swal.fire({
-    title: 'Remove this interaction?',
+    title: "Remove this interaction?",
     showCancelButton: true,
-    confirmButtonColor: '#dc3545',
+    confirmButtonColor: "#dc3545",
   }).then((result) => {
     if (result.isConfirmed) interactSession.interactions.splice(index, 1);
   });
 };
 
 let btnSubmit = ref({
-  text: 'Update interact session',
+  text: "Update interact session",
   wait: false,
 });
 const formIsValid = () => {
   document
-    .getElementById('editSessionSeriesForm')
-    .classList.add('was-validated');
+    .getElementById("editSessionSeriesForm")
+    .classList.add("was-validated");
   if (!interactSession.interactions.length) {
     Swal.fire({
-      title: 'No interactions added',
+      title: "No interactions added",
       text: "You need to add at least 1 interaction to your session. Use the green 'Add' button.",
-      icon: 'error',
-      iconColor: '#17a2b8',
-      confirmButtonColor: '#17a2b8',
+      icon: "error",
+      iconColor: "#17a2b8",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
@@ -75,35 +75,37 @@ const formIsValid = () => {
 };
 const submit = () => {
   if (!formIsValid()) return false;
-  btnSubmit.value.text = 'Please wait...';
+  btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
-  if (interactSession.interactions[0].type != 'waitingRoom') interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
-  api('interact', 'updateSession', interactSession.id, interactSession.pin, interactSession).then(
+  if (interactSession.interactions[0].type != "waitingRoom")
+    interactSession.interactions.unshift({ id: "0", type: "waitingRoom" });
+  api(
+    "interact",
+    "updateSession",
+    interactSession.id,
+    interactSession.pin,
+    interactSession
+  ).then(
     function (res) {
-      btnSubmit.value.text = 'Update interact session';
+      btnSubmit.value.text = "Update interact session";
       btnSubmit.value.wait = false;
       Swal.fire({
-        title: 'Interact session updated',
-        icon: 'success',
-        iconColor: '#17a2b8',
-        confirmButtonColor: '#17a2b8',
+        title: "Interact session updated",
+        icon: "success",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
-      interactSession.id = ''
-      interactSession.pin = ''
-      interactSession.title = ''
-      interactSession.name = ''
-      interactSession.interactions = []
+      router.push("/");
     },
     function (error) {
-      btnSubmit.value.text = 'Retry updating interact session?';
+      btnSubmit.value.text = "Retry updating interact session?";
       btnSubmit.value.wait = false;
       Swal.fire({
-        title: 'Error updating interact session',
+        title: "Error updating interact session",
         text: error,
-        icon: 'error',
-        iconColor: '#17a2b8',
-        confirmButtonColor: '#17a2b8',
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
       });
     }
   );
@@ -111,8 +113,8 @@ const submit = () => {
 
 const fetchDetailsHost = () => {
   api(
-    'interact',
-    'fetchDetailsHost',
+    "interact",
+    "fetchDetailsHost",
     interactSession.id,
     interactSession.pin,
     null
@@ -120,7 +122,7 @@ const fetchDetailsHost = () => {
     function (res) {
       if (interactSession.id != res.id) {
         console.error(
-          'interactSession.id != res.id',
+          "interactSession.id != res.id",
           interactSession.id,
           response.id
         );
@@ -136,50 +138,52 @@ const fetchDetailsHost = () => {
       }
       loading.value = false;
       Swal.fire({
-        icon: 'warning',
-        iconColor: '#17a2b8',
-        title: 'Previous responses will be deleted',
-        text: 'If you make changes to your interact session, any previous responses by attendees will be deleted.',
-        confirmButtonColor: '#17a2b8',
+        icon: "warning",
+        iconColor: "#17a2b8",
+        title: "Previous responses will be deleted",
+        text: "If you make changes to your interact session, any previous responses by attendees will be deleted.",
+        confirmButtonColor: "#17a2b8",
       });
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to edit interact session',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to edit interact session",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.params.id
+  interactSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
-    title: 'Enter session ID and PIN',
+    title: "Enter session ID and PIN",
     html:
-      'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="'+interactSession.id+'">' +
+      "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+      interactSession.id +
+      '">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
-    confirmButtonColor: '#17a2b8',
+    confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      interactSession.id = document.getElementById('swalFormId').value;
-      interactSession.pin = document.getElementById('swalFormPin').value;
-      if (interactSession.pin == '')
-        Swal.showValidationMessage('Please enter your PIN');
-      if (interactSession.id == '')
-        Swal.showValidationMessage('Please enter a session ID');
+      interactSession.id = document.getElementById("swalFormId").value;
+      interactSession.pin = document.getElementById("swalFormPin").value;
+      if (interactSession.pin == "")
+        Swal.showValidationMessage("Please enter your PIN");
+      if (interactSession.id == "")
+        Swal.showValidationMessage("Please enter a session ID");
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      history.replaceState({}, '', interactSession.id);
+      history.replaceState({}, "", interactSession.id);
       fetchDetailsHost();
     } else {
-      router.push('/');
+      router.push("/");
     }
   });
 });
@@ -192,9 +196,7 @@ onMounted(() => {
     </div>
     <div v-else>
       <h1 class="text-center display-4">Interact</h1>
-      <strong
-        >Please make changes to your interact session below.</strong
-      >
+      <strong>Please make changes to your interact session below.</strong>
       <form id="editSessionSeriesForm" class="needs-validation" novalidate>
         <div>
           <label for="title">Session title:</label>
@@ -259,8 +261,11 @@ onMounted(() => {
           </tr>
         </thead>
         <TransitionGroup name="list" tag="tbody">
-          <template v-for="(interaction, index) in interactSession.interactions" :key="interaction">
-            <tr> 
+          <template
+            v-for="(interaction, index) in interactSession.interactions"
+            :key="interaction"
+          >
+            <tr>
               <td class="p-0 ps-2" v-if="interaction.type != 'waitingRoom'">
                 <button
                   v-if="index != 0"
@@ -279,9 +284,14 @@ onMounted(() => {
                   <font-awesome-icon :icon="['fas', 'chevron-down']" />
                 </button>
               </td>
-              <td v-if="interaction.type != 'waitingRoom'">{{ interaction.prompt }}</td>
               <td v-if="interaction.type != 'waitingRoom'">
-                {{ config.interact.create.interactions.types[interaction.type].name }}
+                {{ interaction.prompt }}
+              </td>
+              <td v-if="interaction.type != 'waitingRoom'">
+                {{
+                  config.interact.create.interactions.types[interaction.type]
+                    .name
+                }}
               </td>
               <td v-if="interaction.type != 'waitingRoom'">
                 <button

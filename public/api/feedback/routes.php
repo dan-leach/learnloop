@@ -4,12 +4,13 @@ require 'database.php';
 require 'mail.php';
 
 //session creation
-function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionName, $parentSessionTitle, $link){ //inserts a new session into the db, sends mail and returns a session id and pin
+function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionName, $parentSessionTitle, $link)
+{ //inserts a new session into the db, sends mail and returns a session id and pin
     $res = new stdClass();
     $res->id = createUniqueID($link, 'feedback');
     $res->pin = createPin();
     $pinHash = hashPin($res->pin);
-    
+
     //sanitize and validate
     $errMsg = "";
 
@@ -26,7 +27,6 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
         $attendance = false;
         $certificate = false;
         $questions = '[]';
-        
     } else {
         $date = htmlspecialchars($data->date);
         $notifications = filter_var($data->notifications, FILTER_VALIDATE_BOOLEAN);
@@ -36,7 +36,7 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
     }
 
     if (!validateDate($date, 'Y-m-d')) {
-        if(!validateDate($date, 'd/m/Y')){
+        if (!validateDate($date, 'd/m/Y')) {
             $errMsg .= "Date is not valid. ";
         } else {
             $d = substr($date, 0, 2);
@@ -45,7 +45,7 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
             $date = date("Y-m-d", mktime(0, 0, 0, $m, $d, $y));;
         }
     }
-        
+
     if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
 
     $subsessionIDs = array(); //stored later as json array in session details table to link to subsessions
@@ -58,11 +58,11 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
             array_push($subsessionTitles, $sub->title);
         }
     }
-    
+
     $subsessions = ($subsessionIDs) ? json_encode($subsessionIDs) : '[]';
-    
+
     if (!dbInsertSession($res->id, $name, $email, $title, $date, $questions, $certificate, $subsessions, $isSubsession, $notifications, $attendance, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
-    
+
     $d = date_create($date);
     $date = date_format($d, 'd/m/Y');
     $res->date = $date;
@@ -73,7 +73,8 @@ function insertSession($data, $isSubsession, $parentSessionDate, $parentSessionN
 }
 
 //session updates
-function loadUpdateDetails($id, $pin, $isSubsession, $link){ //fetch the details before doing update
+function loadUpdateDetails($id, $pin, $isSubsession, $link)
+{ //fetch the details before doing update
     $res = dbSelectDetails($id, $link);
     if (!$isSubsession && !pinIsValid($pin, $res['pinHash'])) send_error_response("Invalid pin", 401);
     $feedback = dbSelectFeedback($id, $link);
@@ -84,7 +85,7 @@ function loadUpdateDetails($id, $pin, $isSubsession, $link){ //fetch the details
     unset($res['lastSent']);
     unset($res['pinHash']);
     $res['questions'] = json_decode($res['questions']);
-    if ($res['subsessions']){
+    if ($res['subsessions']) {
         $subsessionIDs = json_decode($res['subsessions']);
         unset($res['subsessions']);
         $res['subsessions'] = array();
@@ -95,7 +96,8 @@ function loadUpdateDetails($id, $pin, $isSubsession, $link){ //fetch the details
     }
     return $res;
 }
-function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided, $parentSessionDate, $parentSessionName, $parentSessionTitle, $link){ //updates the details for $id
+function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided, $parentSessionDate, $parentSessionName, $parentSessionTitle, $link)
+{ //updates the details for $id
     $details = dbSelectDetails($id, $link);
     if (!$isSubsession && !pinIsValid($pin, $details['pinHash'])) send_error_response("Invalid pin", 401);
     if ($details['closed']) send_error_response("This feedback request has been closed.", 500);
@@ -116,7 +118,6 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
         $attendance = false;
         $certificate = false;
         $questions = '[]';
-        
     } else {
         $date = htmlspecialchars($data->date);
         $notifications = filter_var($data->notifications, FILTER_VALIDATE_BOOLEAN);
@@ -126,7 +127,7 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
     }
 
     if (!validateDate($date, 'Y-m-d')) {
-        if(!validateDate($date, 'd/m/Y')){
+        if (!validateDate($date, 'd/m/Y')) {
             $errMsg .= "Date is not valid. ";
         } else {
             $d = substr($date, 0, 2);
@@ -135,7 +136,7 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
             $date = date("Y-m-d", mktime(0, 0, 0, $m, $d, $y));;
         }
     }
-        
+
     if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
 
     $subsessionIDs = array(); //stored later as json array in session details table to link to subsessions
@@ -143,7 +144,7 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
     if ($data->subsessions) {
         if ($isSubsession) send_error_response("session is being iterated as a subsession by updateDetails but has subsessions itself", 500);
         foreach ($data->subsessions as $sub) {
-            if (isset($sub->id)){
+            if (isset($sub->id)) {
                 $isNew = !str_contains($details['subsessions'], $sub->id);
             } else {
                 $isNew = true;
@@ -178,7 +179,8 @@ function updateDetails($id, $pin, $data, $isSubsession, $firstTimeEmailProvided,
     }
     return "Session updated successfully.";
 }
-function setNotificationPreference($id, $pin, $data, $link){ //sets the notifications for $id to $data (true/false)
+function setNotificationPreference($id, $pin, $data, $link)
+{ //sets the notifications for $id to $data (true/false)
     $details = dbSelectFeedback($id, $link);
     if (!pinIsValid($pin, $details['pinHash'])) send_error_response("Invalid pin", 401);
     if ($details['closed']) send_error_response("This feedback request has been closed.", 500);
@@ -190,9 +192,11 @@ function setNotificationPreference($id, $pin, $data, $link){ //sets the notifica
     $res .= ($data) ? "ON" : "OFF";
     return $res;
 }
-function resetPin($id, $data, $link){ //resets the pin for $id
+function resetPin($id, $data, $link)
+{ //resets the pin for $id
     $details = dbSelectDetails($id, $link);
-    if ($data != $details['email']) send_error_response("The email you provided does not match the facilitator email for '".$details['title']."'.", 500);
+    $email = json_decode($data);
+    if ($email != $details['email']) send_error_response("The email you provided does not match the facilitator email for '" . htmlspecialchars_decode($details['title']) . "'.", 500);
     if ($details['closed']) send_error_response("This feedback request has been closed.", 500);
     $pin = createPin();
     $pinHash = hashPin($pin);
@@ -200,15 +204,16 @@ function resetPin($id, $data, $link){ //resets the pin for $id
     sendResetPin($details['name'], $details['title'], $details['email'], $pin);
     return "A new PIN has been emailed to you";
 }
-function closeSession($id, $pin, $skipChecks, $link){ //marks the session and any subsessions as closed
+function closeSession($id, $pin, $skipChecks, $link)
+{ //marks the session and any subsessions as closed
     $details = dbSelectDetails($id, $link);
-    if (!$skipChecks){
+    if (!$skipChecks) {
         if ($details['closed']) send_error_response("This feedback request has already been closed.", 400);
         if ($details['isSubsession']) send_error_response("This feedback request is part of a session series and can only be closed by the series organiser.", 401);
         if (!pinIsValid($pin, $details['pinHash'])) send_error_response("Invalid pin", 401);
     }
     if (!dbCloseSession($id, $link)) send_error_response("dbCloseSession failed for an unknown reason", 500);
-    if ($details['subsessions']){
+    if ($details['subsessions']) {
         $subsessionIDs = json_decode($details['subsessions']);
         foreach ($subsessionIDs as $subID) {
             $subDetails = dbSelectDetails($subID, $link);
@@ -221,7 +226,8 @@ function closeSession($id, $pin, $skipChecks, $link){ //marks the session and an
 }
 
 //give feedback
-function fetchDetails($id, $link){ //returns the session details for $id as json object
+function fetchDetails($id, $link)
+{ //returns the session details for $id as json object
     $res = dbSelectDetails($id, $link);
     $res['questions'] = json_decode($res['questions']);
     unset($res['email']);
@@ -230,7 +236,7 @@ function fetchDetails($id, $link){ //returns the session details for $id as json
     $res['name'] = htmlspecialchars_decode($res['name']);
     $res['title'] = htmlspecialchars_decode($res['title']);
     $res['date'] = formatDateHuman($res['date']);
-    if ($res['subsessions']){
+    if ($res['subsessions']) {
         $subsessionIDs = json_decode($res['subsessions']);
         unset($res['subsessions']);
         $res['subsessions'] = array();
@@ -241,18 +247,19 @@ function fetchDetails($id, $link){ //returns the session details for $id as json
     }
     return $res;
 }
-function insertFeedback($id, $isSubsession, $parentSessionID, $data, $link) { //inserts the feedback data into db and sends notification mail, returns success message
+function insertFeedback($id, $isSubsession, $parentSessionID, $data, $link)
+{ //inserts the feedback data into db and sends notification mail, returns success message
     $details = dbSelectDetails($id, $link);
     if ($details['closed']) send_error_response("This feedback request has been closed by the facilitator.", 400);
 
     //insert the feedback for the main session
     if (!dbInsertFeedback($id, $data, $link)) send_error_response("dbInsertFeedback failed for an unknown reason", 500);
-    
+
     //insert the feedback for the subsessions
     if (isset($data->subsessions)) {
         if ($isSubsession) send_error_response("session is being iterated as a subsession by insertFeedback but has subsessions itself", 500);
         foreach ($data->subsessions as $sub) {
-            if ($sub->state == "Complete") {
+            if ($sub->status == "Complete") {
                 $subData = new stdClass();
                 $subData->feedback = new stdClass();
                 $subData->feedback->positive = $sub->positive;
@@ -263,7 +270,7 @@ function insertFeedback($id, $isSubsession, $parentSessionID, $data, $link) { //
             }
         }
     }
-    
+
     //send the email notifications
     $coolOff = new DateTime("-2 hours");
     $lastSent = new DateTime($details['lastSent']);
@@ -279,7 +286,8 @@ function insertFeedback($id, $isSubsession, $parentSessionID, $data, $link) { //
 
     return "insertFeedback successful";
 }
-function fetchCertificate($id, $name, $organisation, $link){
+function fetchCertificate($id, $name, $organisation, $link)
+{
     $details = fetchDetails($id, $link);
     if ($details['closed']) send_error_response("This feedback request has been closed by the facilitator.", 400);
     if ($details['attendance']) dbInsertAttendance($id, $name, $organisation, $link);
@@ -287,7 +295,8 @@ function fetchCertificate($id, $name, $organisation, $link){
 }
 
 //view feedback
-function fetchFeedback($id, $pin, $link){ //returns the session details and feedback for $id as json object
+function fetchFeedback($id, $pin, $link)
+{ //returns the session details and feedback for $id as json object
     $res = dbSelectFeedback($id, $link);
     if (!pinIsValid($pin, $res['pinHash'])) send_error_response("Invalid pin", 401);
     unset($res['email']);
@@ -296,29 +305,32 @@ function fetchFeedback($id, $pin, $link){ //returns the session details and feed
     $res['name'] = htmlspecialchars_decode($res['name']);
     $res['title'] = htmlspecialchars_decode($res['title']);
     $res['date'] = formatDateHuman($res['date']);
-    if ($res['subsessions']){
+    if ($res['subsessions']) {
         $subsessionIDs = json_decode($res['subsessions']);
         unset($res['subsessions']);
         $res['subsessions'] = array();
         foreach ($subsessionIDs as $subID) {
             $sub = dbSelectFeedback($subID, $link);
-            if (iconv_strlen($sub['subsessions'])>2) send_error_response("session [".$subID."] is being iterated as a subsession by fetchFeedback but has subsessions itself", 500);
+            if (iconv_strlen($sub['subsessions']) > 2) send_error_response("session [" . $subID . "] is being iterated as a subsession by fetchFeedback but has subsessions itself", 500);
             unset($sub['email']);
             unset($sub['lastSent']);
             unset($sub['pinHash']);
+            $sub['name'] = htmlspecialchars_decode($sub['name']);
+            $sub['title'] = htmlspecialchars_decode($sub['title']);
             array_push($res['subsessions'], json_encode($sub));
         }
     }
-    $res['questions'] = organiseQuestionFeedback(json_decode($res['questions']),$res['questionFeedback']);
+    $res['questions'] = organiseQuestionFeedback(json_decode($res['questions']), $res['questionFeedback']);
     unset($res['questionFeedback']);
     return $res;
 }
-function fetchFeedbackPDF($id, $pin, $subID, $link){ //returns the session feedback as a PDF document
+function fetchFeedbackPDF($id, $pin, $subID, $link)
+{ //returns the session feedback as a PDF document
     $feedback = fetchFeedback($id, $pin, $link);
     if ($subID) {
         $found = false;
         foreach ($feedback['subsessions'] as $subFeedbackJSON) {
-            $subFeedback = json_decode($subFeedbackJSON,true);
+            $subFeedback = json_decode($subFeedbackJSON, true);
             if ($subFeedback['id'] == $subID) {
                 $subFeedback['subsessions'] = json_decode($subFeedback['subsessions']);
                 $subFeedback['name'] = htmlspecialchars_decode($subFeedback['name']);
@@ -336,43 +348,48 @@ function fetchFeedbackPDF($id, $pin, $subID, $link){ //returns the session feedb
 }
 
 //view attendance
-function fetchAttendance($id, $pin, $link){ //returns the session details and attendance for $id as json object
+function fetchAttendance($id, $pin, $link)
+{ //returns the session details and attendance for $id as json object
     $res = dbSelectAttendance($id, $link);
     if (!pinIsValid($pin, $res['pinHash'])) send_error_response("Invalid pin", 401);
     $res['attendees'] = buildAttendeesByOrg($res['names'], $res['organisations']);
     $res['attendeeCount'] = countAttendees($res['attendees']);
-    if ($res['attendeeCount'] < 3) send_error_response("Cannot generate attendance report when less than 3 people have submitted feedback. This is to prevent attendees being linked to their feedback.", 401);
-    foreach ($res['attendees'] as $key=>$org) if ($org['name'] == '') $res['attendees'][$key]['name'] = 'Organisation not specified';
+    if ($res['attendeeCount'] < 3) send_error_response("Cannot generate attendance report when fewer than 3 people are on the attendance report. This is to prevent attendees being linked to their feedback.", 401);
+    foreach ($res['attendees'] as $key => $org) if ($org['name'] == '') $res['attendees'][$key]['name'] = 'Organisation not specified';
     unset($res['email']);
     unset($res['lastSent']);
     unset($res['pinHash']);
     unset($res['names']);
     unset($res['organisations']);
+    $res['title'] = htmlspecialchars_decode($res['title']);
+    $res['name'] = htmlspecialchars_decode($res['name']);
     $res['date'] = formatDateHuman($res['date']);
     return $res;
 }
-function fetchAttendancePDF($id, $pin, $link){ //returns the session attendance as a PDF or CSV file
+function fetchAttendancePDF($id, $pin, $link)
+{ //returns the session attendance as a PDF or CSV file
     $attendance = fetchAttendance($id, $pin, $link);
     outputAttendancePDF($attendance);
 }
-function fetchAttendanceCSV($id, $pin, $link){ //returns the session attendance as a PDF or CSV file
+function fetchAttendanceCSV($id, $pin, $link)
+{ //returns the session attendance as a PDF or CSV file
     $attendance = fetchAttendance($id, $pin, $link);
     outputAttendanceCSV($attendance);
 }
 
 //utilities
-function checkEmailIsValid($data){
+function checkEmailIsValid($data)
+{
     if (!filter_var(json_decode($data), FILTER_VALIDATE_EMAIL)) send_error_response("Invalid email", 400);
     return "Email is valid";
 }
-function findMySessions($data, $link){
+function findMySessions($data, $link)
+{
     $email = filter_var($data, FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) send_error_response("Invalid email.", 401);
     $foundDetails = dbFetchDetailsByEmail($email, $link);
-    if (count($foundDetails)>0){
+    if (count($foundDetails) > 0) {
         if (!sendFoundSessions($foundDetails, $email)) send_error_response("sendFoundSessions failed for an unknown reason", 500);
     }
     return "If any sessions were found matching your email the details have been emailed to you.";
 }
-
-?>

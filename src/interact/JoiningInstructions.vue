@@ -1,13 +1,13 @@
 <script setup>
-import { ref, onMounted, onBeforeUnmount } from 'vue';
-import router from '../router';
-import { useRouter } from 'vue-router';
-import { api } from '../data/api.js';
-import { interactSession } from '../data/interactSession.js';
-import { config } from '../data/config.js';
-import Swal from 'sweetalert2';
-import Toast from '../assets/Toast.js';
-import Loading from '../components/Loading.vue';
+import { ref, onMounted, onBeforeUnmount } from "vue";
+import router from "../router";
+import { useRouter } from "vue-router";
+import { api } from "../data/api.js";
+import { interactSession } from "../data/interactSession.js";
+import { config } from "../data/config.js";
+import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
+import Loading from "../components/Loading.vue";
 
 const link = ref({});
 const loading = ref(true);
@@ -19,16 +19,16 @@ const copyText = (string) => {
   navigator.clipboard.writeText(string).then(
     function () {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        title: 'Copied',
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error copying to clipboard: ' + error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
       });
     }
   );
@@ -37,30 +37,30 @@ const copyImg = async (src) => {
   if (!clipboard.value) return;
   const response = await fetch(src);
   const blob = await response.blob();
-  navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(
+  navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(
     function () {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        title: 'Copied',
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error copying to clipboard: ' + error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
       });
     }
   );
 };
 
 const fetchDetails = () => {
-  api('interact', 'fetchDetails', interactSession.id, null, null).then(
+  api("interact", "fetchDetails", interactSession.id, null, null).then(
     function (res) {
       if (interactSession.id != res.id) {
         console.error(
-          'interactSession.id != res.id',
+          "interactSession.id != res.id",
           interactSession.id,
           res.id
         );
@@ -68,64 +68,56 @@ const fetchDetails = () => {
       }
       interactSession.title = res.title;
       interactSession.name = res.name;
-      link.value.join = config.client.url + '/interact/' + interactSession.id;
+      link.value.join = config.client.url + "/interact/" + interactSession.id;
       link.value.host =
-        config.client.url + '/interact/host/' + interactSession.id;
+        config.client.url + "/interact/host/" + interactSession.id;
       link.value.qr =
-        'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
+        "https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=" +
         link.value.join +
-        '&choe=UTF-8&chld=h|1';
+        "&choe=UTF-8&chld=h|1";
       loading.value = false;
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to fetch interact session details',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to fetch interact session details",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.params.id
+  interactSession.id = useRouter().currentRoute.value.params.id;
   if (!interactSession.id) {
     Swal.fire({
-      title: 'Enter session ID',
+      title: "Enter session ID",
       html: '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',
       showCancelButton: true,
-      confirmButtonColor: '#17a2b8',
+      confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactSession.id = document.getElementById('swalFormId').value;
-        if (interactSession.id == '')
-          Swal.showValidationMessage('Please enter a session ID');
+        interactSession.id = document.getElementById("swalFormId").value;
+        if (interactSession.id == "")
+          Swal.showValidationMessage("Please enter a session ID");
       },
     }).then((result) => {
       if (result.isConfirmed) {
         history.replaceState(
           {},
-          '',
-          '/interact/joining-instructions/' + interactSession.id
+          "",
+          "/interact/joining-instructions/" + interactSession.id
         );
         fetchDetails();
       } else {
-        router.push('/');
+        router.push("/");
       }
     });
   } else {
     fetchDetails();
   }
-});
-
-onBeforeUnmount(() => {
-  interactSession.id = '';
-  interactSession.pin = '';
-  interactSession.name = '';
-  interactSession.title = '';
-  interactSession.interactions = [];
 });
 </script>
 
@@ -157,7 +149,7 @@ onBeforeUnmount(() => {
       </div>
       <div class="text-center p-4 mb-4">
         <p @click="copyText(link.join)" class="display-6">
-          {{ link.join.replace('https://', '') }}
+          {{ link.join.replace("https://", "") }}
           <button v-if="clipboard" class="btn btn-outline-dark">
             <font-awesome-icon :icon="['fas', 'copy']" />
           </button>
@@ -165,7 +157,7 @@ onBeforeUnmount(() => {
         <p>
           Or, go to
           <a :href="config.client.url + '/interact'">{{
-            config.client.url.replace('https://', '') + '/interact'
+            config.client.url.replace("https://", "") + "/interact"
           }}</a>
           and enter the session ID: <strong>{{ interactSession.id }}</strong>
         </p>

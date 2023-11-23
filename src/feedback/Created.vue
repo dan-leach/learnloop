@@ -1,21 +1,21 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
-import router from '../router';
-import { feedbackSession } from '../data/feedbackSession.js';
-import { config } from '../data/config.js';
-import Toast from '../assets/Toast.js';
-import Swal from 'sweetalert2';
+import { ref, onBeforeUnmount } from "vue";
+import router from "../router";
+import { feedbackSession } from "../data/feedbackSession.js";
+import { config } from "../data/config.js";
+import Toast from "../assets/Toast.js";
+import Swal from "sweetalert2";
 
 if (!feedbackSession.id || !feedbackSession.pin)
-  router.push('/feedback/create');
+  router.push("/feedback/create");
 
 const link = ref({});
-link.value.give = config.client.url + '/' + feedbackSession.id;
-link.value.view = config.client.url + '/feedback/view/' + feedbackSession.id;
+link.value.give = config.client.url + "/" + feedbackSession.id;
+link.value.view = config.client.url + "/feedback/view/" + feedbackSession.id;
 link.value.qr =
-  'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
+  "https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=" +
   link.value.give +
-  '&choe=UTF-8&chld=h|1';
+  "&choe=UTF-8&chld=h|1";
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
 const copyText = (string) => {
@@ -23,17 +23,17 @@ const copyText = (string) => {
   navigator.clipboard.writeText(string).then(
     function () {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        iconColor: '#17a2b8',
-        title: 'Copied',
+        icon: "success",
+        iconColor: "#17a2b8",
+        iconColor: "#17a2b8",
+        title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error copying to clipboard: ' + error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
       });
     }
   );
@@ -42,32 +42,23 @@ const copyImg = async (src) => {
   if (!clipboard.value) return;
   const response = await fetch(src);
   const blob = await response.blob();
-  navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(
+  navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(
     function () {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        title: 'Copied',
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error copying to clipboard: ' + error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
       });
     }
   );
 };
-
-onBeforeUnmount(() => {
-  feedbackSession.id = '';
-  feedbackSession.pin = '';
-  feedbackSession.name = '';
-  feedbackSession.title = '';
-  feedbackSession.date = '';
-  feedbackSession.email = '';
-});
 </script>
 
 <template v-once>
@@ -102,7 +93,7 @@ onBeforeUnmount(() => {
     <div>
       <div class="text-center p-4 mb-4 shadow">
         <p @click="copyText(link.give)" class="display-6">
-          {{ link.give.replace('https://', '') }}
+          {{ link.give.replace("https://", "") }}
           <button v-if="clipboard" class="btn btn-outline-dark">
             <font-awesome-icon :icon="['fas', 'copy']" />
           </button>
@@ -129,7 +120,7 @@ onBeforeUnmount(() => {
   <p>
     Provide the direct link above or ask them to go to
     <a :href="config.client.url">{{
-      config.client.url.replace('https://', '')
+      config.client.url.replace("https://", "")
     }}</a>
     and enter the session ID: <strong>{{ feedbackSession.id }}</strong> in the
     feedback panel, or you can use the QR code above and embed this in a
@@ -139,7 +130,7 @@ onBeforeUnmount(() => {
   <h2>How to view your feedback</h2>
   <div class="d-flex text-center justify-content-around">
     <p @click="copyText(link.view)" class="display-6 p-4 shadow">
-      {{ link.view.replace('https://', '') }}
+      {{ link.view.replace("https://", "") }}
       <button v-if="clipboard" class="btn btn-outline-dark">
         <font-awesome-icon :icon="['fas', 'copy']" />
       </button>
