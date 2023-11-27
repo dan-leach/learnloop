@@ -1,6 +1,6 @@
 Current:
 Add i or f at start of session ID to allow ID queries to root
-Add ? help buttons to interact module
+Add ? help buttons to EditInteractionForm -> type field (like for feedback EditQuestionForm)
 
 Later:
 check how old feedback sessions function on the new frontend and api
@@ -20,7 +20,8 @@ Update api to use modern js fetch
 BEFORE BUILD:
 
 1. Remove form actions 'https://dev.learnloop.co.uk/api' change to 'api/'
-2. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
+2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative
+3. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
 
 ON DEPLOY:
 

@@ -162,7 +162,7 @@ const subsessionFacilitatorEmailInfo = () => {
                 >Facilitator email:
                 <font-awesome-icon
                   :icon="['fas', 'question-circle']"
-                  size="xl"
+                  size="l"
                   style="color: black"
                   @click="subsessionFacilitatorEmailInfo"
               /></label>

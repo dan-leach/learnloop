@@ -57,7 +57,6 @@ const showEditSubsessionForm = (index) => {
   editSubsessionModal.show();
 };
 const hideEditSubsessionModal = (index, subsession) => {
-  console.log(subsession);
   if (!index) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
   } else if (index == -1) {
@@ -456,7 +455,9 @@ const submit = () => {
                 </button>
               </td>
               <td>{{ question.title }}</td>
-              <td>{{ config.feedback.create.questions.types[question.type].name }}</td>
+              <td>
+                {{ config.feedback.create.questions.types[question.type].name }}
+              </td>
               <td>
                 <button
                   class="btn btn-danger btn-sm btn-right ms-4"

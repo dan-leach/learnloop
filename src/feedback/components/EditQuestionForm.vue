@@ -31,10 +31,65 @@ watch(type, (newType, oldType) => {
   }
 });
 
+const questionTypeInfo = () => {
+  Swal.fire({
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Question types',
+    html: `
+      <div class="text-start">
+        <p>There are several different custom question types available to capture feedback from your attendees. Click below to see examples and further details about each of the question types:</p>
+        <div class="accordion" id="accordionTypes">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Text
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/question-type-example-text.png" class="img-fluid mx-auto d-block">
+                <p>Text questions will show your prompt above a free-text input area. You can set the question to be compulsory (default) or optional, and set a character limit (default: 500 characters).</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Drop-down select
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/question-type-example-select.png" class="img-fluid mx-auto d-block">
+                <p>Drop-down select will show a drop-down menu listing your defined options. Users can only select one of the options. You can define up to 20 options and set the question to be compulsory (default) or optional.</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Checkboxes
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/question-type-example-checkbox.png" class="img-fluid mx-auto d-block">
+                <p>Checkbox questions will show a list of your defined options. Users can select multiple questions. By default they must select between 1 and all the options, but you can set a minimum and maximum number, as well as setting the question to be compulsory (default) or optional. </p>
+              </div>
+            </div>
+          </div>
+        </div>     
+      </div>`,
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
+  });
+};
+
 let newOption = ref('');
 const addOption = () => {
   if (newOption.value) {
-    options.value.push({title: newOption.value});
+    options.value.push({ title: newOption.value });
     newOption.value = '';
     if (settings.value.selectedLimit)
       if (settings.value.selectedLimit.max == options.value.length - 1)
@@ -158,12 +213,17 @@ let submit = () => {
                 autocomplete="off"
                 required
               />
-              <div class="invalid-feedback">
-                Please provide a question.
-              </div>
+              <div class="invalid-feedback">Please provide a question.</div>
             </div>
             <div class="mb-4">
-              <label for="type" class="form-label">Type:</label>
+              <label for="type" class="form-label"
+                >Type:
+                <font-awesome-icon
+                  :icon="['fas', 'question-circle']"
+                  size="l"
+                  style="color: black"
+                  @click="questionTypeInfo"
+              /></label>
               <select
                 v-model="type"
                 class="form-control"
@@ -172,9 +232,7 @@ let submit = () => {
                 autocomplete="off"
                 required
               >
-                <option disabled value="">
-                  Please select a question type
-                </option>
+                <option disabled value="">Please select a question type</option>
                 <option
                   v-for="type in config.feedback.create.questions.types"
                   :value="type.id"
@@ -182,9 +240,7 @@ let submit = () => {
                   {{ type.name }}
                 </option>
               </select>
-              <div class="invalid-feedback">
-                Please select a question type.
-              </div>
+              <div class="invalid-feedback">Please select a question type.</div>
             </div>
             <div v-if="type">
               <div v-if="settings.optionsLimit" class="mb-4">
@@ -272,9 +328,7 @@ let submit = () => {
                 </div>
                 <div v-if="showSettings">
                   <div class="card-body">
-                    <div
-                      class="mb-4"
-                    >
+                    <div class="mb-4">
                       <div class="form-check form-switch">
                         <input
                           v-model="settings.required"
