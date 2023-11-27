@@ -95,6 +95,17 @@ const createSubsession = () => {
     .getElementById('editSubsessionModal' + props.index)
     .classList.remove('was-validated');
 };
+
+const subsessionFacilitatorEmailInfo = () => {
+  Swal.fire({
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Provide an email for session facilitators (Optional)',
+    html: '<div class="text-start">If you provide an email address for the facilitator of this session we\'ll let them know that a feedback request has been set up for them. They will receive notifications when feedback is submitted (they can disable this feature if they prefer) and will be able to view feedback that is submitted for their session (but not other sessions or overall feedback).<br><br>If you don\'t have their email address and permission to use it for this purpose leave this field blank. As the organiser, you will still be able to view feedback for their session and share it with them manually.</div>',
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
+  });
+};
 </script>
 
 <template>
@@ -147,7 +158,14 @@ const createSubsession = () => {
               </div>
             </div>
             <div class="mb-4">
-              <label for="Email" class="form-label">Facilitator email:</label>
+              <label for="Email" class="form-label"
+                >Facilitator email:
+                <font-awesome-icon
+                  :icon="['fas', 'question-circle']"
+                  size="xl"
+                  style="color: black"
+                  @click="subsessionFacilitatorEmailInfo"
+              /></label>
               <input
                 type="text"
                 v-model="email"
