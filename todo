@@ -2,7 +2,6 @@ Current:
 
 Later:
 check how old feedback sessions function on the new frontend and api
-Privacy policy
 check group transition applied everywhere
 Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
 Check buttons same style everywhere
@@ -16,6 +15,8 @@ Create readme and changelog
 Update api to use modern js fetch
 Add close interaction option (to lock out further responses e.g. after revealing answer)
 Add auto-create feedback session for an interact session?
+Add interaction related quotes
+Add mailto links to privacy policy
 
 BEFORE BUILD:
 
