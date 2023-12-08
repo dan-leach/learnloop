@@ -30,7 +30,7 @@ function sendSessionCreatedMessage($name, $title, $feedbackID, $interactions, $i
         <ul>
             <li>share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a></li>
             <li>ask them to go to <a href='https://learnloop.co.uk/interact'>learnloop.co.uk/interact</a> and enter the session ID</li>
-            <li><a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/" . $id . "&choe=UTF-8&chld=h'> generate a QR code</a> for your attendees to scan</li>
+            <li><a href='https://learnloop.co.uk/interact/instructions/" . $id . "'> show a page with instructions on how to join</a> including a QR code for your attendees to scan</li>
         </ul>
         <br>
     ";
@@ -74,7 +74,7 @@ function sendSessionUpdatedMessage($name, $title, $feedbackID, $interactions, $i
         <ul>
             <li>share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a></li>
             <li>ask them to go to <a href='https://learnloop.co.uk/interact'>learnloop.co.uk/interact</a> and enter the session ID</li>
-            <li><a href='https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=https://learnloop.co.uk/" . $id . "&choe=UTF-8&chld=h'> generate a QR code</a> for your attendees to scan</li>
+            <li><a href='https://learnloop.co.uk/interact/instructions/" . $id . "'> show a page with instructions on how to join</a> including a QR code for your attendees to scan</li>
         </ul>
         <br>
     ";
