@@ -1,6 +1,4 @@
 Current:
-Add i or f at start of session ID to allow ID queries to root
-Add ? help buttons to EditInteractionForm -> type field (like for feedback EditQuestionForm)
 
 Later:
 check how old feedback sessions function on the new frontend and api

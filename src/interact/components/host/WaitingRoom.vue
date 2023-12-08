@@ -1,43 +1,43 @@
 <script setup>
-import { interactSession } from '../../../data/interactSession.js';
-import { api } from '../../../data/api.js';
-import { config } from '../../../data/config.js';
-import Swal from 'sweetalert2';
-import Toast from '../../../assets/Toast.js';
+import { interactSession } from "../../../data/interactSession.js";
+import { api } from "../../../data/api.js";
+import { config } from "../../../data/config.js";
+import Swal from "sweetalert2";
+import Toast from "../../../assets/Toast.js";
 
 const deleteSubmissions = () => {
   Swal.fire({
-    title: 'Delete submissions?',
+    title: "Delete submissions?",
     text: "Once previous submissions have been deleted they can't be restored.",
-    icon: 'warning',
-    iconColor: '#17a2b8',
+    icon: "warning",
+    iconColor: "#17a2b8",
     showCancelButton: true,
-    confirmButtonColor: '#17a2b8',
-    confirmButtonText: 'Delete',
+    confirmButtonColor: "#17a2b8",
+    confirmButtonText: "Delete",
   }).then((result) => {
     if (result.isConfirmed)
       api(
-        'interact',
-        'deleteSubmissions',
+        "interact",
+        "deleteSubmissions",
         interactSession.id,
         interactSession.pin,
         null
       ).then(
         function () {
           Toast.fire({
-            icon: 'success',
-            iconColor: '#17a2b8',
-            title: 'Submissions have been cleared',
+            icon: "success",
+            iconColor: "#17a2b8",
+            title: "Submissions have been cleared",
           });
           interactSession.submissionCount = 0;
         },
         function (error) {
           Swal.fire({
-            icon: 'error',
-            iconColor: '#17a2b8',
-            title: 'Unable to delete previous submissions',
+            icon: "error",
+            iconColor: "#17a2b8",
+            title: "Unable to delete previous submissions",
             text: error,
-            confirmButtonColor: '#17a2b8',
+            confirmButtonColor: "#17a2b8",
           });
         }
       );
@@ -53,7 +53,7 @@ const deleteSubmissions = () => {
           :src="
             'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' +
             config.client.url +
-            '/interact/' +
+            '/' +
             interactSession.id +
             '&choe=UTF-8&chld=q|1'
           "
@@ -61,8 +61,9 @@ const deleteSubmissions = () => {
       </div>
       <div class="align-self-center">
         <p class="join-instructions">
-          Scan the QR code, or<br />go to <strong>LearnLoop.co.uk</strong><br />
-          and enter this code <br />in the interact panel:
+          Scan the QR code, or go to<br />
+          <strong>LearnLoop.co.uk/interact</strong><br />
+          and enter this code:
         </p>
         <p class="m-2">
           <span class="join-id px-4 py-1">{{ interactSession.id }}</span>
@@ -73,7 +74,7 @@ const deleteSubmissions = () => {
       <p>
         This interact session already has
         {{ interactSession.submissionCount }} submission{{
-          interactSession.submissionCount == 1 ? '' : 's'
+          interactSession.submissionCount == 1 ? "" : "s"
         }}.
       </p>
       <button class="btn btn-teal" @click="deleteSubmissions">

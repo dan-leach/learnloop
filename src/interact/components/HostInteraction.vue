@@ -13,11 +13,8 @@ const emit = defineEmits(["goForward", "goBack"]);
 </script>
 
 <template>
-  <div
-    id="interaction-view"
-    :class="{ fullscreen: config.client.isFullscreen }"
-  >
-    <p v-if="currentIndex != 0" class="text-center m-1">
+  <div id="interaction-view" :class="{ focusView: config.client.isFocusView }">
+    <p v-if="config.client.isFocusView" class="text-center m-1">
       To join go to LearnLoop.co.uk and use the code
       <span class="join-id-top p-1">{{ interactSession.id }}</span>
     </p>
@@ -31,7 +28,7 @@ const emit = defineEmits(["goForward", "goBack"]);
       <div
         id="chart-area"
         class="d-flex justify-content-center chart-area mx-4"
-        :class="{ fullscreen: config.client.isFullscreen }"
+        :class="{ focusView: config.client.isFocusView }"
         :key="'index' + currentIndex"
       >
         <WaitingRoom
@@ -99,12 +96,12 @@ const emit = defineEmits(["goForward", "goBack"]);
 
 <style scoped>
 .chart-area {
-  height: 50vh;
+  height: 60vh;
 }
-.chart-area.fullscreen {
+.chart-area.focusView {
   height: 80vh;
 }
-#interaction-view.fullscreen {
+#interaction-view.focusView {
   background-color: transparent;
 }
 .join-id-top {
@@ -112,6 +109,7 @@ const emit = defineEmits(["goForward", "goBack"]);
   color: white;
   font-family: serif;
   font-size: 1.2rem;
+  border-radius: 5px;
 }
 
 .v-enter-active,

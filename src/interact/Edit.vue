@@ -51,6 +51,23 @@ const removeInteraction = (index) => {
   });
 };
 
+const feedbackIdInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Feedback on your interact session",
+    html:
+      `
+      <div class="text-start">
+        <p>You can enter the session ID of a feedback request you previously created on LearnLoop (or <a href="` +
+      config.client.url +
+      `/feedback/create" target="_blank">click here to do this now in a new tab</a>) and attendees will be directed to the feedback form at the end of your interact session.<br><br> If you plan to use this interact session multiple times you can create a new feedback request each time and update the feedback session ID your attendees should be directed to, by using the edit interact session link in the email you'll receive once this session is created.</p>
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
 let btnSubmit = ref({
   text: "Update interact session",
   wait: false,
@@ -77,8 +94,6 @@ const submit = () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
-  if (interactSession.interactions[0].type != "waitingRoom")
-    interactSession.interactions.unshift({ id: "0", type: "waitingRoom" });
   api(
     "interact",
     "updateSession",
@@ -131,6 +146,7 @@ const fetchDetailsHost = () => {
       interactSession.title = res.title;
       interactSession.name = res.name;
       interactSession.email = res.email;
+      interactSession.feedbackID = res.feedbackID;
       interactSession.interactions = res.interactions;
       for (let interaction of interactSession.interactions) {
         interaction.submissions = [];
@@ -199,7 +215,7 @@ onMounted(() => {
       <strong>Please make changes to your interact session below.</strong>
       <form id="editSessionSeriesForm" class="needs-validation" novalidate>
         <div>
-          <label for="title">Session title:</label>
+          <label for="title" class="form-label">Session title:</label>
           <input
             type="text"
             v-model="interactSession.title"
@@ -213,7 +229,7 @@ onMounted(() => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
         <div class="mt-4">
-          <label for="name">Facilitator name:</label>
+          <label for="name" class="form-label">Facilitator name:</label>
           <input
             type="text"
             v-model="interactSession.name"
@@ -227,7 +243,7 @@ onMounted(() => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
         <div class="mt-4">
-          <label for="email">Facilitator email:</label>
+          <label for="email" class="form-label">Facilitator email:</label>
           <input
             type="email"
             v-model="interactSession.email"
@@ -239,6 +255,25 @@ onMounted(() => {
             required
           />
           <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+        <div class="mt-4">
+          <label for="feedbackID" class="form-label"
+            >Feedback session ID: (optional)
+            <font-awesome-icon
+              :icon="['fas', 'question-circle']"
+              size="xl"
+              style="color: black"
+              @click="feedbackIdInfo"
+          /></label>
+          <input
+            type="text"
+            v-model="interactSession.feedbackID"
+            class="form-control"
+            id="feedbackID"
+            placeholder="Session ID for a feedback request you've already created..."
+            name="title"
+            autocomplete="off"
+          />
         </div>
       </form>
 

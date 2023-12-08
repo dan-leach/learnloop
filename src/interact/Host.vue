@@ -46,19 +46,22 @@ const fetchSubmissionCount = () => {
 };
 
 const goToInteraction = (index) => {
-  if (currentIndex.value == 0 && index == 1) {
-    config.client.isFullscreen = true;
+  config.client.isFocusView =
+    index == 0 || index == interactSession.interactions.length - 1
+      ? false
+      : true;
+  currentIndex.value = index;
+  updateFacilitatorIndex();
+  if (index == 0) {
+    fetchSubmissionCount();
+  } else if (index == 1 || index == interactSession.interactions.length - 1) {
     Toast.fire({
       icon: "info",
       iconColor: "#17a2b8",
       title: "Press F11 to toggle fullscreen.",
+      position: "center",
     });
-  } else if (index == 0) {
-    config.client.isFullscreen = false;
   }
-  currentIndex.value = index;
-  updateFacilitatorIndex();
-  if (index == 0) fetchSubmissionCount();
   interactSession.interactions[currentIndex.value].submissions = [];
 };
 
@@ -188,16 +191,16 @@ onBeforeUnmount(() => {
       <Loading />
     </div>
     <div v-else>
-      <h1 v-if="!config.client.isFullscreen" class="text-center display-4">
+      <h1 v-if="!config.client.isFocusView" class="text-center display-4">
         Interact
       </h1>
-      <p v-if="!config.client.isFullscreen" class="text-center">
+      <p v-if="!config.client.isFocusView" class="text-center">
         {{ interactSession.title }} | {{ interactSession.name }}
       </p>
       <HostInteraction
         :currentIndex="currentIndex"
         class="m-2"
-        :class="{ container: !config.client.isFullscreen }"
+        :class="{ container: !config.client.isFocusView }"
         @goForward="goToInteraction(currentIndex + 1)"
         @goBack="goToInteraction(currentIndex - 1)"
       />

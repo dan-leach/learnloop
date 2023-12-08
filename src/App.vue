@@ -6,7 +6,7 @@ import Toast from "./assets/Toast.js";
 </script>
 
 <template>
-  <nav id="header" v-if="!config.client.isFullscreen" class="navbar bg-teal">
+  <nav id="header" v-if="!config.client.isFocusView" class="navbar bg-teal">
     <div class="container-fluid">
       <RouterLink to="/" class="navbar-brand"
         ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
@@ -16,12 +16,12 @@ import Toast from "./assets/Toast.js";
       </p>
     </div>
   </nav>
-  <div id="app-view" :class="{ container: !config.client.isFullscreen }">
+  <div id="app-view" :class="{ container: !config.client.isFocusView }">
     <RouterView />
   </div>
   <div
     id="footer"
-    v-if="!config.client.isFullscreen"
+    v-if="!config.client.isFocusView"
     class="footer-spacer d-none d-md-block"
   >
     <nav class="navbar bg-teal fixed-bottom justify-content-center">
