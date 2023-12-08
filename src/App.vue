@@ -12,7 +12,7 @@ import Toast from "./assets/Toast.js";
         ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
       /></RouterLink>
       <p class="fs-3 text-danger">
-        This is the development version of LearnLoop
+        This version of LearnLoop is under development
       </p>
     </div>
   </nav>

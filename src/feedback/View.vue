@@ -1,18 +1,18 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import router from '../router';
-import { feedbackSession } from '../data/feedbackSession.js';
-import { api } from '../data/api.js';
-import Loading from '../components/Loading.vue';
-import Swal from 'sweetalert2';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import router from "../router";
+import { feedbackSession } from "../data/feedbackSession.js";
+import { api } from "../data/api.js";
+import Loading from "../components/Loading.vue";
+import Swal from "sweetalert2";
 
 let loading = ref(true);
 
 const fetchFeedback = () => {
   api(
-    'feedback',
-    'fetchFeedback',
+    "feedback",
+    "fetchFeedback",
     feedbackSession.id,
     feedbackSession.pin,
     null
@@ -20,7 +20,7 @@ const fetchFeedback = () => {
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
-          'feedbackSession.id != res.id',
+          "feedbackSession.id != res.id",
           feedbackSession.id,
           res.id
         );
@@ -36,7 +36,7 @@ const fetchFeedback = () => {
       feedbackSession.feedback.score =
         Math.round((sum / res.score.length) * 10) / 10;
       if (Number.isNaN(feedbackSession.feedback.score))
-        feedbackSession.feedback.score = '-';
+        feedbackSession.feedback.score = "-";
       feedbackSession.questions = res.questions;
       if (res.subsessions) {
         for (let sub of res.subsessions) {
@@ -44,7 +44,7 @@ const fetchFeedback = () => {
           let sum = 0;
           for (let score of parsed.score) sum += parseInt(score);
           parsed.score = Math.round((sum / parsed.score.length) * 10) / 10;
-          if (Number.isNaN(parsed.score)) parsed.score = '-';
+          if (Number.isNaN(parsed.score)) parsed.score = "-";
           feedbackSession.subsessions.push(parsed);
         }
       }
@@ -52,41 +52,43 @@ const fetchFeedback = () => {
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to load feedback report',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to load feedback report",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
 
 onMounted(() => {
-  feedbackSession.id = useRouter().currentRoute.value.params.id
+  feedbackSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
-    title: 'Enter session ID and PIN',
+    title: "Enter session ID and PIN",
     html:
-      'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="'+feedbackSession.id+'">' +
+      "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+      feedbackSession.id +
+      '">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
-    confirmButtonColor: '#17a2b8',
+    confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      feedbackSession.id = document.getElementById('swalFormId').value;
-      feedbackSession.pin = document.getElementById('swalFormPin').value;
-      if (feedbackSession.pin == '')
-        Swal.showValidationMessage('Please enter your PIN');
-      if (feedbackSession.id == '')
-        Swal.showValidationMessage('Please enter a session ID');
+      feedbackSession.id = document.getElementById("swalFormId").value;
+      feedbackSession.pin = document.getElementById("swalFormPin").value;
+      if (feedbackSession.pin == "")
+        Swal.showValidationMessage("Please enter your PIN");
+      if (feedbackSession.id == "")
+        Swal.showValidationMessage("Please enter a session ID");
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      history.replaceState({}, '', feedbackSession.id);
+      history.replaceState({}, "", feedbackSession.id);
       fetchFeedback();
     } else {
-      router.push('/');
+      router.push("/");
     }
   });
 });
@@ -150,9 +152,7 @@ onMounted(() => {
               </option>
             </select>
             <div class="input-group-append">
-              <button class="btn btn-primary" id="btnFetchFeedbackPDF">
-                Go
-              </button>
+              <button class="btn btn-teal" id="btnFetchFeedbackPDF">Go</button>
             </div>
           </div>
         </div>

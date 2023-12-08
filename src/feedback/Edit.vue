@@ -12,39 +12,6 @@ import EditQuestionForm from "./components/EditQuestionForm.vue";
 import Swal from "sweetalert2";
 
 let isSeries = ref(false);
-const toggleSingleSeries = () => {
-  if (isSeries.value) {
-    if (feedbackSession.subsessions.length) {
-      Swal.fire({
-        title: "Lose sessions",
-        text: "You have added sessions to this feedback request. If you switch back to requesting feedback for a single session you will lose this progress. Continue?",
-        showCancelButton: true,
-        confirmButtonColor: "#dc3545",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          feedbackSession.subsessions = [];
-          isSeries.value = !isSeries.value;
-        } else {
-          return;
-        }
-      });
-    } else {
-      isSeries.value = !isSeries.value;
-    }
-  } else {
-    isSeries.value = !isSeries.value;
-  }
-};
-const seriesInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Collect feedback for multiple sessions (Optional)",
-    html: '<div class="text-start">You are currently requesting feedback for a single session. Alternatively, you can create a session series where attendees can provide feedback for multiple sessions (for example, a teaching day with different presenters) using a single link.<br><br>As the organiser you will be able to view all feedback collected, individual presenters can view the feedback for just their session.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
-};
 
 let editSubsessionModal;
 const showEditSubsessionForm = (index) => {
@@ -246,12 +213,11 @@ const loadUpdateDetails = () => {
       feedbackSession.date = res.date;
       feedbackSession.name = res.name;
       feedbackSession.email = res.email;
-      if (res.subsessions) {
+      if (res.subsessions.length) {
         feedbackSession.subsessions = res.subsessions;
         isSeries.value = true;
       }
-      console.log(res.questions);
-      if (res.questions) {
+      if (res.questions.length) {
         feedbackSession.questions = res.questions;
         hasQuestions.value = true;
       }
