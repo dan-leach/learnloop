@@ -16,6 +16,8 @@ Prevent subsession update email when that subsession hasn't changed
 Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
 Create readme and changelog
 Update api to use modern js fetch
+Add close interaction option (to lock out further responses e.g. after revealing answer)
+Add auto-create feedback session for an interact session?
 
 BEFORE BUILD:
 

@@ -1,37 +1,37 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import router from '../router';
-import { api } from '../data/api.js';
-import { interactSession } from '../data/interactSession.js';
-import { config } from '../data/config.js';
-import Swal from 'sweetalert2';
-import Loading from '../components/Loading.vue';
-import HostInteraction from './components/HostInteraction.vue';
-import Toast from '../assets/Toast.js';
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import router from "../router";
+import { api } from "../data/api.js";
+import { interactSession } from "../data/interactSession.js";
+import { config } from "../data/config.js";
+import Swal from "sweetalert2";
+import Loading from "../components/Loading.vue";
+import HostInteraction from "./components/HostInteraction.vue";
+import Toast from "../assets/Toast.js";
 
 const loading = ref(true);
 const currentIndex = ref(0);
 
 const updateFacilitatorIndex = () => {
   api(
-    'interact',
-    'updateFacilitatorIndex',
+    "interact",
+    "updateFacilitatorIndex",
     interactSession.id,
     interactSession.pin,
     currentIndex.value
   ).then(
     function () {},
     function (error) {
-      console.log('updateFacilitatorIndex failed', error);
+      console.log("updateFacilitatorIndex failed", error);
     }
   );
 };
 
 const fetchSubmissionCount = () => {
   api(
-    'interact',
-    'fetchSubmissionCount',
+    "interact",
+    "fetchSubmissionCount",
     interactSession.id,
     interactSession.pin,
     null
@@ -40,21 +40,21 @@ const fetchSubmissionCount = () => {
       interactSession.submissionCount = res;
     },
     function (error) {
-      console.log('fetchSubmissionCount failed', error);
+      console.log("fetchSubmissionCount failed", error);
     }
   );
 };
 
 const goToInteraction = (index) => {
   if (currentIndex.value == 0 && index == 1) {
-    config.client.isFullscreen = true
+    config.client.isFullscreen = true;
     Toast.fire({
-      icon: 'info',
-      iconColor: '#17a2b8',
-      title: 'Press F11 to toggle fullscreen.',
+      icon: "info",
+      iconColor: "#17a2b8",
+      title: "Press F11 to toggle fullscreen.",
     });
   } else if (index == 0) {
-    config.client.isFullscreen = false
+    config.client.isFullscreen = false;
   }
   currentIndex.value = index;
   updateFacilitatorIndex();
@@ -69,8 +69,8 @@ const fetchNewSubmissions = () => {
     ? submissions[submissions.length - 1].id
     : 0;
   api(
-    'interact',
-    'fetchNewSubmissions',
+    "interact",
+    "fetchNewSubmissions",
     interactSession.id,
     interactSession.pin,
     {
@@ -82,15 +82,15 @@ const fetchNewSubmissions = () => {
       for (let submission of res) submissions.push(submission);
     },
     function (error) {
-      console.log('fetchNewSubmissions failed', error);
+      console.log("fetchNewSubmissions failed", error);
     }
   );
 };
 
 const fetchDetailsHost = () => {
   api(
-    'interact',
-    'fetchDetailsHost',
+    "interact",
+    "fetchDetailsHost",
     interactSession.id,
     interactSession.pin,
     null
@@ -98,7 +98,7 @@ const fetchDetailsHost = () => {
     function (res) {
       if (interactSession.id != res.id) {
         console.error(
-          'interactSession.id != res.id',
+          "interactSession.id != res.id",
           interactSession.id,
           response.id
         );
@@ -106,6 +106,9 @@ const fetchDetailsHost = () => {
       }
       interactSession.title = res.title;
       interactSession.name = res.name;
+      interactSession.feedbackID = res.feedbackID;
+      res.interactions.unshift({ type: "waitingRoom" });
+      res.interactions.push({ type: "end" });
       interactSession.interactions = res.interactions;
       for (let interaction of interactSession.interactions) {
         interaction.submissions = [];
@@ -122,56 +125,58 @@ const fetchDetailsHost = () => {
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to launch interact session hosting',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to launch interact session hosting",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.params.id
+  interactSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
-    title: 'Enter session ID and PIN',
+    title: "Enter session ID and PIN",
     html:
-      'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="'+interactSession.id+'">' +
+      "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+      interactSession.id +
+      '">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
-    confirmButtonColor: '#17a2b8',
+    confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      interactSession.id = document.getElementById('swalFormId').value;
-      interactSession.pin = document.getElementById('swalFormPin').value;
-      if (interactSession.pin == '')
-        Swal.showValidationMessage('Please enter your PIN');
-      if (interactSession.id == '')
-        Swal.showValidationMessage('Please enter a session ID');
+      interactSession.id = document.getElementById("swalFormId").value;
+      interactSession.pin = document.getElementById("swalFormPin").value;
+      if (interactSession.pin == "")
+        Swal.showValidationMessage("Please enter your PIN");
+      if (interactSession.id == "")
+        Swal.showValidationMessage("Please enter a session ID");
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      history.replaceState({}, '', interactSession.id);
+      history.replaceState({}, "", interactSession.id);
       fetchDetailsHost();
     } else {
-      router.push('/');
+      router.push("/");
     }
   });
 });
 
 onBeforeUnmount(() => {
   api(
-    'interact',
-    'updateFacilitatorIndex',
+    "interact",
+    "updateFacilitatorIndex",
     interactSession.id,
     interactSession.pin,
     0
   ).then(
     function () {},
     function (error) {
-      console.log('updateFacilitatorIndex failed', error);
+      console.log("updateFacilitatorIndex failed", error);
     }
   );
 });

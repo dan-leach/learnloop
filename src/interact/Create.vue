@@ -1,19 +1,19 @@
 <script setup>
-import { ref } from 'vue';
-import router from '../router';
-import { interactSession } from '../data/interactSession.js';
-import { api } from '../data/api.js';
-import { config } from '../data/config.js';
-import Modal from 'bootstrap/js/dist/modal';
-import EditInteractionForm from './components/EditInteractionForm.vue';
-import Swal from 'sweetalert2';
+import { ref } from "vue";
+import router from "../router";
+import { interactSession } from "../data/interactSession.js";
+import { api } from "../data/api.js";
+import { config } from "../data/config.js";
+import Modal from "bootstrap/js/dist/modal";
+import EditInteractionForm from "./components/EditInteractionForm.vue";
+import Swal from "sweetalert2";
 
 let editInteractionModal;
 const showEditInteractionForm = (index) => {
   editInteractionModal = new Modal(
-    document.getElementById('editInteractionModal' + index),
+    document.getElementById("editInteractionModal" + index),
     {
-      backdrop: 'static',
+      backdrop: "static",
       keyboard: false,
       focus: true,
     }
@@ -39,29 +39,46 @@ const sortInteraction = (index, x) =>
   );
 const removeInteraction = (index) => {
   Swal.fire({
-    title: 'Remove this interaction?',
+    title: "Remove this interaction?",
     showCancelButton: true,
-    confirmButtonColor: '#dc3545',
+    confirmButtonColor: "#dc3545",
   }).then((result) => {
     if (result.isConfirmed) interactSession.interactions.splice(index, 1);
   });
 };
 
+const feedbackIdInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Feedback on your interact session",
+    html:
+      `
+      <div class="text-start">
+        <p>You can enter the session ID of a feedback request you previously created on LearnLoop (or <a href="` +
+      config.client.url +
+      `/feedback/create" target="_blank">click here to do this now in a new tab</a>) and attendees will be directed to the feedback form at the end of your interact session.<br><br> If you plan to use this interact session multiple times you can create a new feedback request each time and update the feedback session ID your attendees should be directed to, by using the edit interact session link in the email you'll receive once this session is created.</p>
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
 let btnSubmit = ref({
-  text: 'Create interact session',
+  text: "Create interact session",
   wait: false,
 });
 const formIsValid = () => {
   document
-    .getElementById('createSessionSeriesForm')
-    .classList.add('was-validated');
+    .getElementById("createSessionSeriesForm")
+    .classList.add("was-validated");
   if (!interactSession.interactions.length) {
     Swal.fire({
-      title: 'No interactions added',
+      title: "No interactions added",
       text: "You need to add at least 1 interaction to your session. Use the green 'Add' button.",
-      icon: 'error',
-      iconColor: '#17a2b8',
-      confirmButtonColor: '#17a2b8',
+      icon: "error",
+      iconColor: "#17a2b8",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
@@ -71,27 +88,25 @@ const formIsValid = () => {
 };
 const submit = () => {
   if (!formIsValid()) return false;
-  btnSubmit.value.text = 'Please wait...';
+  btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
-  if (interactSession.interactions[0].type != 'waitingRoom')
-    interactSession.interactions.unshift({ id: '0', type: 'waitingRoom' });
-  api('interact', 'insertSession', null, null, interactSession).then(
+  api("interact", "insertSession", null, null, interactSession).then(
     function (res) {
-      btnSubmit.value.text = 'Create interact session';
+      btnSubmit.value.text = "Create interact session";
       btnSubmit.value.wait = false;
       interactSession.id = res.id;
       interactSession.pin = res.pin;
-      router.push('/interact/created');
+      router.push("/interact/created");
     },
     function (error) {
-      btnSubmit.value.text = 'Retry creating interact session?';
+      btnSubmit.value.text = "Retry creating interact session?";
       btnSubmit.value.wait = false;
       Swal.fire({
-        title: 'Error creating interact session',
+        title: "Error creating interact session",
         text: error,
-        icon: 'error',
-        iconColor: '#17a2b8',
-        confirmButtonColor: '#17a2b8',
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
       });
     }
   );
@@ -105,7 +120,7 @@ const submit = () => {
   >
   <form id="createSessionSeriesForm" class="needs-validation" novalidate>
     <div>
-      <label for="title">Session title:</label>
+      <label for="title" class="form-label">Session title:</label>
       <input
         type="text"
         v-model="interactSession.title"
@@ -119,7 +134,7 @@ const submit = () => {
       <div class="invalid-feedback">Please fill out this field.</div>
     </div>
     <div class="mt-4">
-      <label for="name">Facilitator name:</label>
+      <label for="name" class="form-label">Facilitator name:</label>
       <input
         type="text"
         v-model="interactSession.name"
@@ -133,7 +148,7 @@ const submit = () => {
       <div class="invalid-feedback">Please fill out this field.</div>
     </div>
     <div class="mt-4">
-      <label for="email">Facilitator email:</label>
+      <label for="email" class="form-label">Facilitator email:</label>
       <input
         type="email"
         v-model="interactSession.email"
@@ -145,6 +160,25 @@ const submit = () => {
         required
       />
       <div class="invalid-feedback">Please fill out this field.</div>
+    </div>
+    <div class="mt-4">
+      <label for="feedbackID" class="form-label"
+        >Feedback session ID: (optional)
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="feedbackIdInfo"
+      /></label>
+      <input
+        type="text"
+        v-model="interactSession.feedbackID"
+        class="form-control"
+        id="feedbackID"
+        placeholder="Session ID for a feedback request you've already created..."
+        name="title"
+        autocomplete="off"
+      />
     </div>
   </form>
 
@@ -246,6 +280,9 @@ const submit = () => {
 </template>
 
 <style>
+.form-label {
+  font-size: 1.3rem;
+}
 .list-move,
 .list-enter-active,
 .list-leave-active {

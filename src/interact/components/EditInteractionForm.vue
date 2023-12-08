@@ -1,18 +1,18 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { interactSession } from '../../data/interactSession.js';
-import { config } from '../../data/config.js';
-import Swal from 'sweetalert2';
+import { ref, watch } from "vue";
+import { interactSession } from "../../data/interactSession.js";
+import { config } from "../../data/config.js";
+import Swal from "sweetalert2";
 
-const props = defineProps(['index']);
-const emit = defineEmits(['hideEditInteractionModal']);
+const props = defineProps(["index"]);
+const emit = defineEmits(["hideEditInteractionModal"]);
 
-let prompt = ref('');
-let type = ref('');
+let prompt = ref("");
+let type = ref("");
 let options = ref([]);
 let settings = ref({});
-let chart = ref('');
-let charts = ref('');
+let chart = ref("");
+let charts = ref("");
 
 if (props.index > -1) {
   const interaction = interactSession.interactions[props.index];
@@ -34,18 +34,162 @@ watch(type, (newType, oldType) => {
   }
 });
 
-let newOption = ref('');
+const questionTypeInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Question types",
+    html: `
+      <div class="text-start">
+        <p>There are several different interaction types available. Click below to see examples and further details about each:</p>
+        <div class="accordion" id="accordionTypes">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Single choice
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/interaction-type-example-single-choice.png" class="img-fluid mx-auto d-block">
+                <p>Single choice interactions allow you to provide a selection of options from which attendees can choose only one. By default attendees will be able to respond only once but you can allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the interaction.</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Multiple choice
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/interaction-type-example-multiple-choice.png" class="img-fluid mx-auto d-block">
+                <p>Multiple choice interactions allow you to provide a selection of options from which attendees can choose. By default attendees must chose at least 1 option and can select as many as they wish, but optionally you can set a minimum and maximum number of options per response. By default attendees will be able to respond only once but you can optionally allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the interaction.</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingThree">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                Short text
+              </button>
+            </h2>
+            <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/interaction-type-example-short-text.png" class="img-fluid mx-auto d-block">
+                <p>Short text interactions allow attendees to provide short free text responses which appear on the host screen. By default attendees will be able to respond 10 times but you can set a different number of allowed responses per person. To keep responses short the default character limit is 200, but you can set this to a different value if required. You can set the responses not to appear on the host view until after you reveal them by activating this option in settings when creating the interaction.</p>
+              </div>
+            </div>
+          </div>
+        </div>     
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
+const chartTypeInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Chart types",
+    html: `
+      <div class="text-start">
+        <p>There are two different chart types available for showing single choice or multiple choice interaction results. Click below to see examples and further details:</p>
+        <div class="accordion" id="accordionTypes">
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingOne">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                Bar chart
+              </button>
+            </h2>
+            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/interaction-chart-example-bar.png" class="img-fluid mx-auto d-block">
+                <p>You can hover over any of the bars to show the exact number of responses that option has received.</p>
+              </div>
+            </div>
+          </div>
+          <div class="accordion-item">
+            <h2 class="accordion-header" id="headingTwo">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+                Doughnut chart
+              </button>
+            </h2>
+            <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
+              <div class="accordion-body">
+                <img src="https://dev.learnloop.co.uk/img/interaction-chart-example-doughnut.png" class="img-fluid mx-auto d-block">
+                <p>You can hover over any of the segments to show the exact number of responses that option has received.</p>
+              </div>
+            </div>
+          </div>
+        </div>     
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
+const optionsMinMaxInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Minimum and maximum number of options",
+    html: `
+      <div class="text-start">
+        <p>By default attendees must select between one and all of the available options. You can change the minimum and maximum if required. If the attendee attempts to submit a response with fewer than the minimum number of options selected they will receive an alert like this one:</p>
+        <img src="https://dev.learnloop.co.uk/img/interaction-selection-min.png" class="img-fluid mx-auto d-block">
+        <p>Or, if they select more options than the maximum, they will receive an alert like this one:</p>
+        <img src="https://dev.learnloop.co.uk/img/interaction-selection-max.png" class="img-fluid mx-auto d-block">
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
+const submissionLimitInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Number of responses",
+    html: `
+      <div class="text-start">
+        <p>By default attendees can respond only once to interactions (10 times for text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
+        <img src="https://dev.learnloop.co.uk/img/interaction-submission-limit.png" class="img-fluid mx-auto d-block">
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
+const hideResponsesInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Hide responses until you reveal them",
+    html: `
+      <div class="text-start">
+        <p>If you want to prevent attendees from seeing what others are responding until you reveal the answer you can select this option. Your screen will display this view until your click to reveal the responses:</p>
+        <img src="https://dev.learnloop.co.uk/img/interaction-hide-responses.png" class="img-fluid mx-auto d-block">
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
+let newOption = ref("");
 const addOption = () => {
   if (newOption.value) {
     options.value.push(newOption.value);
-    newOption.value = '';
+    newOption.value = "";
     if (settings.value.selectedLimit)
       if (settings.value.selectedLimit.max == options.value.length - 1)
         settings.value.selectedLimit.max++;
   } else {
-    document.getElementById('newOption').classList.add('is-invalid');
+    document.getElementById("newOption").classList.add("is-invalid");
     setTimeout(
-      () => document.getElementById('newOption').classList.remove('is-invalid'),
+      () => document.getElementById("newOption").classList.remove("is-invalid"),
       3000
     );
   }
@@ -83,10 +227,10 @@ const keepSelectedLimitsWithinMinMax = () => {
 };
 
 let submit = () => {
-  newOption.value = '';
+  newOption.value = "";
   document
-    .getElementById('editInteractionModal' + props.index)
-    .classList.add('was-validated');
+    .getElementById("editInteractionModal" + props.index)
+    .classList.add("was-validated");
   if (!type.value) return false;
   if (settings.value.optionsLimit == 0) {
     options.value = [];
@@ -94,34 +238,34 @@ let submit = () => {
     options.value.length < config.interact.create.interactions.minimumOptions
   ) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too few options added',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too few options added",
       text:
-        'You need to add at least ' +
+        "You need to add at least " +
         config.interact.create.interactions.minimumOptions +
-        ' options.',
-      confirmButtonColor: '#17a2b8',
+        " options.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
   if (options.value.length > settings.value.optionsLimit) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too many options added',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too many options added",
       text:
-        'You can have up to ' +
+        "You can have up to " +
         settings.value.optionsLimit +
-        ' options for the interaction type selected.',
-      confirmButtonColor: '#17a2b8',
+        " options for the interaction type selected.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
   if (!prompt.value) return false;
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
   emit(
-    'hideEditInteractionModal',
+    "hideEditInteractionModal",
     props.index,
     JSON.stringify({
       prompt: prompt.value,
@@ -132,16 +276,16 @@ let submit = () => {
     })
   );
   if (props.index == -1) {
-    prompt.value = '';
-    type.value = '';
-    chart.value = '';
+    prompt.value = "";
+    type.value = "";
+    chart.value = "";
     charts.value = [];
     options.value = [];
     settings.value = {};
   }
   document
-    .getElementById('editInteractionModal' + props.index)
-    .classList.remove('was-validated');
+    .getElementById("editInteractionModal" + props.index)
+    .classList.remove("was-validated");
 };
 </script>
 
@@ -151,7 +295,7 @@ let submit = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">
-            {{ index < 0 ? 'Add an' : 'Edit' }} interaction
+            {{ index < 0 ? "Add an" : "Edit" }} interaction
           </h4>
           <button
             v-if="index == -1"
@@ -179,7 +323,14 @@ let submit = () => {
               </div>
             </div>
             <div class="mb-4">
-              <label for="type" class="form-label">Type:</label>
+              <label for="type" class="form-label"
+                >Type:
+                <font-awesome-icon
+                  :icon="['fas', 'question-circle']"
+                  size="lg"
+                  style="color: black"
+                  @click="questionTypeInfo"
+              /></label>
               <select
                 v-model="type"
                 class="form-control"
@@ -204,7 +355,14 @@ let submit = () => {
             </div>
             <div v-if="type">
               <div v-if="charts" class="mb-4">
-                <label for="type" class="form-label">Chart type:</label>
+                <label for="type" class="form-label"
+                  >Chart type:
+                  <font-awesome-icon
+                    :icon="['fas', 'question-circle']"
+                    size="lg"
+                    style="color: black"
+                    @click="chartTypeInfo"
+                /></label>
                 <select
                   v-model="chart"
                   class="form-control"
@@ -213,19 +371,12 @@ let submit = () => {
                   autocomplete="off"
                   required
                 >
-                  <option disabled value="">
-                    Please select a chart type
-                  </option>
-                  <option
-                    v-for="chart in charts"
-                    :value="chart"
-                  >
-                    {{ (chart.charAt(0).toUpperCase() + chart.slice(1)) }}
+                  <option disabled value="">Please select a chart type</option>
+                  <option v-for="chart in charts" :value="chart">
+                    {{ chart.charAt(0).toUpperCase() + chart.slice(1) }}
                   </option>
                 </select>
-                <div class="invalid-feedback">
-                  Please select a chart type.
-                </div>
+                <div class="invalid-feedback">Please select a chart type.</div>
               </div>
               <div v-if="settings.optionsLimit" class="mb-4">
                 <label for="newOption" class="form-label">Options:</label>
@@ -314,8 +465,13 @@ let submit = () => {
                   <div class="card-body">
                     <div v-if="settings.selectedLimit" class="mb-4">
                       <label for="selectedLimit" class="form-label"
-                        >Number of options attendees must select:</label
-                      >
+                        >Number of options attendees must select:
+                        <font-awesome-icon
+                          :icon="['fas', 'question-circle']"
+                          size="lg"
+                          style="color: black"
+                          @click="optionsMinMaxInfo"
+                      /></label>
                       <div class="input-group" id="selectedLimit">
                         <span class="input-group-text">Minimum:</span>
                         <input
@@ -350,8 +506,13 @@ let submit = () => {
                     <div v-if="settings.submissionLimit" class="mb-4">
                       <label for="submissionLimit" class="form-label"
                         >Number of times attendees can submit a response to this
-                        interaction:</label
-                      >
+                        interaction:
+                        <font-awesome-icon
+                          :icon="['fas', 'question-circle']"
+                          size="lg"
+                          style="color: black"
+                          @click="submissionLimitInfo"
+                      /></label>
                       <div class="input-group" id="submissionLimit">
                         <span class="input-group-text">Maximum:</span>
                         <input
@@ -401,8 +562,13 @@ let submit = () => {
                           name="hideResponses"
                         />
                         <label class="form-check-label" for="hideResponses"
-                          >Hide attendee responses until you reveal them</label
-                        >
+                          >Hide attendee responses until you reveal them
+                          <font-awesome-icon
+                            :icon="['fas', 'question-circle']"
+                            size="lg"
+                            style="color: black"
+                            @click="hideResponsesInfo"
+                        /></label>
                       </div>
                     </div>
                   </div>
@@ -416,7 +582,7 @@ let submit = () => {
               id="submitEditInteractForm"
               v-on:click.prevent="submit"
             >
-              {{ index < 0 ? 'Add' : 'Update' }} interaction
+              {{ index < 0 ? "Add" : "Update" }} interaction
             </button>
           </div>
         </div>

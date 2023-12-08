@@ -1,14 +1,14 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { feedbackSession } from '../../data/feedbackSession.js';
-import { config } from '../../data/config.js';
-import Swal from 'sweetalert2';
+import { ref, watch } from "vue";
+import { feedbackSession } from "../../data/feedbackSession.js";
+import { config } from "../../data/config.js";
+import Swal from "sweetalert2";
 
-const props = defineProps(['index']);
-const emit = defineEmits(['hideEditQuestionModal']);
+const props = defineProps(["index"]);
+const emit = defineEmits(["hideEditQuestionModal"]);
 
-let title = ref('');
-let type = ref('');
+let title = ref("");
+let type = ref("");
 let options = ref([]);
 let settings = ref({});
 
@@ -33,12 +33,12 @@ watch(type, (newType, oldType) => {
 
 const questionTypeInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Question types',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Question types",
     html: `
       <div class="text-start">
-        <p>There are several different custom question types available to capture feedback from your attendees. Click below to see examples and further details about each of the question types:</p>
+        <p>There are several different custom question types available to capture feedback from your attendees. Click below to see examples and further details about each:</p>
         <div class="accordion" id="accordionTypes">
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
@@ -81,23 +81,23 @@ const questionTypeInfo = () => {
           </div>
         </div>     
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
-let newOption = ref('');
+let newOption = ref("");
 const addOption = () => {
   if (newOption.value) {
     options.value.push({ title: newOption.value });
-    newOption.value = '';
+    newOption.value = "";
     if (settings.value.selectedLimit)
       if (settings.value.selectedLimit.max == options.value.length - 1)
         settings.value.selectedLimit.max++;
   } else {
-    document.getElementById('newOption').classList.add('is-invalid');
+    document.getElementById("newOption").classList.add("is-invalid");
     setTimeout(
-      () => document.getElementById('newOption').classList.remove('is-invalid'),
+      () => document.getElementById("newOption").classList.remove("is-invalid"),
       3000
     );
   }
@@ -125,10 +125,10 @@ const keepSelectedLimitsWithinMinMax = () => {
 };
 
 let submit = () => {
-  newOption.value = '';
+  newOption.value = "";
   document
-    .getElementById('editQuestionModal' + props.index)
-    .classList.add('was-validated');
+    .getElementById("editQuestionModal" + props.index)
+    .classList.add("was-validated");
   if (!type.value) return false;
   if (settings.value.optionsLimit == 0) {
     options.value = [];
@@ -136,34 +136,34 @@ let submit = () => {
     options.value.length < config.feedback.create.questions.minimumOptions
   ) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too few options added',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too few options added",
       text:
-        'You need to add at least ' +
+        "You need to add at least " +
         config.feedback.create.questions.minimumOptions +
-        ' options.',
-      confirmButtonColor: '#17a2b8',
+        " options.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
   if (options.value.length > settings.value.optionsLimit) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too many options added',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too many options added",
       text:
-        'You can have up to ' +
+        "You can have up to " +
         settings.value.optionsLimit +
-        ' options for the question type selected.',
-      confirmButtonColor: '#17a2b8',
+        " options for the question type selected.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
   if (!title.value) return false;
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
   emit(
-    'hideEditQuestionModal',
+    "hideEditQuestionModal",
     props.index,
     JSON.stringify({
       title: title.value,
@@ -173,14 +173,14 @@ let submit = () => {
     })
   );
   if (props.index == -1) {
-    title.value = '';
-    type.value = '';
+    title.value = "";
+    type.value = "";
     options.value = [];
     settings.value = {};
   }
   document
-    .getElementById('editQuestionModal' + props.index)
-    .classList.remove('was-validated');
+    .getElementById("editQuestionModal" + props.index)
+    .classList.remove("was-validated");
 };
 </script>
 
@@ -190,7 +190,7 @@ let submit = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">
-            {{ index < 0 ? 'Add a' : 'Edit' }} question
+            {{ index < 0 ? "Add a" : "Edit" }} question
           </h4>
           <button
             v-if="index == -1"
@@ -405,7 +405,7 @@ let submit = () => {
               id="submitEditQuestionForm"
               v-on:click.prevent="submit"
             >
-              {{ index < 0 ? 'Add' : 'Update' }} question
+              {{ index < 0 ? "Add" : "Update" }} question
             </button>
           </div>
         </div>

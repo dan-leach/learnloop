@@ -1,37 +1,65 @@
 <script setup>
-import { ref } from 'vue';
-import Toast from '../../../assets/Toast.js';
+import { ref } from "vue";
+import Toast from "../../../assets/Toast.js";
 
-const props = defineProps(['interaction', 'spinner', 'btnSubmitText', 'btnSubmitBelowText']);
-const emit = defineEmits(['submit']);
+const props = defineProps([
+  "interaction",
+  "spinner",
+  "btnSubmitText",
+  "btnSubmitBelowText",
+]);
+const emit = defineEmits(["submit"]);
 
-let selection = ref([])
+let selection = ref([]);
 
 let submit = () => {
-  let selectedCount = selection.value.length
-  let selectedMin = props.interaction.settings.selectedLimit.min
-  let selectedMax = props.interaction.settings.selectedLimit.max
+  let selectedCount = selection.value.length;
+  let selectedMin = props.interaction.settings.selectedLimit.min;
+  let selectedMax = props.interaction.settings.selectedLimit.max;
   if (selectedCount < selectedMin) {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Please select at least ' + selectedMin + ' option(s)',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Please select at least " + selectedMin + " option(s)",
     });
   } else if (selectedCount > selectedMax) {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Please select no more than ' + selectedMax + ' option(s)',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Please select no more than " + selectedMax + " option(s)",
     });
   } else {
-    props.interaction.response = JSON.stringify(selection.value)
-    emit('submit');
+    props.interaction.response = JSON.stringify(selection.value);
+    emit("submit");
   }
 };
 </script>
 
 <template>
-  <p class="text-center"><strong>{{ interaction.prompt }}</strong></p>
+  <p class="text-center">
+    <strong>{{ interaction.prompt }}</strong>
+  </p>
+  <p
+    class="text-center"
+    v-if="
+      interaction.settings.selectedLimit.min > 1 ||
+      interaction.settings.selectedLimit.max < interaction.options.length
+    "
+  >
+    <small>
+      Please select
+      {{
+        interaction.settings.selectedLimit.min ==
+        interaction.settings.selectedLimit.max
+          ? interaction.settings.selectedLimit.min
+          : " between " +
+            interaction.settings.selectedLimit.min +
+            " and " +
+            interaction.settings.selectedLimit.max
+      }}
+      options(s)
+    </small>
+  </p>
   <div v-for="(option, index) in interaction.options" class="form-check">
     <input
       type="checkbox"
@@ -63,6 +91,5 @@ let submit = () => {
 .btnSubmitBelowText {
   font-size: small;
   font-weight: lighter;
-  
 }
 </style>

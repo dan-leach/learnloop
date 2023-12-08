@@ -1,16 +1,16 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { feedbackSession } from '../../data/feedbackSession.js';
-import { config } from '../../data/config.js';
-import Swal from 'sweetalert2';
-import { api } from '../../data/api.js';
+import { ref, watch } from "vue";
+import { feedbackSession } from "../../data/feedbackSession.js";
+import { config } from "../../data/config.js";
+import Swal from "sweetalert2";
+import { api } from "../../data/api.js";
 
-const props = defineProps(['index']);
-const emit = defineEmits(['hideEditSubsessionModal']);
+const props = defineProps(["index"]);
+const emit = defineEmits(["hideEditSubsessionModal"]);
 
-let title = ref('');
-let name = ref('');
-let email = ref('');
+let title = ref("");
+let name = ref("");
+let email = ref("");
 
 if (props.index > -1) {
   const subsession = feedbackSession.subsessions[props.index];
@@ -20,16 +20,16 @@ if (props.index > -1) {
 }
 
 let btnSubmit = ref({
-  text: 'Add to series',
+  text: "Add to series",
   wait: false,
 });
 
 let submit = () => {
   document
-    .getElementById('editSubsessionModal' + props.index)
-    .classList.add('was-validated');
+    .getElementById("editSubsessionModal" + props.index)
+    .classList.add("was-validated");
   if (!title.value || !name.value) return false;
-  if (email.value == '') {
+  if (email.value == "") {
     console.log(config.client.subsessionEmailPrompt);
     if (config.client.subsessionEmailPrompt) {
       config.client.subsessionEmailPrompt = false;
@@ -37,23 +37,23 @@ let submit = () => {
         title: "Are you sure you don't want to provide a facilitator email?",
         text: "If you don't provide an email for the facilitator of this session they won't be able to view their feedback directly. As the organiser, you will still be able to view feedback for their session and share it with them manually if you wish. Click 'Cancel' if you want to return and enter a faciltator email.",
         showCancelButton: true,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       }).then((result) => {
         if (result.isConfirmed) {
           createSubsession();
         }
       });
-      btnSubmit.text = 'Retry add to series?';
+      btnSubmit.text = "Retry add to series?";
       btnSubmit.wait = false;
     } else {
       createSubsession();
     }
   } else {
-    btnSubmit.text = 'Please wait';
+    btnSubmit.text = "Please wait";
     btnSubmit.wait = true;
     api(
-      'feedback',
-      'checkEmailIsValid',
+      "feedback",
+      "checkEmailIsValid",
       null,
       null,
       JSON.stringify(email.value)
@@ -63,12 +63,12 @@ let submit = () => {
       },
       function (error) {
         Swal.fire({
-          icon: 'error',
-          iconColor: '#17a2b8',
+          icon: "error",
+          iconColor: "#17a2b8",
           text: error,
-          confirmButtonColor: '#17a2b8',
+          confirmButtonColor: "#17a2b8",
         });
-        btnSubmit.text = 'Retry add to series?';
+        btnSubmit.text = "Retry add to series?";
         btnSubmit.wait = false;
       }
     );
@@ -78,7 +78,7 @@ let submit = () => {
 const createSubsession = () => {
   console.log(email.value);
   emit(
-    'hideEditSubsessionModal',
+    "hideEditSubsessionModal",
     props.index,
     JSON.stringify({
       title: title.value,
@@ -87,23 +87,23 @@ const createSubsession = () => {
     })
   );
   if (props.index == -1) {
-    title.value = '';
-    name.value = '';
-    email.value = '';
+    title.value = "";
+    name.value = "";
+    email.value = "";
   }
   document
-    .getElementById('editSubsessionModal' + props.index)
-    .classList.remove('was-validated');
+    .getElementById("editSubsessionModal" + props.index)
+    .classList.remove("was-validated");
 };
 
 const subsessionFacilitatorEmailInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Provide an email for session facilitators (Optional)',
-    html: '<div class="text-start">If you provide an email address for the facilitator of this session we\'ll let them know that a feedback request has been set up for them. They will receive notifications when feedback is submitted (they can disable this feature if they prefer) and will be able to view feedback that is submitted for their session (but not other sessions or overall feedback).<br><br>If you don\'t have their email address and permission to use it for this purpose leave this field blank. As the organiser, you will still be able to view feedback for their session and share it with them manually.</div>',
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Provide an email for session facilitators (Optional)",
+    html: "<div class=\"text-start\">If you provide an email address for the facilitator of this session we'll let them know that a feedback request has been set up for them. They will receive notifications when feedback is submitted (they can disable this feature if they prefer) and will be able to view feedback that is submitted for their session (but not other sessions or overall feedback).<br><br>If you don't have their email address and permission to use it for this purpose leave this field blank. As the organiser, you will still be able to view feedback for their session and share it with them manually.</div>",
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 </script>
@@ -114,7 +114,7 @@ const subsessionFacilitatorEmailInfo = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">
-            {{ index < 0 ? 'Add a' : 'Edit' }} session
+            {{ index < 0 ? "Add a" : "Edit" }} session
           </h4>
           <button
             v-if="index == -1"
@@ -162,7 +162,7 @@ const subsessionFacilitatorEmailInfo = () => {
                 >Facilitator email:
                 <font-awesome-icon
                   :icon="['fas', 'question-circle']"
-                  size="l"
+                  size="lg"
                   style="color: black"
                   @click="subsessionFacilitatorEmailInfo"
               /></label>
@@ -183,7 +183,7 @@ const subsessionFacilitatorEmailInfo = () => {
               id="submitEditSubsessionForm"
               v-on:click.prevent="submit"
             >
-              {{ index < 0 ? 'Add' : 'Update' }} session
+              {{ index < 0 ? "Add" : "Update" }} session
             </button>
           </div>
         </div>
