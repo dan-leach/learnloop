@@ -2,10 +2,8 @@ Current:
 
 Later:
 check how old feedback sessions function on the new frontend and api
-check group transition applied everywhere
-Add spinners to buttons awaiting API response - is this finished? - check it matches the styling in create interact session btn
-Check buttons same style everywhere
 Check cookies work as expected
+In interact, count number of failed API calls and alert host or attendee if they appear to have lost connection after a certain length of time
 
 Improvements:
 Floating labels

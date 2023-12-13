@@ -39,15 +39,18 @@ const resetPin = (module, id) => {
       '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
+    preConfirm: async () => {
       id = document.getElementById("swalFormId").value;
       email = document.getElementById("swalFormEmail").value;
-      if (email == "") Swal.showValidationMessage("Please enter an email");
-      if (id == "") Swal.showValidationMessage("Please enter a session ID");
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      api(module, "resetPin", id, null, JSON.stringify(email)).then(
+      if (email == "") {
+        Swal.showValidationMessage("Please enter an email");
+        return false;
+      }
+      if (id == "") {
+        Swal.showValidationMessage("Please enter a session ID");
+        return false;
+      }
+      await api(module, "resetPin", id, null, JSON.stringify(email)).then(
         function (res) {
           Swal.fire({
             icon: "success",
@@ -65,6 +68,9 @@ const resetPin = (module, id) => {
           });
         }
       );
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
       feedbackSession.reset();
       interactSession.reset();
     }
@@ -86,16 +92,25 @@ const setNotificationPreference = (id) => {
       'Set notifications <select id="swalFormNotifications" type="select" class="swal2-input"><option value=true>On</option><option value=false>Off</option></select>',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
+    preConfirm: async () => {
       id = document.getElementById("swalFormId").value;
       pin = document.getElementById("swalFormPin").value;
-      if (pin == "") Swal.showValidationMessage("Please enter your PIN");
-      if (id == "") Swal.showValidationMessage("Please enter a session ID");
+      if (pin == "") {
+        Swal.showValidationMessage("Please enter your PIN");
+        return false;
+      }
+      if (id == "") {
+        Swal.showValidationMessage("Please enter a session ID");
+        return false;
+      }
       notifications = document.getElementById("swalFormNotifications").value;
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      api("feedback", "setNotificationPreference", id, pin, notifications).then(
+      await api(
+        "feedback",
+        "setNotificationPreference",
+        id,
+        pin,
+        notifications
+      ).then(
         function (res) {
           Swal.fire({
             icon: "success",
@@ -113,6 +128,9 @@ const setNotificationPreference = (id) => {
           });
         }
       );
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
       feedbackSession.reset();
     }
   });
@@ -127,13 +145,19 @@ const findMySessions = (module) => {
       '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
+    preConfirm: async () => {
       email = document.getElementById("swalFormEmail").value;
-      if (email == "") Swal.showValidationMessage("Please enter an email");
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      api(module, "findMySessions", null, null, JSON.stringify(email)).then(
+      if (email == "") {
+        Swal.showValidationMessage("Please enter an email");
+        return false;
+      }
+      await api(
+        module,
+        "findMySessions",
+        null,
+        null,
+        JSON.stringify(email)
+      ).then(
         function (res) {
           Swal.fire({
             icon: "success",
@@ -151,6 +175,9 @@ const findMySessions = (module) => {
           });
         }
       );
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
       feedbackSession.reset();
       interactSession.reset();
     }
@@ -168,15 +195,18 @@ const closeSession = (module) => {
       '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
+    preConfirm: async () => {
       id = document.getElementById("swalFormId").value;
       pin = document.getElementById("swalFormPin").value;
-      if (pin == "") Swal.showValidationMessage("Please enter a session PIN");
-      if (id == "") Swal.showValidationMessage("Please enter a session ID");
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      api(module, "closeSession", id, pin, null).then(
+      if (pin == "") {
+        Swal.showValidationMessage("Please enter a session PIN");
+        return false;
+      }
+      if (id == "") {
+        Swal.showValidationMessage("Please enter a session ID");
+        return false;
+      }
+      await api(module, "closeSession", id, pin, null).then(
         function (res) {
           Swal.fire({
             icon: "success",
@@ -194,6 +224,9 @@ const closeSession = (module) => {
           });
         }
       );
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
       feedbackSession.reset();
       interactSession.reset();
     }
