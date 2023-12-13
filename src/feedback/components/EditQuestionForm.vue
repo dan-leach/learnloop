@@ -201,7 +201,7 @@ let submit = () => {
         </div>
         <div class="modal-body">
           <div id="editQuestionForm" class="needs-validation" novalidate>
-            <div class="form-floating mt-2">
+            <div class="form-floating mb-3">
               <input
                 type="text"
                 v-model="title"
@@ -215,7 +215,7 @@ let submit = () => {
               <label for="title">Question</label>
               <div class="invalid-feedback">Please provide a question.</div>
             </div>
-            <div class="input-group mt-2">
+            <div class="input-group mb-3">
               <div class="form-floating">
                 <select
                   v-model="type"
@@ -249,72 +249,78 @@ let submit = () => {
               <div class="invalid-feedback">Please select a question type.</div>
             </div>
             <div v-if="type">
-              <div v-if="settings.optionsLimit" class="mt-2">
-                <label for="newOption" class="form-label">Options:</label>
-                <table class="table" id="optionsTable">
-                  <TransitionGroup name="list" tag="tbody">
-                    <tr v-for="(option, index) in options" :key="option">
-                      <td class="p-0 ps-2">
-                        <button
-                          v-if="index != 0"
-                          class="btn btn-default btn-sm p-0"
-                          id="btnSortUp"
-                          @click.prevent="sortOption(index, -1)"
-                        >
-                          <font-awesome-icon
-                            :icon="['fas', 'chevron-up']"
-                          /></button
-                        ><br />
-                        <button
-                          v-if="index != options.length - 1"
-                          class="btn btn-default btn-sm p-0"
-                          id="btnSortDown"
-                          @click.prevent="sortOption(index, 1)"
-                        >
-                          <font-awesome-icon :icon="['fas', 'chevron-down']" />
-                        </button>
-                      </td>
-                      <td>{{ option.title }}</td>
-                      <td>
-                        <button
-                          style="float: right"
-                          class="btn btn-danger btn-sm"
-                          id="btnRemoveOption"
-                          @click.prevent="removeOption(index)"
-                        >
-                          <font-awesome-icon :icon="['fas', 'trash-can']" />
-                        </button>
-                      </td>
-                    </tr>
-                  </TransitionGroup>
-                </table>
-                <div class="input-group mb-3">
-                  <input
-                    type="text"
-                    @keyup.enter="addOption"
-                    class="form-control"
-                    id="newOption"
-                    v-model="newOption"
-                    :placeholder="
-                      options.length >= settings.optionsLimit
-                        ? 'Max options reached'
-                        : 'Add an option...'
-                    "
-                    name="newOption"
-                    autocomplete="off"
-                    :required="!options.length"
-                    :disabled="options.length >= settings.optionsLimit"
-                  />
-                  <button
-                    class="btn btn-teal btn-sm"
-                    @click.prevent="addOption"
-                    :disabled="options.length >= settings.optionsLimit"
-                  >
-                    Add
-                  </button>
+              <div v-if="settings.optionsLimit" class="card mt-2">
+                <div class="card-header">
+                  <label for="newOption" class="form-label px-2">Options</label>
                 </div>
-                <div class="invalid-feedback">
-                  Please provide some options for this question.
+                <div class="card-body">
+                  <table class="table" id="optionsTable">
+                    <TransitionGroup name="list" tag="tbody">
+                      <tr v-for="(option, index) in options" :key="option">
+                        <td class="p-0 ps-2">
+                          <button
+                            v-if="index != 0"
+                            class="btn btn-default btn-sm p-0"
+                            id="btnSortUp"
+                            @click.prevent="sortOption(index, -1)"
+                          >
+                            <font-awesome-icon
+                              :icon="['fas', 'chevron-up']"
+                            /></button
+                          ><br />
+                          <button
+                            v-if="index != options.length - 1"
+                            class="btn btn-default btn-sm p-0"
+                            id="btnSortDown"
+                            @click.prevent="sortOption(index, 1)"
+                          >
+                            <font-awesome-icon
+                              :icon="['fas', 'chevron-down']"
+                            />
+                          </button>
+                        </td>
+                        <td>{{ option.title }}</td>
+                        <td>
+                          <button
+                            style="float: right"
+                            class="btn btn-danger btn-sm"
+                            id="btnRemoveOption"
+                            @click.prevent="removeOption(index)"
+                          >
+                            <font-awesome-icon :icon="['fas', 'trash-can']" />
+                          </button>
+                        </td>
+                      </tr>
+                    </TransitionGroup>
+                  </table>
+                  <div class="input-group">
+                    <input
+                      type="text"
+                      @keyup.enter="addOption"
+                      class="form-control"
+                      id="newOption"
+                      v-model="newOption"
+                      :placeholder="
+                        options.length >= settings.optionsLimit
+                          ? 'Max options reached'
+                          : 'Add an option...'
+                      "
+                      name="newOption"
+                      autocomplete="off"
+                      :required="!options.length"
+                      :disabled="options.length >= settings.optionsLimit"
+                    />
+                    <button
+                      class="btn btn-teal btn-sm"
+                      @click.prevent="addOption"
+                      :disabled="options.length >= settings.optionsLimit"
+                    >
+                      Add
+                    </button>
+                  </div>
+                  <div class="invalid-feedback">
+                    Please provide some options for this question.
+                  </div>
                 </div>
               </div>
               <div class="card mt-2">
@@ -324,7 +330,7 @@ let submit = () => {
                     class="btn"
                     @click="showSettings = !showSettings"
                   >
-                    <span class="me-2">Settings</span
+                    <span class="form-label me-2">Settings</span
                     ><font-awesome-icon
                       v-if="!showSettings"
                       :icon="['fas', 'chevron-down']"
@@ -334,55 +340,45 @@ let submit = () => {
                 </div>
                 <div v-if="showSettings">
                   <div class="card-body">
-                    <div class="mb-4">
-                      <div class="form-check form-switch">
-                        <input
-                          v-model="settings.required"
-                          class="form-check-input"
-                          type="checkbox"
-                          id="required"
-                          name="required"
-                        />
-                        <label class="form-check-label" for="required"
-                          >Make a response to this question compulsory</label
-                        >
+                    <div
+                      v-if="settings.selectedLimit"
+                      class="row align-items-center mb-3"
+                    >
+                      <div class="col-md-3">
+                        Number of options that must be selected
                       </div>
-                    </div>
-                    <div v-if="settings.selectedLimit" class="mb-4">
-                      <p>Number of options respondents must select:</p>
-                      <div class="row">
-                        <div class="col">
-                          <div class="form-floating">
-                            <input
-                              type="number"
-                              v-model="settings.selectedLimit.min"
-                              @change="keepSelectedLimitsWithinMinMax"
-                              min="1"
-                              :max="options.length ? options.length : 1"
-                              class="form-control"
-                              id="selectedLimitMin"
-                              name="selectedLimit"
-                              autocomplete="off"
-                            />
-                            <label for="selectedLimitMin">Minimum</label>
-                          </div>
+                      <div class="col-md-1"></div>
+                      <div class="col-md-4">
+                        <div class="form-floating">
+                          <input
+                            type="number"
+                            v-model="settings.selectedLimit.min"
+                            @change="keepSelectedLimitsWithinMinMax"
+                            min="1"
+                            :max="options.length ? options.length : 1"
+                            class="form-control"
+                            id="selectedLimitMin"
+                            name="selectedLimit"
+                            autocomplete="off"
+                          />
+                          <label for="selectedLimitMin">Minimum</label>
                         </div>
-                        <div class="col">
-                          <div class="form-floating">
-                            <input
-                              type="number"
-                              v-model="settings.selectedLimit.max"
-                              @change="keepSelectedLimitsWithinMinMax"
-                              min="1"
-                              :max="options.length ? options.length : 1"
-                              class="form-control"
-                              id="selectedLimitMax"
-                              placeholder="1"
-                              name="selectedLimit"
-                              autocomplete="off"
-                            />
-                            <label for="selectedLimitMax">Maximum</label>
-                          </div>
+                      </div>
+                      <div class="col-md-4">
+                        <div class="form-floating">
+                          <input
+                            type="number"
+                            v-model="settings.selectedLimit.max"
+                            @change="keepSelectedLimitsWithinMinMax"
+                            min="1"
+                            :max="options.length ? options.length : 1"
+                            class="form-control"
+                            id="selectedLimitMax"
+                            placeholder="1"
+                            name="selectedLimit"
+                            autocomplete="off"
+                          />
+                          <label for="selectedLimitMax">Maximum</label>
                         </div>
                       </div>
                       <div class="invalid-feedback">
@@ -390,22 +386,41 @@ let submit = () => {
                       </div>
                     </div>
                     <div
+                      class="row align-items-center mb-3"
                       v-if="settings.characterLimit"
-                      class="form-floating mb-4"
                     >
-                      <input
-                        type="number"
-                        placeholder=""
-                        v-model.lazy="settings.characterLimit.max"
-                        class="form-control"
-                        id="characterLimit"
-                        name="characterLimit"
-                        autocomplete="off"
-                        required
-                      />
-                      <label for="characterLimit"
-                        >Character limit for each response</label
-                      >
+                      <div class="col-md-3">
+                        Character limit for each response
+                      </div>
+                      <div class="col-md-1"></div>
+                      <div class="col-md-8">
+                        <div class="col-md form-floating">
+                          <input
+                            type="number"
+                            placeholder=""
+                            v-model.lazy="settings.characterLimit.max"
+                            class="form-control"
+                            id="characterLimit"
+                            name="characterLimit"
+                            autocomplete="off"
+                            required
+                          />
+                          <label for="characterLimit">Maximum</label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row align-items-center">
+                      <div class="col-md-3">Make this question compulsory</div>
+                      <div class="col-md-1"></div>
+                      <div class="col-md-8 px-5 form-check form-switch">
+                        <input
+                          v-model="settings.required"
+                          class="form-check-input"
+                          type="checkbox"
+                          id="required"
+                          name="required"
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>

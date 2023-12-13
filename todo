@@ -1,5 +1,5 @@
 Current:
-Redo form appearances in component form settings - have <p> labels as first col in rows
+Remove 'edit' components and use Create components to do both create and edit roles -> detect which role from router path
 Convert give feedback and join/host interactions to floating labels
 Check appearance of all floating labels (including on component forms) on both desktop and mobile - especially margins and wrapping
 

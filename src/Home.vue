@@ -256,11 +256,9 @@ onMounted(() => {
       Welcome to LearnLoop. Please select from the options below.
     </p>
     <div class="d-flex justify-content-around flex-wrap">
-      <div class="card p-2 m-2">
+      <div class="card bg-transparent shadow p-2 m-2">
         <h1 class="text-center">Feedback</h1>
-        <p class="text-center">
-          Quickly and easily gather anonymous feedback on teaching.
-        </p>
+        <p class="text-center">Quickly gather anonymous feedback on teaching</p>
         <div class="input-group m-2">
           <input
             id="feedbackID"
@@ -339,9 +337,9 @@ onMounted(() => {
           </li>
         </ul>
       </div>
-      <div class="card p-2 m-2">
+      <div class="card bg-transparent shadow p-2 m-2">
         <h1 class="text-center">Interact</h1>
-        <p class="text-center">Engage your audience with live interactions.</p>
+        <p class="text-center">Engage your audience with live interactions</p>
         <div class="input-group m-2">
           <input
             id="interactID"

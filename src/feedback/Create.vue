@@ -230,35 +230,16 @@ const submit = () => {
 
 <template>
   <h1 class="text-center display-4">Feedback</h1>
-  <div v-if="!isSeries" class="mt-4">
-    <strong>You are currently requesting feedback for a single session.</strong>
-    <button
-      class="btn btn-sm btn-teal m-2"
-      id="enableSubsessions"
-      @click="toggleSingleSeries"
+  <form
+    id="createSessionForm"
+    class="card bg-transparent shadow p-2 mb-3 needs-validation"
+    novalidate
+  >
+    <label for="sessionDetails" class="form-label"
+      >Session {{ isSeries ? "series " : "" }}details</label
     >
-      Switch to session series
-    </button>
-    <font-awesome-icon
-      :icon="['fas', 'question-circle']"
-      size="xl"
-      style="color: black"
-      @click="seriesInfo"
-    />
-  </div>
-  <div v-else class="mt-4">
-    <strong>You are currently requesting feedback for a session series.</strong>
-    <button
-      class="btn btn-sm btn-teal m-2"
-      id="enableSubsessions"
-      @click="toggleSingleSeries"
-    >
-      Switch back to single session
-    </button>
-  </div>
-  <form id="createSessionForm" class="needs-validation my-2" novalidate>
     <div class="row">
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="text"
@@ -276,7 +257,7 @@ const submit = () => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
       </div>
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="date"
@@ -294,7 +275,7 @@ const submit = () => {
       </div>
     </div>
     <div class="row">
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="text"
@@ -312,7 +293,7 @@ const submit = () => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
       </div>
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="email"
@@ -332,9 +313,33 @@ const submit = () => {
       </div>
     </div>
   </form>
-  <div v-if="isSeries">
-    <label for="subsessionsTable" class="form-label">Sessions:</label>
-    <table class="table" id="subsessionsTable">
+  <div class="card bg-transparent shadow p-2 mb-3">
+    <label for="subsessionsTable" class="form-label">Sessions</label>
+    <div class="row align-items-center">
+      <div class="col">
+        <button
+          class="btn btn-sm btn-teal"
+          id="enableSubsessions"
+          @click="toggleSingleSeries"
+        >
+          Switch {{ isSeries ? "to single session" : "to session series" }}
+        </button>
+      </div>
+      <div class="col-1 mx-4 text-center">
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="seriesInfo"
+        />
+      </div>
+      <div class="w-100 d-block d-md-none"></div>
+      <div class="col-md-9">
+        You are currently requesting feedback for a
+        {{ isSeries ? "session series" : "single session" }}
+      </div>
+    </div>
+    <table v-if="isSeries" class="table" id="subsessionsTable">
       <thead>
         <tr>
           <th></th>
@@ -358,7 +363,7 @@ const submit = () => {
           :key="subsession"
         >
           <tr>
-            <td class="p-0 ps-2">
+            <td class="bg-transparent p-0 ps-2">
               <button
                 v-if="index != 0"
                 class="btn btn-default btn-sm p-0"
@@ -376,10 +381,10 @@ const submit = () => {
                 <font-awesome-icon :icon="['fas', 'chevron-down']" />
               </button>
             </td>
-            <td>{{ subsession.title }}</td>
-            <td>{{ subsession.name }}</td>
-            <td>{{ subsession.email }}</td>
-            <td>
+            <td class="bg-transparent">{{ subsession.title }}</td>
+            <td class="bg-transparent">{{ subsession.name }}</td>
+            <td class="bg-transparent">{{ subsession.email }}</td>
+            <td class="bg-transparent">
               <button
                 class="btn btn-danger btn-sm btn-right ms-4"
                 id="btnRemoveSubsession"
@@ -410,27 +415,31 @@ const submit = () => {
       @hideEditSubsessionModal="hideEditSubsessionModal"
     />
   </div>
-  <div class="my-4">
-    <label for="questionsTable" class="form-label">Custom questions:</label
-    ><br />
-    <span v-if="!hasQuestions">
-      <button
-        class="btn btn-teal btn-sm mx-1"
-        id="enableQuestions"
-        v-on:click="hasQuestions = true"
-      >
-        Enable custom questions
-      </button>
-      <font-awesome-icon
-        :icon="['fas', 'question-circle']"
-        size="xl"
-        style="color: black"
-        @click="questionsInfo"
-      />
-      <span v-if="!hasQuestions">
-        Attendees will only be asked to complete the default feedback questions.
-      </span>
-    </span>
+  <div class="card bg-transparent shadow p-2 mb-3">
+    <label for="questionsTable" class="form-label">Custom questions</label>
+    <div class="row align-items-center" v-if="!hasQuestions">
+      <div class="col">
+        <button
+          class="btn btn-teal btn-sm btn-block"
+          id="enableQuestions"
+          v-on:click="hasQuestions = true"
+        >
+          Enable custom questions
+        </button>
+      </div>
+      <div class="col-1 mx-4 text-center">
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="questionsInfo"
+        />
+      </div>
+      <div class="w-100 d-block d-md-none"></div>
+      <div class="col-md-9">
+        Attendees will only be asked to complete the default feedback questions
+      </div>
+    </div>
     <div v-if="hasQuestions">
       <table class="table" id="questionsTable">
         <thead>
@@ -455,7 +464,7 @@ const submit = () => {
             :key="question"
           >
             <tr>
-              <td class="p-0 ps-2">
+              <td class="bg-transparent p-0 ps-2">
                 <button
                   v-if="index != 0"
                   class="btn btn-default btn-sm p-0"
@@ -473,11 +482,11 @@ const submit = () => {
                   <font-awesome-icon :icon="['fas', 'chevron-down']" />
                 </button>
               </td>
-              <td>{{ question.title }}</td>
-              <td>
+              <td class="bg-transparent">{{ question.title }}</td>
+              <td class="bg-transparent">
                 {{ config.feedback.create.questions.types[question.type].name }}
               </td>
-              <td>
+              <td class="bg-transparent">
                 <button
                   class="btn btn-danger btn-sm btn-right ms-4"
                   id="btnRemoveQuestion"
@@ -509,105 +518,130 @@ const submit = () => {
       />
     </div>
   </div>
-  <div class="my-4">
-    <label for="furtherOptions" class="form-label">Options:</label><br />
-    <button
-      class="btn btn-teal btn-sm mx-1"
-      id="toggleCertificate"
-      @click="toggleCertificate"
-    >
-      {{ feedbackSession.certificate ? "Disable" : "Enable" }} certificate
-    </button>
-    <font-awesome-icon
-      :icon="['fas', 'question-circle']"
-      size="xl"
-      style="color: black"
-      @click="certificateInfo"
-    />
-    <span v-if="feedbackSession.certificate">
-      Attendees will be able to download a certificate for this session after
-      providing feedback.
-      <font-awesome-icon
-        :icon="['fas', 'check']"
-        size="2xl"
-        style="color: green"
-      />
-    </span>
-    <span v-if="!feedbackSession.certificate">
-      Attendees will not be able to download a certificate for this session.
-      <font-awesome-icon
-        :icon="['fas', 'times']"
-        size="2xl"
-        style="color: red"
-      />
-    </span>
+  <div class="card bg-transparent shadow p-2 mb-3">
+    <label for="furtherOptions" class="form-label">Options</label>
+    <div class="row mb-3">
+      <div class="col">
+        <button
+          class="btn btn-teal btn-sm"
+          id="toggleCertificate"
+          @click="toggleCertificate"
+        >
+          {{ feedbackSession.certificate ? "Disable" : "Enable" }} certificate
+        </button>
+      </div>
+      <div class="col-1 mx-4 text-center">
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="certificateInfo"
+        />
+      </div>
+      <div class="w-100 d-block d-md-none"></div>
+      <div class="col-md-9">
+        <span v-if="feedbackSession.certificate">
+          Attendees will be able to download a certificate for this session
+          after providing feedback
+          <font-awesome-icon
+            :icon="['fas', 'check']"
+            size="2xl"
+            style="color: green"
+          />
+        </span>
+        <span v-if="!feedbackSession.certificate">
+          Attendees will not be able to download a certificate for this session
+          <font-awesome-icon
+            :icon="['fas', 'times']"
+            size="2xl"
+            style="color: red"
+          />
+        </span>
+      </div>
+    </div>
+    <div class="row mb-3">
+      <div class="col">
+        <button
+          class="btn btn-teal btn-sm"
+          id="toggleNotifications"
+          @click="
+            feedbackSession.notifications = !feedbackSession.notifications
+          "
+        >
+          {{ feedbackSession.notifications ? "Disable" : "Enable" }}
+          notifications
+        </button>
+      </div>
+      <div class="col-1 mx-4 text-center">
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="notificationsInfo"
+        />
+      </div>
+      <div class="w-100 d-block d-md-none"></div>
+      <div class="col-md-9">
+        <span v-if="feedbackSession.notifications">
+          You will receive an email each time feedback is submitted
+          <font-awesome-icon
+            :icon="['fas', 'check']"
+            size="2xl"
+            style="color: green"
+          />
+        </span>
+        <span v-if="!feedbackSession.notifications">
+          You won't receive an email each time feedback is submitted
+          <font-awesome-icon
+            :icon="['fas', 'times']"
+            size="2xl"
+            style="color: red"
+          />
+        </span>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col">
+        <button
+          class="btn btn-teal btn-sm"
+          id="toggleAttendance"
+          @click="toggleAttendance"
+        >
+          {{ feedbackSession.notifications ? "Disable" : "Enable" }} register
+        </button>
+      </div>
+      <div class="col-1 mx-4 text-center">
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="attendanceInfo"
+        />
+      </div>
+      <div class="w-100 d-block d-md-none"></div>
+      <div class="col-md-9">
+        <span v-if="feedbackSession.attendance">
+          Register of attendance will be kept
+          <font-awesome-icon
+            :icon="['fas', 'check']"
+            size="2xl"
+            style="color: green"
+          />
+        </span>
+        <span v-if="!feedbackSession.attendance">
+          Register of attendance won't be kept
+          <font-awesome-icon
+            :icon="['fas', 'times']"
+            size="2xl"
+            style="color: red"
+          />
+        </span>
+      </div>
+    </div>
   </div>
-  <div class="my-4">
+  <div class="text-center mb-3">
     <button
-      class="btn btn-teal btn-sm mx-1"
-      id="toggleNotifications"
-      @click="feedbackSession.notifications = !feedbackSession.notifications"
-    >
-      {{ feedbackSession.notifications ? "Disable" : "Enable" }} notifications
-    </button>
-    <font-awesome-icon
-      :icon="['fas', 'question-circle']"
-      size="xl"
-      style="color: black"
-      @click="notificationsInfo"
-    />
-    <span v-if="feedbackSession.notifications">
-      You will receive an email each time feedback is submitted.
-      <font-awesome-icon
-        :icon="['fas', 'check']"
-        size="2xl"
-        style="color: green"
-      />
-    </span>
-    <span v-if="!feedbackSession.notifications">
-      You won't receive an email each time feedback is submitted.
-      <font-awesome-icon
-        :icon="['fas', 'times']"
-        size="2xl"
-        style="color: red"
-      />
-    </span>
-  </div>
-  <div class="my-4">
-    <button
-      class="btn btn-teal btn-sm mx-1"
-      id="toggleAttendance"
-      @click="toggleAttendance"
-    >
-      {{ feedbackSession.notifications ? "Disable" : "Enable" }} register of
-      attendance
-    </button>
-    <font-awesome-icon
-      :icon="['fas', 'question-circle']"
-      size="xl"
-      style="color: black"
-      @click="attendanceInfo"
-    />
-    <span v-if="feedbackSession.attendance">
-      Register of attendance will be kept.
-      <font-awesome-icon
-        :icon="['fas', 'check']"
-        size="2xl"
-        style="color: green"
-      />
-    </span>
-    <span v-if="!feedbackSession.attendance">
-      Register of attendance won't be kept.
-      <font-awesome-icon
-        :icon="['fas', 'times']"
-        size="2xl"
-        style="color: red"
-      />
-    </span>
-  </div>
-  <div class="text-center mt-4">
-    <button
-      class="btn btn-teal"
+      class="btn btn-teal btn-lg"
       id="submitCreateSession"
       @click="submit"
       :disabled="btnSubmit.wait"

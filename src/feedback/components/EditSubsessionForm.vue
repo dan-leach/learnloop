@@ -126,7 +126,7 @@ const subsessionFacilitatorEmailInfo = () => {
         <div class="modal-body">
           <div id="editSubsessionForm" class="needs-validation" novalidate>
             <div class="row">
-              <div class="col mb-2">
+              <div class="col mb-3">
                 <div class="form-floating">
                   <input
                     type="text"
@@ -146,7 +146,7 @@ const subsessionFacilitatorEmailInfo = () => {
               </div>
             </div>
             <div class="row">
-              <div class="col-md mb-2">
+              <div class="col-md mb-3">
                 <div class="form-floating">
                   <input
                     type="text"
@@ -164,7 +164,7 @@ const subsessionFacilitatorEmailInfo = () => {
                   </div>
                 </div>
               </div>
-              <div class="col-md mb-2">
+              <div class="col-md mb-3">
                 <div class="input-group">
                   <div class="form-floating">
                     <input

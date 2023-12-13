@@ -115,12 +115,14 @@ const submit = () => {
 
 <template>
   <h1 class="text-center display-4">Interact</h1>
-  <strong
-    >Please provide details for the interact session you're creating.</strong
+  <form
+    id="createSessionSeriesForm"
+    class="card bg-transparent shadow p-2 mb-3 needs-validation"
+    novalidate
   >
-  <form id="createSessionSeriesForm" class="needs-validation" novalidate>
+    <label for="sessionDetails" class="form-label">Session details</label>
     <div class="row">
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="text"
@@ -136,7 +138,7 @@ const submit = () => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
       </div>
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="input-group">
           <div class="form-floating">
             <input
@@ -161,7 +163,7 @@ const submit = () => {
       </div>
     </div>
     <div class="row">
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="text"
@@ -177,7 +179,7 @@ const submit = () => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
       </div>
-      <div class="col-md mt-2">
+      <div class="col-md mb-3">
         <div class="form-floating">
           <input
             type="email"
@@ -195,8 +197,8 @@ const submit = () => {
       </div>
     </div>
   </form>
-  <div class="mt-4">
-    <label for="interactionsTable" class="form-label">Interactions:</label>
+  <div class="card bg-transparent shadow p-2 mb-3">
+    <label for="interactionsTable" class="form-label">Interactions</label>
     <table class="table" id="interactionsTable">
       <thead>
         <tr>
@@ -220,7 +222,10 @@ const submit = () => {
           :key="interaction"
         >
           <tr>
-            <td class="p-0 ps-2" v-if="interaction.type != 'waitingRoom'">
+            <td
+              class="bg-transparent p-0 ps-2"
+              v-if="interaction.type != 'waitingRoom'"
+            >
               <button
                 v-if="index != 0"
                 class="btn btn-default btn-sm p-0"
@@ -238,15 +243,15 @@ const submit = () => {
                 <font-awesome-icon :icon="['fas', 'chevron-down']" />
               </button>
             </td>
-            <td v-if="interaction.type != 'waitingRoom'">
+            <td class="bg-transparent" v-if="interaction.type != 'waitingRoom'">
               {{ interaction.prompt }}
             </td>
-            <td v-if="interaction.type != 'waitingRoom'">
+            <td class="bg-transparent" v-if="interaction.type != 'waitingRoom'">
               {{
                 config.interact.create.interactions.types[interaction.type].name
               }}
             </td>
-            <td v-if="interaction.type != 'waitingRoom'">
+            <td class="bg-transparent" v-if="interaction.type != 'waitingRoom'">
               <button
                 class="btn btn-danger btn-sm btn-right ms-4"
                 id="btnRemoveInteraction"
@@ -278,9 +283,9 @@ const submit = () => {
       @hideEditInteractionModal="hideEditInteractionModal"
     />
   </div>
-  <div class="text-center mt-4">
+  <div class="text-center mb-3">
     <button
-      class="btn btn-teal"
+      class="btn btn-lg btn-teal"
       id="submitCreateSession"
       @click="submit"
       :disabled="btnSubmit.wait"
