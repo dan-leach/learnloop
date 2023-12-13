@@ -59,7 +59,7 @@ const questionsInfo = () => {
     icon: "info",
     iconColor: "#17a2b8",
     title: "Custom questions (Optional)",
-    html: '<div class="text-start">If the standard feedback form doesn\'t cover everything you want to ask, you can add additional questions.</div>',
+    html: "<div class=\"text-start\">The default feedback form asks attendees to provide some free-text positive feedback, free-text constructive criticism and an overall score (using a slider, out of 100). If that doesn't cover everything you want to ask, you can add additional questions.<br><br>If you're creating a feedback form for a session series the custom questions only relate to the overall feedback and aren't asked for all the subsessions.</div>",
     width: "60%",
     confirmButtonColor: "#17a2b8",
   });
@@ -280,13 +280,17 @@ onMounted(() => {
       <strong>Feedback session details</strong>
       <form id="createSessionForm" class="needs-validation my-2" novalidate>
         <div>
-          <label for="title">Session title:</label>
+          <label for="title" class="form-label"
+            >Session {{ isSeries ? "series " : "" }}title:</label
+          >
           <input
             type="text"
             v-model="feedbackSession.title"
             class="form-control"
             id="title"
-            placeholder="Title of the session..."
+            :placeholder="
+              'Title of the session' + (isSeries ? ' series' : '') + '...'
+            "
             name="title"
             autocomplete="off"
             required
@@ -294,7 +298,7 @@ onMounted(() => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
         <div class="mt-4">
-          <label for="name">Session date:</label>
+          <label for="name" class="form-label">Date:</label>
           <input
             type="date"
             v-model="feedbackSession.date"
@@ -307,13 +311,20 @@ onMounted(() => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
         <div class="mt-4">
-          <label for="name">Facilitator name:</label>
+          <label for="name" class="form-label"
+            >{{ isSeries ? "Organiser" : "Facilitator" }} name:</label
+          >
           <input
             type="text"
             v-model="feedbackSession.name"
             class="form-control"
             id="name"
-            placeholder="Facilitator of the session..."
+            :placeholder="
+              (isSeries ? 'Organiser' : 'Facilitator') +
+              ' of the session' +
+              (isSeries ? ' series' : '') +
+              '...'
+            "
             name="name"
             autocomplete="off"
             required
@@ -321,7 +332,9 @@ onMounted(() => {
           <div class="invalid-feedback">Please fill out this field.</div>
         </div>
         <div class="mt-4">
-          <label for="email">Facilitator email:</label>
+          <label for="email" class="form-label"
+            >{{ isSeries ? "Organiser" : "Facilitator" }} email:</label
+          >
           <input
             type="email"
             v-model="feedbackSession.email"
@@ -336,7 +349,7 @@ onMounted(() => {
         </div>
       </form>
       <div v-if="isSeries">
-        <h2 class="mt-4">Sessions</h2>
+        <label for="subsessionsTable" class="form-label">Sessions:</label>
         <table class="table" id="subsessionsTable">
           <thead>
             <tr>
@@ -414,8 +427,9 @@ onMounted(() => {
         />
       </div>
       <div class="my-4">
+        <label for="questionsTable" class="form-label">Custom questions:</label
+        ><br />
         <span v-if="!hasQuestions">
-          Do you want to ask additional questions to your attendees?
           <button
             class="btn btn-teal btn-sm mx-1"
             id="enableQuestions"
@@ -429,6 +443,10 @@ onMounted(() => {
             style="color: black"
             @click="questionsInfo"
           />
+          <span v-if="!hasQuestions">
+            Attendees will only be asked to complete the default feedback
+            questions.
+          </span>
         </span>
         <div v-if="hasQuestions">
           <h2 class="mt-4">Questions</h2>
@@ -514,6 +532,20 @@ onMounted(() => {
         </div>
       </div>
       <div class="my-4">
+        <label for="furtherOptions" class="form-label">Options:</label><br />
+        <button
+          class="btn btn-teal btn-sm mx-1"
+          id="toggleCertificate"
+          @click="toggleCertificate"
+        >
+          {{ feedbackSession.certificate ? "Disable" : "Enable" }} certificate
+        </button>
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="certificateInfo"
+        />
         <span v-if="feedbackSession.certificate">
           Attendees will be able to download a certificate for this session
           after providing feedback.
@@ -531,37 +563,8 @@ onMounted(() => {
             style="color: red"
           />
         </span>
-        <button
-          class="btn btn-teal btn-sm mx-1"
-          id="toggleCertificate"
-          @click="toggleCertificate"
-        >
-          {{ feedbackSession.certificate ? "Disable" : "Enable" }} certificate
-        </button>
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="certificateInfo"
-        />
       </div>
       <div class="my-4">
-        <span v-if="feedbackSession.notifications">
-          You will receive an email each time feedback is submitted.
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            size="2xl"
-            style="color: green"
-          />
-        </span>
-        <span v-if="!feedbackSession.notifications">
-          You won't receive an email each time feedback is submitted.
-          <font-awesome-icon
-            :icon="['fas', 'times']"
-            size="2xl"
-            style="color: red"
-          />
-        </span>
         <button
           class="btn btn-teal btn-sm mx-1"
           id="toggleNotifications"
@@ -578,8 +581,38 @@ onMounted(() => {
           style="color: black"
           @click="notificationsInfo"
         />
+        <span v-if="feedbackSession.notifications">
+          You will receive an email each time feedback is submitted.
+          <font-awesome-icon
+            :icon="['fas', 'check']"
+            size="2xl"
+            style="color: green"
+          />
+        </span>
+        <span v-if="!feedbackSession.notifications">
+          You won't receive an email each time feedback is submitted.
+          <font-awesome-icon
+            :icon="['fas', 'times']"
+            size="2xl"
+            style="color: red"
+          />
+        </span>
       </div>
       <div class="my-4">
+        <button
+          class="btn btn-teal btn-sm mx-1"
+          id="toggleAttendance"
+          @click="toggleAttendance"
+        >
+          {{ feedbackSession.notifications ? "Disable" : "Enable" }} register of
+          attendance
+        </button>
+        <font-awesome-icon
+          :icon="['fas', 'question-circle']"
+          size="xl"
+          style="color: black"
+          @click="attendanceInfo"
+        />
         <span v-if="feedbackSession.attendance">
           Register of attendance will be kept.
           <font-awesome-icon
@@ -596,20 +629,6 @@ onMounted(() => {
             style="color: red"
           />
         </span>
-        <button
-          class="btn btn-teal btn-sm mx-1"
-          id="toggleAttendance"
-          @click="toggleAttendance"
-        >
-          {{ feedbackSession.notifications ? "Disable" : "Enable" }} register of
-          attendance
-        </button>
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="attendanceInfo"
-        />
       </div>
       <div class="text-center mt-4">
         <button
@@ -630,6 +649,9 @@ onMounted(() => {
 </template>
 
 <style>
+.form-label {
+  font-size: 1.3rem;
+}
 .list-move,
 .list-enter-active,
 .list-leave-active {

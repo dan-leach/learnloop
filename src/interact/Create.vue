@@ -51,7 +51,7 @@ const feedbackIdInfo = () => {
   Swal.fire({
     icon: "info",
     iconColor: "#17a2b8",
-    title: "Feedback on your interact session",
+    title: "Feedback on your interact session (optional)",
     html:
       `
       <div class="text-start">
@@ -166,7 +166,7 @@ const submit = () => {
         >Feedback session ID: (optional)
         <font-awesome-icon
           :icon="['fas', 'question-circle']"
-          size="xl"
+          size="l"
           style="color: black"
           @click="feedbackIdInfo"
       /></label>
@@ -181,88 +181,89 @@ const submit = () => {
       />
     </div>
   </form>
-
-  <h2 class="mt-4">Interactions</h2>
-  <table class="table" id="interactionsTable">
-    <thead>
-      <tr>
-        <th></th>
-        <th>Prompt</th>
-        <th>Type</th>
-        <th>
-          <button
-            class="btn btn-success btn-sm btn-right"
-            id="btnAddInteraction"
-            @click.prevent="showEditInteractionForm(-1)"
-          >
-            Add <i class="fas fa-plus"></i>
-          </button>
-        </th>
-      </tr>
-    </thead>
-    <TransitionGroup name="list" tag="tbody">
-      <template
-        v-for="(interaction, index) in interactSession.interactions"
-        :key="interaction"
-      >
+  <div class="mt-4">
+    <label for="interactionsTable" class="form-label">Interactions:</label>
+    <table class="table" id="interactionsTable">
+      <thead>
         <tr>
-          <td class="p-0 ps-2" v-if="interaction.type != 'waitingRoom'">
+          <th></th>
+          <th>Prompt</th>
+          <th>Type</th>
+          <th>
             <button
-              v-if="index != 0"
-              class="btn btn-default btn-sm p-0"
-              id="btnSortUp"
-              @click="sortInteraction(index, -1)"
+              class="btn btn-success btn-sm btn-right"
+              id="btnAddInteraction"
+              @click.prevent="showEditInteractionForm(-1)"
             >
-              <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
-            ><br />
-            <button
-              v-if="index != interactSession.interactions.length - 1"
-              class="btn btn-default btn-sm p-0"
-              id="btnSortDown"
-              @click="sortInteraction(index, 1)"
-            >
-              <font-awesome-icon :icon="['fas', 'chevron-down']" />
+              Add <i class="fas fa-plus"></i>
             </button>
-          </td>
-          <td v-if="interaction.type != 'waitingRoom'">
-            {{ interaction.prompt }}
-          </td>
-          <td v-if="interaction.type != 'waitingRoom'">
-            {{
-              config.interact.create.interactions.types[interaction.type].name
-            }}
-          </td>
-          <td v-if="interaction.type != 'waitingRoom'">
-            <button
-              class="btn btn-danger btn-sm btn-right ms-4"
-              id="btnRemoveInteraction"
-              @click="removeInteraction(index)"
-            >
-              <font-awesome-icon :icon="['fas', 'trash-can']" />
-            </button>
-            <button
-              class="btn btn-secondary btn-sm btn-right"
-              id="btnEditInteraction"
-              @click="showEditInteractionForm(index)"
-            >
-              <font-awesome-icon :icon="['fas', 'edit']" />
-            </button>
-          </td>
+          </th>
         </tr>
-      </template>
-    </TransitionGroup>
-  </table>
-  <template v-for="(interaction, index) in interactSession.interactions">
+      </thead>
+      <TransitionGroup name="list" tag="tbody">
+        <template
+          v-for="(interaction, index) in interactSession.interactions"
+          :key="interaction"
+        >
+          <tr>
+            <td class="p-0 ps-2" v-if="interaction.type != 'waitingRoom'">
+              <button
+                v-if="index != 0"
+                class="btn btn-default btn-sm p-0"
+                id="btnSortUp"
+                @click="sortInteraction(index, -1)"
+              >
+                <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+              ><br />
+              <button
+                v-if="index != interactSession.interactions.length - 1"
+                class="btn btn-default btn-sm p-0"
+                id="btnSortDown"
+                @click="sortInteraction(index, 1)"
+              >
+                <font-awesome-icon :icon="['fas', 'chevron-down']" />
+              </button>
+            </td>
+            <td v-if="interaction.type != 'waitingRoom'">
+              {{ interaction.prompt }}
+            </td>
+            <td v-if="interaction.type != 'waitingRoom'">
+              {{
+                config.interact.create.interactions.types[interaction.type].name
+              }}
+            </td>
+            <td v-if="interaction.type != 'waitingRoom'">
+              <button
+                class="btn btn-danger btn-sm btn-right ms-4"
+                id="btnRemoveInteraction"
+                @click="removeInteraction(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'trash-can']" />
+              </button>
+              <button
+                class="btn btn-secondary btn-sm btn-right"
+                id="btnEditInteraction"
+                @click="showEditInteractionForm(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'edit']" />
+              </button>
+            </td>
+          </tr>
+        </template>
+      </TransitionGroup>
+    </table>
+    <template v-for="(interaction, index) in interactSession.interactions">
+      <EditInteractionForm
+        v-if="interaction.type != 'waitingRoom'"
+        :index="index"
+        @hideEditInteractionModal="hideEditInteractionModal"
+      />
+    </template>
     <EditInteractionForm
-      v-if="interaction.type != 'waitingRoom'"
-      :index="index"
+      index="-1"
       @hideEditInteractionModal="hideEditInteractionModal"
     />
-  </template>
-  <EditInteractionForm
-    index="-1"
-    @hideEditInteractionModal="hideEditInteractionModal"
-  />
+  </div>
   <div class="text-center mt-4">
     <button
       class="btn btn-teal"

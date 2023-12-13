@@ -327,7 +327,7 @@ let submit = () => {
                 >Type:
                 <font-awesome-icon
                   :icon="['fas', 'question-circle']"
-                  size="lg"
+                  size="l"
                   style="color: black"
                   @click="questionTypeInfo"
               /></label>
@@ -359,7 +359,7 @@ let submit = () => {
                   >Chart type:
                   <font-awesome-icon
                     :icon="['fas', 'question-circle']"
-                    size="lg"
+                    size="l"
                     style="color: black"
                     @click="chartTypeInfo"
                 /></label>
@@ -468,7 +468,7 @@ let submit = () => {
                         >Number of options attendees must select:
                         <font-awesome-icon
                           :icon="['fas', 'question-circle']"
-                          size="lg"
+                          size="l"
                           style="color: black"
                           @click="optionsMinMaxInfo"
                       /></label>
@@ -509,7 +509,7 @@ let submit = () => {
                         interaction:
                         <font-awesome-icon
                           :icon="['fas', 'question-circle']"
-                          size="lg"
+                          size="l"
                           style="color: black"
                           @click="submissionLimitInfo"
                       /></label>
@@ -565,7 +565,7 @@ let submit = () => {
                           >Hide attendee responses until you reveal them
                           <font-awesome-icon
                             :icon="['fas', 'question-circle']"
-                            size="lg"
+                            size="l"
                             style="color: black"
                             @click="hideResponsesInfo"
                         /></label>
