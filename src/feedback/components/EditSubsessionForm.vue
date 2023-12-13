@@ -125,59 +125,72 @@ const subsessionFacilitatorEmailInfo = () => {
         </div>
         <div class="modal-body">
           <div id="editSubsessionForm" class="needs-validation" novalidate>
-            <div class="mb-4">
-              <label for="title" class="form-label">Session title:</label>
-              <input
-                type="text"
-                v-model="title"
-                class="form-control"
-                id="prompt"
-                placeholder="Title for the session..."
-                name="prompt"
-                autocomplete="off"
-                required
-              />
-              <div class="invalid-feedback">
-                Please provide a title for this session.
+            <div class="row">
+              <div class="col mb-2">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    v-model="title"
+                    class="form-control"
+                    id="prompt"
+                    placeholder=""
+                    name="prompt"
+                    autocomplete="off"
+                    required
+                  />
+                  <label for="title">Session title</label>
+                  <div class="invalid-feedback">
+                    Please provide a title for this session.
+                  </div>
+                </div>
               </div>
             </div>
-            <div class="mb-4">
-              <label for="Name" class="form-label">Facilitator name:</label>
-              <input
-                type="text"
-                v-model="name"
-                class="form-control"
-                id="name"
-                placeholder="Name of the session facilitator..."
-                name="name"
-                autocomplete="off"
-                required
-              />
-              <div class="invalid-feedback">
-                Please provide a facilitator name for this session.
+            <div class="row">
+              <div class="col-md mb-2">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    v-model="name"
+                    class="form-control"
+                    id="name"
+                    placeholder=""
+                    name="name"
+                    autocomplete="off"
+                    required
+                  />
+                  <label for="Name">Facilitator name</label>
+                  <div class="invalid-feedback">
+                    Please provide a facilitator name for this session.
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="mb-4">
-              <label for="Email" class="form-label"
-                >Facilitator email:
-                <font-awesome-icon
-                  :icon="['fas', 'question-circle']"
-                  size="sm"
-                  style="color: black"
-                  @click="subsessionFacilitatorEmailInfo"
-              /></label>
-              <input
-                type="text"
-                v-model="email"
-                class="form-control"
-                id="email"
-                placeholder="Email of the session facilitator..."
-                name="email"
-                autocomplete="off"
-              />
+              <div class="col-md mb-2">
+                <div class="input-group">
+                  <div class="form-floating">
+                    <input
+                      type="text"
+                      v-model="email"
+                      class="form-control"
+                      id="email"
+                      placeholder=""
+                      name="email"
+                      autocomplete="off"
+                    />
+                    <label for="Email">Facilitator email</label>
+                  </div>
+                  <div class="input-group-text">
+                    <font-awesome-icon
+                      :icon="['fas', 'question-circle']"
+                      size="lg"
+                      style="color: black"
+                      @click="subsessionFacilitatorEmailInfo"
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-          <div class="mt-4 text-center">
+          <div class="text-center">
             <button
               class="btn btn-teal text-center"
               id="submitEditSubsessionForm"

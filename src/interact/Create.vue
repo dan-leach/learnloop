@@ -119,66 +119,80 @@ const submit = () => {
     >Please provide details for the interact session you're creating.</strong
   >
   <form id="createSessionSeriesForm" class="needs-validation" novalidate>
-    <div>
-      <label for="title" class="form-label">Session title:</label>
-      <input
-        type="text"
-        v-model="interactSession.title"
-        class="form-control"
-        id="title"
-        placeholder="Title for the interact session..."
-        name="title"
-        autocomplete="off"
-        required
-      />
-      <div class="invalid-feedback">Please fill out this field.</div>
+    <div class="row">
+      <div class="col-md mt-2">
+        <div class="form-floating">
+          <input
+            type="text"
+            v-model="interactSession.title"
+            class="form-control"
+            id="title"
+            placeholder=""
+            name="title"
+            autocomplete="off"
+            required
+          />
+          <label for="title">Session title</label>
+          <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+      </div>
+      <div class="col-md mt-2">
+        <div class="input-group">
+          <div class="form-floating">
+            <input
+              type="text"
+              v-model="interactSession.feedbackID"
+              class="form-control"
+              placeholder=""
+              id="feedbackID"
+              name="title"
+              autocomplete="off"
+            />
+            <label for="feedbackID">Feedback session ID (optional) </label>
+          </div>
+          <span class="input-group-text"
+            ><font-awesome-icon
+              :icon="['fas', 'question-circle']"
+              size="lg"
+              style="color: black"
+              @click="feedbackIdInfo"
+          /></span>
+        </div>
+      </div>
     </div>
-    <div class="mt-4">
-      <label for="name" class="form-label">Facilitator name:</label>
-      <input
-        type="text"
-        v-model="interactSession.name"
-        class="form-control"
-        id="name"
-        placeholder="Facilitator of the interact session..."
-        name="name"
-        autocomplete="off"
-        required
-      />
-      <div class="invalid-feedback">Please fill out this field.</div>
-    </div>
-    <div class="mt-4">
-      <label for="email" class="form-label">Facilitator email:</label>
-      <input
-        type="email"
-        v-model="interactSession.email"
-        class="form-control"
-        id="email"
-        placeholder="Email to send session details to..."
-        name="email"
-        autocomplete="off"
-        required
-      />
-      <div class="invalid-feedback">Please fill out this field.</div>
-    </div>
-    <div class="mt-4">
-      <label for="feedbackID" class="form-label"
-        >Feedback session ID: (optional)
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="sm"
-          style="color: black"
-          @click="feedbackIdInfo"
-      /></label>
-      <input
-        type="text"
-        v-model="interactSession.feedbackID"
-        class="form-control"
-        id="feedbackID"
-        placeholder="Session ID for a feedback request you've already created..."
-        name="title"
-        autocomplete="off"
-      />
+    <div class="row">
+      <div class="col-md mt-2">
+        <div class="form-floating">
+          <input
+            type="text"
+            v-model="interactSession.name"
+            class="form-control"
+            id="name"
+            placeholder=""
+            name="name"
+            autocomplete="off"
+            required
+          />
+          <label for="name">Facilitator name</label>
+          <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+      </div>
+      <div class="col-md mt-2">
+        <div class="form-floating">
+          <input
+            type="email"
+            v-model="interactSession.email"
+            class="form-control"
+            id="email"
+            placeholder=""
+            name="email"
+            autocomplete="off"
+            required
+          />
+          <label for="email">Facilitator email</label>
+          <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+      </div>
     </div>
   </form>
   <div class="mt-4">

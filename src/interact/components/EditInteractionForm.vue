@@ -306,79 +306,89 @@ let submit = () => {
         </div>
         <div class="modal-body">
           <div id="editInteractionForm" class="needs-validation" novalidate>
-            <div class="mb-4">
-              <label for="prompt" class="form-label">Prompt:</label>
+            <div class="form-floating mt-2">
               <input
                 type="text"
                 v-model="prompt"
                 class="form-control"
                 id="prompt"
-                placeholder="Question or instruction to attendees..."
+                placeholder=""
                 name="prompt"
                 autocomplete="off"
                 required
               />
+              <label for="prompt"
+                >Question or instruction to attendees...</label
+              >
               <div class="invalid-feedback">
                 Please provide a prompt for this interaction.
               </div>
             </div>
-            <div class="mb-4">
-              <label for="type" class="form-label"
-                >Type:
-                <font-awesome-icon
-                  :icon="['fas', 'question-circle']"
-                  size="sm"
-                  style="color: black"
-                  @click="questionTypeInfo"
-              /></label>
-              <select
-                v-model="type"
-                class="form-control"
-                id="type"
-                name="type"
-                autocomplete="off"
-                required
-              >
-                <option disabled value="">
-                  Please select an interaction type
-                </option>
-                <option
-                  v-for="type in config.interact.create.interactions.types"
-                  :value="type.id"
-                >
-                  {{ type.name }}
-                </option>
-              </select>
-              <div class="invalid-feedback">
-                Please select an interaction type.
-              </div>
-            </div>
-            <div v-if="type">
-              <div v-if="charts" class="mb-4">
-                <label for="type" class="form-label"
-                  >Chart type:
-                  <font-awesome-icon
-                    :icon="['fas', 'question-circle']"
-                    size="sm"
-                    style="color: black"
-                    @click="chartTypeInfo"
-                /></label>
+            <div class="input-group mt-2">
+              <div class="form-floating">
                 <select
-                  v-model="chart"
+                  v-model="type"
                   class="form-control"
-                  id="chart"
-                  name="chart"
+                  id="type"
+                  name="type"
                   autocomplete="off"
                   required
                 >
-                  <option disabled value="">Please select a chart type</option>
-                  <option v-for="chart in charts" :value="chart">
-                    {{ chart.charAt(0).toUpperCase() + chart.slice(1) }}
+                  <option disabled value="">
+                    Please select an interaction type
+                  </option>
+                  <option
+                    v-for="type in config.interact.create.interactions.types"
+                    :value="type.id"
+                  >
+                    {{ type.name }}
                   </option>
                 </select>
+                <label for="type">Type</label>
+                <div class="invalid-feedback">
+                  Please select an interaction type.
+                </div>
+              </div>
+              <div class="input-group-text">
+                <font-awesome-icon
+                  :icon="['fas', 'question-circle']"
+                  size="lg"
+                  style="color: black"
+                  @click="questionTypeInfo"
+                />
+              </div>
+            </div>
+            <div v-if="type">
+              <div v-if="charts" class="input-group mt-2">
+                <div class="form-floating">
+                  <select
+                    v-model="chart"
+                    class="form-control"
+                    id="chart"
+                    name="chart"
+                    autocomplete="off"
+                    required
+                  >
+                    <option disabled value="">
+                      Please select a chart type
+                    </option>
+                    <option v-for="chart in charts" :value="chart">
+                      {{ chart.charAt(0).toUpperCase() + chart.slice(1) }}
+                    </option>
+                  </select>
+                  <label for="type">Chart type</label>
+                </div>
+                <div class="input-group-text">
+                  <font-awesome-icon
+                    :icon="['fas', 'question-circle']"
+                    size="lg"
+                    style="color: black"
+                    @click="chartTypeInfo"
+                  />
+                </div>
                 <div class="invalid-feedback">Please select a chart type.</div>
               </div>
-              <div v-if="settings.optionsLimit" class="mb-4">
+              <div v-if="settings.optionsLimit" class="mt-2">
                 <label for="newOption" class="form-label">Options:</label>
                 <table class="table" id="optionsTable">
                   <TransitionGroup name="list" tag="tbody">
@@ -435,7 +445,7 @@ let submit = () => {
                     :disabled="options.length >= settings.optionsLimit"
                   />
                   <button
-                    class="btn btn-success btn-sm"
+                    class="btn btn-teal btn-sm"
                     @click.prevent="addOption"
                     :disabled="options.length >= settings.optionsLimit"
                   >
@@ -463,58 +473,67 @@ let submit = () => {
                 </div>
                 <div v-if="showSettings">
                   <div class="card-body">
-                    <div v-if="settings.selectedLimit" class="mb-4">
-                      <label for="selectedLimit" class="form-label"
-                        >Number of options attendees must select:
+                    <div v-if="settings.selectedLimit" class="mt-2">
+                      <p>
+                        Number of options attendees must select:
                         <font-awesome-icon
                           :icon="['fas', 'question-circle']"
                           size="sm"
                           style="color: black"
                           @click="optionsMinMaxInfo"
-                      /></label>
-                      <div class="input-group" id="selectedLimit">
-                        <span class="input-group-text">Minimum:</span>
-                        <input
-                          type="number"
-                          v-model="settings.selectedLimit.min"
-                          @change="keepSelectedLimitsWithinMinMax"
-                          min="1"
-                          :max="options.length ? options.length : 1"
-                          class="form-control"
-                          id="selectedLimitMin"
-                          name="selectedLimit"
-                          autocomplete="off"
                         />
-                        <span class="input-group-text ms-2">Maximum:</span>
-                        <input
-                          type="number"
-                          v-model="settings.selectedLimit.max"
-                          @change="keepSelectedLimitsWithinMinMax"
-                          min="1"
-                          :max="options.length ? options.length : 1"
-                          class="form-control"
-                          id="selectedLimitMax"
-                          placeholder="1"
-                          name="selectedLimit"
-                          autocomplete="off"
-                        />
+                      </p>
+                      <div class="row">
+                        <div class="col-md mt-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              v-model="settings.selectedLimit.min"
+                              @change="keepSelectedLimitsWithinMinMax"
+                              min="1"
+                              :max="options.length ? options.length : 1"
+                              class="form-control"
+                              id="selectedLimitMin"
+                              name="selectedLimit"
+                              autocomplete="off"
+                            />
+                            <label for="selectedLimitMin">Minimum</label>
+                          </div>
+                        </div>
+                        <div class="col-md mt-2">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              v-model="settings.selectedLimit.max"
+                              @change="keepSelectedLimitsWithinMinMax"
+                              min="1"
+                              :max="options.length ? options.length : 1"
+                              class="form-control"
+                              id="selectedLimitMax"
+                              placeholder="1"
+                              name="selectedLimit"
+                              autocomplete="off"
+                            />
+                            <label for="selectedLimitMax">Maximum</label>
+                          </div>
+                        </div>
                       </div>
                       <div class="invalid-feedback">
                         Please enter appropriate values.
                       </div>
                     </div>
-                    <div v-if="settings.submissionLimit" class="mb-4">
-                      <label for="submissionLimit" class="form-label"
-                        >Number of times attendees can submit a response to this
+                    <div v-if="settings.submissionLimit" class="mt-2">
+                      <p>
+                        Number of times attendees can submit a response to this
                         interaction:
                         <font-awesome-icon
                           :icon="['fas', 'question-circle']"
                           size="sm"
                           style="color: black"
                           @click="submissionLimitInfo"
-                      /></label>
-                      <div class="input-group" id="submissionLimit">
-                        <span class="input-group-text">Maximum:</span>
+                        />
+                      </p>
+                      <div class="form-floating">
                         <input
                           type="number"
                           v-model.lazy="settings.submissionLimit"
@@ -525,21 +544,20 @@ let submit = () => {
                               .submissionLimitMax
                           "
                           class="form-control"
-                          id="selectedLimitMin"
-                          name="selectedLimit"
+                          id="submissionLimitMax"
+                          name="submissionLimitMax"
                           autocomplete="off"
                           required
                         />
+                        <label for="submissionLimitMax">Maximum</label>
                       </div>
                     </div>
-                    <div v-if="settings.characterLimit" class="mb-4">
-                      <label for="characterLimit" class="form-label"
-                        >Character limit for each response:</label
-                      >
-                      <div class="input-group" id="characterLimit">
-                        <span class="input-group-text">Maximum:</span>
+                    <div v-if="settings.characterLimit" class="mt-2">
+                      <p>Character limit for each response:</p>
+                      <div class="form-floating">
                         <input
                           type="number"
+                          placeholder=""
                           v-model.lazy="settings.characterLimit.max"
                           class="form-control"
                           id="characterLimit"
@@ -547,11 +565,12 @@ let submit = () => {
                           autocomplete="off"
                           required
                         />
+                        <label for="characterLimit">Maximum</label>
                       </div>
                     </div>
                     <div
                       v-if="settings.hideResponses != undefined"
-                      class="mb-4"
+                      class="mt-2"
                     >
                       <div class="form-check form-switch">
                         <input

@@ -295,73 +295,79 @@ onMounted(() => {
       <h1 class="text-center display-4">Feedback</h1>
       <strong>Feedback session details</strong>
       <form id="createSessionForm" class="needs-validation my-2" novalidate>
-        <div>
-          <label for="title" class="form-label"
-            >Session {{ isSeries ? "series " : "" }}title:</label
-          >
-          <input
-            type="text"
-            v-model="feedbackSession.title"
-            class="form-control"
-            id="title"
-            :placeholder="
-              'Title of the session' + (isSeries ? ' series' : '') + '...'
-            "
-            name="title"
-            autocomplete="off"
-            required
-          />
-          <div class="invalid-feedback">Please fill out this field.</div>
+        <div class="row">
+          <div class="col-md mt-2">
+            <div class="form-floating">
+              <input
+                type="text"
+                v-model="feedbackSession.title"
+                class="form-control"
+                id="title"
+                placeholder=""
+                name="title"
+                autocomplete="off"
+                required
+              />
+              <label for="title"
+                >Session {{ isSeries ? "series " : "" }}title</label
+              >
+              <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+          </div>
+          <div class="col-md mt-2">
+            <div class="form-floating">
+              <input
+                type="date"
+                placeholder=""
+                v-model="feedbackSession.date"
+                class="form-control"
+                id="date"
+                name="Date"
+                autocomplete="off"
+                required
+              />
+              <label for="name">Date</label>
+              <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+          </div>
         </div>
-        <div class="mt-4">
-          <label for="name" class="form-label">Date:</label>
-          <input
-            type="date"
-            v-model="feedbackSession.date"
-            class="form-control"
-            id="date"
-            name="Date"
-            autocomplete="off"
-            required
-          />
-          <div class="invalid-feedback">Please fill out this field.</div>
-        </div>
-        <div class="mt-4">
-          <label for="name" class="form-label"
-            >{{ isSeries ? "Organiser" : "Facilitator" }} name:</label
-          >
-          <input
-            type="text"
-            v-model="feedbackSession.name"
-            class="form-control"
-            id="name"
-            :placeholder="
-              (isSeries ? 'Organiser' : 'Facilitator') +
-              ' of the session' +
-              (isSeries ? ' series' : '') +
-              '...'
-            "
-            name="name"
-            autocomplete="off"
-            required
-          />
-          <div class="invalid-feedback">Please fill out this field.</div>
-        </div>
-        <div class="mt-4">
-          <label for="email" class="form-label"
-            >{{ isSeries ? "Organiser" : "Facilitator" }} email:</label
-          >
-          <input
-            type="email"
-            v-model="feedbackSession.email"
-            class="form-control"
-            id="email"
-            placeholder="Email to send details to..."
-            name="email"
-            autocomplete="off"
-            required
-          />
-          <div class="invalid-feedback">Please fill out this field.</div>
+        <div class="row">
+          <div class="col-md mt-2">
+            <div class="form-floating">
+              <input
+                type="text"
+                v-model="feedbackSession.name"
+                class="form-control"
+                id="name"
+                placeholder=""
+                name="name"
+                autocomplete="off"
+                required
+              />
+              <label for="name"
+                >{{ isSeries ? "Organiser" : "Facilitator" }} name</label
+              >
+              <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+          </div>
+          <div class="col-md mt-2">
+            <div class="form-floating">
+              <input
+                type="email"
+                v-model="feedbackSession.email"
+                class="form-control"
+                id="email"
+                placeholder=""
+                name="email"
+                autocomplete="off"
+                required
+              />
+              <label for="email"
+                >{{ isSeries ? "Organiser" : "Facilitator" }} email</label
+              >
+              <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+          </div>
         </div>
       </form>
       <div v-if="isSeries">
@@ -465,7 +471,6 @@ onMounted(() => {
           </span>
         </span>
         <div v-if="hasQuestions">
-          <h2 class="mt-4">Questions</h2>
           <table class="table" id="questionsTable">
             <thead>
               <tr>

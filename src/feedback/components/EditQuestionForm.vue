@@ -201,8 +201,7 @@ let submit = () => {
         </div>
         <div class="modal-body">
           <div id="editQuestionForm" class="needs-validation" novalidate>
-            <div class="mb-4">
-              <label for="title" class="form-label">Question:</label>
+            <div class="form-floating mt-2">
               <input
                 type="text"
                 v-model="title"
@@ -213,37 +212,44 @@ let submit = () => {
                 autocomplete="off"
                 required
               />
+              <label for="title">Question</label>
               <div class="invalid-feedback">Please provide a question.</div>
             </div>
-            <div class="mb-4">
-              <label for="type" class="form-label"
-                >Type:
+            <div class="input-group mt-2">
+              <div class="form-floating">
+                <select
+                  v-model="type"
+                  placeholder=""
+                  class="form-control"
+                  id="type"
+                  name="type"
+                  autocomplete="off"
+                  required
+                >
+                  <option disabled value="">
+                    Please select a question type
+                  </option>
+                  <option
+                    v-for="type in config.feedback.create.questions.types"
+                    :value="type.id"
+                  >
+                    {{ type.name }}
+                  </option>
+                </select>
+                <label for="type">Type</label>
+              </div>
+              <div class="input-group-text">
                 <font-awesome-icon
                   :icon="['fas', 'question-circle']"
-                  size="sm"
+                  size="lg"
                   style="color: black"
                   @click="questionTypeInfo"
-              /></label>
-              <select
-                v-model="type"
-                class="form-control"
-                id="type"
-                name="type"
-                autocomplete="off"
-                required
-              >
-                <option disabled value="">Please select a question type</option>
-                <option
-                  v-for="type in config.feedback.create.questions.types"
-                  :value="type.id"
-                >
-                  {{ type.name }}
-                </option>
-              </select>
+                />
+              </div>
               <div class="invalid-feedback">Please select a question type.</div>
             </div>
             <div v-if="type">
-              <div v-if="settings.optionsLimit" class="mb-4">
+              <div v-if="settings.optionsLimit" class="mt-2">
                 <label for="newOption" class="form-label">Options:</label>
                 <table class="table" id="optionsTable">
                   <TransitionGroup name="list" tag="tbody">
@@ -300,7 +306,7 @@ let submit = () => {
                     :disabled="options.length >= settings.optionsLimit"
                   />
                   <button
-                    class="btn btn-success btn-sm"
+                    class="btn btn-teal btn-sm"
                     @click.prevent="addOption"
                     :disabled="options.length >= settings.optionsLimit"
                   >
@@ -311,7 +317,7 @@ let submit = () => {
                   Please provide some options for this question.
                 </div>
               </div>
-              <div class="card">
+              <div class="card mt-2">
                 <div class="card-header">
                   <button
                     id="btnExtraSettings"
@@ -343,56 +349,63 @@ let submit = () => {
                       </div>
                     </div>
                     <div v-if="settings.selectedLimit" class="mb-4">
-                      <label for="selectedLimit" class="form-label"
-                        >Number of options respondents must select:</label
-                      >
-                      <div class="input-group" id="selectedLimit">
-                        <span class="input-group-text">Minimum:</span>
-                        <input
-                          type="number"
-                          v-model="settings.selectedLimit.min"
-                          @change="keepSelectedLimitsWithinMinMax"
-                          min="1"
-                          :max="options.length ? options.length : 1"
-                          class="form-control"
-                          id="selectedLimitMin"
-                          name="selectedLimit"
-                          autocomplete="off"
-                        />
-                        <span class="input-group-text ms-2">Maximum:</span>
-                        <input
-                          type="number"
-                          v-model="settings.selectedLimit.max"
-                          @change="keepSelectedLimitsWithinMinMax"
-                          min="1"
-                          :max="options.length ? options.length : 1"
-                          class="form-control"
-                          id="selectedLimitMax"
-                          placeholder="1"
-                          name="selectedLimit"
-                          autocomplete="off"
-                        />
+                      <p>Number of options respondents must select:</p>
+                      <div class="row">
+                        <div class="col">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              v-model="settings.selectedLimit.min"
+                              @change="keepSelectedLimitsWithinMinMax"
+                              min="1"
+                              :max="options.length ? options.length : 1"
+                              class="form-control"
+                              id="selectedLimitMin"
+                              name="selectedLimit"
+                              autocomplete="off"
+                            />
+                            <label for="selectedLimitMin">Minimum</label>
+                          </div>
+                        </div>
+                        <div class="col">
+                          <div class="form-floating">
+                            <input
+                              type="number"
+                              v-model="settings.selectedLimit.max"
+                              @change="keepSelectedLimitsWithinMinMax"
+                              min="1"
+                              :max="options.length ? options.length : 1"
+                              class="form-control"
+                              id="selectedLimitMax"
+                              placeholder="1"
+                              name="selectedLimit"
+                              autocomplete="off"
+                            />
+                            <label for="selectedLimitMax">Maximum</label>
+                          </div>
+                        </div>
                       </div>
                       <div class="invalid-feedback">
                         Please enter appropriate values.
                       </div>
                     </div>
-                    <div v-if="settings.characterLimit" class="mb-4">
-                      <label for="characterLimit" class="form-label"
-                        >Character limit for each response:</label
+                    <div
+                      v-if="settings.characterLimit"
+                      class="form-floating mb-4"
+                    >
+                      <input
+                        type="number"
+                        placeholder=""
+                        v-model.lazy="settings.characterLimit.max"
+                        class="form-control"
+                        id="characterLimit"
+                        name="characterLimit"
+                        autocomplete="off"
+                        required
+                      />
+                      <label for="characterLimit"
+                        >Character limit for each response</label
                       >
-                      <div class="input-group" id="characterLimit">
-                        <span class="input-group-text">Maximum:</span>
-                        <input
-                          type="number"
-                          v-model.lazy="settings.characterLimit.max"
-                          class="form-control"
-                          id="characterLimit"
-                          name="characterLimit"
-                          autocomplete="off"
-                          required
-                        />
-                      </div>
                     </div>
                   </div>
                 </div>
