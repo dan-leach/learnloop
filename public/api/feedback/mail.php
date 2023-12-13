@@ -128,7 +128,7 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
         $messageContent .= "
             You can share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a><br>
             Or, ask them to go to <a href='https://learnloop.co.uk/feedback'>learnloop.co.uk/feedback</a> and enter the session ID.<br>
-            Or, <a href='https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=https://learnloop.co.uk/" . $id . "'> generate a QR code</a> which you can save and insert into your presentation.
+            Or, <a href='https://learnloop.co.uk/feedback/instructions/" . $id . "'>show a page with instructions on how to reach the feedback form</a> including a QR code for your attendees to scan.<br>
         ";
         if (!$isSubsession && $certificate) $messageContent .= "<br>Don't forget to let your attendees know that they'll be able to download a certificate of attendance after completing feedback.";
     }

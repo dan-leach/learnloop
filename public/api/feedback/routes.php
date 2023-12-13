@@ -183,8 +183,10 @@ function setNotificationPreference($id, $pin, $data, $link)
 { //sets the notifications for $id to $data (true/false)
     $details = dbSelectFeedback($id, $link);
     if (!pinIsValid($pin, $details['pinHash'])) send_error_response("Invalid pin", 401);
-    if ($details['closed']) send_error_response("This feedback request has been closed.", 500);
-    if (!is_bool($data)) send_error_response("setNotificationPreference [data] parameter must be a boolean value (true/false)", 500);
+    if ($details['closed']) send_error_response("This feedback request has been closed.", 400);
+    if ($data === 'true') $data = true;
+    if ($data === 'false') $data = false;
+    if (!is_bool($data)) send_error_response("setNotificationPreference [data] parameter must be a boolean value (true/false)", 400);
     if (!dbSetNotificationPreference($id, $data, $link)) send_error_response("dbSetNotificationPreference failed for an unknown reason", 500);
     $details = dbSelectDetails($id, $link);
     sendNotificationPreferenceStatus($id, $details['date'], $details['name'], $details['title'], $details['email'], $data);
@@ -196,8 +198,8 @@ function resetPin($id, $data, $link)
 { //resets the pin for $id
     $details = dbSelectDetails($id, $link);
     $email = json_decode($data);
-    if ($email != $details['email']) send_error_response("The email you provided does not match the facilitator email for '" . htmlspecialchars_decode($details['title']) . "'.", 500);
-    if ($details['closed']) send_error_response("This feedback request has been closed.", 500);
+    if ($email != $details['email']) send_error_response("The email you provided does not match the facilitator email for '" . htmlspecialchars_decode($details['title']) . "'.", 401);
+    if ($details['closed']) send_error_response("This feedback request has been closed.", 400);
     $pin = createPin();
     $pinHash = hashPin($pin);
     if (!dbUpdatePinHash($id, $pinHash, $link)) send_error_response("dbUpdatePinHash failed for an unknown reason", 500);
