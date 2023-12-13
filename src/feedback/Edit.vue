@@ -88,6 +88,22 @@ const hideEditQuestionModal = (index, question) => {
   editQuestionModal.hide();
 };
 
+const sortQuestion = (index, x) =>
+  feedbackSession.questions.splice(
+    index + x,
+    0,
+    feedbackSession.questions.splice(index, 1)[0]
+  );
+const removeQuestion = (index) => {
+  Swal.fire({
+    title: "Remove this question?",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+  }).then((result) => {
+    if (result.isConfirmed) feedbackSession.questions.splice(index, 1);
+  });
+};
+
 const toggleCertificate = () => {
   feedbackSession.certificate = !feedbackSession.certificate;
   feedbackSession.attendance = feedbackSession.certificate;
@@ -359,7 +375,7 @@ onMounted(() => {
               <th>Email</th>
               <th>
                 <button
-                  class="btn btn-success btn-sm btn-right"
+                  class="btn btn-teal btn-sm btn-right"
                   id="btnAddSubsession"
                   @click.prevent="showEditSubsessionForm(-1)"
                 >
@@ -404,7 +420,7 @@ onMounted(() => {
                     <font-awesome-icon :icon="['fas', 'trash-can']" />
                   </button>
                   <button
-                    class="btn btn-secondary btn-sm btn-right"
+                    class="btn btn-teal btn-sm btn-right"
                     id="btnEditSubsession"
                     @click="showEditSubsessionForm(index)"
                   >
@@ -458,7 +474,7 @@ onMounted(() => {
                 <th>Type</th>
                 <th>
                   <button
-                    class="btn btn-success btn-sm btn-right"
+                    class="btn btn-teal btn-sm btn-right"
                     id="btnAddQuestion"
                     @click.prevent="showEditQuestionForm(-1)"
                   >
@@ -508,7 +524,7 @@ onMounted(() => {
                       <font-awesome-icon :icon="['fas', 'trash-can']" />
                     </button>
                     <button
-                      class="btn btn-secondary btn-sm btn-right"
+                      class="btn btn-teal btn-sm btn-right"
                       id="btnEditQuestion"
                       @click="showEditQuestionForm(index)"
                     >

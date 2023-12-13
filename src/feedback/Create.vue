@@ -337,7 +337,7 @@ const submit = () => {
           <th>Email</th>
           <th>
             <button
-              class="btn btn-success btn-sm btn-right"
+              class="btn btn-teal btn-sm btn-right"
               id="btnAddSubsession"
               @click.prevent="showEditSubsessionForm(-1)"
             >
@@ -382,7 +382,7 @@ const submit = () => {
                 <font-awesome-icon :icon="['fas', 'trash-can']" />
               </button>
               <button
-                class="btn btn-secondary btn-sm btn-right"
+                class="btn btn-teal btn-sm btn-right"
                 id="btnEditSubsession"
                 @click="showEditSubsessionForm(index)"
               >
@@ -434,7 +434,7 @@ const submit = () => {
             <th>Type</th>
             <th>
               <button
-                class="btn btn-success btn-sm btn-right"
+                class="btn btn-teal btn-sm btn-right"
                 id="btnAddQuestion"
                 @click.prevent="showEditQuestionForm(-1)"
               >
@@ -480,7 +480,7 @@ const submit = () => {
                   <font-awesome-icon :icon="['fas', 'trash-can']" />
                 </button>
                 <button
-                  class="btn btn-secondary btn-sm btn-right"
+                  class="btn btn-teal btn-sm btn-right"
                   id="btnEditQuestion"
                   @click="showEditQuestionForm(index)"
                 >

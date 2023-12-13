@@ -221,7 +221,7 @@ function closeSession($id, $pin, $skipChecks, $link)
             if ($subDetails['email']) sendSessionClosed($subDetails, true);
         }
     }
-    sendSessionClosed($details, false);
+    if ($details['email']) sendSessionClosed($details, false);
     return "Session closed to feedback.";
 }
 

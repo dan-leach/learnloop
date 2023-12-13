@@ -191,7 +191,7 @@ const submit = () => {
           <th>Type</th>
           <th>
             <button
-              class="btn btn-success btn-sm btn-right"
+              class="btn btn-teal btn-sm btn-right"
               id="btnAddInteraction"
               @click.prevent="showEditInteractionForm(-1)"
             >
@@ -241,7 +241,7 @@ const submit = () => {
                 <font-awesome-icon :icon="['fas', 'trash-can']" />
               </button>
               <button
-                class="btn btn-secondary btn-sm btn-right"
+                class="btn btn-teal btn-sm btn-right"
                 id="btnEditInteraction"
                 @click="showEditInteractionForm(index)"
               >

@@ -13,6 +13,8 @@ import SubsessionFeedbackForm from "./components/SubsessionFeedbackForm.vue";
 let loading = ref(true);
 let submitted = ref(false);
 
+const openPrivacyPolicy = () => window.open("/privacy-policy", "_blank");
+
 const saveProgress = (confirm) => {
   const d = new Date();
   d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000); //1 day
@@ -380,7 +382,7 @@ onMounted(() => {
           data-bs-dismiss="alert"
         ></button>
         <span id="cookieMsg">{{ cookieMsg }}</span>
-        <span class="alert-link" @click="router.push('/privacy-policy')">
+        <span class="alert-link" @click="openPrivacyPolicy">
           Read about how LearnLoop uses cookies.</span
         >
       </div>
@@ -430,7 +432,7 @@ onMounted(() => {
                 </td>
                 <td class="text-center subsession-button">
                   <button
-                    class="btn btn-secondary btn-sm"
+                    class="btn btn-teal btn-sm"
                     id="loadGiveSubsessionFeedback"
                     v-on:click.prevent="showSubsessionFeedbackModal(index)"
                   >
@@ -439,8 +441,8 @@ onMounted(() => {
                 </td>
                 <td class="text-center subsession-button">
                   <button
-                    class="btn btn-secondary btn-sm"
-                    id="loadGiveSubsessionFeedback"
+                    class="btn btn-danger btn-sm"
+                    id="skipSubsessionFeedback"
                     v-on:click.prevent="skipSubsessionFeedback(index)"
                   >
                     <font-awesome-icon :icon="['fas', 'trash-can']" />
@@ -484,7 +486,7 @@ onMounted(() => {
         </div>
         <div class="text-center">
           <button
-            class="btn btn-secondary btn-sm"
+            class="btn btn-teal btn-sm"
             id="saveProgress"
             v-on:click.prevent="saveProgress(true)"
           >
