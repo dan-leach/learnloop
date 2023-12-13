@@ -166,7 +166,7 @@ const submit = () => {
         >Feedback session ID: (optional)
         <font-awesome-icon
           :icon="['fas', 'question-circle']"
-          size="l"
+          size="sm"
           style="color: black"
           @click="feedbackIdInfo"
       /></label>

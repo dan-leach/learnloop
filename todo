@@ -8,6 +8,7 @@ Check buttons same style everywhere
 Check cookies work as expected
 
 Improvements:
+Floating labels
 Preview of feedback form, question, interaction
 Prevent subsession update email when that subsession hasn't changed
 Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer

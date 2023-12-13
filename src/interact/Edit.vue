@@ -261,7 +261,7 @@ onMounted(() => {
             >Feedback session ID: (optional)
             <font-awesome-icon
               :icon="['fas', 'question-circle']"
-              size="xl"
+              size="sm"
               style="color: black"
               @click="feedbackIdInfo"
           /></label>
