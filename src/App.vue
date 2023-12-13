@@ -1,8 +1,6 @@
 <script setup>
 import { RouterLink, RouterView } from "vue-router";
 import { config } from "./data/config.js";
-
-import Toast from "./assets/Toast.js";
 </script>
 
 <template>
@@ -27,27 +25,56 @@ import Toast from "./assets/Toast.js";
     <nav class="navbar bg-teal fixed-bottom justify-content-center">
       <ul class="navbar-nav nav-pills flex-row">
         <li class="nav-item">
-          <a
-            class="nav-link p-2 mx-2"
-            href="https://github.com/dan-leach/learnloop"
-            target="_blank"
-            >LearnLoop v5.0</a
+          <a class="nav-link p-2 mx-2" :href="config.repo" target="_blank"
+            >LearnLoop v{{ config.version }}</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link p-2 mx-2" :href="config.web" target="_blank"
+            >Created by {{ config.author }}</a
           >
         </li>
         <li class="nav-item">
           <a
             class="nav-link p-2 mx-2"
-            href="https://danleach.uk"
+            :href="'mailto:' + config.email"
             target="_blank"
-            >Created by Dan Leach</a
+            >Contact: {{ config.email }}</a
           >
         </li>
         <li class="nav-item">
+          <RouterLink class="nav-link p-2 mx-2" to="/privacy-policy"
+            >Privacy policy</RouterLink
+          >
+        </li>
+      </ul>
+    </nav>
+  </div>
+  <div
+    id="footer"
+    v-if="!config.client.isFocusView"
+    class="footer-spacer d-block d-md-none mt-2"
+  >
+    <nav class="navbar bg-teal justify-content-center">
+      <ul class="navbar-nav nav-pills flex-row">
+        <li class="nav-item">
+          <a class="nav-link p-2 mx-2" :href="config.repo" target="_blank"
+            >LearnLoop v{{ config.version }}</a
+          >
+        </li>
+        <li class="nav-item">
+          <a class="nav-link p-2 mx-2" :href="config.web" target="_blank"
+            >Created by {{ config.author }}</a
+          >
+        </li>
+      </ul>
+      <ul class="navbar-nav nav-pills flex-row">
+        <li class="nav-item">
           <a
             class="nav-link p-2 mx-2"
-            href="mailto:mail@learnloop.co.uk"
+            :href="'mailto:' + config.email"
             target="_blank"
-            >Contact: mail@learnloop.co.uk</a
+            >Contact: {{ config.email }}</a
           >
         </li>
         <li class="nav-item">
@@ -77,5 +104,10 @@ import Toast from "./assets/Toast.js";
 .nav-link:hover {
   background-color: #00606e;
   color: white;
+}
+@media only screen and (max-width: 700px) {
+  .fixed-bottom {
+    position: static;
+  }
 }
 </style>
