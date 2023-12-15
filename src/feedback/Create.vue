@@ -1,23 +1,23 @@
 <script setup>
-import { ref } from "vue";
-import router from "../router";
-import { feedbackSession } from "../data/feedbackSession.js";
-import { api } from "../data/api.js";
-import { config } from "../data/config.js";
-import Modal from "bootstrap/js/dist/modal";
-import EditSubsessionForm from "./components/EditSubsessionForm.vue";
-import EditQuestionForm from "./components/EditQuestionForm.vue";
-import Swal from "sweetalert2";
+import { ref } from 'vue';
+import router from '../router';
+import { feedbackSession } from '../data/feedbackSession.js';
+import { api } from '../data/api.js';
+import { config } from '../data/config.js';
+import Modal from 'bootstrap/js/dist/modal';
+import EditSubsessionForm from './components/EditSubsessionForm.vue';
+import EditQuestionForm from './components/EditQuestionForm.vue';
+import Swal from 'sweetalert2';
 
 let isSeries = ref(false);
 const toggleSingleSeries = () => {
   if (isSeries.value) {
     if (feedbackSession.subsessions.length) {
       Swal.fire({
-        title: "Lose sessions",
-        text: "You have added sessions to this feedback request. If you switch back to requesting feedback for a single session you will lose this progress. Continue?",
+        title: 'Lose sessions',
+        text: 'You have added sessions to this feedback request. If you switch back to requesting feedback for a single session you will lose this progress. Continue?',
         showCancelButton: true,
-        confirmButtonColor: "#dc3545",
+        confirmButtonColor: '#dc3545',
       }).then((result) => {
         if (result.isConfirmed) {
           feedbackSession.subsessions = [];
@@ -35,21 +35,21 @@ const toggleSingleSeries = () => {
 };
 const seriesInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Collect feedback for multiple sessions (Optional)",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Collect feedback for multiple sessions (Optional)',
     html: '<div class="text-start">You are currently requesting feedback for a single session. Alternatively, you can create a session series where attendees can provide feedback for multiple sessions (for example, a teaching day with different presenters) using a single link.<br><br>As the organiser you will be able to view all feedback collected, individual presenters can view the feedback for just their session.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 let editSubsessionModal;
 const showEditSubsessionForm = (index) => {
   editSubsessionModal = new Modal(
-    document.getElementById("editSubsessionModal" + index),
+    document.getElementById('editSubsessionModal' + index),
     {
-      backdrop: "static",
+      backdrop: 'static',
       keyboard: false,
       focus: true,
     }
@@ -75,9 +75,9 @@ const sortSubsession = (index, x) =>
   );
 const removeSubsession = (index) => {
   Swal.fire({
-    title: "Remove this subsession?",
+    title: 'Remove this subsession?',
     showCancelButton: true,
-    confirmButtonColor: "#dc3545",
+    confirmButtonColor: '#dc3545',
   }).then((result) => {
     if (result.isConfirmed) feedbackSession.subsessions.splice(index, 1);
   });
@@ -86,21 +86,21 @@ const removeSubsession = (index) => {
 let hasQuestions = ref(false);
 const questionsInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Custom questions (Optional)",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Custom questions (Optional)',
     html: "<div class=\"text-start\">The default feedback form asks attendees to provide some free-text positive feedback, free-text constructive criticism and an overall score (using a slider, out of 100). If that doesn't cover everything you want to ask, you can add additional questions.<br><br>If you're creating a feedback form for a session series the custom questions only relate to the overall feedback and aren't asked for all the subsessions.</div>",
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 let editQuestionModal;
 const showEditQuestionForm = (index) => {
   editQuestionModal = new Modal(
-    document.getElementById("editQuestionModal" + index),
+    document.getElementById('editQuestionModal' + index),
     {
-      backdrop: "static",
+      backdrop: 'static',
       keyboard: false,
       focus: true,
     }
@@ -126,9 +126,9 @@ const sortQuestion = (index, x) =>
   );
 const removeQuestion = (index) => {
   Swal.fire({
-    title: "Remove this question?",
+    title: 'Remove this question?',
     showCancelButton: true,
-    confirmButtonColor: "#dc3545",
+    confirmButtonColor: '#dc3545',
   }).then((result) => {
     if (result.isConfirmed) feedbackSession.questions.splice(index, 1);
   });
@@ -140,33 +140,33 @@ const toggleCertificate = () => {
 };
 const certificateInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Certificate of attendance (Optional)",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Certificate of attendance (Optional)',
     html: '<div class="text-start">By default attendees of your session will be able to download a certificate of attendance after completing the feedback form. This is a good way of encouraging attendees to provide feedback.<br><br> You can disable the certificate if you prefer. Attendees will still be able to provide feedback but will not be given the option to download a certificate afterwards.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const notificationsInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Email notifications when feedback submitted (Optional)",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Email notifications when feedback submitted (Optional)',
     html: '<div class="text-start">By default you will receive an email when feedback for your session is submitted. To avoid overloading your inbox, no further notifications are sent within 2 hours.<br><br>If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created. You can also disable further notifications later, using a link in the notification email itself.<br><br>If you provide an email for them, facilitators of each session in this series will receive an email notifying them that the feedback request has been set up. They will also receive email notifications when feedback for their session is submitted, but they can disable these if preferred using a link in the notification email itself.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const toggleAttendance = () => {
   if (!feedbackSession.attendance && !feedbackSession.certificate) {
     Swal.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
+      icon: 'error',
+      iconColor: '#17a2b8',
       text: "You must enable the 'Certificate of Attendance' option to be able to use the 'Register of Attendance' option.",
-      confirmButtonColor: "#17a2b8",
+      confirmButtonColor: '#17a2b8',
     });
   } else {
     feedbackSession.attendance = !feedbackSession.attendance;
@@ -174,54 +174,54 @@ const toggleAttendance = () => {
 };
 const attendanceInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Register of attendance (Optional)",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Register of attendance (Optional)',
     html: '<div class="text-start">By default you will be able to generate an attendance report of people who have attended your session. The attendance report shows the name and organisation of each attendee who downloads a certificate of attendance. The attendee details are not linked to their feedback. To reduce the risk of attendees being linked to their feedback you will only be able to view a register of attendance once you have received at least 3 feedback submissions.<br><br>The certificate option must be enabled for the attendance register to be available.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 let btnSubmit = ref({
-  text: "Create feedback session",
+  text: 'Create feedback session',
   wait: false,
 });
 const formIsValid = () => {
-  document.getElementById("createSessionForm").classList.add("was-validated");
+  document.getElementById('createSessionForm').classList.add('was-validated');
   if (!feedbackSession.title || !feedbackSession.name || !feedbackSession.email)
     return false;
   if (isSeries.value && !feedbackSession.subsessions.length)
     Swal.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title: "No sessions added to your session series",
-      text: "You need to add at least one session to your session series, or switch back to creating a feedback request for a single session.",
-      confirmButtonColor: "#17a2b8",
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'No sessions added to your session series',
+      text: 'You need to add at least one session to your session series, or switch back to creating a feedback request for a single session.',
+      confirmButtonColor: '#17a2b8',
     });
   return true;
 };
 const submit = () => {
   if (!formIsValid()) return false;
-  btnSubmit.value.text = "Please wait...";
+  btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
-  api("feedback", "insertSession", null, null, feedbackSession).then(
+  api('feedback', 'insertSession', null, null, feedbackSession).then(
     function (res) {
-      btnSubmit.value.text = "Create feedback session";
+      btnSubmit.value.text = 'Create feedback session';
       btnSubmit.value.wait = false;
       feedbackSession.id = res.id;
       feedbackSession.pin = res.pin;
-      router.push("/feedback/created");
+      router.push('/feedback/created');
     },
     function (error) {
-      btnSubmit.value.text = "Retry creating feedback session?";
+      btnSubmit.value.text = 'Retry creating feedback session?';
       btnSubmit.value.wait = false;
       Swal.fire({
-        title: "Error creating feedback session",
+        title: 'Error creating feedback session',
         text: error,
-        icon: "error",
-        iconColor: "#17a2b8",
-        confirmButtonColor: "#17a2b8",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        confirmButtonColor: '#17a2b8',
       });
     }
   );
@@ -230,89 +230,205 @@ const submit = () => {
 
 <template>
   <h1 class="text-center display-4">Feedback</h1>
-  <form
-    id="createSessionForm"
-    class="card bg-transparent shadow p-2 mb-3 needs-validation"
-    novalidate
-  >
-    <label for="sessionDetails" class="form-label"
-      >Session {{ isSeries ? "series " : "" }}details</label
+  <div class="d-flex align-items-stretch justify-content-between flex-wrap">
+    <form
+      id="createSessionForm"
+      class="
+        card
+        bg-transparent
+        shadow
+        p-2
+        mb-3
+        flex-grow-1
+        needs-validation
+        details-card
+      "
+      novalidate
     >
-    <div class="row">
-      <div class="col-md mb-3">
-        <div class="form-floating">
-          <input
-            type="text"
-            v-model="feedbackSession.title"
-            class="form-control"
-            id="title"
-            placeholder=""
-            name="title"
-            autocomplete="off"
-            required
-          />
-          <label for="title"
-            >Session {{ isSeries ? "series " : "" }}title</label
+      <label for="sessionDetails" class="form-label"
+        >Session {{ isSeries ? 'series ' : '' }}details</label
+      >
+      <div class="form-floating mb-3">
+        <input
+          type="text"
+          v-model="feedbackSession.title"
+          class="form-control"
+          id="title"
+          placeholder=""
+          name="title"
+          autocomplete="off"
+          required
+        />
+        <label for="title">Session {{ isSeries ? 'series ' : '' }}title</label>
+        <div class="invalid-feedback">Please fill out this field.</div>
+      </div>
+      <div class="form-floating mb-3">
+        <input
+          type="date"
+          placeholder=""
+          v-model="feedbackSession.date"
+          class="form-control"
+          id="date"
+          name="Date"
+          autocomplete="off"
+          required
+        />
+        <label for="name">Date</label>
+        <div class="invalid-feedback">Please fill out this field.</div>
+      </div>
+      <div class="form-floating mb-3">
+        <input
+          type="text"
+          v-model="feedbackSession.name"
+          class="form-control"
+          id="name"
+          placeholder=""
+          name="name"
+          autocomplete="off"
+          required
+        />
+        <label for="name">
+          {{ isSeries ? 'Organiser' : 'Facilitator' }} name</label
+        >
+        <div class="invalid-feedback">Please fill out this field.</div>
+      </div>
+      <div class="form-floating mb-3">
+        <input
+          type="email"
+          v-model="feedbackSession.email"
+          class="form-control"
+          id="email"
+          placeholder=""
+          name="email"
+          autocomplete="off"
+          required
+        />
+        <label for="email">
+          {{ isSeries ? 'Organiser' : 'Facilitator' }} email</label
+        >
+        <div class="invalid-feedback">Please fill out this field.</div>
+      </div>
+    </form>
+    <div class="card bg-transparent shadow p-2 mb-3 settings-card">
+      <label for="furtherOptions" class="form-label">Options</label>
+      <div class="row align-items-center mb-3">
+        <div class="col">
+          <button
+            class="btn btn-settings btn-teal btn-sm"
+            id="toggleCertificate"
+            @click="toggleCertificate"
           >
-          <div class="invalid-feedback">Please fill out this field.</div>
+            {{ feedbackSession.certificate ? 'Disable' : 'Enable' }}
+            certificate
+          </button>
+        </div>
+        <div class="col-1 mx-4 text-center">
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            size="xl"
+            style="color: black"
+            @click="certificateInfo"
+          />
+        </div>
+        <div class="col-md-7">
+          <span v-if="feedbackSession.certificate">
+            Attendees receive certificate after giving feedback
+            <font-awesome-icon
+              :icon="['fas', 'check']"
+              size="2xl"
+              style="color: green"
+            />
+          </span>
+          <span v-if="!feedbackSession.certificate">
+            Attendees will not receive a certificate
+            <font-awesome-icon
+              :icon="['fas', 'times']"
+              size="2xl"
+              style="color: red"
+            />
+          </span>
         </div>
       </div>
-      <div class="col-md mb-3">
-        <div class="form-floating">
-          <input
-            type="date"
-            placeholder=""
-            v-model="feedbackSession.date"
-            class="form-control"
-            id="date"
-            name="Date"
-            autocomplete="off"
-            required
+      <div class="row align-items-center mb-3">
+        <div class="col">
+          <button
+            class="btn btn-settings btn-teal btn-sm"
+            id="toggleNotifications"
+            @click="
+              feedbackSession.notifications = !feedbackSession.notifications
+            "
+          >
+            {{ feedbackSession.notifications ? 'Disable' : 'Enable' }}
+            notifications
+          </button>
+        </div>
+        <div class="col-1 mx-4 text-center">
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            size="xl"
+            style="color: black"
+            @click="notificationsInfo"
           />
-          <label for="name">Date</label>
-          <div class="invalid-feedback">Please fill out this field.</div>
+        </div>
+        <div class="col-md-7">
+          <span v-if="feedbackSession.notifications">
+            Receive an email when feedback is submitted
+            <font-awesome-icon
+              :icon="['fas', 'check']"
+              size="2xl"
+              style="color: green"
+            />
+          </span>
+          <span v-if="!feedbackSession.notifications">
+            Don't receive an email when feedback is submitted
+            <font-awesome-icon
+              :icon="['fas', 'times']"
+              size="2xl"
+              style="color: red"
+            />
+          </span>
+        </div>
+      </div>
+      <div class="row align-items-center mb-3">
+        <div class="col">
+          <button
+            class="btn btn-settings btn-teal btn-sm"
+            id="toggleAttendance"
+            @click="toggleAttendance"
+          >
+            {{ feedbackSession.notifications ? 'Disable' : 'Enable' }}
+            register
+          </button>
+        </div>
+        <div class="col-1 mx-4 text-center">
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            size="xl"
+            style="color: black"
+            @click="attendanceInfo"
+          />
+        </div>
+        <div class="col-md-7">
+          <span v-if="feedbackSession.attendance">
+            Register of attendance will be kept
+            <font-awesome-icon
+              :icon="['fas', 'check']"
+              size="2xl"
+              style="color: green"
+            />
+          </span>
+          <span v-if="!feedbackSession.attendance">
+            Register of attendance won't be kept
+            <font-awesome-icon
+              :icon="['fas', 'times']"
+              size="2xl"
+              style="color: red"
+            />
+          </span>
         </div>
       </div>
     </div>
-    <div class="row">
-      <div class="col-md mb-3">
-        <div class="form-floating">
-          <input
-            type="text"
-            v-model="feedbackSession.name"
-            class="form-control"
-            id="name"
-            placeholder=""
-            name="name"
-            autocomplete="off"
-            required
-          />
-          <label for="name">
-            {{ isSeries ? "Organiser" : "Facilitator" }} name</label
-          >
-          <div class="invalid-feedback">Please fill out this field.</div>
-        </div>
-      </div>
-      <div class="col-md mb-3">
-        <div class="form-floating">
-          <input
-            type="email"
-            v-model="feedbackSession.email"
-            class="form-control"
-            id="email"
-            placeholder=""
-            name="email"
-            autocomplete="off"
-            required
-          />
-          <label for="email">
-            {{ isSeries ? "Organiser" : "Facilitator" }} email</label
-          >
-          <div class="invalid-feedback">Please fill out this field.</div>
-        </div>
-      </div>
-    </div>
-  </form>
+  </div>
   <div class="card bg-transparent shadow p-2 mb-3">
     <label for="subsessionsTable" class="form-label">Sessions</label>
     <div class="row align-items-center">
@@ -322,7 +438,7 @@ const submit = () => {
           id="enableSubsessions"
           @click="toggleSingleSeries"
         >
-          Switch {{ isSeries ? "to single session" : "to session series" }}
+          Switch {{ isSeries ? 'to single session' : 'to session series' }}
         </button>
       </div>
       <div class="col-1 mx-4 text-center">
@@ -336,7 +452,7 @@ const submit = () => {
       <div class="w-100 d-block d-md-none"></div>
       <div class="col-md-9">
         You are currently requesting feedback for a
-        {{ isSeries ? "session series" : "single session" }}
+        {{ isSeries ? 'session series' : 'single session' }}
       </div>
     </div>
     <table v-if="isSeries" class="table" id="subsessionsTable">
@@ -518,127 +634,6 @@ const submit = () => {
       />
     </div>
   </div>
-  <div class="card bg-transparent shadow p-2 mb-3">
-    <label for="furtherOptions" class="form-label">Options</label>
-    <div class="row mb-3">
-      <div class="col">
-        <button
-          class="btn btn-teal btn-sm"
-          id="toggleCertificate"
-          @click="toggleCertificate"
-        >
-          {{ feedbackSession.certificate ? "Disable" : "Enable" }} certificate
-        </button>
-      </div>
-      <div class="col-1 mx-4 text-center">
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="certificateInfo"
-        />
-      </div>
-      <div class="w-100 d-block d-md-none"></div>
-      <div class="col-md-9">
-        <span v-if="feedbackSession.certificate">
-          Attendees will be able to download a certificate for this session
-          after providing feedback
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            size="2xl"
-            style="color: green"
-          />
-        </span>
-        <span v-if="!feedbackSession.certificate">
-          Attendees will not be able to download a certificate for this session
-          <font-awesome-icon
-            :icon="['fas', 'times']"
-            size="2xl"
-            style="color: red"
-          />
-        </span>
-      </div>
-    </div>
-    <div class="row mb-3">
-      <div class="col">
-        <button
-          class="btn btn-teal btn-sm"
-          id="toggleNotifications"
-          @click="
-            feedbackSession.notifications = !feedbackSession.notifications
-          "
-        >
-          {{ feedbackSession.notifications ? "Disable" : "Enable" }}
-          notifications
-        </button>
-      </div>
-      <div class="col-1 mx-4 text-center">
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="notificationsInfo"
-        />
-      </div>
-      <div class="w-100 d-block d-md-none"></div>
-      <div class="col-md-9">
-        <span v-if="feedbackSession.notifications">
-          You will receive an email each time feedback is submitted
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            size="2xl"
-            style="color: green"
-          />
-        </span>
-        <span v-if="!feedbackSession.notifications">
-          You won't receive an email each time feedback is submitted
-          <font-awesome-icon
-            :icon="['fas', 'times']"
-            size="2xl"
-            style="color: red"
-          />
-        </span>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col">
-        <button
-          class="btn btn-teal btn-sm"
-          id="toggleAttendance"
-          @click="toggleAttendance"
-        >
-          {{ feedbackSession.notifications ? "Disable" : "Enable" }} register
-        </button>
-      </div>
-      <div class="col-1 mx-4 text-center">
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="attendanceInfo"
-        />
-      </div>
-      <div class="w-100 d-block d-md-none"></div>
-      <div class="col-md-9">
-        <span v-if="feedbackSession.attendance">
-          Register of attendance will be kept
-          <font-awesome-icon
-            :icon="['fas', 'check']"
-            size="2xl"
-            style="color: green"
-          />
-        </span>
-        <span v-if="!feedbackSession.attendance">
-          Register of attendance won't be kept
-          <font-awesome-icon
-            :icon="['fas', 'times']"
-            size="2xl"
-            style="color: red"
-          />
-        </span>
-      </div>
-    </div>
-  </div>
   <div class="text-center mb-3">
     <button
       class="btn btn-teal btn-lg"
@@ -656,6 +651,24 @@ const submit = () => {
 </template>
 
 <style>
+@media only screen and (min-width: 992px) {
+  .details-card {
+    min-width: 400px;
+  }
+  .settings-card {
+    max-width: 500px;
+    margin-left: 15px;
+  }
+}
+@media only screen and (max-width: 991px) {
+  .settings-card {
+    width: 100%;
+  }
+}
+.btn-settings {
+  width: 100%;
+  min-height: 55px;
+}
 .form-label {
   font-size: 1.3rem;
 }

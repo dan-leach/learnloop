@@ -1,19 +1,19 @@
 <script setup>
-import { ref } from "vue";
-import router from "../router";
-import { interactSession } from "../data/interactSession.js";
-import { api } from "../data/api.js";
-import { config } from "../data/config.js";
-import Modal from "bootstrap/js/dist/modal";
-import EditInteractionForm from "./components/EditInteractionForm.vue";
-import Swal from "sweetalert2";
+import { ref } from 'vue';
+import router from '../router';
+import { interactSession } from '../data/interactSession.js';
+import { api } from '../data/api.js';
+import { config } from '../data/config.js';
+import Modal from 'bootstrap/js/dist/modal';
+import EditInteractionForm from './components/EditInteractionForm.vue';
+import Swal from 'sweetalert2';
 
 let editInteractionModal;
 const showEditInteractionForm = (index) => {
   editInteractionModal = new Modal(
-    document.getElementById("editInteractionModal" + index),
+    document.getElementById('editInteractionModal' + index),
     {
-      backdrop: "static",
+      backdrop: 'static',
       keyboard: false,
       focus: true,
     }
@@ -39,9 +39,9 @@ const sortInteraction = (index, x) =>
   );
 const removeInteraction = (index) => {
   Swal.fire({
-    title: "Remove this interaction?",
+    title: 'Remove this interaction?',
     showCancelButton: true,
-    confirmButtonColor: "#dc3545",
+    confirmButtonColor: '#dc3545',
   }).then((result) => {
     if (result.isConfirmed) interactSession.interactions.splice(index, 1);
   });
@@ -49,9 +49,9 @@ const removeInteraction = (index) => {
 
 const feedbackIdInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Feedback on your interact session (optional)",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Feedback on your interact session (optional)',
     html:
       `
       <div class="text-start">
@@ -59,26 +59,26 @@ const feedbackIdInfo = () => {
       config.client.url +
       `/feedback/create" target="_blank">click here to do this now in a new tab</a>) and attendees will be directed to the feedback form at the end of your interact session.<br><br> If you plan to use this interact session multiple times you can create a new feedback request each time and update the feedback session ID your attendees should be directed to, by using the edit interact session link in the email you'll receive once this session is created.</p>
       </div>`,
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 let btnSubmit = ref({
-  text: "Create interact session",
+  text: 'Create interact session',
   wait: false,
 });
 const formIsValid = () => {
   document
-    .getElementById("createSessionSeriesForm")
-    .classList.add("was-validated");
+    .getElementById('createSessionSeriesForm')
+    .classList.add('was-validated');
   if (!interactSession.interactions.length) {
     Swal.fire({
-      title: "No interactions added",
+      title: 'No interactions added',
       text: "You need to add at least 1 interaction to your session. Use the green 'Add' button.",
-      icon: "error",
-      iconColor: "#17a2b8",
-      confirmButtonColor: "#17a2b8",
+      icon: 'error',
+      iconColor: '#17a2b8',
+      confirmButtonColor: '#17a2b8',
     });
     return false;
   }
@@ -88,25 +88,25 @@ const formIsValid = () => {
 };
 const submit = () => {
   if (!formIsValid()) return false;
-  btnSubmit.value.text = "Please wait...";
+  btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
-  api("interact", "insertSession", null, null, interactSession).then(
+  api('interact', 'insertSession', null, null, interactSession).then(
     function (res) {
-      btnSubmit.value.text = "Create interact session";
+      btnSubmit.value.text = 'Create interact session';
       btnSubmit.value.wait = false;
       interactSession.id = res.id;
       interactSession.pin = res.pin;
-      router.push("/interact/created");
+      router.push('/interact/created');
     },
     function (error) {
-      btnSubmit.value.text = "Retry creating interact session?";
+      btnSubmit.value.text = 'Retry creating interact session?';
       btnSubmit.value.wait = false;
       Swal.fire({
-        title: "Error creating interact session",
+        title: 'Error creating interact session',
         text: error,
-        icon: "error",
-        iconColor: "#17a2b8",
-        confirmButtonColor: "#17a2b8",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        confirmButtonColor: '#17a2b8',
       });
     }
   );
