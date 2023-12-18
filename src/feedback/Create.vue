@@ -1,12 +1,14 @@
 <script setup>
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import router from '../router';
+import { useRouter } from 'vue-router';
 import { feedbackSession } from '../data/feedbackSession.js';
 import { api } from '../data/api.js';
 import { config } from '../data/config.js';
 import Modal from 'bootstrap/js/dist/modal';
 import EditSubsessionForm from './components/EditSubsessionForm.vue';
 import EditQuestionForm from './components/EditQuestionForm.vue';
+import Loading from '../components/Loading.vue';
 import Swal from 'sweetalert2';
 
 let isSeries = ref(false);
@@ -43,7 +45,6 @@ const seriesInfo = () => {
     confirmButtonColor: '#17a2b8',
   });
 };
-
 let editSubsessionModal;
 const showEditSubsessionForm = (index) => {
   editSubsessionModal = new Modal(
@@ -66,7 +67,6 @@ const hideEditSubsessionModal = (index, subsession) => {
   }
   editSubsessionModal.hide();
 };
-
 const sortSubsession = (index, x) =>
   feedbackSession.subsessions.splice(
     index + x,
@@ -94,7 +94,6 @@ const questionsInfo = () => {
     confirmButtonColor: '#17a2b8',
   });
 };
-
 let editQuestionModal;
 const showEditQuestionForm = (index) => {
   editQuestionModal = new Modal(
@@ -117,7 +116,6 @@ const hideEditQuestionModal = (index, question) => {
   }
   editQuestionModal.hide();
 };
-
 const sortQuestion = (index, x) =>
   feedbackSession.questions.splice(
     index + x,
@@ -148,7 +146,6 @@ const certificateInfo = () => {
     confirmButtonColor: '#17a2b8',
   });
 };
-
 const notificationsInfo = () => {
   Swal.fire({
     icon: 'info',
@@ -159,7 +156,6 @@ const notificationsInfo = () => {
     confirmButtonColor: '#17a2b8',
   });
 };
-
 const toggleAttendance = () => {
   if (!feedbackSession.attendance && !feedbackSession.certificate) {
     Swal.fire({
@@ -183,10 +179,60 @@ const attendanceInfo = () => {
   });
 };
 
+let isEdit =
+  useRouter().currentRoute.value.name == 'feedback-edit' ? true : false;
+let loading = ref(isEdit ? true : false);
 let btnSubmit = ref({
-  text: 'Create feedback session',
+  text: isEdit ? 'Update feedback session' : 'Create feedback session',
   wait: false,
 });
+const loadUpdateDetails = () => {
+  api(
+    'feedback',
+    'loadUpdateDetails',
+    feedbackSession.id,
+    feedbackSession.pin,
+    null
+  ).then(
+    function (res) {
+      if (feedbackSession.id != res.id) {
+        console.error(
+          'feedbackSession.id != res.id',
+          feedbackSession.id,
+          res.id
+        );
+        return;
+      }
+      feedbackSession.title = res.title;
+      feedbackSession.date = res.date;
+      feedbackSession.name = res.name;
+      feedbackSession.email = res.email;
+      if (res.subsessions.length) {
+        feedbackSession.subsessions = res.subsessions;
+        isSeries.value = true;
+      }
+      if (res.questions.length) {
+        feedbackSession.questions = res.questions;
+        hasQuestions.value = true;
+      }
+      feedbackSession.certificate = res.certificate;
+      feedbackSession.notifications = res.notifications;
+      feedbackSession.attendance = res.attendance;
+      loading.value = false;
+    },
+    function (error) {
+      Swal.fire({
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable to load feedback report',
+        text: error,
+        confirmButtonColor: '#17a2b8',
+      });
+      router.push('/');
+    }
+  );
+};
+
 const formIsValid = () => {
   document.getElementById('createSessionForm').classList.add('was-validated');
   if (!feedbackSession.title || !feedbackSession.name || !feedbackSession.email)
@@ -205,449 +251,524 @@ const submit = () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
-  api('feedback', 'insertSession', null, null, feedbackSession).then(
-    function (res) {
-      btnSubmit.value.text = 'Create feedback session';
-      btnSubmit.value.wait = false;
-      feedbackSession.id = res.id;
-      feedbackSession.pin = res.pin;
-      router.push('/feedback/created');
-    },
-    function (error) {
-      btnSubmit.value.text = 'Retry creating feedback session?';
-      btnSubmit.value.wait = false;
-      Swal.fire({
-        title: 'Error creating feedback session',
-        text: error,
-        icon: 'error',
-        iconColor: '#17a2b8',
-        confirmButtonColor: '#17a2b8',
-      });
-    }
-  );
+  if (isEdit) {
+    api(
+      'feedback',
+      'updateDetails',
+      feedbackSession.id,
+      feedbackSession.pin,
+      feedbackSession
+    ).then(
+      function (res) {
+        btnSubmit.value.text = 'Update feedback session';
+        btnSubmit.value.wait = false;
+        Swal.fire({
+          icon: 'success',
+          iconColor: '#17a2b8',
+          text: res,
+          confirmButtonColor: '#17a2b8',
+        });
+        router.push('/');
+      },
+      function (error) {
+        btnSubmit.value.text = 'Retry updating feedback session?';
+        btnSubmit.value.wait = false;
+        Swal.fire({
+          title: 'Error updating feedback session',
+          text: error,
+          icon: 'error',
+          iconColor: '#17a2b8',
+          confirmButtonColor: '#17a2b8',
+        });
+      }
+    );
+  } else {
+    api('feedback', 'insertSession', null, null, feedbackSession).then(
+      function (res) {
+        btnSubmit.value.text = 'Create feedback session';
+        btnSubmit.value.wait = false;
+        feedbackSession.id = res.id;
+        feedbackSession.pin = res.pin;
+        router.push('/feedback/created');
+      },
+      function (error) {
+        btnSubmit.value.text = 'Retry creating feedback session?';
+        btnSubmit.value.wait = false;
+        Swal.fire({
+          title: 'Error creating feedback session',
+          text: error,
+          icon: 'error',
+          iconColor: '#17a2b8',
+          confirmButtonColor: '#17a2b8',
+        });
+      }
+    );
+  }
 };
+
+onMounted(() => {
+  if (isEdit) {
+    feedbackSession.id = useRouter().currentRoute.value.params.id;
+    Swal.fire({
+      title: 'Enter session ID and PIN',
+      html:
+        'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
+        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+        feedbackSession.id +
+        '">' +
+        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+      showCancelButton: true,
+      confirmButtonColor: '#17a2b8',
+      preConfirm: () => {
+        feedbackSession.id = document.getElementById('swalFormId').value;
+        feedbackSession.pin = document.getElementById('swalFormPin').value;
+        if (feedbackSession.pin == '')
+          Swal.showValidationMessage('Please enter your PIN');
+        if (feedbackSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
+      },
+    }).then((result) => {
+      if (result.isConfirmed) {
+        history.replaceState({}, '', feedbackSession.id);
+        loadUpdateDetails();
+      } else {
+        router.push('/');
+      }
+    });
+  }
+});
 </script>
 
 <template>
-  <h1 class="text-center display-4">Feedback</h1>
-  <div class="d-flex align-items-stretch justify-content-between flex-wrap">
-    <form
-      id="createSessionForm"
-      class="
-        card
-        bg-transparent
-        shadow
-        p-2
-        mb-3
-        flex-grow-1
-        needs-validation
-        details-card
-      "
-      novalidate
-    >
-      <label for="sessionDetails" class="form-label"
-        >Session {{ isSeries ? 'series ' : '' }}details</label
-      >
-      <div class="form-floating mb-3">
-        <input
-          type="text"
-          v-model="feedbackSession.title"
-          class="form-control"
-          id="title"
-          placeholder=""
-          name="title"
-          autocomplete="off"
-          required
-        />
-        <label for="title">Session {{ isSeries ? 'series ' : '' }}title</label>
-        <div class="invalid-feedback">Please fill out this field.</div>
-      </div>
-      <div class="form-floating mb-3">
-        <input
-          type="date"
-          placeholder=""
-          v-model="feedbackSession.date"
-          class="form-control"
-          id="date"
-          name="Date"
-          autocomplete="off"
-          required
-        />
-        <label for="name">Date</label>
-        <div class="invalid-feedback">Please fill out this field.</div>
-      </div>
-      <div class="form-floating mb-3">
-        <input
-          type="text"
-          v-model="feedbackSession.name"
-          class="form-control"
-          id="name"
-          placeholder=""
-          name="name"
-          autocomplete="off"
-          required
-        />
-        <label for="name">
-          {{ isSeries ? 'Organiser' : 'Facilitator' }} name</label
-        >
-        <div class="invalid-feedback">Please fill out this field.</div>
-      </div>
-      <div class="form-floating mb-3">
-        <input
-          type="email"
-          v-model="feedbackSession.email"
-          class="form-control"
-          id="email"
-          placeholder=""
-          name="email"
-          autocomplete="off"
-          required
-        />
-        <label for="email">
-          {{ isSeries ? 'Organiser' : 'Facilitator' }} email</label
-        >
-        <div class="invalid-feedback">Please fill out this field.</div>
-      </div>
-    </form>
-    <div class="card bg-transparent shadow p-2 mb-3 settings-card">
-      <label for="furtherOptions" class="form-label">Options</label>
-      <div class="row align-items-center mb-3">
-        <div class="col">
-          <button
-            class="btn btn-settings btn-teal btn-sm"
-            id="toggleCertificate"
-            @click="toggleCertificate"
-          >
-            {{ feedbackSession.certificate ? 'Disable' : 'Enable' }}
-            certificate
-          </button>
-        </div>
-        <div class="col-1 mx-4 text-center">
-          <font-awesome-icon
-            :icon="['fas', 'question-circle']"
-            size="xl"
-            style="color: black"
-            @click="certificateInfo"
-          />
-        </div>
-        <div class="col-md-7">
-          <span v-if="feedbackSession.certificate">
-            Attendees receive certificate after giving feedback
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              size="2xl"
-              style="color: green"
-            />
-          </span>
-          <span v-if="!feedbackSession.certificate">
-            Attendees will not receive a certificate
-            <font-awesome-icon
-              :icon="['fas', 'times']"
-              size="2xl"
-              style="color: red"
-            />
-          </span>
-        </div>
-      </div>
-      <div class="row align-items-center mb-3">
-        <div class="col">
-          <button
-            class="btn btn-settings btn-teal btn-sm"
-            id="toggleNotifications"
-            @click="
-              feedbackSession.notifications = !feedbackSession.notifications
-            "
-          >
-            {{ feedbackSession.notifications ? 'Disable' : 'Enable' }}
-            notifications
-          </button>
-        </div>
-        <div class="col-1 mx-4 text-center">
-          <font-awesome-icon
-            :icon="['fas', 'question-circle']"
-            size="xl"
-            style="color: black"
-            @click="notificationsInfo"
-          />
-        </div>
-        <div class="col-md-7">
-          <span v-if="feedbackSession.notifications">
-            Receive an email when feedback is submitted
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              size="2xl"
-              style="color: green"
-            />
-          </span>
-          <span v-if="!feedbackSession.notifications">
-            Don't receive an email when feedback is submitted
-            <font-awesome-icon
-              :icon="['fas', 'times']"
-              size="2xl"
-              style="color: red"
-            />
-          </span>
-        </div>
-      </div>
-      <div class="row align-items-center mb-3">
-        <div class="col">
-          <button
-            class="btn btn-settings btn-teal btn-sm"
-            id="toggleAttendance"
-            @click="toggleAttendance"
-          >
-            {{ feedbackSession.notifications ? 'Disable' : 'Enable' }}
-            register
-          </button>
-        </div>
-        <div class="col-1 mx-4 text-center">
-          <font-awesome-icon
-            :icon="['fas', 'question-circle']"
-            size="xl"
-            style="color: black"
-            @click="attendanceInfo"
-          />
-        </div>
-        <div class="col-md-7">
-          <span v-if="feedbackSession.attendance">
-            Register of attendance will be kept
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              size="2xl"
-              style="color: green"
-            />
-          </span>
-          <span v-if="!feedbackSession.attendance">
-            Register of attendance won't be kept
-            <font-awesome-icon
-              :icon="['fas', 'times']"
-              size="2xl"
-              style="color: red"
-            />
-          </span>
-        </div>
-      </div>
+  <Transition name="fade" mode="out-in">
+    <div v-if="loading">
+      <Loading />
     </div>
-  </div>
-  <div class="card bg-transparent shadow p-2 mb-3">
-    <label for="subsessionsTable" class="form-label">Sessions</label>
-    <div class="row align-items-center">
-      <div class="col">
-        <button
-          class="btn btn-sm btn-teal"
-          id="enableSubsessions"
-          @click="toggleSingleSeries"
+    <div v-else>
+      <h1 class="text-center display-4">Feedback</h1>
+      <div class="d-flex align-items-stretch justify-content-between flex-wrap">
+        <form
+          id="createSessionForm"
+          class="
+            card
+            bg-transparent
+            shadow
+            p-2
+            mb-3
+            flex-grow-1
+            needs-validation
+            details-card
+          "
+          novalidate
         >
-          Switch {{ isSeries ? 'to single session' : 'to session series' }}
-        </button>
-      </div>
-      <div class="col-1 mx-4 text-center">
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="seriesInfo"
-        />
-      </div>
-      <div class="w-100 d-block d-md-none"></div>
-      <div class="col-md-9">
-        You are currently requesting feedback for a
-        {{ isSeries ? 'session series' : 'single session' }}
-      </div>
-    </div>
-    <table v-if="isSeries" class="table" id="subsessionsTable">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Title</th>
-          <th>Facilitator</th>
-          <th>Email</th>
-          <th>
-            <button
-              class="btn btn-teal btn-sm btn-right"
-              id="btnAddSubsession"
-              @click.prevent="showEditSubsessionForm(-1)"
+          <label for="sessionDetails" class="form-label"
+            >Session {{ isSeries ? 'series ' : '' }}details</label
+          >
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              v-model="feedbackSession.title"
+              class="form-control"
+              id="title"
+              placeholder=""
+              name="title"
+              autocomplete="off"
+              required
+            />
+            <label for="title"
+              >Session {{ isSeries ? 'series ' : '' }}title</label
             >
-              Add <i class="fas fa-plus"></i>
+            <div class="invalid-feedback">Please fill out this field.</div>
+          </div>
+          <div class="form-floating mb-3">
+            <input
+              type="date"
+              placeholder=""
+              v-model="feedbackSession.date"
+              class="form-control"
+              id="date"
+              name="Date"
+              autocomplete="off"
+              required
+            />
+            <label for="name">Date</label>
+            <div class="invalid-feedback">Please fill out this field.</div>
+          </div>
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              v-model="feedbackSession.name"
+              class="form-control"
+              id="name"
+              placeholder=""
+              name="name"
+              autocomplete="off"
+              required
+            />
+            <label for="name">
+              {{ isSeries ? 'Organiser' : 'Facilitator' }} name</label
+            >
+            <div class="invalid-feedback">Please fill out this field.</div>
+          </div>
+          <div class="form-floating mb-3">
+            <input
+              type="email"
+              v-model="feedbackSession.email"
+              class="form-control"
+              id="email"
+              placeholder=""
+              name="email"
+              autocomplete="off"
+              required
+            />
+            <label for="email">
+              {{ isSeries ? 'Organiser' : 'Facilitator' }} email</label
+            >
+            <div class="invalid-feedback">Please fill out this field.</div>
+          </div>
+        </form>
+        <div class="card bg-transparent shadow p-2 mb-3 settings-card">
+          <label for="furtherOptions" class="form-label">Options</label>
+          <div class="d-flex align-items-center justify-content-start">
+            <div class="d-flex align-items-center justify-content-start mb-3">
+              <button
+                class="btn btn-settings btn-teal btn-sm"
+                id="toggleCertificate"
+                @click="toggleCertificate"
+              >
+                {{ feedbackSession.certificate ? 'Disable' : 'Enable' }}
+                certificate
+              </button>
+              <font-awesome-icon
+                :icon="['fas', 'question-circle']"
+                size="xl"
+                class="mx-2"
+                style="color: black"
+                @click="certificateInfo"
+              />
+            </div>
+            <div class="mb-3">
+              <span v-if="feedbackSession.certificate">
+                Attendees receive certificate after giving feedback
+                <font-awesome-icon
+                  :icon="['fas', 'check']"
+                  size="2xl"
+                  style="color: green"
+                />
+              </span>
+              <span v-else>
+                Attendees will not receive a certificate
+                <font-awesome-icon
+                  :icon="['fas', 'times']"
+                  size="2xl"
+                  style="color: red"
+                />
+              </span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-start">
+            <div class="d-flex align-items-center justify-content-start mb-3">
+              <button
+                class="btn btn-settings btn-teal btn-sm"
+                id="toggleNotifications"
+                @click="
+                  feedbackSession.notifications = !feedbackSession.notifications
+                "
+              >
+                {{ feedbackSession.notifications ? 'Disable' : 'Enable' }}
+                notifications
+              </button>
+              <font-awesome-icon
+                :icon="['fas', 'question-circle']"
+                size="xl"
+                class="mx-2"
+                style="color: black"
+                @click="notificationsInfo"
+              />
+            </div>
+            <div class="mb-3">
+              <span v-if="feedbackSession.notifications">
+                Receive an email when feedback is submitted
+                <font-awesome-icon
+                  :icon="['fas', 'check']"
+                  size="2xl"
+                  style="color: green"
+                />
+              </span>
+              <span v-if="!feedbackSession.notifications">
+                Don't receive an email when feedback is submitted
+                <font-awesome-icon
+                  :icon="['fas', 'times']"
+                  size="2xl"
+                  style="color: red"
+                />
+              </span>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-start">
+            <div class="d-flex align-items-center justify-content-start mb-3">
+              <button
+                class="btn btn-settings btn-teal btn-sm"
+                id="toggleAttendance"
+                @click="toggleAttendance"
+              >
+                {{ feedbackSession.notifications ? 'Disable' : 'Enable' }}
+                register
+              </button>
+              <font-awesome-icon
+                :icon="['fas', 'question-circle']"
+                size="xl"
+                class="mx-2"
+                style="color: black"
+                @click="attendanceInfo"
+              />
+            </div>
+            <div class="mb-3">
+              <span v-if="feedbackSession.attendance">
+                Register of attendance will be kept
+                <font-awesome-icon
+                  :icon="['fas', 'check']"
+                  size="2xl"
+                  style="color: green"
+                />
+              </span>
+              <span v-if="!feedbackSession.attendance">
+                Register of attendance won't be kept
+                <font-awesome-icon
+                  :icon="['fas', 'times']"
+                  size="2xl"
+                  style="color: red"
+                />
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="card bg-transparent shadow p-2 mb-3">
+        <label for="subsessionsTable" class="form-label">Sessions</label>
+        <div class="d-flex flex-wrap align-items-center justify-content-start">
+          <div class="d-flex align-items-center justify-content-start">
+            <button
+              class="btn btn-sm btn-sessions btn-teal"
+              id="enableSubsessions"
+              @click="toggleSingleSeries"
+            >
+              Switch {{ isSeries ? 'to single session' : 'to session series' }}
             </button>
-          </th>
-        </tr>
-      </thead>
-      <TransitionGroup name="list" tag="tbody">
-        <template
-          v-for="(subsession, index) in feedbackSession.subsessions"
-          :key="subsession"
-        >
-          <tr>
-            <td class="bg-transparent p-0 ps-2">
-              <button
-                v-if="index != 0"
-                class="btn btn-default btn-sm p-0"
-                id="btnSortUp"
-                @click="sortSubsession(index, -1)"
-              >
-                <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
-              ><br />
-              <button
-                v-if="index != feedbackSession.subsessions.length - 1"
-                class="btn btn-default btn-sm p-0"
-                id="btnSortDown"
-                @click="sortSubsession(index, 1)"
-              >
-                <font-awesome-icon :icon="['fas', 'chevron-down']" />
-              </button>
-            </td>
-            <td class="bg-transparent">{{ subsession.title }}</td>
-            <td class="bg-transparent">{{ subsession.name }}</td>
-            <td class="bg-transparent">{{ subsession.email }}</td>
-            <td class="bg-transparent">
-              <button
-                class="btn btn-danger btn-sm btn-right ms-4"
-                id="btnRemoveSubsession"
-                @click="removeSubsession(index)"
-              >
-                <font-awesome-icon :icon="['fas', 'trash-can']" />
-              </button>
-              <button
-                class="btn btn-teal btn-sm btn-right"
-                id="btnEditSubsession"
-                @click="showEditSubsessionForm(index)"
-              >
-                <font-awesome-icon :icon="['fas', 'edit']" />
-              </button>
-            </td>
-          </tr>
-        </template>
-      </TransitionGroup>
-    </table>
-    <template v-for="(subsession, index) in feedbackSession.subsessions">
-      <EditSubsessionForm
-        :index="index"
-        @hideEditSubsessionModal="hideEditSubsessionModal"
-      />
-    </template>
-    <EditSubsessionForm
-      index="-1"
-      @hideEditSubsessionModal="hideEditSubsessionModal"
-    />
-  </div>
-  <div class="card bg-transparent shadow p-2 mb-3">
-    <label for="questionsTable" class="form-label">Custom questions</label>
-    <div class="row align-items-center" v-if="!hasQuestions">
-      <div class="col">
-        <button
-          class="btn btn-teal btn-sm btn-block"
-          id="enableQuestions"
-          v-on:click="hasQuestions = true"
-        >
-          Enable custom questions
-        </button>
-      </div>
-      <div class="col-1 mx-4 text-center">
-        <font-awesome-icon
-          :icon="['fas', 'question-circle']"
-          size="xl"
-          style="color: black"
-          @click="questionsInfo"
-        />
-      </div>
-      <div class="w-100 d-block d-md-none"></div>
-      <div class="col-md-9">
-        Attendees will only be asked to complete the default feedback questions
-      </div>
-    </div>
-    <div v-if="hasQuestions">
-      <table class="table" id="questionsTable">
-        <thead>
-          <tr>
-            <th></th>
-            <th>Question</th>
-            <th>Type</th>
-            <th>
-              <button
-                class="btn btn-teal btn-sm btn-right"
-                id="btnAddQuestion"
-                @click.prevent="showEditQuestionForm(-1)"
-              >
-                Add <i class="fas fa-plus"></i>
-              </button>
-            </th>
-          </tr>
-        </thead>
-        <TransitionGroup name="list" tag="tbody">
-          <template
-            v-for="(question, index) in feedbackSession.questions"
-            :key="question"
-          >
+            <font-awesome-icon
+              :icon="['fas', 'question-circle']"
+              size="xl"
+              class="mx-2"
+              style="color: black"
+              @click="seriesInfo"
+            />
+          </div>
+          <div>
+            You are currently requesting feedback for a
+            {{ isSeries ? 'session series' : 'single session' }}
+          </div>
+        </div>
+        <table v-if="isSeries" class="table" id="subsessionsTable">
+          <thead>
             <tr>
-              <td class="bg-transparent p-0 ps-2">
-                <button
-                  v-if="index != 0"
-                  class="btn btn-default btn-sm p-0"
-                  id="btnSortUp"
-                  @click="sortQuestion(index, -1)"
-                >
-                  <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
-                ><br />
-                <button
-                  v-if="index != feedbackSession.questions.length - 1"
-                  class="btn btn-default btn-sm p-0"
-                  id="btnSortDown"
-                  @click="sortQuestion(index, 1)"
-                >
-                  <font-awesome-icon :icon="['fas', 'chevron-down']" />
-                </button>
-              </td>
-              <td class="bg-transparent">{{ question.title }}</td>
-              <td class="bg-transparent">
-                {{ config.feedback.create.questions.types[question.type].name }}
-              </td>
-              <td class="bg-transparent">
-                <button
-                  class="btn btn-danger btn-sm btn-right ms-4"
-                  id="btnRemoveQuestion"
-                  @click="removeQuestion(index)"
-                >
-                  <font-awesome-icon :icon="['fas', 'trash-can']" />
-                </button>
+              <th></th>
+              <th>Title</th>
+              <th>Facilitator</th>
+              <th>Email</th>
+              <th>
                 <button
                   class="btn btn-teal btn-sm btn-right"
-                  id="btnEditQuestion"
-                  @click="showEditQuestionForm(index)"
+                  id="btnAddSubsession"
+                  @click.prevent="showEditSubsessionForm(-1)"
                 >
-                  <font-awesome-icon :icon="['fas', 'edit']" />
+                  Add <i class="fas fa-plus"></i>
                 </button>
-              </td>
+              </th>
             </tr>
-          </template>
-        </TransitionGroup>
-      </table>
-      <template v-for="(question, index) in feedbackSession.questions">
-        <EditQuestionForm
-          :index="index"
-          @hideEditQuestionModal="hideEditQuestionModal"
+          </thead>
+          <TransitionGroup name="list" tag="tbody">
+            <template
+              v-for="(subsession, index) in feedbackSession.subsessions"
+              :key="subsession"
+            >
+              <tr>
+                <td class="bg-transparent p-0 ps-2">
+                  <button
+                    v-if="index != 0"
+                    class="btn btn-default btn-sm p-0"
+                    id="btnSortUp"
+                    @click="sortSubsession(index, -1)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+                  ><br />
+                  <button
+                    v-if="index != feedbackSession.subsessions.length - 1"
+                    class="btn btn-default btn-sm p-0"
+                    id="btnSortDown"
+                    @click="sortSubsession(index, 1)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'chevron-down']" />
+                  </button>
+                </td>
+                <td class="bg-transparent">{{ subsession.title }}</td>
+                <td class="bg-transparent">{{ subsession.name }}</td>
+                <td class="bg-transparent">{{ subsession.email }}</td>
+                <td class="bg-transparent">
+                  <button
+                    class="btn btn-danger btn-sm btn-right ms-4"
+                    id="btnRemoveSubsession"
+                    @click="removeSubsession(index)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'trash-can']" />
+                  </button>
+                  <button
+                    class="btn btn-teal btn-sm btn-right"
+                    id="btnEditSubsession"
+                    @click="showEditSubsessionForm(index)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'edit']" />
+                  </button>
+                </td>
+              </tr>
+            </template>
+          </TransitionGroup>
+        </table>
+        <template v-for="(subsession, index) in feedbackSession.subsessions">
+          <EditSubsessionForm
+            :index="index"
+            @hideEditSubsessionModal="hideEditSubsessionModal"
+          />
+        </template>
+        <EditSubsessionForm
+          index="-1"
+          @hideEditSubsessionModal="hideEditSubsessionModal"
         />
-      </template>
-      <EditQuestionForm
-        index="-1"
-        @hideEditQuestionModal="hideEditQuestionModal"
-      />
+      </div>
+      <div class="card bg-transparent shadow p-2 mb-3">
+        <label for="questionsTable" class="form-label">Custom questions</label>
+        <div
+          class="d-flex flex-wrap align-items-center justify-content-start"
+          v-if="!hasQuestions"
+        >
+          <div class="d-flex align-items-center justify-content-start">
+            <button
+              class="btn btn-teal btn-sm btn-questions"
+              id="enableQuestions"
+              v-on:click="hasQuestions = true"
+            >
+              Enable custom questions
+            </button>
+            <font-awesome-icon
+              :icon="['fas', 'question-circle']"
+              size="xl"
+              class="mx-2"
+              style="color: black"
+              @click="questionsInfo"
+            />
+          </div>
+          <div>
+            Attendees will only be asked to complete the default feedback
+            questions
+          </div>
+        </div>
+        <div v-if="hasQuestions">
+          <table class="table" id="questionsTable">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Question</th>
+                <th>Type</th>
+                <th>
+                  <button
+                    class="btn btn-teal btn-sm btn-right"
+                    id="btnAddQuestion"
+                    @click.prevent="showEditQuestionForm(-1)"
+                  >
+                    Add <i class="fas fa-plus"></i>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <TransitionGroup name="list" tag="tbody">
+              <template
+                v-for="(question, index) in feedbackSession.questions"
+                :key="question"
+              >
+                <tr>
+                  <td class="bg-transparent p-0 ps-2">
+                    <button
+                      v-if="index != 0"
+                      class="btn btn-default btn-sm p-0"
+                      id="btnSortUp"
+                      @click="sortQuestion(index, -1)"
+                    >
+                      <font-awesome-icon
+                        :icon="['fas', 'chevron-up']"
+                      /></button
+                    ><br />
+                    <button
+                      v-if="index != feedbackSession.questions.length - 1"
+                      class="btn btn-default btn-sm p-0"
+                      id="btnSortDown"
+                      @click="sortQuestion(index, 1)"
+                    >
+                      <font-awesome-icon :icon="['fas', 'chevron-down']" />
+                    </button>
+                  </td>
+                  <td class="bg-transparent">{{ question.title }}</td>
+                  <td class="bg-transparent">
+                    {{
+                      config.feedback.create.questions.types[question.type].name
+                    }}
+                  </td>
+                  <td class="bg-transparent">
+                    <button
+                      class="btn btn-danger btn-sm btn-right ms-4"
+                      id="btnRemoveQuestion"
+                      @click="removeQuestion(index)"
+                    >
+                      <font-awesome-icon :icon="['fas', 'trash-can']" />
+                    </button>
+                    <button
+                      class="btn btn-teal btn-sm btn-right"
+                      id="btnEditQuestion"
+                      @click="showEditQuestionForm(index)"
+                    >
+                      <font-awesome-icon :icon="['fas', 'edit']" />
+                    </button>
+                  </td>
+                </tr>
+              </template>
+            </TransitionGroup>
+          </table>
+          <template v-for="(question, index) in feedbackSession.questions">
+            <EditQuestionForm
+              :index="index"
+              @hideEditQuestionModal="hideEditQuestionModal"
+            />
+          </template>
+          <EditQuestionForm
+            index="-1"
+            @hideEditQuestionModal="hideEditQuestionModal"
+          />
+        </div>
+      </div>
+      <div class="text-center mb-3">
+        <button
+          class="btn btn-teal btn-lg"
+          id="submitCreateSession"
+          @click="submit"
+          :disabled="btnSubmit.wait"
+        >
+          <span
+            v-if="btnSubmit.wait"
+            class="spinner-border spinner-border-sm me-2"
+          ></span
+          >{{ btnSubmit.text }}
+        </button>
+      </div>
     </div>
-  </div>
-  <div class="text-center mb-3">
-    <button
-      class="btn btn-teal btn-lg"
-      id="submitCreateSession"
-      @click="submit"
-      :disabled="btnSubmit.wait"
-    >
-      <span
-        v-if="btnSubmit.wait"
-        class="spinner-border spinner-border-sm me-2"
-      ></span
-      >{{ btnSubmit.text }}
-    </button>
-  </div>
+  </Transition>
 </template>
 
 <style>
@@ -666,8 +787,12 @@ const submit = () => {
   }
 }
 .btn-settings {
-  width: 100%;
+  width: 95px;
   min-height: 55px;
+}
+.btn-sessions,
+.btn-questions {
+  min-width: 180px;
 }
 .form-label {
   font-size: 1.3rem;
