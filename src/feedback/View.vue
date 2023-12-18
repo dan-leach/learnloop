@@ -1,18 +1,21 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import router from "../router";
-import { feedbackSession } from "../data/feedbackSession.js";
-import { api } from "../data/api.js";
-import Loading from "../components/Loading.vue";
-import Swal from "sweetalert2";
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import router from '../router';
+import Modal from 'bootstrap/js/dist/modal';
+import { feedbackSession } from '../data/feedbackSession.js';
+import { api } from '../data/api.js';
+import Loading from '../components/Loading.vue';
+import DownloadFeedbackForm from './components/DownloadFeedbackForm.vue';
+import Swal from 'sweetalert2';
 
 let loading = ref(true);
+let isSeries = ref(false);
 
 const fetchFeedback = () => {
   api(
-    "feedback",
-    "fetchFeedback",
+    'feedback',
+    'fetchFeedback',
     feedbackSession.id,
     feedbackSession.pin,
     null
@@ -20,7 +23,7 @@ const fetchFeedback = () => {
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
-          "feedbackSession.id != res.id",
+          'feedbackSession.id != res.id',
           feedbackSession.id,
           res.id
         );
@@ -36,7 +39,7 @@ const fetchFeedback = () => {
       feedbackSession.feedback.score =
         Math.round((sum / res.score.length) * 10) / 10;
       if (Number.isNaN(feedbackSession.feedback.score))
-        feedbackSession.feedback.score = "-";
+        feedbackSession.feedback.score = '-';
       feedbackSession.questions = res.questions;
       if (res.subsessions) {
         for (let sub of res.subsessions) {
@@ -44,51 +47,66 @@ const fetchFeedback = () => {
           let sum = 0;
           for (let score of parsed.score) sum += parseInt(score);
           parsed.score = Math.round((sum / parsed.score.length) * 10) / 10;
-          if (Number.isNaN(parsed.score)) parsed.score = "-";
+          if (Number.isNaN(parsed.score)) parsed.score = '-';
           feedbackSession.subsessions.push(parsed);
+          isSeries = true;
         }
       }
       loading.value = false;
     },
     function (error) {
       Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load feedback report",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable to load feedback report',
         text: error,
-        confirmButtonColor: "#17a2b8",
+        confirmButtonColor: '#17a2b8',
       });
-      router.push("/");
+      router.push('/');
     }
   );
 };
 
+let downloadFeedbackModal;
+const showDownloadFeedbackForm = (index) => {
+  downloadFeedbackModal = new Modal(
+    document.getElementById('downloadFeedbackModal'),
+    {
+      backdrop: 'static',
+      keyboard: false,
+      focus: true,
+    }
+  );
+  downloadFeedbackModal.show();
+};
+const hideDownloadFeedbackModal = () => downloadFeedbackModal.hide();
+
 onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
-    title: "Enter session ID and PIN",
+    title: 'Enter session ID and PIN',
     html:
-      "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+      'You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
       '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
       feedbackSession.id +
       '">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
     showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
+    confirmButtonColor: '#17a2b8',
     preConfirm: () => {
-      feedbackSession.id = document.getElementById("swalFormId").value;
-      feedbackSession.pin = document.getElementById("swalFormPin").value;
-      if (feedbackSession.pin == "")
-        Swal.showValidationMessage("Please enter your PIN");
-      if (feedbackSession.id == "")
-        Swal.showValidationMessage("Please enter a session ID");
+      feedbackSession.id = document.getElementById('swalFormId').value;
+      feedbackSession.pin = document.getElementById('swalFormPin').value;
+      if (feedbackSession.pin == '')
+        Swal.showValidationMessage('Please enter your PIN');
+      if (feedbackSession.id == '')
+        Swal.showValidationMessage('Please enter a session ID');
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      history.replaceState({}, "", feedbackSession.id);
+      history.replaceState({}, '', feedbackSession.id);
       fetchFeedback();
     } else {
-      router.push("/");
+      router.push('/');
     }
   });
 });
@@ -104,10 +122,13 @@ onMounted(() => {
       <p>
         Viewing feedback for <strong>'{{ feedbackSession.title }}'</strong> by
         <strong>{{ feedbackSession.name }}</strong> on
-        <strong>{{ feedbackSession.date }}</strong
-        >.
+        <strong>{{ feedbackSession.date }}</strong>
       </p>
-      <form method="post" action="https://dev.learnloop.co.uk/api/">
+      <form
+        v-if="!isSeries"
+        method="post"
+        action="https://dev.learnloop.co.uk/api/"
+      >
         <input type="text" name="module" value="feedback" readonly hidden />
         <input
           type="text"
@@ -130,45 +151,34 @@ onMounted(() => {
           readonly
           hidden
         />
-
-        <div class="text-center">
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text">Download feedback as PDF</span>
-            </div>
-            <select
-              id="selectSubID"
-              name="subID"
-              class="form-control"
-              v-if="feedbackSession.subsessions.length"
-            >
-              <option value="">Overall feedback and all sessions</option>
-              <option
-                v-for="subsession in feedbackSession.subsessions"
-                :value="subsession.id"
-                name="subID"
-              >
-                Just '{{ subsession.title }}'
-              </option>
-            </select>
-            <div class="input-group-append">
-              <button class="btn btn-teal" id="btnFetchFeedbackPDF">Go</button>
-            </div>
-          </div>
-        </div>
+        <button class="btn btn-teal mb-3" id="btnDownloadFeedback">
+          Download feedback as PDF
+        </button>
       </form>
-      <h4>Positive comments:</h4>
+      <button
+        v-else
+        class="btn btn-teal mb-3"
+        id="btnDownloadFeedback"
+        @click.prevent="showDownloadFeedbackForm"
+      >
+        Download feedback as PDF
+      </button>
+      <DownloadFeedbackForm
+        @hideDownloadFeedbackModal="hideDownloadFeedbackModal"
+      />
+      <label class="form-label">Positive comments</label><br />
       <span v-for="item in feedbackSession.feedback.positive"
         >{{ item }}<br
       /></span>
       <br />
-      <h4>Constructive comments:</h4>
+      <label class="form-label">Constructive comments</label><br />
       <span v-for="item in feedbackSession.feedback.negative"
         >{{ item }}<br
       /></span>
       <div v-for="(question, index) in feedbackSession.questions">
         <br />
-        <h4>{{ question.title }}</h4>
+        <label class="form-label">{{ question.title }}</label
+        ><br />
         <div v-if="question.type == 'text'">
           <span v-for="response in question.responses"
             >{{ response }}<br
@@ -181,49 +191,61 @@ onMounted(() => {
         </div>
       </div>
       <br />
-      <h4>Overall Score: {{ feedbackSession.feedback.score }}/100</h4>
+      <label class="form-label"
+        >Overall Score {{ feedbackSession.feedback.score }}/100</label
+      ><br />
       <br />
       <div v-if="feedbackSession.subsessions.length > 0">
-        <h4>Sessions:</h4>
+        <label class="form-label">Sessions</label><br />
         <table id="subsessionFeedback" class="table">
           <thead>
             <tr>
-              <th>Session</th>
-              <th>Positive</th>
-              <th>Constructive</th>
-              <th>Average Score</th>
+              <th class="bg-transparent p-0 ps-2">Session</th>
+              <th class="bg-transparent p-0 ps-2">Positive</th>
+              <th class="bg-transparent p-0 ps-2">Constructive</th>
+              <th class="bg-transparent p-0 ps-2">Average Score</th>
             </tr>
           </thead>
           <tbody>
             <tr v-for="(sub, index) in feedbackSession.subsessions">
-              <td>
+              <td class="bg-transparent p-0 ps-2">
                 <strong>{{ sub.title }}</strong
                 ><br />
                 {{ sub.name }}
               </td>
-              <td>
+              <td class="bg-transparent p-0 ps-2">
                 <span v-for="item in sub.positive">{{ item }}<br /></span>
               </td>
-              <td>
+              <td class="bg-transparent p-0 ps-2">
                 <span v-for="item in sub.negative">{{ item }}<br /></span>
               </td>
-              <td>{{ sub.score }}/100</td>
+              <td class="bg-transparent p-0 ps-2">{{ sub.score }}/100</td>
             </tr>
           </tbody>
         </table>
       </div>
-      Score guide:
-      <ul>
-        <li>>95: an overwhelmingly excellent session, couldn't be improved</li>
-        <li>>80: an excellent sesssion, minimal grounds for improvement</li>
-        <li>>70: a very good session, minor points for improvement</li>
-        <li>>60: a fairly good session, could be improved further</li>
-        <li>>40: basically sound, but needs further development</li>
-        <li>>=20: not adequate in its current state</li>
-        <li>&#60;20: an extremely poor session</li>
-      </ul>
+      <div class="d-flex justify-content-center">
+        <div class="card bg-transparent shadow p-2 mb-3">
+          <label class="form-label">Score guide</label>
+          <ul>
+            <li>
+              >95: an overwhelmingly excellent session, couldn't be improved
+            </li>
+            <li>>80: an excellent sesssion, minimal grounds for improvement</li>
+            <li>>70: a very good session, minor points for improvement</li>
+            <li>>60: a fairly good session, could be improved further</li>
+            <li>>40: basically sound, but needs further development</li>
+            <li>>=20: not adequate in its current state</li>
+            <li>&#60;20: an extremely poor session</li>
+          </ul>
+        </div>
+      </div>
     </div>
   </Transition>
 </template>
 
-<style scoped></style>
+<style scoped>
+.form-label {
+  font-size: 1.3rem;
+}
+</style>
