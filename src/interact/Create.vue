@@ -202,10 +202,10 @@ const submit = () => {
     <table class="table" id="interactionsTable">
       <thead>
         <tr>
-          <th></th>
-          <th>Prompt</th>
-          <th>Type</th>
-          <th>
+          <th class="bg-transparent p-0 ps-2"></th>
+          <th class="bg-transparent p-0 ps-2">Prompt</th>
+          <th class="bg-transparent p-0 ps-2">Type</th>
+          <th class="bg-transparent p-0 ps-2">
             <button
               class="btn btn-teal btn-sm btn-right"
               id="btnAddInteraction"

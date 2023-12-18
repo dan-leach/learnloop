@@ -115,7 +115,7 @@ let scoreChange = () => {
               <input
                 type="text"
                 v-model="subsession.score"
-                class="form-control-range"
+                class="form-control-range form-range"
                 id="score"
                 placeholder=""
                 name="score"
@@ -128,17 +128,29 @@ let scoreChange = () => {
               </div>
             </div>
           </form>
-          <button
-            class="btn btn-primary text-center"
-            id="submitSubsessionFeedbackForm"
-            v-on:click.prevent="submitSubsessionFeedbackForm"
-          >
-            Give feedback
-          </button>
+          <div class="text-center">
+            <button
+              class="btn btn-teal text-center"
+              id="submitSubsessionFeedbackForm"
+              v-on:click.prevent="submitSubsessionFeedbackForm"
+            >
+              Give feedback
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.form-range::-webkit-slider-thumb {
+  background-color: #17a2b8;
+  margin-top: -0.35rem;
+}
+.form-range::-webkit-slider-runnable-track {
+  background-color: #17a2b8;
+  height: 0.2rem;
+  margin-top: 0.8rem;
+}
+</style>

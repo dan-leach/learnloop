@@ -571,11 +571,11 @@ onMounted(() => {
         <table v-if="isSeries" class="table" id="subsessionsTable">
           <thead>
             <tr>
-              <th></th>
-              <th>Title</th>
-              <th>Facilitator</th>
-              <th>Email</th>
-              <th>
+              <th class="bg-transparent p-0 ps-2"></th>
+              <th class="bg-transparent p-0 ps-2">Title</th>
+              <th class="bg-transparent p-0 ps-2">Facilitator</th>
+              <th class="bg-transparent p-0 ps-2">Email</th>
+              <th class="bg-transparent p-0 ps-2">
                 <button
                   class="btn btn-teal btn-sm btn-right"
                   id="btnAddSubsession"
@@ -675,10 +675,10 @@ onMounted(() => {
           <table class="table" id="questionsTable">
             <thead>
               <tr>
-                <th></th>
-                <th>Question</th>
-                <th>Type</th>
-                <th>
+                <th class="bg-transparent p-0 ps-2"></th>
+                <th class="bg-transparent p-0 ps-2">Question</th>
+                <th class="bg-transparent p-0 ps-2">Type</th>
+                <th class="bg-transparent p-0 ps-2">
                   <button
                     class="btn btn-teal btn-sm btn-right"
                     id="btnAddQuestion"

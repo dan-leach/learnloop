@@ -1,53 +1,53 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import router from "../router";
-import { feedbackSession } from "../data/feedbackSession.js";
-import { cookies } from "../data/cookies.js";
-import { api } from "../data/api.js";
-import Loading from "../components/Loading.vue";
-import Swal from "sweetalert2";
-import Modal from "bootstrap/js/dist/modal";
-import SubsessionFeedbackForm from "./components/SubsessionFeedbackForm.vue";
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import router from '../router';
+import { feedbackSession } from '../data/feedbackSession.js';
+import { cookies } from '../data/cookies.js';
+import { api } from '../data/api.js';
+import Loading from '../components/Loading.vue';
+import Swal from 'sweetalert2';
+import Modal from 'bootstrap/js/dist/modal';
+import SubsessionFeedbackForm from './components/SubsessionFeedbackForm.vue';
 
 let loading = ref(true);
 let submitted = ref(false);
 
-const openPrivacyPolicy = () => window.open("/privacy-policy", "_blank");
+const openPrivacyPolicy = () => window.open('/privacy-policy', '_blank');
 
 const saveProgress = (confirm) => {
   const d = new Date();
   d.setTime(d.getTime() + 1 * 24 * 60 * 60 * 1000); //1 day
-  let expires = "expires=" + d.toUTCString();
+  let expires = 'expires=' + d.toUTCString();
   if (feedbackSession.id)
     document.cookie =
       feedbackSession.id +
-      "=" +
+      '=' +
       JSON.stringify(feedbackSession) +
-      ";" +
+      ';' +
       expires +
-      ";path=/;"; //stores as cookie with name of session ID
+      ';path=/;'; //stores as cookie with name of session ID
   console.log(
     document.cookie.includes(feedbackSession.id)
-      ? "saveProgress success"
-      : "saveProgress fail"
+      ? 'saveProgress success'
+      : 'saveProgress fail'
   );
   if (confirm) {
     if (document.cookie.includes(feedbackSession.id)) {
       Swal.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        title: "Your progress has been saved",
-        text: "Return to this form on the same device within the next 24 hours to pick up where you left off.",
-        confirmButtonColor: "#17a2b8",
+        icon: 'success',
+        iconColor: '#17a2b8',
+        title: 'Your progress has been saved',
+        text: 'Return to this form on the same device within the next 24 hours to pick up where you left off.',
+        confirmButtonColor: '#17a2b8',
       });
     } else {
       Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to save your progress",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable to save your progress',
         text: "You can still submit your feedback, but you'll need to fill in the form in one sitting, rather than saving and returning to it later.",
-        confirmButtonColor: "#17a2b8",
+        confirmButtonColor: '#17a2b8',
       });
     }
   }
@@ -61,21 +61,21 @@ const cookieMsg = ref(
 
 const scoreChange = () => {
   let x = feedbackSession.feedback.score;
-  let y = "slider error";
+  let y = 'slider error';
   if (x > 95) {
     y = "an overwhelmingly excellent session, couldn't be improved";
   } else if (x > 80) {
-    y = "an excellent sesssion, minimal grounds for improvement";
+    y = 'an excellent sesssion, minimal grounds for improvement';
   } else if (x > 70) {
-    y = "a very good session, minor points for improvement";
+    y = 'a very good session, minor points for improvement';
   } else if (x > 60) {
-    y = "a fairly good session, could be improved further";
+    y = 'a fairly good session, could be improved further';
   } else if (x > 40) {
-    y = "basically sound, but needs further development";
+    y = 'basically sound, but needs further development';
   } else if (x >= 20) {
-    y = "not adequate in its current state";
+    y = 'not adequate in its current state';
   } else if (x < 20) {
-    y = "an extremely poor session";
+    y = 'an extremely poor session';
   }
   feedbackSession.feedback.scoreText = y;
 };
@@ -93,45 +93,45 @@ const validNumberOfOptionsSelected = (question) => {
 };
 
 let btnSubmit = ref({
-  text: "Give feedback",
+  text: 'Give feedback',
   wait: false,
 });
 const formIsValid = () => {
-  document.getElementById("giveFeedbackForm").classList.add("was-validated");
+  document.getElementById('giveFeedbackForm').classList.add('was-validated');
   let subsessionsTodo = false;
   for (let i in feedbackSession.subsessions) {
     //needs to be first check to ensure correct styling of subsession status table cells before a return false ends the function
     let subsession = feedbackSession.subsessions[i];
-    let statusElement = document.getElementById("subsession" + i + "Status");
-    if (subsession.status == "To do") {
-      statusElement.classList.add("is-invalid");
-      statusElement.classList.remove("is-valid");
+    let statusElement = document.getElementById('subsession' + i + 'Status');
+    if (subsession.status == 'To do') {
+      statusElement.classList.add('is-invalid');
+      statusElement.classList.remove('is-valid');
       subsessionsTodo = true;
     } else if (
-      subsession.status == "Skipped" ||
-      subsession.status == "Complete"
+      subsession.status == 'Skipped' ||
+      subsession.status == 'Complete'
     ) {
-      statusElement.classList.add("is-valid");
-      statusElement.classList.remove("is-invalid");
+      statusElement.classList.add('is-valid');
+      statusElement.classList.remove('is-invalid');
     }
   }
   if (subsessionsTodo) return false;
   if (
-    feedbackSession.feedback.positive == "" ||
-    feedbackSession.feedback.negative == "" ||
+    feedbackSession.feedback.positive == '' ||
+    feedbackSession.feedback.negative == '' ||
     feedbackSession.feedback.score == null
   )
     return false;
   for (let question of feedbackSession.questions) {
     if (question.settings.required) {
-      if (question.type == "text" || question.type == "select") {
+      if (question.type == 'text' || question.type == 'select') {
         if (
           question.response == null ||
-          question.response === "undefined" ||
-          question.response == ""
+          question.response === 'undefined' ||
+          question.response == ''
         )
           return false;
-      } else if (question.type == "checkbox") {
+      } else if (question.type == 'checkbox') {
         if (!validNumberOfOptionsSelected(question)) return false;
       }
     }
@@ -141,14 +141,14 @@ const formIsValid = () => {
 const submit = () => {
   submitted.value = true;
   if (!formIsValid()) {
-    console.log("form validation failed");
+    console.log('form validation failed');
     return;
   }
-  btnSubmit.value.text = "Please wait...";
+  btnSubmit.value.text = 'Please wait...';
   btnSubmit.value.wait = true;
   api(
-    "feedback",
-    "insertFeedback",
+    'feedback',
+    'insertFeedback',
     feedbackSession.id,
     null,
     feedbackSession
@@ -158,22 +158,22 @@ const submit = () => {
         if (cookie.id == feedbackSession.id) {
           document.cookie =
             feedbackSession.id +
-            "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+            '=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
         }
       }
-      btnSubmit.value.text = "Give feedback";
+      btnSubmit.value.text = 'Give feedback';
       btnSubmit.value.wait = false;
-      router.push("/feedback/complete");
+      router.push('/feedback/complete');
     },
     function (error) {
       Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable submit your feedback",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable submit your feedback',
         text: error,
-        confirmButtonColor: "#17a2b8",
+        confirmButtonColor: '#17a2b8',
       });
-      btnSubmit.value.text = "Retry give feedback?";
+      btnSubmit.value.text = 'Retry give feedback?';
       btnSubmit.value.wait = false;
     }
   );
@@ -182,9 +182,9 @@ const submit = () => {
 let subsessionFeedbackModal;
 const showSubsessionFeedbackModal = (index) => {
   subsessionFeedbackModal = new Modal(
-    document.getElementById("subsessionFeedbackModal" + index),
+    document.getElementById('subsessionFeedbackModal' + index),
     {
-      backdrop: "static",
+      backdrop: 'static',
       keyboard: false,
       focus: true,
     }
@@ -193,20 +193,20 @@ const showSubsessionFeedbackModal = (index) => {
 };
 const hideSubsessionFeedbackModal = (index) => {
   subsessionFeedbackModal.hide();
-  let statusElement = document.getElementById("subsession" + index + "Status");
+  let statusElement = document.getElementById('subsession' + index + 'Status');
   if (
-    feedbackSession.subsessions[index].status == "Skipped" ||
-    feedbackSession.subsessions[index].status == "Complete"
+    feedbackSession.subsessions[index].status == 'Skipped' ||
+    feedbackSession.subsessions[index].status == 'Complete'
   ) {
-    statusElement.classList.add("is-valid");
-    statusElement.classList.remove("is-invalid");
+    statusElement.classList.add('is-valid');
+    statusElement.classList.remove('is-invalid');
   }
 };
 
 let skipSubsessionFeedbackInfoModal;
 const showSkipSubsessionFeedbackInfo = () => {
   skipSubsessionFeedbackInfoModal = new Modal(
-    document.getElementById("skipSubsessionFeedbackInfo"),
+    document.getElementById('skipSubsessionFeedbackInfo'),
     {
       backdrop: true,
       keyboard: true,
@@ -220,46 +220,46 @@ const hideSkipSubsessionFeedbackInfo = () =>
 
 const skipSubsessionFeedback = (index) => {
   const statusElement = document.getElementById(
-    "subsession" + index + "Status"
+    'subsession' + index + 'Status'
   );
   const subsession = feedbackSession.subsessions[index];
   if (
-    subsession.positive == "" &&
-    subsession.negative == "" &&
+    subsession.positive == '' &&
+    subsession.negative == '' &&
     subsession.score == null
   ) {
-    subsession.status = "Skipped";
+    subsession.status = 'Skipped';
 
-    statusElement.classList.remove("is-invalid");
-    statusElement.classList.add("is-valid");
+    statusElement.classList.remove('is-invalid');
+    statusElement.classList.add('is-valid');
   } else {
     Swal.fire({
-      title: "Skip session?",
-      text: "Your existing feedback for " + subsession.title + " will be lost.",
-      icon: "warning",
-      iconColor: "#17a2b8",
+      title: 'Skip session?',
+      text: 'Your existing feedback for ' + subsession.title + ' will be lost.',
+      icon: 'warning',
+      iconColor: '#17a2b8',
       showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      confirmButtonText: "Skip",
+      confirmButtonColor: '#17a2b8',
+      confirmButtonText: 'Skip',
     }).then((result) => {
       if (result.isConfirmed) {
-        subsession.status = "Skipped";
-        subsession.positive = "";
-        subsession.negative = "";
+        subsession.status = 'Skipped';
+        subsession.positive = '';
+        subsession.negative = '';
         subsession.score == null;
-        statusElement.classList.remove("is-invalid");
-        statusElement.classList.add("is-valid");
+        statusElement.classList.remove('is-invalid');
+        statusElement.classList.add('is-valid');
       }
     });
   }
 };
 
 const fetchDetails = () => {
-  api("feedback", "fetchDetails", feedbackSession.id, null, null).then(
+  api('feedback', 'fetchDetails', feedbackSession.id, null, null).then(
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
-          "feedbackSession.id != res.id",
+          'feedbackSession.id != res.id',
           feedbackSession.id,
           res.id
         );
@@ -267,13 +267,13 @@ const fetchDetails = () => {
       }
       if (res.closed) {
         Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          title: "Unable to load feedback form",
-          text: "This feedback request has been closed by the facilitator.",
-          confirmButtonColor: "#17a2b8",
+          icon: 'error',
+          iconColor: '#17a2b8',
+          title: 'Unable to load feedback form',
+          text: 'This feedback request has been closed by the facilitator.',
+          confirmButtonColor: '#17a2b8',
         });
-        router.push("/");
+        router.push('/');
         return;
       }
       feedbackSession.title = res.title;
@@ -281,19 +281,19 @@ const fetchDetails = () => {
       feedbackSession.name = res.name;
       feedbackSession.subsessions = res.subsessions;
       for (let subsession of feedbackSession.subsessions) {
-        subsession.status = "To do";
-        subsession.positive = "";
-        subsession.negative = "";
+        subsession.status = 'To do';
+        subsession.positive = '';
+        subsession.negative = '';
         subsession.score = null;
         subsession.scoreText =
-          "Please use the slider to indicate an overall score.";
+          'Please use the slider to indicate an overall score.';
       }
       feedbackSession.questions = res.questions;
       for (let question of feedbackSession.questions) {
-        question.response = "";
+        question.response = '';
         if (question.settings.required == undefined) {
           //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
-          if (question.type == "text" || question.type == "select")
+          if (question.type == 'text' || question.type == 'select')
             question.settings.required = true;
         }
       }
@@ -302,20 +302,20 @@ const fetchDetails = () => {
       for (let cookie of cookies) {
         if (cookie.id == feedbackSession.id) {
           Swal.fire({
-            title: "Resume feedback session?",
-            icon: "info",
-            iconColor: "#17a2b8",
-            text: "You previously started filling in this feedback form. Would you like to pick up where you left off?",
+            title: 'Resume feedback session?',
+            icon: 'info',
+            iconColor: '#17a2b8',
+            text: 'You previously started filling in this feedback form. Would you like to pick up where you left off?',
             confirmButtonText: "Yes, let's go",
-            confirmButtonColor: "#17a2b8",
+            confirmButtonColor: '#17a2b8',
             showDenyButton: true,
-            denyButtonText: "No, start over",
+            denyButtonText: 'No, start over',
             allowOutsideClick: false,
             allowEscapeKey: false,
           }).then((result) => {
             if (result.isConfirmed) {
               console.log(
-                "Load feedback data from cookie with ID: " + cookie.id
+                'Load feedback data from cookie with ID: ' + cookie.id
               );
               feedbackSession.feedback = cookie.feedback;
               feedbackSession.questions = cookie.questions;
@@ -328,13 +328,13 @@ const fetchDetails = () => {
     },
     function (error) {
       Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load feedback form",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable to load feedback form',
         text: error,
-        confirmButtonColor: "#17a2b8",
+        confirmButtonColor: '#17a2b8',
       });
-      router.push("/");
+      router.push('/');
     }
   );
 };
@@ -343,23 +343,23 @@ onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
   if (!feedbackSession.id) {
     Swal.fire({
-      title: "Enter session ID",
+      title: 'Enter session ID',
       html:
-        "You will need a session ID provided by your facilitator. <br>" +
+        'You will need a session ID provided by your facilitator. <br>' +
         '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',
       showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
+      confirmButtonColor: '#17a2b8',
       preConfirm: () => {
-        feedbackSession.id = document.getElementById("swalFormId").value;
-        if (feedbackSession.id == "")
-          Swal.showValidationMessage("Please enter a session ID");
+        feedbackSession.id = document.getElementById('swalFormId').value;
+        if (feedbackSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        history.replaceState({}, "", feedbackSession.id);
+        history.replaceState({}, '', feedbackSession.id);
         fetchDetails();
       } else {
-        router.push("/");
+        router.push('/');
       }
     });
   } else {
@@ -401,14 +401,14 @@ onMounted(() => {
       Indicates questions to which a response is required <br /><br />
       <form id="giveFeedbackForm" class="needs-validation" novalidate>
         <div v-if="feedbackSession.subsessions.length">
-          <label class="form-label">Feedback on sessions:</label>
+          <label class="form-label">Feedback on sessions</label>
           <table class="table" id="subsessionTable">
             <thead>
               <tr>
-                <th>Session</th>
-                <th>Status</th>
-                <th>Feedback</th>
-                <th>
+                <th class="bg-transparent p-0 ps-2">Session</th>
+                <th class="bg-transparent p-0 ps-2">Status</th>
+                <th class="bg-transparent p-0 ps-2">Feedback</th>
+                <th class="bg-transparent p-0 ps-2">
                   Skip<font-awesome-icon
                     :icon="['fas', 'fa-question-circle']"
                     class="mx-2"
@@ -419,18 +419,20 @@ onMounted(() => {
             </thead>
             <tbody>
               <tr v-for="(subsession, index) in feedbackSession.subsessions">
-                <td>
+                <td class="bg-transparent p-0 ps-2">
                   <strong>{{ subsession.title }}</strong
                   ><br />{{ subsession.name }}
                 </td>
-                <td class="subsession-status">
+                <td class="subsession-status bg-transparent p-0 ps-2">
                   <span
                     :id="'subsession' + index + 'Status'"
                     class="subsession-status form-control"
                     >{{ subsession.status }}</span
                   >
                 </td>
-                <td class="text-center subsession-button">
+                <td
+                  class="text-center subsession-button bg-transparent p-0 ps-2"
+                >
                   <button
                     class="btn btn-teal btn-sm"
                     id="loadGiveSubsessionFeedback"
@@ -439,7 +441,9 @@ onMounted(() => {
                     <font-awesome-icon :icon="['fas', 'pen-to-square']" />
                   </button>
                 </td>
-                <td class="text-center subsession-button">
+                <td
+                  class="text-center subsession-button bg-transparent p-0 ps-2"
+                >
                   <button
                     class="btn btn-danger btn-sm"
                     id="skipSubsessionFeedback"
@@ -605,14 +609,14 @@ onMounted(() => {
                 {{
                   question.settings.selectedLimit.min ==
                   question.settings.selectedLimit.max
-                    ? "Please select exactly " +
+                    ? 'Please select exactly ' +
                       question.settings.selectedLimit.min +
-                      " options."
-                    : "Please select between " +
+                      ' options.'
+                    : 'Please select between ' +
                       question.settings.selectedLimit.min +
-                      " and " +
+                      ' and ' +
                       question.settings.selectedLimit.max +
-                      " options."
+                      ' options.'
                 }}
               </div>
               <br />
@@ -668,7 +672,7 @@ onMounted(() => {
       </form>
       <div class="text-center mt-4">
         <button
-          class="btn btn-teal"
+          class="btn btn-teal btn-lg"
           id="submitGiveFeedback"
           @click="submit"
           :disabled="btnSubmit.wait"
