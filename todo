@@ -1,5 +1,4 @@
 Current:
-Remove 'edit' components and use Create components to do both create and edit roles -> detect which role from router path
 Convert give feedback and join/host interactions to floating labels
 Check appearance of all floating labels (including on component forms) on both desktop and mobile - especially margins and wrapping
 
@@ -9,7 +8,6 @@ Check cookies work as expected
 In interact, count number of failed API calls and alert host or attendee if they appear to have lost connection after a certain length of time
 
 Improvements:
-Floating labels
 Preview of feedback form, question, interaction
 Prevent subsession update email when that subsession hasn't changed
 Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
