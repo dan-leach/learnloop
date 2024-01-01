@@ -50,13 +50,13 @@ const submit = () => {
       novalidate
     >
       <div class="mb-4">
-        <label for="attendeeName" class="form-label">Name:</label>
+        <label for="attendeeName" class="form-label">Name</label>
         <input
           type="text"
           v-model="feedbackSession.attendee.name"
           class="form-control"
           id="attendeeName"
-          placeholder="Enter your name as you would like it to appear on your certificate..."
+          placeholder="Your name as it should appear on the certificate...."
           name="attendeeName"
           autocomplete="off"
           :disabled="lockForm"
@@ -68,7 +68,7 @@ const submit = () => {
         </div>
       </div>
       <div class="mb-4" v-if="feedbackSession.attendee.region != -1">
-        <label for="attendeeRegion" class="form-label">Region:</label>
+        <label for="attendeeRegion" class="form-label">Region</label>
         <select
           v-model="feedbackSession.attendee.region"
           class="form-control"
@@ -175,7 +175,7 @@ const submit = () => {
       </p>
       <div class="text-center mt-4">
         <button
-          class="btn btn-teal"
+          class="btn btn-lg btn-teal"
           id="downloadCertificate"
           @click.prevent="submit"
         >

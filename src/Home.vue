@@ -32,11 +32,11 @@ const resetPin = (module, id) => {
   Swal.fire({
     title: "Reset PIN",
     html:
-      "You will need your session ID which you can find in emails relating to your session.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>" +
+      "<div class='overflow-hidden'>You will need your session ID which you can find in emails relating to your session.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>" +
       '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="' +
       id +
       '">' +
-      '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
+      '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
@@ -84,12 +84,12 @@ const setNotificationPreference = (id) => {
   Swal.fire({
     title: "Set notification preferences",
     html:
-      "You will need your session ID and PIN which you can find in the email you received when your session was created." +
+      "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created." +
       '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="' +
       id +
       '">' +
       '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input"><br><br>' +
-      'Set notifications <select id="swalFormNotifications" type="select" class="swal2-input"><option value=true>On</option><option value=false>Off</option></select>',
+      'Set notifications <select id="swalFormNotifications" type="select" class="swal2-input"><option value=true>On</option><option value=false>Off</option></select></div>',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
@@ -141,8 +141,8 @@ const findMySessions = (module) => {
   Swal.fire({
     title: "Find my sessions",
     html:
-      "Enter your email below and we'll email you with a list of any sessions you've created previously." +
-      '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input">',
+      "<div class='overflow-hidden'>Enter your email below and we'll email you with a list of any sessions you've created previously." +
+      '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
@@ -190,9 +190,9 @@ const closeSession = (module) => {
   Swal.fire({
     title: "Close session",
     html:
-      "You will need your session ID and PIN which you can find in the email you received when your session was created.<br><br>Please be aware that once closed a session cannot be reopend to further feedback.<br>" +
+      "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created.<br><br>Please be aware that once closed a session cannot be reopend to further feedback.<br>" +
       '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input">' +
-      '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input">',
+      '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
@@ -343,8 +343,8 @@ onMounted(() => {
       <div class="card bg-transparent shadow p-2 m-2">
         <p class="text-center text-danger bg-dark p-2">
           <strong
-            >Interact is in private beta and can only be used by
-            invitation</strong
+            >Interact is in private beta<br />
+            by invitation only</strong
           >
         </p>
         <h1 class="text-center">Interact</h1>
@@ -418,7 +418,6 @@ onMounted(() => {
 
 <style scoped>
 .card {
-  width: 40%;
   min-width: 300px;
 }
 .nav-link.active {

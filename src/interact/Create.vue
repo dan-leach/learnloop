@@ -204,11 +204,11 @@ onMounted(() => {
     Swal.fire({
       title: "Enter session ID and PIN",
       html:
-        "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+        "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
         '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
         interactSession.id +
         '">' +
-        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {

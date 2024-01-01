@@ -94,8 +94,8 @@ onMounted(() => {
     Swal.fire({
       title: "Enter session ID",
       html:
-        "You will need a session ID provided by your facilitator. <br>" +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',
+        "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
+        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {

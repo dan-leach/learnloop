@@ -62,3 +62,6 @@ th {
 .btn-left {
   float: left;
 }
+.overflow-hidden {
+  overflow: hidden;
+}

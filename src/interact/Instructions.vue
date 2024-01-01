@@ -51,7 +51,7 @@ onMounted(() => {
   if (!interactSession.id) {
     Swal.fire({
       title: "Enter session ID",
-      html: '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">',
+      html: '<div class="overflow-hidden"><input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
