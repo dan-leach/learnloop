@@ -278,18 +278,18 @@ onMounted(() => {
             Give feedback
           </button>
         </div>
-        <ul class="nav nav-pills justify-content-between m-2">
-          <li class="nav-item mb-2">
+        <ul class="nav nav-pills justify-content-between m-2 d-flex">
+          <li class="nav-item mb-2 flex-grow-1 d-flex">
             <button
-              class="nav-link active"
+              class="nav-link active flex-grow-1"
               @click="router.push('/feedback/create')"
             >
               Create a new feedback session
             </button>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown flex-grow-1 d-flex more-options">
             <button
-              class="nav-link active dropdown-toggle"
+              class="nav-link active dropdown-toggle flex-grow-1"
               data-bs-toggle="dropdown"
               href="#"
             >
@@ -337,7 +337,16 @@ onMounted(() => {
           </li>
         </ul>
       </div>
+    </div>
+    <Quote />
+    <div class="d-flex justify-content-around flex-wrap">
       <div class="card bg-transparent shadow p-2 m-2">
+        <p class="text-center text-danger bg-dark p-2">
+          <strong
+            >Interact is in private beta and can only be used by
+            invitation</strong
+          >
+        </p>
         <h1 class="text-center">Interact</h1>
         <p class="text-center">Engage your audience with live interactions</p>
         <div class="input-group m-2">
@@ -359,18 +368,18 @@ onMounted(() => {
             Join session
           </button>
         </div>
-        <ul class="nav nav-pills justify-content-between m-2">
-          <li class="nav-item mb-2">
+        <ul class="nav nav-pills justify-content-between m-2 d-flex">
+          <li class="nav-item mb-2 flex-grow-1 d-flex">
             <button
-              class="nav-link active"
+              class="nav-link active flex-grow-1"
               @click="router.push('/interact/create')"
             >
               Create a new interact session
             </button>
           </li>
-          <li class="nav-item dropdown">
+          <li class="nav-item dropdown flex-grow-1 d-flex more-options">
             <button
-              class="nav-link active dropdown-toggle"
+              class="nav-link active dropdown-toggle flex-grow-1"
               data-bs-toggle="dropdown"
               href="#"
             >
@@ -404,7 +413,6 @@ onMounted(() => {
         </ul>
       </div>
     </div>
-    <Quote />
   </main>
 </template>
 
@@ -420,5 +428,14 @@ onMounted(() => {
 .nav-link:hover {
   background-color: #00606e;
   color: white;
+}
+.nav-item,
+.nav-link {
+  height: 40px;
+}
+@media only screen and (min-width: 1200px) {
+  .more-options {
+    margin-left: 15px;
+  }
 }
 </style>

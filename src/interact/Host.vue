@@ -50,11 +50,10 @@ const goToInteraction = (index) => {
     index == 0 || index == interactSession.interactions.length - 1
       ? false
       : true;
-  currentIndex.value = index;
-  updateFacilitatorIndex();
-  if (index == 0) {
-    fetchSubmissionCount();
-  } else if (index == 1 || index == interactSession.interactions.length - 1) {
+  if (
+    (index == 1 && currentIndex.value == 0) ||
+    index == interactSession.interactions.length - 1
+  ) {
     Toast.fire({
       icon: "info",
       iconColor: "#17a2b8",
@@ -62,6 +61,9 @@ const goToInteraction = (index) => {
       position: "center",
     });
   }
+  currentIndex.value = index;
+  updateFacilitatorIndex();
+  if (index == 0) fetchSubmissionCount();
   interactSession.interactions[currentIndex.value].submissions = [];
 };
 

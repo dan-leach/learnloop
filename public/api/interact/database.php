@@ -173,6 +173,7 @@ function dbSelectNewSubmissions($id, $interactionIndex, $lastSubmissionId, $link
     $row_cnt = $result->num_rows;
     if ($row_cnt > 0) {
         while ($r = mysqli_fetch_assoc($result)) {
+            $r['response'] = htmlspecialchars_decode($r['response']);
             array_push($res, $r);
         }
     }

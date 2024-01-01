@@ -17,11 +17,14 @@ function insertSession($data, $link)
     $name = htmlspecialchars($data->name);
     if (strlen($name) == 0) $errMsg .= "Name is blank. ";
     $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
-    $title = htmlspecialchars($data->title);
-    $feedbackID = htmlspecialchars($data->feedbackID);
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errMsg .= "Email is not valid. ";
+    global $betaTesters;
+    if (!in_array($email, $betaTesters)) send_error_response("The email provided has not been authorised for beta-testing", 401);
+    $feedbackID = ($data->feedbackID) ? htmlspecialchars($data->feedbackID) : "";
     if ($feedbackID) {
         if (!dbFeedbackSessionExists($feedbackID, $link)) send_error_response("Feedback session ID not recognised", 400);
     }
+    $title = htmlspecialchars($data->title);
     if (strlen($title) == 0) $errMsg .= "Title is blank. ";
     if (sizeof($data->interactions) < 1) {
         $errMsg .= "No interactions defined. ";

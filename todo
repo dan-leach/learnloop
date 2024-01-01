@@ -23,6 +23,15 @@ BEFORE BUILD:
 1. Remove form actions 'https://dev.learnloop.co.uk/api' change to 'api/'
 2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative
 3. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
+4. Update the path to the api in src/data/api.js to be relative not absolute
+5. Re-enable sendMail for errors in api/index.php
+
+ON BETA-END:
+
+1. Remove from api/interact/routes [insertSession] beta-testers email check
+2. Remove from interact/create beta-testers Swal fire and it's else block
+3. On homepage move interact card back into same d-flex div as feedback card and remove beta-testing warning
+4. Remove betaTester.php import in api/index.php and remove betaTester.php file
 
 ON DEPLOY:
 
@@ -41,6 +50,4 @@ ON DEPLOY:
         </IfModule>
 
 2.  Remove the allow CORS from the htaccess in dev.learnloop.co.uk
-3.  Update the path to the api in src/data/api.js to be relative not absolute
-4.  Check directory privacy attached to api/private/ and api/shared/
-5.  re-enable sendMail for errors in api/index.php
+3.  Check directory privacy attached to api/private/ and api/shared/

@@ -264,7 +264,7 @@ let submit = () => {
   }
   if (!prompt.value) return false;
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
-  if (charts && !chart.value) return false;
+  if (charts.value && !chart.value) return false;
   emit(
     "hideEditInteractionModal",
     props.index,
