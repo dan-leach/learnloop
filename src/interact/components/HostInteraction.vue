@@ -1,15 +1,22 @@
 <script setup>
-import { interactSession } from "../../data/interactSession.js";
-import WaitingRoom from "./host/WaitingRoom.vue";
-import End from "./host/End.vue";
-import HideResponses from "./host/HideResponses.vue";
-import SingleChoice from "./host/SingleChoice.vue";
-import MultipleChoice from "./host/MultipleChoice.vue";
-import ShortText from "./host/ShortText.vue";
-import { config } from "../../data/config.js";
+import { interactSession } from '../../data/interactSession.js';
+import WaitingRoom from './host/WaitingRoom.vue';
+import End from './host/End.vue';
+import HideResponses from './host/HideResponses.vue';
+import SingleChoice from './host/SingleChoice.vue';
+import MultipleChoice from './host/MultipleChoice.vue';
+import ShortText from './host/ShortText.vue';
+import { config } from '../../data/config.js';
 
-const props = defineProps(["currentIndex"]);
-const emit = defineEmits(["goForward", "goBack"]);
+const props = defineProps(['currentIndex']);
+const emit = defineEmits(['goForward', 'goBack']);
+
+const showResponses = () => {
+  interactSession.interactions[
+    props.currentIndex
+  ].settings.hideResponses = false;
+  interactSession.interactions[props.currentIndex].submissions = [];
+};
 </script>
 
 <template>
@@ -44,11 +51,7 @@ const emit = defineEmits(["goForward", "goBack"]);
           v-else-if="
             interactSession.interactions[currentIndex].settings.hideResponses
           "
-          @showResponses="
-            interactSession.interactions[
-              currentIndex
-            ].settings.hideResponses = false
-          "
+          @showResponses="showResponses"
           :interaction="interactSession.interactions[currentIndex]"
         />
         <SingleChoice
