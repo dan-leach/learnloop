@@ -80,6 +80,9 @@ const showResponses = () => {
           v-if="currentIndex > 0"
           class="btn btn-lg"
           @click="emit('goBack')"
+          data-bs-toggle="tooltip"
+          data-bs-placement="top"
+          title="Go to previous slide"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
         </button>
@@ -89,6 +92,9 @@ const showResponses = () => {
           v-if="interactSession.interactions[currentIndex].isInteractive"
           class="btn btn-lg"
           @click="emit('toggleLockInteraction')"
+          data-bs-toggle="tooltip"
+          data-bs-placement="top"
+          title="Lock this interaction to prevent attendees submitting further responses"
         >
           <font-awesome-icon
             :icon="['fas', 'lock']"
@@ -105,6 +111,9 @@ const showResponses = () => {
           v-if="currentIndex < interactSession.interactions.length - 1"
           class="btn btn-lg"
           @click="emit('goForward')"
+          data-bs-toggle="tooltip"
+          data-bs-placement="top"
+          title="Go to next slide"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
         </button>

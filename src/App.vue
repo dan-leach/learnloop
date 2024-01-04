@@ -1,6 +1,11 @@
 <script setup>
-import { RouterLink, RouterView } from "vue-router";
-import { config } from "./data/config.js";
+import { RouterLink, RouterView } from 'vue-router';
+import { config } from './data/config.js';
+import { Tooltip } from 'bootstrap';
+new Tooltip(document.body, {
+  selector: "[data-bs-toggle='tooltip']",
+  trigger: 'hover',
+});
 </script>
 
 <template>
