@@ -67,6 +67,7 @@ const goToInteraction = (index) => {
   interactSession.interactions[currentIndex.value].submissions = [];
 };
 
+let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = () => {
   const submissions =
     interactSession.interactions[currentIndex.value].submissions;
@@ -85,9 +86,27 @@ const fetchNewSubmissions = () => {
   ).then(
     function (res) {
       for (let submission of res) submissions.push(submission);
+      fetchNewSubmissionsFailCount = 0;
+      Swal.close();
     },
     function (error) {
-      console.log('fetchNewSubmissions failed', error);
+      fetchNewSubmissionsFailCount++;
+      console.log(
+        'fetchNewSubmissions failed - failCount: ' +
+          fetchNewSubmissionsFailCount,
+        error
+      );
+      if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible())
+        Swal.fire({
+          toast: true,
+          showConfirmButton: false,
+          icon: 'error',
+          iconColor: '#17a2b8',
+          title: 'Connection to LearnLoop failed',
+          text: 'Please check your internet connection',
+          position: 'bottom',
+          width: '450px',
+        });
     }
   );
 };

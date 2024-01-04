@@ -1,13 +1,13 @@
 <script setup>
-import { onMounted, ref } from "vue";
-import { useRouter } from "vue-router";
-import router from "../router";
-import { api } from "../data/api.js";
-import { interactSession } from "../data/interactSession.js";
-import { config } from "../data/config.js";
-import Swal from "sweetalert2";
-import Loading from "../components/Loading.vue";
-import JoinInteraction from "./components/JoinInteraction.vue";
+import { onMounted, ref } from 'vue';
+import { useRouter } from 'vue-router';
+import router from '../router';
+import { api } from '../data/api.js';
+import { interactSession } from '../data/interactSession.js';
+import { config } from '../data/config.js';
+import Swal from 'sweetalert2';
+import Loading from '../components/Loading.vue';
+import JoinInteraction from './components/JoinInteraction.vue';
 
 const loading = ref(true);
 const showInteraction = ref(true);
@@ -22,8 +22,9 @@ const goToInteraction = (index) => {
   }, 250);
 };
 
+let fetchFacilitatorIndexFailCount = 0;
 const fetchFacilitatorIndex = () => {
-  api("interact", "fetchFacilitatorIndex", interactSession.id, null, null).then(
+  api('interact', 'fetchFacilitatorIndex', interactSession.id, null, null).then(
     function (res) {
       facilitatorIndex.value = res;
       console.log(
@@ -33,7 +34,7 @@ const fetchFacilitatorIndex = () => {
       );
       if (
         currentIndex.value == 0 ||
-        interactSession.interactions[currentIndex.value].response === "" ||
+        interactSession.interactions[currentIndex.value].response === '' ||
         interactSession.interactions[currentIndex.value].response ===
           undefined ||
         interactSession.interactions[currentIndex.value].closed
@@ -41,19 +42,37 @@ const fetchFacilitatorIndex = () => {
         if (currentIndex.value != facilitatorIndex.value)
           goToInteraction(facilitatorIndex.value);
       }
+      fetchFacilitatorIndexFailCount = 0;
+      Swal.close();
     },
     function (error) {
-      console.log("fetchFacilitatorIndex failed", error);
+      fetchFacilitatorIndexFailCount++;
+      console.log(
+        'fetchFacilitatorIndex failed - failCount: ' +
+          fetchFacilitatorIndexFailCount,
+        error
+      );
+      if (fetchFacilitatorIndexFailCount > 5 && !Swal.isVisible())
+        Swal.fire({
+          toast: true,
+          showConfirmButton: false,
+          icon: 'error',
+          iconColor: '#17a2b8',
+          title: 'Connection to LearnLoop failed',
+          text: 'Please check your internet connection',
+          position: 'bottom',
+          width: '450px',
+        });
     }
   );
 };
 
 const fetchDetails = () => {
-  api("interact", "fetchDetails", interactSession.id, null, null).then(
+  api('interact', 'fetchDetails', interactSession.id, null, null).then(
     function (res) {
       if (interactSession.id != res.id) {
         console.error(
-          "interactSession.id != res.id",
+          'interactSession.id != res.id',
           interactSession.id,
           res.id
         );
@@ -62,8 +81,8 @@ const fetchDetails = () => {
       interactSession.title = res.title;
       interactSession.name = res.name;
       interactSession.feedbackID = res.feedbackID;
-      res.interactions.unshift({ type: "waitingRoom" });
-      res.interactions.push({ type: "end" });
+      res.interactions.unshift({ type: 'waitingRoom' });
+      res.interactions.push({ type: 'end' });
       interactSession.interactions = res.interactions;
       for (let interaction of interactSession.interactions)
         interaction.submissionCount = 0;
@@ -77,13 +96,13 @@ const fetchDetails = () => {
     },
     function (error) {
       Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to join interact session",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable to join interact session',
         text: error,
-        confirmButtonColor: "#17a2b8",
+        confirmButtonColor: '#17a2b8',
       });
-      router.push("/");
+      router.push('/');
     }
   );
 };
@@ -92,23 +111,23 @@ onMounted(() => {
   interactSession.id = useRouter().currentRoute.value.params.id;
   if (!interactSession.id) {
     Swal.fire({
-      title: "Enter session ID",
+      title: 'Enter session ID',
       html:
         "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
         '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
+      confirmButtonColor: '#17a2b8',
       preConfirm: () => {
-        interactSession.id = document.getElementById("swalFormId").value;
-        if (interactSession.id == "")
-          Swal.showValidationMessage("Please enter a session ID");
+        interactSession.id = document.getElementById('swalFormId').value;
+        if (interactSession.id == '')
+          Swal.showValidationMessage('Please enter a session ID');
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        history.replaceState({}, "", interactSession.id);
+        history.replaceState({}, '', interactSession.id);
         fetchDetails();
       } else {
-        router.push("/");
+        router.push('/');
       }
     });
   } else {
