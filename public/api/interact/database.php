@@ -120,12 +120,12 @@ function dbSelectDetails($id, $link)
     return $res;
 }
 
-function dbSelectFacilitatorIndex($id, $link)
+function dbSelectHostStatus($id, $link)
 { //returns the facilitator Index for $id as a php object
     global $tblSessions;
     if ($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
 
-    $stmt = $link->prepare("SELECT facilitatorIndex FROM $tblSessions WHERE id = ?");
+    $stmt = $link->prepare("SELECT hostStatus FROM $tblSessions WHERE id = ?");
     if (false === $stmt) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->bind_param("s", $id);
@@ -184,12 +184,12 @@ function dbSelectNewSubmissions($id, $interactionIndex, $lastSubmissionId, $link
     return $res;
 }
 
-function dbUpdateFacilitatorIndex($id, $newIndex, $link)
+function dbUpdateHostStatus($id, $hostStatus, $link)
 {
     global $tblSessions;
-    $stmt = $link->prepare("UPDATE $tblSessions SET facilitatorIndex = ? WHERE id = ?");
+    $stmt = $link->prepare("UPDATE $tblSessions SET hostStatus = ? WHERE id = ?");
     if (false === $stmt) send_error_response("prepare() failed: " . mysqli_error($link), 500);
-    $rc = $stmt->bind_param("ss", $newIndex, $id);
+    $rc = $stmt->bind_param("ss", $hostStatus, $id);
     if (false === $rc) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
     $rc = $stmt->execute();
     if (false === $rc) send_error_response("execute() failed: " . mysqli_error($link), 500);

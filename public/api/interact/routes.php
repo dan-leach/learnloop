@@ -96,16 +96,16 @@ function fetchDetails($id, $link)
     $res['name'] = htmlspecialchars_decode($res['name']);
     $res['title'] = htmlspecialchars_decode($res['title']);
     $res['interactions'] = json_decode($res['interactions']);
+    $res['hostStatus'] = json_decode($res['hostStatus']);
     return $res;
 }
-function fetchFacilitatorIndex($id, $link)
+function fetchHostStatus($id, $link)
 {
-    $res = dbSelectFacilitatorIndex($id, $link);
-    return $res['facilitatorIndex'];
+    $res = dbSelectHostStatus($id, $link);
+    return json_decode($res['hostStatus']);
 }
 function insertSubmission($id, $data, $link)
 {
-
     //sanitize and validate
     $interactionIndex = $data->interactionIndex;
     if (!filter_var($interactionIndex, FILTER_VALIDATE_INT)) send_error_response("interactionIndex must be of type [integer]", 400);
@@ -136,12 +136,12 @@ function fetchNewSubmissions($id, $pin, $data, $link)
     $res = dbSelectNewSubmissions($id, $data->interactionIndex, $data->lastSubmissionId, $link);
     return $res;
 }
-function updateFacilitatorIndex($id, $pin, $data, $link)
+function updateHostStatus($id, $pin, $data, $link)
 {
     $sessionDetails = dbSelectDetails($id, $link);
     if (!pinIsValid($pin, $sessionDetails['pinHash'])) send_error_response("Invalid pin", 401);
-    if (dbUpdateFacilitatorIndex($id, $data, $link)) return true;
-    send_error_response("dbUpdateFacilitatorIndex failed for an unknown reason", 500);
+    if (dbUpdateHostStatus($id, json_encode($data), $link)) return true;
+    send_error_response("dbUpdateHostStatus failed for an unknown reason", 500);
 }
 function fetchSubmissionCount($id, $pin, $link)
 {

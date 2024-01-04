@@ -1,18 +1,19 @@
 <script setup>
-import { ref, watch } from "vue";
-import { interactSession } from "../../data/interactSession.js";
-import { config } from "../../data/config.js";
-import Swal from "sweetalert2";
+import { ref, watch } from 'vue';
+import { interactSession } from '../../data/interactSession.js';
+import { config } from '../../data/config.js';
+import Swal from 'sweetalert2';
 
-const props = defineProps(["index"]);
-const emit = defineEmits(["hideEditInteractionModal"]);
+const props = defineProps(['index']);
+const emit = defineEmits(['hideEditInteractionModal']);
 
-let prompt = ref("");
-let type = ref("");
+let prompt = ref('');
+let type = ref('');
+let isInteractive = ref(true);
 let options = ref([]);
 let settings = ref({});
-let chart = ref("");
-let charts = ref("");
+let chart = ref('');
+let charts = ref('');
 
 if (props.index > -1) {
   const interaction = interactSession.interactions[props.index];
@@ -27,6 +28,8 @@ watch(type, (newType, oldType) => {
     settings.value =
       config.interact.create.interactions.types[type.value].settings;
     charts.value = config.interact.create.interactions.types[type.value].charts;
+    isInteractive.value =
+      config.interact.create.interactions.types[type.value].isInteractive;
   }
   if (settings.value.selectedLimit) {
     settings.value.selectedLimit.max = options.value.length;
@@ -36,9 +39,9 @@ watch(type, (newType, oldType) => {
 
 const questionTypeInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Question types",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Question types',
     html: `
       <div class="text-start">
         <p>There are several different interaction types available. Click below to see examples and further details about each:</p>
@@ -84,16 +87,16 @@ const questionTypeInfo = () => {
           </div>
         </div>     
       </div>`,
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const chartTypeInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Chart types",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Chart types',
     html: `
       <div class="text-start">
         <p>There are two different chart types available for showing single choice or multiple choice interaction results. Click below to see examples and further details:</p>
@@ -126,16 +129,16 @@ const chartTypeInfo = () => {
           </div>
         </div>     
       </div>`,
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const optionsMinMaxInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Minimum and maximum number of options",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Minimum and maximum number of options',
     html: `
       <div class="text-start">
         <p>By default attendees must select between one and all of the available options. You can change the minimum and maximum if required. If the attendee attempts to submit a response with fewer than the minimum number of options selected they will receive an alert like this one:</p>
@@ -143,53 +146,53 @@ const optionsMinMaxInfo = () => {
         <p>Or, if they select more options than the maximum, they will receive an alert like this one:</p>
         <img src="https://dev.learnloop.co.uk/img/interaction-selection-max.png" class="img-fluid mx-auto d-block">
       </div>`,
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const submissionLimitInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Number of responses",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Number of responses',
     html: `
       <div class="text-start">
         <p>By default attendees can respond only once to interactions (10 times for text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
         <img src="https://dev.learnloop.co.uk/img/interaction-submission-limit.png" class="img-fluid mx-auto d-block">
       </div>`,
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
 const hideResponsesInfo = () => {
   Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Hide responses until you reveal them",
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Hide responses until you reveal them',
     html: `
       <div class="text-start">
         <p>If you want to prevent attendees from seeing what others are responding until you reveal the answer you can select this option. Your screen will display this view until your click to reveal the responses:</p>
         <img src="https://dev.learnloop.co.uk/img/interaction-hide-responses.png" class="img-fluid mx-auto d-block">
       </div>`,
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
   });
 };
 
-let newOption = ref("");
+let newOption = ref('');
 const addOption = () => {
   if (newOption.value) {
     options.value.push(newOption.value);
-    newOption.value = "";
+    newOption.value = '';
     if (settings.value.selectedLimit)
       if (settings.value.selectedLimit.max == options.value.length - 1)
         settings.value.selectedLimit.max++;
   } else {
-    document.getElementById("newOption").classList.add("is-invalid");
+    document.getElementById('newOption').classList.add('is-invalid');
     setTimeout(
-      () => document.getElementById("newOption").classList.remove("is-invalid"),
+      () => document.getElementById('newOption').classList.remove('is-invalid'),
       3000
     );
   }
@@ -227,10 +230,10 @@ const keepSelectedLimitsWithinMinMax = () => {
 };
 
 let submit = () => {
-  newOption.value = "";
+  newOption.value = '';
   document
-    .getElementById("editInteractionModal" + props.index)
-    .classList.add("was-validated");
+    .getElementById('editInteractionModal' + props.index)
+    .classList.add('was-validated');
   if (!type.value) return false;
   if (settings.value.optionsLimit == 0) {
     options.value = [];
@@ -238,27 +241,27 @@ let submit = () => {
     options.value.length < config.interact.create.interactions.minimumOptions
   ) {
     Swal.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title: "Too few options added",
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Too few options added',
       text:
-        "You need to add at least " +
+        'You need to add at least ' +
         config.interact.create.interactions.minimumOptions +
-        " options.",
-      confirmButtonColor: "#17a2b8",
+        ' options.',
+      confirmButtonColor: '#17a2b8',
     });
     return false;
   }
   if (options.value.length > settings.value.optionsLimit) {
     Swal.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title: "Too many options added",
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Too many options added',
       text:
-        "You can have up to " +
+        'You can have up to ' +
         settings.value.optionsLimit +
-        " options for the interaction type selected.",
-      confirmButtonColor: "#17a2b8",
+        ' options for the interaction type selected.',
+      confirmButtonColor: '#17a2b8',
     });
     return false;
   }
@@ -266,27 +269,28 @@ let submit = () => {
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
   if (charts.value && !chart.value) return false;
   emit(
-    "hideEditInteractionModal",
+    'hideEditInteractionModal',
     props.index,
     JSON.stringify({
       prompt: prompt.value,
       type: type.value,
+      isInteractive: isInteractive.value,
       chart: chart.value,
       options: options.value,
       settings: settings.value,
     })
   );
   if (props.index == -1) {
-    prompt.value = "";
-    type.value = "";
-    chart.value = "";
+    prompt.value = '';
+    type.value = '';
+    chart.value = '';
     charts.value = [];
     options.value = [];
     settings.value = {};
   }
   document
-    .getElementById("editInteractionModal" + props.index)
-    .classList.remove("was-validated");
+    .getElementById('editInteractionModal' + props.index)
+    .classList.remove('was-validated');
 };
 </script>
 
@@ -296,7 +300,7 @@ let submit = () => {
       <div class="modal-content">
         <div class="modal-header">
           <h4 class="modal-title">
-            {{ index < 0 ? "Add an" : "Edit" }} interaction
+            {{ index < 0 ? 'Add an' : 'Edit' }} interaction
           </h4>
           <button
             v-if="index == -1"
@@ -623,7 +627,7 @@ let submit = () => {
               id="submitEditInteractForm"
               v-on:click.prevent="submit"
             >
-              {{ index < 0 ? "Add" : "Update" }} interaction
+              {{ index < 0 ? 'Add' : 'Update' }} interaction
             </button>
           </div>
         </div>

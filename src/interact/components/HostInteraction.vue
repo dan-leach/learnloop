@@ -9,7 +9,7 @@ import ShortText from './host/ShortText.vue';
 import { config } from '../../data/config.js';
 
 const props = defineProps(['currentIndex']);
-const emit = defineEmits(['goForward', 'goBack']);
+const emit = defineEmits(['goForward', 'goBack', 'toggleLockInteraction']);
 
 const showResponses = () => {
   interactSession.interactions[
@@ -82,6 +82,22 @@ const showResponses = () => {
           @click="emit('goBack')"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
+        </button>
+      </li>
+      <li class="nav-item">
+        <button
+          v-if="interactSession.interactions[currentIndex].isInteractive"
+          class="btn btn-lg"
+          @click="emit('toggleLockInteraction')"
+        >
+          <font-awesome-icon
+            :icon="['fas', 'lock']"
+            v-if="interactSession.hostStatus.lockedInteractions[currentIndex]"
+          />
+          <font-awesome-icon
+            :icon="['fas', 'lock-open']"
+            v-if="!interactSession.hostStatus.lockedInteractions[currentIndex]"
+          />
         </button>
       </li>
       <li class="nav-item">

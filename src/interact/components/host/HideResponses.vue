@@ -1,8 +1,6 @@
 <script setup>
-
 const emit = defineEmits(['showResponses']);
 const props = defineProps(['interaction']);
-
 </script>
 
 <template>
@@ -11,7 +9,7 @@ const props = defineProps(['interaction']);
       <strong>
         <transition name="bounce" mode="out-in">
           <span :key="interaction.submissions.length">
-            {{interaction.submissions.length}}
+            {{ interaction.submissions.length }}
           </span>
         </transition>
       </strong>
@@ -42,4 +40,3 @@ const props = defineProps(['interaction']);
   }
 }
 </style>
- 

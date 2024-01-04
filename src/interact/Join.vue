@@ -22,16 +22,13 @@ const goToInteraction = (index) => {
   }, 250);
 };
 
-let fetchFacilitatorIndexFailCount = 0;
-const fetchFacilitatorIndex = () => {
-  api('interact', 'fetchFacilitatorIndex', interactSession.id, null, null).then(
+let fetchHostStatusFailCount = 0;
+const fetchHostStatus = () => {
+  api('interact', 'fetchHostStatus', interactSession.id, null, null).then(
     function (res) {
-      facilitatorIndex.value = res;
-      console.log(
-        currentIndex.value,
-        interactSession.interactions[currentIndex.value].response,
-        interactSession.interactions[currentIndex.value].closed
-      );
+      console.log(res);
+      facilitatorIndex.value = res.facilitatorIndex;
+      interactSession.hostStatus.lockedInteractions = res.lockedInteractions;
       if (
         currentIndex.value == 0 ||
         interactSession.interactions[currentIndex.value].response === '' ||
@@ -42,17 +39,16 @@ const fetchFacilitatorIndex = () => {
         if (currentIndex.value != facilitatorIndex.value)
           goToInteraction(facilitatorIndex.value);
       }
-      fetchFacilitatorIndexFailCount = 0;
+      fetchHostStatusFailCount = 0;
       Swal.close();
     },
     function (error) {
-      fetchFacilitatorIndexFailCount++;
+      fetchHostStatusFailCount++;
       console.log(
-        'fetchFacilitatorIndex failed - failCount: ' +
-          fetchFacilitatorIndexFailCount,
+        'fetchHostStatus failed - failCount: ' + fetchHostStatusFailCount,
         error
       );
-      if (fetchFacilitatorIndexFailCount > 5 && !Swal.isVisible())
+      if (fetchHostStatusFailCount > 5 && !Swal.isVisible())
         Swal.fire({
           toast: true,
           showConfirmButton: false,
@@ -86,11 +82,11 @@ const fetchDetails = () => {
       interactSession.interactions = res.interactions;
       for (let interaction of interactSession.interactions)
         interaction.submissionCount = 0;
-      facilitatorIndex.value = res.facilitatorIndex;
-      currentIndex.value = res.facilitatorIndex;
+      facilitatorIndex.value = res.hostStatus.facilitatorIndex;
+      currentIndex.value = facilitatorIndex.value;
       loading.value = false;
       setInterval(
-        fetchFacilitatorIndex,
+        fetchHostStatus,
         config.interact.join.currentIndexPollInterval
       );
     },

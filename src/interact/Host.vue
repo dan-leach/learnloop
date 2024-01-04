@@ -13,17 +13,18 @@ import Toast from '../assets/Toast.js';
 const loading = ref(true);
 const currentIndex = ref(0);
 
-const updateFacilitatorIndex = () => {
+const updateHostStatus = () => {
+  interactSession.hostStatus.facilitatorIndex = currentIndex.value;
   api(
     'interact',
-    'updateFacilitatorIndex',
+    'updateHostStatus',
     interactSession.id,
     interactSession.pin,
-    currentIndex.value
+    interactSession.hostStatus
   ).then(
     function () {},
     function (error) {
-      console.log('updateFacilitatorIndex failed', error);
+      console.log('updateHostStatus failed', error);
     }
   );
 };
@@ -62,9 +63,14 @@ const goToInteraction = (index) => {
     });
   }
   currentIndex.value = index;
-  updateFacilitatorIndex();
+  updateHostStatus();
   if (index == 0) fetchSubmissionCount();
   interactSession.interactions[currentIndex.value].submissions = [];
+};
+const toggleLockInteraction = () => {
+  interactSession.hostStatus.lockedInteractions[currentIndex.value] =
+    !interactSession.hostStatus.lockedInteractions[currentIndex.value];
+  updateHostStatus();
 };
 
 let fetchNewSubmissionsFailCount = 0;
@@ -140,7 +146,7 @@ const fetchDetailsHost = () => {
       }
       loading.value = false;
       fetchSubmissionCount();
-      updateFacilitatorIndex();
+      updateHostStatus();
       fetchNewSubmissions();
       setInterval(
         fetchNewSubmissions,
@@ -191,16 +197,17 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
+  let hostStatus = { facilitatorIndex: 0 };
   api(
     'interact',
-    'updateFacilitatorIndex',
+    'updateHostStatus',
     interactSession.id,
     interactSession.pin,
-    0
+    hostStatus
   ).then(
     function () {},
     function (error) {
-      console.log('updateFacilitatorIndex failed', error);
+      console.log('updateHostStatus failed', error);
     }
   );
 });
@@ -224,6 +231,7 @@ onBeforeUnmount(() => {
         :class="{ container: !config.client.isFocusView }"
         @goForward="goToInteraction(currentIndex + 1)"
         @goBack="goToInteraction(currentIndex - 1)"
+        @toggleLockInteraction="toggleLockInteraction"
       />
     </div>
   </Transition>

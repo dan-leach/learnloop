@@ -1,34 +1,34 @@
 <script setup>
-import { ref } from "vue";
-import { api } from "../../data/api.js";
-import { interactSession } from "../../data/interactSession.js";
-import WaitingRoom from "./join/WaitingRoom.vue";
-import End from "./join/End.vue";
-import SingleChoice from "./join/SingleChoice.vue";
-import MultipleChoice from "./join/MultipleChoice.vue";
-import ShortText from "./join/ShortText.vue";
-import Swal from "sweetalert2";
-import Toast from "../../assets/Toast.js";
-const props = defineProps(["currentIndex"]);
+import { ref } from 'vue';
+import { api } from '../../data/api.js';
+import { interactSession } from '../../data/interactSession.js';
+import WaitingRoom from './join/WaitingRoom.vue';
+import End from './join/End.vue';
+import SingleChoice from './join/SingleChoice.vue';
+import MultipleChoice from './join/MultipleChoice.vue';
+import ShortText from './join/ShortText.vue';
+import Swal from 'sweetalert2';
+import Toast from '../../assets/Toast.js';
+const props = defineProps(['currentIndex']);
 
 let spinner = ref(false);
-let btnSubmitText = ref("Submit");
-let btnSubmitBelowText = ref("");
+let btnSubmitText = ref('Submit');
+let btnSubmitBelowText = ref('');
 
 const submit = () => {
   let interaction = interactSession.interactions[props.currentIndex];
   interaction.closed = true;
   spinner.value = true;
-  btnSubmitText.value = "Please wait";
-  api("interact", "insertSubmission", interactSession.id, null, {
+  btnSubmitText.value = 'Please wait';
+  api('interact', 'insertSubmission', interactSession.id, null, {
     interactionIndex: props.currentIndex,
     response: interaction.response,
   }).then(
     function (res) {
       Toast.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        title: "Your response was submitted",
+        icon: 'success',
+        iconColor: '#17a2b8',
+        title: 'Your response was submitted',
       });
       spinner.value = false;
       interaction.submissionCount++;
@@ -38,28 +38,28 @@ const submit = () => {
       );
       if (interaction.submissionCount < interaction.settings.submissionLimit) {
         interaction.closed = false;
-        btnSubmitText.value = "Submit";
-        btnSubmitBelowText.value = "You may submit multiple responses";
-        interaction.response = "";
+        btnSubmitText.value = 'Submit';
+        btnSubmitBelowText.value = 'You may submit multiple responses';
+        interaction.response = '';
       } else {
-        btnSubmitText.value = "Done";
+        btnSubmitText.value = 'Done';
         btnSubmitBelowText.value =
           interaction.submissionCount == interaction.settings.submissionLimit
-            ? "You have reached the submission limit"
-            : "";
+            ? 'You have reached the submission limit'
+            : '';
       }
     },
     function (error) {
       Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to submit your response",
+        icon: 'error',
+        iconColor: '#17a2b8',
+        title: 'Unable to submit your response',
         text: error,
-        confirmButtonColor: "#17a2b8",
+        confirmButtonColor: '#17a2b8',
       });
       interaction.closed = false;
       spinner.value = false;
-      btnSubmitText.value = "Try again?";
+      btnSubmitText.value = 'Try again?';
     }
   );
 };
@@ -84,6 +84,7 @@ const submit = () => {
           "
           :interaction="interactSession.interactions[currentIndex]"
           :spinner="spinner"
+          :currentIndex="currentIndex"
           :btnSubmitText="btnSubmitText"
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
@@ -94,6 +95,7 @@ const submit = () => {
           "
           :interaction="interactSession.interactions[currentIndex]"
           :spinner="spinner"
+          :currentIndex="currentIndex"
           :btnSubmitText="btnSubmitText"
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
@@ -104,6 +106,7 @@ const submit = () => {
           "
           :interaction="interactSession.interactions[currentIndex]"
           :spinner="spinner"
+          :currentIndex="currentIndex"
           :btnSubmitText="btnSubmitText"
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"

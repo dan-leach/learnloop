@@ -1,7 +1,7 @@
 import { config } from './config.js';
 
 function escapeAmpersand(str) {
-  return str.replace(/&/g, "%26")
+  return str.replace(/&/g, '%26');
 }
 
 function api(module, route, id, pin, data) {
@@ -57,132 +57,6 @@ function api(module, route, id, pin, data) {
         escapeAmpersand(JSON.stringify(data))
     );
     if (config.client.showApiConsole) console.log(route, data ? data : '');
-  });
-}
-
-function apiDev(module, route, id, pin, data) {
-  console.log('API DEV request', { module }, { route }, { id }, { pin }, data);
-  return new Promise(function (resolve, reject) {
-    setTimeout(() => {
-      if (module == 'feedback') {
-        if (route == 'fetchDetails') {
-          /*resolve({
-          id: id,
-          title: 'DEV API Title',
-          name: 'DEV API Name',
-          date: '01/02/2003',
-          subsessions: [],
-          questions: [],
-        });*/
-          resolve({
-            id: id,
-            title: 'DEV API Title',
-            name: 'DEV API Name',
-            date: '01/02/2003',
-            subsessions: [
-              {
-                id: 'a12345',
-                title: 'DEV API subsession title 1',
-                name: 'DEV API subsession name 1',
-              },
-              {
-                id: 'b12345',
-                title: 'DEV API subsession title 2',
-                name: 'DEV API subsession name 2',
-              },
-            ],
-            questions: [],
-          });
-        }
-        //add remaining feedback routes here
-      } else if (module == 'interact') {
-        if (route == 'fetchDetails') {
-          resolve({
-            id: id,
-            title: 'DEV API Title',
-            name: 'DEV API Name',
-            facilitatorIndex: 0,
-            interactions: [
-              {
-                id: 'dev1',
-                type: 'singleChoice',
-                chart: 'doughnut',
-                title: 'What is your favourite cheese?',
-                options: ['Feta', 'Cheddar', 'Halloumi', 'Gorganzola', 'Gouda'],
-                response: '',
-                allowMultiple: false,
-              },
-              {
-                id: 'dev2',
-                type: 'singleChoice',
-                chart: 'bar',
-                title: 'What is your training grade?',
-                options: [
-                  'ST1',
-                  'ST2',
-                  'ST3',
-                  'ST4',
-                  'ST5',
-                  'ST6',
-                  'ST7',
-                  'ST8',
-                ],
-                response: '',
-                allowMultiple: true,
-              },
-              {
-                id: 'dev3',
-                type: 'singleChoice',
-                chart: 'bar',
-                title: 'Are you LTFT?',
-                options: ['Yes', 'No'],
-                response: '',
-                allowMultiple: false,
-              },
-            ],
-          });
-        } else if (route == 'checkCurrentIndex') {
-          resolve({
-            id: id,
-            facilitatorIndex: 2,
-          });
-        } else if (route == 'fetchNewSubmissions') {
-          resolve({
-            id: id,
-            newSubmissions: [
-              {
-                id: '1',
-                data: 0,
-              },
-              {
-                id: '2',
-                data: 0,
-              },
-              {
-                id: '3',
-                data: 2,
-              },
-              {
-                id: '4',
-                data: 3,
-              },
-              {
-                id: '5',
-                data: 3,
-              },
-              {
-                id: '6',
-                data: 4,
-              },
-            ],
-          });
-        } else if (route == 'insertSubmission') {
-          resolve(true);
-        }
-        //add remaining interact routes here
-      }
-      reject('API error:  module or route not found in DEV API');
-    }, 1000);
   });
 }
 

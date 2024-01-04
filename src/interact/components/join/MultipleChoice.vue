@@ -1,14 +1,16 @@
 <script setup>
-import { ref } from "vue";
-import Toast from "../../../assets/Toast.js";
+import { ref } from 'vue';
+import { interactSession } from '../../../data/interactSession.js';
+import Toast from '../../../assets/Toast.js';
 
 const props = defineProps([
-  "interaction",
-  "spinner",
-  "btnSubmitText",
-  "btnSubmitBelowText",
+  'interaction',
+  'spinner',
+  'btnSubmitText',
+  'btnSubmitBelowText',
+  'currentIndex',
 ]);
-const emit = defineEmits(["submit"]);
+const emit = defineEmits(['submit']);
 
 let selection = ref([]);
 
@@ -18,19 +20,19 @@ let submit = () => {
   let selectedMax = props.interaction.settings.selectedLimit.max;
   if (selectedCount < selectedMin) {
     Toast.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title: "Please select at least " + selectedMin + " option(s)",
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Please select at least ' + selectedMin + ' option(s)',
     });
   } else if (selectedCount > selectedMax) {
     Toast.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title: "Please select no more than " + selectedMax + " option(s)",
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Please select no more than ' + selectedMax + ' option(s)',
     });
   } else {
     props.interaction.response = JSON.stringify(selection.value);
-    emit("submit");
+    emit('submit');
   }
 };
 </script>
@@ -52,9 +54,9 @@ let submit = () => {
         interaction.settings.selectedLimit.min ==
         interaction.settings.selectedLimit.max
           ? interaction.settings.selectedLimit.min
-          : " between " +
+          : ' between ' +
             interaction.settings.selectedLimit.min +
-            " and " +
+            ' and ' +
             interaction.settings.selectedLimit.max
       }}
       options(s)
@@ -78,7 +80,10 @@ let submit = () => {
       id="submit"
       class="btn btn-teal mt-4"
       @click="submit"
-      :disabled="interaction.closed"
+      :disabled="
+        interaction.closed ||
+        interactSession.hostStatus.lockedInteractions[currentIndex]
+      "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>
       {{ btnSubmitText }}

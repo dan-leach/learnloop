@@ -1,8 +1,13 @@
 Current:
+Add tool tip help to interact host navigation features
 
 Later:
 check how old feedback sessions function on the new frontend and api
 Check cookies work as expected
+Have arrow keys control slide movements
+Change from interactions to slides
+Create content slide types
+Create media slot for interaction type slides
 
 Improvements:
 Preview of feedback form, question, interaction
@@ -10,7 +15,6 @@ Prevent subsession update email when that subsession hasn't changed
 Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
 Create readme and changelog
 Update api to use modern js fetch
-Add close interaction option (to lock out further responses e.g. after revealing answer)
 Add auto-create feedback session for an interact session?
 Add interaction related quotes
 Add mailto links to privacy policy
