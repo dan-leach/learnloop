@@ -75,13 +75,13 @@ const questionTypeInfo = () => {
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                Short text
+                Free text
               </button>
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/slide-type-example-short-text.png" class="img-fluid mx-auto d-block">
-                <p>Short text interactions allow attendees to provide short free text responses which appear on the host screen. By default attendees will be able to respond 10 times but you can set a different number of allowed responses per person. To keep responses short the default character limit is 200, but you can set this to a different value if required. You can set the responses not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
+                <img src="https://dev.learnloop.co.uk/img/slide-type-example-free-text.png" class="img-fluid mx-auto d-block">
+                <p>Free text interactions allow attendees to provide typed responses which appear on the host screen. By default attendees will be able to respond 10 times but you can set a different number of allowed responses per person. To keep responses short the default character limit is 200, but you can set this to a different value if required. You can set the responses not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
           </div>
@@ -158,7 +158,7 @@ const submissionLimitInfo = () => {
     title: 'Number of responses',
     html: `
       <div class="text-start">
-        <p>By default attendees can respond only once to interactions (10 times for text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
+        <p>By default attendees can respond only once to interactions (10 times for free text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
         <img src="https://dev.learnloop.co.uk/img/slide-submission-limit.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: '60%',

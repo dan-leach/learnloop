@@ -1,7 +1,7 @@
 Current:
 Change interactions to slides
 Change interact to interaction
-Change image file names from interaction to slide
+Change image file names from interaction to slide (and change short-text to free-text)
 
 Later:
 check how old feedback sessions function on the new frontend and api

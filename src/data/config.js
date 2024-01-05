@@ -83,9 +83,9 @@ export const config = reactive({
               hideResponses: false,
             },
           },
-          shortText: {
-            name: 'Short text',
-            id: 'shortText',
+          freeText: {
+            name: 'Free text',
+            id: 'freeText',
             isInteractive: true,
             settings: {
               optionsLimit: 0,

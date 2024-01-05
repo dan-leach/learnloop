@@ -3,7 +3,7 @@ const props = defineProps(['slide']);
 </script>
 
 <template>
-  <div class="short-text-container d-flex flex-column justify">
+  <div class="free-text-container d-flex flex-column justify">
     <div class="card m-1 p-2" v-for="(submission, index) in slide.submissions">
       <table>
         <tr>
@@ -25,7 +25,7 @@ const props = defineProps(['slide']);
 .cell-btnClose {
   width: 35px;
 }
-.short-text-container {
+.free-text-container {
   overflow-y: auto;
 }
 </style>

@@ -5,7 +5,7 @@ import End from './host/End.vue';
 import HideResponses from './host/HideResponses.vue';
 import SingleChoice from './host/SingleChoice.vue';
 import MultipleChoice from './host/MultipleChoice.vue';
-import ShortText from './host/ShortText.vue';
+import FreeText from './host/FreeText.vue';
 import { config } from '../../data/config.js';
 
 const props = defineProps(['currentIndex']);
@@ -62,10 +62,8 @@ const showResponses = () => {
           "
           :slide="interactionSession.slides[currentIndex]"
         />
-        <ShortText
-          v-else-if="
-            interactionSession.slides[currentIndex].type == 'shortText'
-          "
+        <FreeText
+          v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
           :slide="interactionSession.slides[currentIndex]"
         />
       </div>

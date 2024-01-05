@@ -6,7 +6,7 @@ import WaitingRoom from './join/WaitingRoom.vue';
 import End from './join/End.vue';
 import SingleChoice from './join/SingleChoice.vue';
 import MultipleChoice from './join/MultipleChoice.vue';
-import ShortText from './join/ShortText.vue';
+import FreeText from './join/FreeText.vue';
 import Swal from 'sweetalert2';
 import Toast from '../../assets/Toast.js';
 const props = defineProps(['currentIndex']);
@@ -95,10 +95,8 @@ const submit = () => {
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
         />
-        <ShortText
-          v-else-if="
-            interactionSession.slides[currentIndex].type == 'shortText'
-          "
+        <FreeText
+          v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
           :slide="interactionSession.slides[currentIndex]"
           :spinner="spinner"
           :currentIndex="currentIndex"
