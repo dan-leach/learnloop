@@ -1,9 +1,9 @@
 <script setup>
-import { interactSession } from '../../../data/interactSession.js';
+import { interactionSession } from '../../../data/interactionSession.js';
 import Toast from '../../../assets/Toast.js';
 
 const props = defineProps([
-  'interaction',
+  'slide',
   'spinner',
   'btnSubmitText',
   'btnSubmitBelowText',
@@ -12,9 +12,9 @@ const props = defineProps([
 const emit = defineEmits(['submit']);
 
 let submit = () => {
-  let length = props.interaction.response.length;
-  let minLength = props.interaction.settings.characterLimit.min;
-  let maxLength = props.interaction.settings.characterLimit.max;
+  let length = props.slide.response.length;
+  let minLength = props.slide.settings.characterLimit.min;
+  let maxLength = props.slide.settings.characterLimit.max;
   if (length < minLength) {
     Toast.fire({
       icon: 'error',
@@ -39,14 +39,14 @@ let submit = () => {
 
 <template>
   <p class="text-center">
-    <strong>{{ interaction.prompt }}</strong>
+    <strong>{{ slide.prompt }}</strong>
   </p>
   <textarea
     class="response-field form-control"
     rows="5"
-    v-model="interaction.response"
-    :disabled="interaction.closed"
-    :maxLength="interaction.settings.characterLimit.max"
+    v-model="slide.response"
+    :disabled="slide.closed"
+    :maxLength="slide.settings.characterLimit.max"
   ></textarea>
   <div class="text-center">
     <button
@@ -55,8 +55,7 @@ let submit = () => {
       class="btn btn-teal mt-4"
       @click="submit"
       :disabled="
-        interaction.closed ||
-        interactSession.hostStatus.lockedInteractions[currentIndex]
+        slide.closed || interactionSession.hostStatus.lockedSlides[currentIndex]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>

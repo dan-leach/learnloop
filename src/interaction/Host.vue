@@ -3,24 +3,24 @@ import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import router from '../router';
 import { api } from '../data/api.js';
-import { interactSession } from '../data/interactSession.js';
+import { interactionSession } from '../data/interactionSession.js';
 import { config } from '../data/config.js';
 import Swal from 'sweetalert2';
 import Loading from '../components/Loading.vue';
-import HostInteraction from './components/HostInteraction.vue';
+import HostSlide from './components/HostSlide.vue';
 import Toast from '../assets/Toast.js';
 
 const loading = ref(true);
 const currentIndex = ref(0);
 
 const updateHostStatus = () => {
-  interactSession.hostStatus.facilitatorIndex = currentIndex.value;
+  interactionSession.hostStatus.facilitatorIndex = currentIndex.value;
   api(
-    'interact',
+    'interaction',
     'updateHostStatus',
-    interactSession.id,
-    interactSession.pin,
-    interactSession.hostStatus
+    interactionSession.id,
+    interactionSession.pin,
+    interactionSession.hostStatus
   ).then(
     function () {},
     function (error) {
@@ -31,14 +31,14 @@ const updateHostStatus = () => {
 
 const fetchSubmissionCount = () => {
   api(
-    'interact',
+    'interaction',
     'fetchSubmissionCount',
-    interactSession.id,
-    interactSession.pin,
+    interactionSession.id,
+    interactionSession.pin,
     null
   ).then(
     function (res) {
-      interactSession.submissionCount = res;
+      interactionSession.submissionCount = res;
     },
     function (error) {
       console.log('fetchSubmissionCount failed', error);
@@ -46,14 +46,12 @@ const fetchSubmissionCount = () => {
   );
 };
 
-const goToInteraction = (index) => {
+const goToSlide = (index) => {
   config.client.isFocusView =
-    index == 0 || index == interactSession.interactions.length - 1
-      ? false
-      : true;
+    index == 0 || index == interactionSession.slides.length - 1 ? false : true;
   if (
     (index == 1 && currentIndex.value == 0) ||
-    index == interactSession.interactions.length - 1
+    index == interactionSession.slides.length - 1
   ) {
     Toast.fire({
       icon: 'info',
@@ -65,28 +63,27 @@ const goToInteraction = (index) => {
   currentIndex.value = index;
   updateHostStatus();
   if (index == 0) fetchSubmissionCount();
-  interactSession.interactions[currentIndex.value].submissions = [];
+  interactionSession.slides[currentIndex.value].submissions = [];
 };
-const toggleLockInteraction = () => {
-  interactSession.hostStatus.lockedInteractions[currentIndex.value] =
-    !interactSession.hostStatus.lockedInteractions[currentIndex.value];
+const toggleLockSlide = () => {
+  interactionSession.hostStatus.lockedSlides[currentIndex.value] =
+    !interactionSession.hostStatus.lockedSlides[currentIndex.value];
   updateHostStatus();
 };
 
 let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = () => {
-  const submissions =
-    interactSession.interactions[currentIndex.value].submissions;
+  const submissions = interactionSession.slides[currentIndex.value].submissions;
   const lastSubmissionId = submissions.length
     ? submissions[submissions.length - 1].id
     : 0;
   api(
-    'interact',
+    'interaction',
     'fetchNewSubmissions',
-    interactSession.id,
-    interactSession.pin,
+    interactionSession.id,
+    interactionSession.pin,
     {
-      interactionIndex: currentIndex.value,
+      slideIndex: currentIndex.value,
       lastSubmissionId: lastSubmissionId,
     }
   ).then(
@@ -119,30 +116,30 @@ const fetchNewSubmissions = () => {
 
 const fetchDetailsHost = () => {
   api(
-    'interact',
+    'interaction',
     'fetchDetailsHost',
-    interactSession.id,
-    interactSession.pin,
+    interactionSession.id,
+    interactionSession.pin,
     null
   ).then(
     function (res) {
-      if (interactSession.id != res.id) {
+      if (interactionSession.id != res.id) {
         console.error(
-          'interactSession.id != res.id',
-          interactSession.id,
+          'interactionSession.id != res.id',
+          interactionSession.id,
           response.id
         );
         return;
       }
-      interactSession.title = res.title;
-      interactSession.name = res.name;
-      interactSession.feedbackID = res.feedbackID;
-      res.interactions.unshift({ type: 'waitingRoom' });
-      res.interactions.push({ type: 'end' });
-      interactSession.interactions = res.interactions;
-      for (let interaction of interactSession.interactions) {
-        interaction.submissions = [];
-        interaction.submissionsCount = 0;
+      interactionSession.title = res.title;
+      interactionSession.name = res.name;
+      interactionSession.feedbackID = res.feedbackID;
+      res.slides.unshift({ type: 'waitingRoom' });
+      res.slides.push({ type: 'end' });
+      interactionSession.slides = res.slides;
+      for (let slide of interactionSession.slides) {
+        slide.submissions = [];
+        slide.submissionsCount = 0;
       }
       loading.value = false;
       fetchSubmissionCount();
@@ -150,14 +147,14 @@ const fetchDetailsHost = () => {
       fetchNewSubmissions();
       setInterval(
         fetchNewSubmissions,
-        config.interact.host.newSubmissionsPollInterval
+        config.interaction.host.newSubmissionsPollInterval
       );
     },
     function (error) {
       Swal.fire({
         icon: 'error',
         iconColor: '#17a2b8',
-        title: 'Unable to launch interact session hosting',
+        title: 'Unable to launch interaction session hosting',
         text: error,
         confirmButtonColor: '#17a2b8',
       });
@@ -167,28 +164,28 @@ const fetchDetailsHost = () => {
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.params.id;
+  interactionSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
     title: 'Enter session ID and PIN',
     html:
       "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
       '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-      interactSession.id +
+      interactionSession.id +
       '">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
     confirmButtonColor: '#17a2b8',
     preConfirm: () => {
-      interactSession.id = document.getElementById('swalFormId').value;
-      interactSession.pin = document.getElementById('swalFormPin').value;
-      if (interactSession.pin == '')
+      interactionSession.id = document.getElementById('swalFormId').value;
+      interactionSession.pin = document.getElementById('swalFormPin').value;
+      if (interactionSession.pin == '')
         Swal.showValidationMessage('Please enter your PIN');
-      if (interactSession.id == '')
+      if (interactionSession.id == '')
         Swal.showValidationMessage('Please enter a session ID');
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      history.replaceState({}, '', interactSession.id);
+      history.replaceState({}, '', interactionSession.id);
       fetchDetailsHost();
     } else {
       router.push('/');
@@ -199,10 +196,10 @@ onMounted(() => {
 onBeforeUnmount(() => {
   let hostStatus = { facilitatorIndex: 0 };
   api(
-    'interact',
+    'interaction',
     'updateHostStatus',
-    interactSession.id,
-    interactSession.pin,
+    interactionSession.id,
+    interactionSession.pin,
     hostStatus
   ).then(
     function () {},
@@ -220,18 +217,18 @@ onBeforeUnmount(() => {
     </div>
     <div v-else>
       <h1 v-if="!config.client.isFocusView" class="text-center display-4">
-        Interact
+        Interaction
       </h1>
       <p v-if="!config.client.isFocusView" class="text-center">
-        {{ interactSession.title }} | {{ interactSession.name }}
+        {{ interactionSession.title }} | {{ interactionSession.name }}
       </p>
-      <HostInteraction
+      <HostSlide
         :currentIndex="currentIndex"
         class="m-2"
         :class="{ container: !config.client.isFocusView }"
-        @goForward="goToInteraction(currentIndex + 1)"
-        @goBack="goToInteraction(currentIndex - 1)"
-        @toggleLockInteraction="toggleLockInteraction"
+        @goForward="goToSlide(currentIndex + 1)"
+        @goBack="goToSlide(currentIndex - 1)"
+        @toggleLockSlide="toggleLockSlide"
       />
     </div>
   </Transition>

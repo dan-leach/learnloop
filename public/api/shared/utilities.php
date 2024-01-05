@@ -21,7 +21,7 @@ function buildID($module){
     $id = '';
     if ($module == 'feedback') {
         $id = 'f';
-    } else if ($module == 'interact') {
+    } else if ($module == 'interaction') {
         $id = 'i';
     } else {
         send_error_response("Module [".$module."] not recognised at buildID", 400);

@@ -60,7 +60,7 @@ switch ($route) {
         echo json_encode(findMySessions($data, $link));
         break;
     default:
-        send_error_response("Route [" . $route . "] not found in interact module", 400);
+        send_error_response("Route [" . $route . "] not found in interaction module", 400);
 }
 
 mysqli_close($link);

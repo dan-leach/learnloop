@@ -31,8 +31,8 @@ if (isset($_POST['data'])) $data = json_decode($_POST['data']); //data must be s
 
 if ($module == 'feedback') {
     require 'feedback/index.php';
-} elseif ($module == 'interact') {
-    require 'interact/index.php';
+} elseif ($module == 'interaction') {
+    require 'interaction/index.php';
 } else {
     send_error_response("[" . $module . "] is not a valid module", 400);
 }

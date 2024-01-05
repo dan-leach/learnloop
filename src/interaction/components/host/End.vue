@@ -1,12 +1,12 @@
 <script setup>
-const props = defineProps(["feedbackID"]);
-import { config } from "../../../data/config.js";
+const props = defineProps(['feedbackID']);
+import { config } from '../../../data/config.js';
 </script>
 
 <template>
   <div>
     <p class="display-6 text-center">
-      The interactions for this session have finished
+      The slides for this session have finished
     </p>
     <div v-if="feedbackID">
       <p class="text-center">

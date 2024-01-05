@@ -1,9 +1,9 @@
 <script setup>
-import { interactSession } from '../../../data/interactSession.js';
+import { interactionSession } from '../../../data/interactionSession.js';
 import Toast from '../../../assets/Toast.js';
 
 const props = defineProps([
-  'interaction',
+  'slide',
   'spinner',
   'btnSubmitText',
   'btnSubmitBelowText',
@@ -12,7 +12,7 @@ const props = defineProps([
 const emit = defineEmits(['submit']);
 
 let submit = () => {
-  if (props.interaction.response !== '') {
+  if (props.slide.response !== '') {
     emit('submit');
   } else {
     Toast.fire({
@@ -26,17 +26,17 @@ let submit = () => {
 
 <template>
   <p class="text-center">
-    <strong>{{ interaction.prompt }}</strong>
+    <strong>{{ slide.prompt }}</strong>
   </p>
-  <div v-for="(option, index) in interaction.options" class="form-check">
+  <div v-for="(option, index) in slide.options" class="form-check">
     <input
       type="radio"
       class="form-check-input"
       :id="'option-' + index"
       :name="'option-' + index"
       :value="index"
-      v-model="interaction.response"
-      :disabled="interaction.closed"
+      v-model="slide.response"
+      :disabled="slide.closed"
     />{{ option }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
@@ -47,8 +47,7 @@ let submit = () => {
       class="btn btn-teal mt-4"
       @click="submit"
       :disabled="
-        interaction.closed ||
-        interactSession.hostStatus.lockedInteractions[currentIndex]
+        slide.closed || interactionSession.hostStatus.lockedSlides[currentIndex]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>

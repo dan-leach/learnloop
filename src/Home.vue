@@ -6,7 +6,7 @@ import router from './router';
 import Quote from './components/Quote.vue';
 import Swal from 'sweetalert2';
 import { feedbackSession } from './data/feedbackSession.js';
-import { interactSession } from './data/interactSession.js';
+import { interactionSession } from './data/interactionSession.js';
 
 const giveFeedback = () => {
   if (feedbackSession.id) {
@@ -17,12 +17,12 @@ const giveFeedback = () => {
   }
 };
 
-const joinInteract = () => {
-  if (interactSession.id) {
-    document.getElementById('interactID').classList.remove('is-invalid');
-    router.push('/interact/' + interactSession.id);
+const joinInteraction = () => {
+  if (interactionSession.id) {
+    document.getElementById('interactionID').classList.remove('is-invalid');
+    router.push('/interaction/' + interactionSession.id);
   } else {
-    document.getElementById('interactID').classList.add('is-invalid');
+    document.getElementById('interactionID').classList.add('is-invalid');
   }
 };
 
@@ -72,7 +72,7 @@ const resetPin = (module, id) => {
   }).then((result) => {
     if (result.isConfirmed) {
       feedbackSession.reset();
-      interactSession.reset();
+      interactionSession.reset();
     }
   });
 };
@@ -179,7 +179,7 @@ const findMySessions = (module) => {
   }).then((result) => {
     if (result.isConfirmed) {
       feedbackSession.reset();
-      interactSession.reset();
+      interactionSession.reset();
     }
   });
 };
@@ -228,21 +228,21 @@ const closeSession = (module) => {
   }).then((result) => {
     if (result.isConfirmed) {
       feedbackSession.reset();
-      interactSession.reset();
+      interactionSession.reset();
     }
   });
 };
 
 onMounted(() => {
   feedbackSession.reset();
-  interactSession.reset();
+  interactionSession.reset();
   let id = useRouter().currentRoute.value.params.id;
   let routeName = useRouter().currentRoute.value.name;
-  if (routeName == 'interact-resetPIN') resetPin('interact', id);
+  if (routeName == 'interaction-resetPIN') resetPin('interaction', id);
   if (routeName == 'feedback-resetPIN') resetPin('feedback', id);
   if (routeName == 'feedback-notifications') setNotificationPreference(id);
   if (routeName == 'home' && id) {
-    if (id.charAt(0) == 'i') router.push('/interact/' + id);
+    if (id.charAt(0) == 'i') router.push('/interaction/' + id);
     else router.push('/feedback/' + id);
   } else {
     router.push('/');
@@ -343,27 +343,27 @@ onMounted(() => {
       <div class="card bg-transparent shadow p-2 m-2">
         <p class="text-center text-danger bg-dark p-2">
           <strong
-            >Interact is in private beta<br />
+            >Interaction is in private beta<br />
             by invitation only</strong
           >
         </p>
-        <h1 class="text-center">Interact</h1>
-        <p class="text-center">Engage your audience with live interactions</p>
+        <h1 class="text-center">Interaction</h1>
+        <p class="text-center">Engage with your audience interactively</p>
         <div class="input-group m-2">
           <input
-            id="interactID"
+            id="interactionID"
             type="text"
             placeholder="Session ID"
             autocomplete="off"
             class="form-control"
-            v-model="interactSession.id"
-            @keyup.enter="joinInteract"
+            v-model="interactionSession.id"
+            @keyup.enter="joinInteraction"
           />
           <button
             type="button"
-            id="joinInteract"
+            id="joinInteraction"
             class="btn btn-teal me-3"
-            @click="joinInteract"
+            @click="joinInteraction"
           >
             Join session
           </button>
@@ -372,9 +372,9 @@ onMounted(() => {
           <li class="nav-item mb-2 flex-grow-1 d-flex">
             <button
               class="nav-link active flex-grow-1"
-              @click="router.push('/interact/create')"
+              @click="router.push('/interaction/create')"
             >
-              Create a new interact session
+              Create a new interaction session
             </button>
           </li>
           <li class="nav-item dropdown flex-grow-1 d-flex more-options">
@@ -387,24 +387,26 @@ onMounted(() => {
             </button>
             <ul class="dropdown-menu">
               <li>
-                <a class="dropdown-item" @click="router.push('/interact/edit/')"
+                <a
+                  class="dropdown-item"
+                  @click="router.push('/interaction/edit/')"
                   >Edit existing session</a
                 >
               </li>
               <li>
                 <a
                   class="dropdown-item"
-                  @click="router.push('/interact/host/?')"
+                  @click="router.push('/interaction/host/?')"
                   >Host existing session</a
                 >
               </li>
               <li>
-                <a class="dropdown-item" @click="resetPin('interact')"
+                <a class="dropdown-item" @click="resetPin('interaction')"
                   >Reset PIN</a
                 >
               </li>
               <li>
-                <a class="dropdown-item" @click="findMySessions('interact')"
+                <a class="dropdown-item" @click="findMySessions('interaction')"
                   >Find my sessions</a
                 >
               </li>

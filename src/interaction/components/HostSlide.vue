@@ -1,5 +1,5 @@
 <script setup>
-import { interactSession } from '../../data/interactSession.js';
+import { interactionSession } from '../../data/interactionSession.js';
 import WaitingRoom from './host/WaitingRoom.vue';
 import End from './host/End.vue';
 import HideResponses from './host/HideResponses.vue';
@@ -9,27 +9,25 @@ import ShortText from './host/ShortText.vue';
 import { config } from '../../data/config.js';
 
 const props = defineProps(['currentIndex']);
-const emit = defineEmits(['goForward', 'goBack', 'toggleLockInteraction']);
+const emit = defineEmits(['goForward', 'goBack', 'toggleLockSlide']);
 
 const showResponses = () => {
-  interactSession.interactions[
-    props.currentIndex
-  ].settings.hideResponses = false;
-  interactSession.interactions[props.currentIndex].submissions = [];
+  interactionSession.slides[props.currentIndex].settings.hideResponses = false;
+  interactionSession.slides[props.currentIndex].submissions = [];
 };
 </script>
 
 <template>
-  <div id="interaction-view" :class="{ focusView: config.client.isFocusView }">
+  <div id="slide-view" :class="{ focusView: config.client.isFocusView }">
     <p v-if="config.client.isFocusView" class="text-center m-1">
       To join go to LearnLoop.co.uk and use the code
-      <span class="join-id-top p-1">{{ interactSession.id }}</span>
+      <span class="join-id-top p-1">{{ interactionSession.id }}</span>
     </p>
     <p
-      v-if="interactSession.interactions[currentIndex].type != 'waitingRoom'"
+      v-if="interactionSession.slides[currentIndex].type != 'waitingRoom'"
       class="display-6 text-center m-1"
     >
-      {{ interactSession.interactions[currentIndex].prompt }}
+      {{ interactionSession.slides[currentIndex].prompt }}
     </p>
     <Transition mode="out-in">
       <div
@@ -39,38 +37,36 @@ const showResponses = () => {
         :key="'index' + currentIndex"
       >
         <WaitingRoom
-          v-if="
-            interactSession.interactions[currentIndex].type == 'waitingRoom'
-          "
+          v-if="interactionSession.slides[currentIndex].type == 'waitingRoom'"
         />
         <End
-          v-else-if="interactSession.interactions[currentIndex].type == 'end'"
-          :feedbackID="interactSession.feedbackID"
+          v-else-if="interactionSession.slides[currentIndex].type == 'end'"
+          :feedbackID="interactionSession.feedbackID"
         />
         <HideResponses
           v-else-if="
-            interactSession.interactions[currentIndex].settings.hideResponses
+            interactionSession.slides[currentIndex].settings.hideResponses
           "
           @showResponses="showResponses"
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
         />
         <SingleChoice
           v-else-if="
-            interactSession.interactions[currentIndex].type == 'singleChoice'
+            interactionSession.slides[currentIndex].type == 'singleChoice'
           "
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
         />
         <MultipleChoice
           v-else-if="
-            interactSession.interactions[currentIndex].type == 'multipleChoice'
+            interactionSession.slides[currentIndex].type == 'multipleChoice'
           "
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
         />
         <ShortText
           v-else-if="
-            interactSession.interactions[currentIndex].type == 'shortText'
+            interactionSession.slides[currentIndex].type == 'shortText'
           "
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
         />
       </div>
     </Transition>
@@ -89,26 +85,26 @@ const showResponses = () => {
       </li>
       <li class="nav-item">
         <button
-          v-if="interactSession.interactions[currentIndex].isInteractive"
+          v-if="interactionSession.slides[currentIndex].isInteractive"
           class="btn btn-lg"
-          @click="emit('toggleLockInteraction')"
+          @click="emit('toggleLockSlide')"
           data-bs-toggle="tooltip"
           data-bs-placement="top"
-          title="Lock this interaction to prevent attendees submitting further responses"
+          title="Lock this slide to prevent attendees submitting further responses"
         >
           <font-awesome-icon
             :icon="['fas', 'lock']"
-            v-if="interactSession.hostStatus.lockedInteractions[currentIndex]"
+            v-if="interactionSession.hostStatus.lockedSlides[currentIndex]"
           />
           <font-awesome-icon
             :icon="['fas', 'lock-open']"
-            v-if="!interactSession.hostStatus.lockedInteractions[currentIndex]"
+            v-if="!interactionSession.hostStatus.lockedSlides[currentIndex]"
           />
         </button>
       </li>
       <li class="nav-item">
         <button
-          v-if="currentIndex < interactSession.interactions.length - 1"
+          v-if="currentIndex < interactionSession.slides.length - 1"
           class="btn btn-lg"
           @click="emit('goForward')"
           data-bs-toggle="tooltip"
@@ -129,7 +125,7 @@ const showResponses = () => {
 .chart-area.focusView {
   height: 80vh;
 }
-#interaction-view.focusView {
+#slide-view.focusView {
   background-color: transparent;
 }
 .join-id-top {

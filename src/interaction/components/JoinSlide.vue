@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { api } from '../../data/api.js';
-import { interactSession } from '../../data/interactSession.js';
+import { interactionSession } from '../../data/interactionSession.js';
 import WaitingRoom from './join/WaitingRoom.vue';
 import End from './join/End.vue';
 import SingleChoice from './join/SingleChoice.vue';
@@ -16,13 +16,13 @@ let btnSubmitText = ref('Submit');
 let btnSubmitBelowText = ref('');
 
 const submit = () => {
-  let interaction = interactSession.interactions[props.currentIndex];
-  interaction.closed = true;
+  let slide = interactionSession.slides[props.currentIndex];
+  slide.closed = true;
   spinner.value = true;
   btnSubmitText.value = 'Please wait';
-  api('interact', 'insertSubmission', interactSession.id, null, {
-    interactionIndex: props.currentIndex,
-    response: interaction.response,
+  api('interaction', 'insertSubmission', interactionSession.id, null, {
+    slideIndex: props.currentIndex,
+    response: slide.response,
   }).then(
     function (res) {
       Toast.fire({
@@ -31,20 +31,17 @@ const submit = () => {
         title: 'Your response was submitted',
       });
       spinner.value = false;
-      interaction.submissionCount++;
-      console.log(
-        interaction.submissionCount,
-        interaction.settings.submissionLimit
-      );
-      if (interaction.submissionCount < interaction.settings.submissionLimit) {
-        interaction.closed = false;
+      slide.submissionCount++;
+      console.log(slide.submissionCount, slide.settings.submissionLimit);
+      if (slide.submissionCount < slide.settings.submissionLimit) {
+        slide.closed = false;
         btnSubmitText.value = 'Submit';
         btnSubmitBelowText.value = 'You may submit multiple responses';
-        interaction.response = '';
+        slide.response = '';
       } else {
         btnSubmitText.value = 'Done';
         btnSubmitBelowText.value =
-          interaction.submissionCount == interaction.settings.submissionLimit
+          slide.submissionCount == slide.settings.submissionLimit
             ? 'You have reached the submission limit'
             : '';
       }
@@ -57,7 +54,7 @@ const submit = () => {
         text: error,
         confirmButtonColor: '#17a2b8',
       });
-      interaction.closed = false;
+      slide.closed = false;
       spinner.value = false;
       btnSubmitText.value = 'Try again?';
     }
@@ -70,19 +67,17 @@ const submit = () => {
     <div class="d-flex justify-content-center">
       <div class="full-width">
         <WaitingRoom
-          v-if="
-            interactSession.interactions[currentIndex].type == 'waitingRoom'
-          "
+          v-if="interactionSession.slides[currentIndex].type == 'waitingRoom'"
         />
         <End
-          v-else-if="interactSession.interactions[currentIndex].type == 'end'"
-          :feedbackID="interactSession.feedbackID"
+          v-else-if="interactionSession.slides[currentIndex].type == 'end'"
+          :feedbackID="interactionSession.feedbackID"
         />
         <SingleChoice
           v-else-if="
-            interactSession.interactions[currentIndex].type == 'singleChoice'
+            interactionSession.slides[currentIndex].type == 'singleChoice'
           "
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
           :spinner="spinner"
           :currentIndex="currentIndex"
           :btnSubmitText="btnSubmitText"
@@ -91,9 +86,9 @@ const submit = () => {
         />
         <MultipleChoice
           v-else-if="
-            interactSession.interactions[currentIndex].type == 'multipleChoice'
+            interactionSession.slides[currentIndex].type == 'multipleChoice'
           "
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
           :spinner="spinner"
           :currentIndex="currentIndex"
           :btnSubmitText="btnSubmitText"
@@ -102,9 +97,9 @@ const submit = () => {
         />
         <ShortText
           v-else-if="
-            interactSession.interactions[currentIndex].type == 'shortText'
+            interactionSession.slides[currentIndex].type == 'shortText'
           "
-          :interaction="interactSession.interactions[currentIndex]"
+          :slide="interactionSession.slides[currentIndex]"
           :spinner="spinner"
           :currentIndex="currentIndex"
           :btnSubmitText="btnSubmitText"
@@ -120,7 +115,7 @@ const submit = () => {
 .full-width {
   width: 100%;
 }
-.interactionComponentType {
+.slideComponentType {
   margin-right: auto;
   margin-left: auto;
 }

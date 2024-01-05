@@ -1,13 +1,13 @@
 <script setup>
-import { config } from "../../../data/config.js";
-const props = defineProps(["feedbackID"]);
+import { config } from '../../../data/config.js';
+const props = defineProps(['feedbackID']);
 const openFeedback = () =>
-  window.open(config.client.url + "/" + props.feedbackID, "_blank");
+  window.open(config.client.url + '/' + props.feedbackID, '_blank');
 </script>
 
 <template>
   <div class="text-center m-4">
-    <p class="display-6">The interactions for this session have finished</p>
+    <p class="display-6">The slides for this session have finished</p>
     <div class="text-center" v-if="feedbackID">
       <p>
         Please click below to provide feedback to the session facilitator<br />

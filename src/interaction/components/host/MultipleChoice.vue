@@ -3,16 +3,16 @@ import { onMounted, watch } from 'vue';
 import { config } from '../../../data/config.js';
 import Chart from 'chart.js/auto';
 
-const props = defineProps(['interaction']);
+const props = defineProps(['slide']);
 
 const optionCounts = [];
-for (let i = 0; i < props.interaction.options.length; i++) optionCounts.push(0);
+for (let i = 0; i < props.slide.options.length; i++) optionCounts.push(0);
 
 const chartConfig = {
   bar: {
     type: 'bar',
     data: {
-      labels: props.interaction.options,
+      labels: props.slide.options,
       datasets: [
         {
           data: optionCounts,
@@ -26,7 +26,7 @@ const chartConfig = {
             'rgba(54, 162, 235, 0.5)',
             'rgba(153, 102, 255, 0.5)',
             'rgba(161, 163, 167, 0.5)',
-            'rgba(176, 245, 66, 0.5)'
+            'rgba(176, 245, 66, 0.5)',
           ],
         },
       ],
@@ -68,7 +68,7 @@ const chartConfig = {
   doughnut: {
     type: 'doughnut',
     data: {
-      labels: props.interaction.options,
+      labels: props.slide.options,
       datasets: [
         {
           data: optionCounts,
@@ -91,11 +91,10 @@ const chartConfig = {
 };
 
 let chart;
-watch(props.interaction, () => {
-  for (let i = 0; i < props.interaction.options.length; i++)
-    optionCounts[i] = 0;
-  for (let submission of props.interaction.submissions) {
-    let selectionArray = JSON.parse(submission.response)
+watch(props.slide, () => {
+  for (let i = 0; i < props.slide.options.length; i++) optionCounts[i] = 0;
+  for (let submission of props.slide.submissions) {
+    let selectionArray = JSON.parse(submission.response);
     for (let selection of selectionArray) optionCounts[parseInt(selection)]++;
   }
   chart.update();
@@ -104,7 +103,7 @@ watch(props.interaction, () => {
 onMounted(() => {
   chart = new Chart(
     document.getElementById('chart'),
-    chartConfig[props.interaction.chart]
+    chartConfig[props.slide.chart]
   );
 });
 </script>

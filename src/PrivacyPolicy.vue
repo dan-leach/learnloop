@@ -202,7 +202,7 @@
         </div>
       </div>
     </div>
-    <h2>Interact</h2>
+    <h2>Interaction</h2>
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingFour">
         <button
@@ -213,7 +213,7 @@
           aria-expanded="true"
           aria-controls="collapseFour"
         >
-          <h4>Joining an interact session</h4>
+          <h4>Joining an interaction session</h4>
         </button>
       </h2>
       <div
@@ -224,8 +224,8 @@
       >
         <div class="accordion-body">
           <p>
-            When you join an interact session using LearnLoop the data you enter
-            (responses to interaction questions) are submitted to a server
+            When you join an interaction session using LearnLoop the data you
+            enter (responses to interactive questions) are submitted to a server
             located within the United Kingdom. The transmission of your data is
             protected using SSL encryption, and is stored in an access
             controlled database, but cannot be guarranteed to be completely
@@ -236,8 +236,8 @@
             Your responses can be seen by the session facilitator and in most
             cases by other attendees of the session. Neither the facilitator,
             nor LearnLoop, can identify you from the data that is collected
-            during the interaction process. The interact database does not log
-            your IP address or other identifying features about your device.
+            during the interactive process. The interaction database does not
+            log your IP address or other identifying features about your device.
             However, bear in mind that you responses themselves you make might
             allow you to be identified.
           </p>
@@ -245,7 +245,7 @@
             If you want your data to be removed from the database please email
             mail@learnloop.co.uk. As your responses are not directly
             attributable to you, you will need to provide details to allow the
-            entry to be identified and removed. Many interaction responses will
+            entry to be identified and removed. Many interactive responses will
             not be specific enough for this to be possible.
           </p>
         </div>
@@ -261,7 +261,7 @@
           aria-expanded="true"
           aria-controls="collapseFive"
         >
-          <h4>Hosting an interact session</h4>
+          <h4>Hosting an interaction session</h4>
         </button>
       </h2>
       <div
@@ -287,8 +287,8 @@
             attendees to join the session. You should only enter your own email
             address as the facilitator email address or with the express
             permission of the facilitator if you are creating a session on their
-            behalf. Anyone who joins the interact session (via the session ID,
-            link or QR code) can view the session title, interactions, and
+            behalf. Anyone who joins the interaction session (via the session
+            ID, link or QR code) can view the session title, interactions, and
             facilitator name but not the facilitator's email address.
           </p>
           <p>
@@ -320,7 +320,7 @@
         <div class="accordion-body">
           <p>
             When you edit session details data is handled in the same fashion as
-            for creating a new session as under hosting an interact session,
+            for creating a new session as under hosting an interaction session,
             please see above.
           </p>
           <p>

@@ -1,7 +1,7 @@
 <?php
 
-$tblSessions = 'tbl_interact_sessions_dev';
-$tblSubmissions = 'tbl_interact_submissions_dev';
+$tblSessions = 'tbl_interaction_sessions_dev';
+$tblSubmissions = 'tbl_interaction_submissions_dev';
 
 $tblFeedbackSessions = 'tbl_feedback_sessions_dev';
 
@@ -58,13 +58,13 @@ function dbFeedbackSessionExists($id, $link)
     return $res;
 }
 
-function dbInsertSession($id, $name, $email, $title, $feedbackID, $interactions, $pinHash, $link)
+function dbInsertSession($id, $name, $email, $title, $feedbackID, $slides, $pinHash, $link)
 { //inserts session $data with $id and $pinHash
     global $tblSessions;
-    $stmt = $link->prepare("INSERT INTO $tblSessions (id, name, email, title, feedbackID, interactions, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?)");
+    $stmt = $link->prepare("INSERT INTO $tblSessions (id, name, email, title, feedbackID, slides, pinHash) VALUES (?, ?, ?, ?, ?, ?, ?)");
     if (false === $stmt) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
-    $rc = $stmt->bind_param("sssssss", $id, $name, $email, $title, $feedbackID, $interactions, $pinHash);
+    $rc = $stmt->bind_param("sssssss", $id, $name, $email, $title, $feedbackID, $slides, $pinHash);
     if (false === $rc) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->execute();
@@ -73,13 +73,13 @@ function dbInsertSession($id, $name, $email, $title, $feedbackID, $interactions,
     return true;
 }
 
-function dbUpdateSession($id, $name, $email, $title, $feedbackID, $interactions, $link)
+function dbUpdateSession($id, $name, $email, $title, $feedbackID, $slides, $link)
 { //inserts session $data with $id and $pinHash
     global $tblSessions;
-    $stmt = $link->prepare("UPDATE $tblSessions SET name = ?, email = ?, title = ?, feedbackID = ?, interactions = ? WHERE id = ?");
+    $stmt = $link->prepare("UPDATE $tblSessions SET name = ?, email = ?, title = ?, feedbackID = ?, slides = ? WHERE id = ?");
     if (false === $stmt) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
-    $rc = $stmt->bind_param("ssssss", $name, $email, $title, $feedbackID, $interactions, $id);
+    $rc = $stmt->bind_param("ssssss", $name, $email, $title, $feedbackID, $slides, $id);
     if (false === $rc) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->execute();
@@ -152,16 +152,16 @@ function dbSelectHostStatus($id, $link)
     return $res;
 }
 
-function dbSelectNewSubmissions($id, $interactionIndex, $lastSubmissionId, $link)
+function dbSelectNewSubmissions($id, $slideIndex, $lastSubmissionId, $link)
 { //returns the session details for $id as a php object
     global $tblSubmissions;
     $res = array();
     if ($link === false) send_error_response("database connection failed:" . mysqli_connect_error(), 500);
 
-    $stmt = $link->prepare("SELECT * FROM $tblSubmissions WHERE sessionId = ? AND interactionIndex = ? AND id > ?");
+    $stmt = $link->prepare("SELECT * FROM $tblSubmissions WHERE sessionId = ? AND slideIndex = ? AND id > ?");
     if (false === $stmt) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
-    $rc = $stmt->bind_param("sss", $id, $interactionIndex, $lastSubmissionId);
+    $rc = $stmt->bind_param("sss", $id, $slideIndex, $lastSubmissionId);
     if (false === $rc) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->execute();
@@ -196,13 +196,13 @@ function dbUpdateHostStatus($id, $hostStatus, $link)
     return true;
 }
 
-function dbInsertSubmissiion($id, $interactionIndex, $response, $link)
+function dbInsertSubmissiion($id, $slideIndex, $response, $link)
 {
     global $tblSubmissions;
-    $stmt = $link->prepare("INSERT INTO $tblSubmissions (sessionId, interactionIndex, response) VALUES (?, ?, ?)");
+    $stmt = $link->prepare("INSERT INTO $tblSubmissions (sessionId, slideIndex, response) VALUES (?, ?, ?)");
     if (false === $stmt) send_error_response("prepare() failed: " . mysqli_error($link), 500);
 
-    $rc = $stmt->bind_param("sss", $id, $interactionIndex, $response);
+    $rc = $stmt->bind_param("sss", $id, $slideIndex, $response);
     if (false === $rc) send_error_response("bind_param() failed: " . mysqli_error($link), 500);
 
     $rc = $stmt->execute();

@@ -47,7 +47,7 @@ export const config = reactive({
       },
     },
   },
-  interact: {
+  interaction: {
     join: {
       currentIndexPollInterval: 3000,
     },
@@ -55,7 +55,7 @@ export const config = reactive({
       newSubmissionsPollInterval: 3000,
     },
     create: {
-      interactions: {
+      slides: {
         types: {
           singleChoice: {
             name: 'Single choice',

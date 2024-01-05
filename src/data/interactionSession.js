@@ -1,15 +1,15 @@
 import { reactive } from 'vue';
 
-export const interactSession = reactive({
+export const interactionSession = reactive({
   id: '',
   pin: '',
   title: '',
   name: '',
   submissionCount: 0,
-  interactions: [],
+  slides: [],
   hostStatus: {
     facilitatorIndex: 0,
-    lockedInteractions: [],
+    lockedSlides: [],
   },
   reset: function () {
     this.id = '';
@@ -17,6 +17,10 @@ export const interactSession = reactive({
     this.title = '';
     this.name = '';
     this.submissionCount = 0;
-    this.interactions = [];
+    this.slides = [];
+    this.hostStatus = {
+      facilitatorIndex: 0,
+      lockedSlides: [],
+    };
   },
 });

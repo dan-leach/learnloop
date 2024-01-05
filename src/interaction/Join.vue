@@ -3,41 +3,40 @@ import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
 import router from '../router';
 import { api } from '../data/api.js';
-import { interactSession } from '../data/interactSession.js';
+import { interactionSession } from '../data/interactionSession.js';
 import { config } from '../data/config.js';
 import Swal from 'sweetalert2';
 import Loading from '../components/Loading.vue';
-import JoinInteraction from './components/JoinInteraction.vue';
+import JoinSlide from './components/JoinSlide.vue';
 
 const loading = ref(true);
-const showInteraction = ref(true);
+const showSlide = ref(true);
 const currentIndex = ref(0);
 const facilitatorIndex = ref(0);
 
-const goToInteraction = (index) => {
-  showInteraction.value = false;
+const goToSlide = (index) => {
+  showSlide.value = false;
   currentIndex.value = index;
   setTimeout(() => {
-    showInteraction.value = true;
+    showSlide.value = true;
   }, 250);
 };
 
 let fetchHostStatusFailCount = 0;
 const fetchHostStatus = () => {
-  api('interact', 'fetchHostStatus', interactSession.id, null, null).then(
+  api('interaction', 'fetchHostStatus', interactionSession.id, null, null).then(
     function (res) {
       console.log(res);
       facilitatorIndex.value = res.facilitatorIndex;
-      interactSession.hostStatus.lockedInteractions = res.lockedInteractions;
+      interactionSession.hostStatus.lockedSlides = res.lockedSlides;
       if (
         currentIndex.value == 0 ||
-        interactSession.interactions[currentIndex.value].response === '' ||
-        interactSession.interactions[currentIndex.value].response ===
-          undefined ||
-        interactSession.interactions[currentIndex.value].closed
+        interactionSession.slides[currentIndex.value].response === '' ||
+        interactionSession.slides[currentIndex.value].response === undefined ||
+        interactionSession.slides[currentIndex.value].closed
       ) {
         if (currentIndex.value != facilitatorIndex.value)
-          goToInteraction(facilitatorIndex.value);
+          goToSlide(facilitatorIndex.value);
       }
       fetchHostStatusFailCount = 0;
       Swal.close();
@@ -64,37 +63,36 @@ const fetchHostStatus = () => {
 };
 
 const fetchDetails = () => {
-  api('interact', 'fetchDetails', interactSession.id, null, null).then(
+  api('interaction', 'fetchDetails', interactionSession.id, null, null).then(
     function (res) {
-      if (interactSession.id != res.id) {
+      if (interactionSession.id != res.id) {
         console.error(
-          'interactSession.id != res.id',
-          interactSession.id,
+          'interactionSession.id != res.id',
+          interactionSession.id,
           res.id
         );
         return;
       }
-      interactSession.title = res.title;
-      interactSession.name = res.name;
-      interactSession.feedbackID = res.feedbackID;
-      res.interactions.unshift({ type: 'waitingRoom' });
-      res.interactions.push({ type: 'end' });
-      interactSession.interactions = res.interactions;
-      for (let interaction of interactSession.interactions)
-        interaction.submissionCount = 0;
+      interactionSession.title = res.title;
+      interactionSession.name = res.name;
+      interactionSession.feedbackID = res.feedbackID;
+      res.slides.unshift({ type: 'waitingRoom' });
+      res.slides.push({ type: 'end' });
+      interactionSession.slides = res.slides;
+      for (let slide of interactionSession.slides) slide.submissionCount = 0;
       facilitatorIndex.value = res.hostStatus.facilitatorIndex;
       currentIndex.value = facilitatorIndex.value;
       loading.value = false;
       setInterval(
         fetchHostStatus,
-        config.interact.join.currentIndexPollInterval
+        config.interaction.join.currentIndexPollInterval
       );
     },
     function (error) {
       Swal.fire({
         icon: 'error',
         iconColor: '#17a2b8',
-        title: 'Unable to join interact session',
+        title: 'Unable to join interaction session',
         text: error,
         confirmButtonColor: '#17a2b8',
       });
@@ -104,8 +102,8 @@ const fetchDetails = () => {
 };
 
 onMounted(() => {
-  interactSession.id = useRouter().currentRoute.value.params.id;
-  if (!interactSession.id) {
+  interactionSession.id = useRouter().currentRoute.value.params.id;
+  if (!interactionSession.id) {
     Swal.fire({
       title: 'Enter session ID',
       html:
@@ -114,13 +112,13 @@ onMounted(() => {
       showCancelButton: true,
       confirmButtonColor: '#17a2b8',
       preConfirm: () => {
-        interactSession.id = document.getElementById('swalFormId').value;
-        if (interactSession.id == '')
+        interactionSession.id = document.getElementById('swalFormId').value;
+        if (interactionSession.id == '')
           Swal.showValidationMessage('Please enter a session ID');
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        history.replaceState({}, '', interactSession.id);
+        history.replaceState({}, '', interactionSession.id);
         fetchDetails();
       } else {
         router.push('/');
@@ -138,26 +136,23 @@ onMounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <h1 class="text-center display-4">Interact</h1>
+      <h1 class="text-center display-4">Interaction</h1>
       <p class="text-center">
-        {{ interactSession.title }} | {{ interactSession.name }}
+        {{ interactionSession.title }} | {{ interactionSession.name }}
       </p>
       <Transition name="slide-up">
-        <div
-          class="d-flex justify-content-around flex-wrap"
-          v-if="showInteraction"
-        >
+        <div class="d-flex justify-content-around flex-wrap" v-if="showSlide">
           <div class="side-content"></div>
-          <!--side-content on left too to ensure Interaction panel remains center-->
+          <!--side-content on left too to ensure Slide panel remains center-->
           <div class="container card m-2">
-            <JoinInteraction :currentIndex="currentIndex" />
+            <JoinSlide :currentIndex="currentIndex" />
           </div>
           <div class="side-content align-self-center">
             <Transition name="fade" appear>
               <div
                 class="card bg-teal text-center p-2"
                 v-show="currentIndex != facilitatorIndex"
-                @click="goToInteraction(facilitatorIndex)"
+                @click="goToSlide(facilitatorIndex)"
               >
                 <font-awesome-icon
                   :icon="['fas', 'circle-chevron-right']"

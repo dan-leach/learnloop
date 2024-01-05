@@ -1,11 +1,11 @@
 <script setup>
 import { ref, watch } from 'vue';
-import { interactSession } from '../../data/interactSession.js';
+import { interactionSession } from '../../data/interactionSession.js';
 import { config } from '../../data/config.js';
 import Swal from 'sweetalert2';
 
 const props = defineProps(['index']);
-const emit = defineEmits(['hideEditInteractionModal']);
+const emit = defineEmits(['hideEditSlideModal']);
 
 let prompt = ref('');
 let type = ref('');
@@ -16,20 +16,20 @@ let chart = ref('');
 let charts = ref('');
 
 if (props.index > -1) {
-  const interaction = interactSession.interactions[props.index];
-  prompt.value = interaction.prompt;
-  type.value = interaction.type;
-  options.value = interaction.options;
-  settings.value = interaction.settings;
+  const slide = interactionSession.slides[props.index];
+  prompt.value = slide.prompt;
+  type.value = slide.type;
+  options.value = slide.options;
+  settings.value = slide.settings;
 }
 
 watch(type, (newType, oldType) => {
   if (type.value) {
     settings.value =
-      config.interact.create.interactions.types[type.value].settings;
-    charts.value = config.interact.create.interactions.types[type.value].charts;
+      config.interaction.create.slides.types[type.value].settings;
+    charts.value = config.interaction.create.slides.types[type.value].charts;
     isInteractive.value =
-      config.interact.create.interactions.types[type.value].isInteractive;
+      config.interaction.create.slides.types[type.value].isInteractive;
   }
   if (settings.value.selectedLimit) {
     settings.value.selectedLimit.max = options.value.length;
@@ -44,7 +44,7 @@ const questionTypeInfo = () => {
     title: 'Question types',
     html: `
       <div class="text-start">
-        <p>There are several different interaction types available. Click below to see examples and further details about each:</p>
+        <p>There are several different slide types available. Click below to see examples and further details about each:</p>
         <div class="accordion" id="accordionTypes">
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
@@ -54,8 +54,8 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/interaction-type-example-single-choice.png" class="img-fluid mx-auto d-block">
-                <p>Single choice interactions allow you to provide a selection of options from which attendees can choose only one. By default attendees will be able to respond only once but you can allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the interaction.</p>
+                <img src="https://dev.learnloop.co.uk/img/slide-type-example-single-choice.png" class="img-fluid mx-auto d-block">
+                <p>Single choice interactions allow you to provide a selection of options from which attendees can choose only one. By default attendees will be able to respond only once but you can allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
           </div>
@@ -67,8 +67,8 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/interaction-type-example-multiple-choice.png" class="img-fluid mx-auto d-block">
-                <p>Multiple choice interactions allow you to provide a selection of options from which attendees can choose. By default attendees must chose at least 1 option and can select as many as they wish, but optionally you can set a minimum and maximum number of options per response. By default attendees will be able to respond only once but you can optionally allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the interaction.</p>
+                <img src="https://dev.learnloop.co.uk/img/slide-type-example-multiple-choice.png" class="img-fluid mx-auto d-block">
+                <p>Multiple choice interactions allow you to provide a selection of options from which attendees can choose. By default attendees must chose at least 1 option and can select as many as they wish, but optionally you can set a minimum and maximum number of options per response. By default attendees will be able to respond only once but you can optionally allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
           </div>
@@ -80,8 +80,8 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/interaction-type-example-short-text.png" class="img-fluid mx-auto d-block">
-                <p>Short text interactions allow attendees to provide short free text responses which appear on the host screen. By default attendees will be able to respond 10 times but you can set a different number of allowed responses per person. To keep responses short the default character limit is 200, but you can set this to a different value if required. You can set the responses not to appear on the host view until after you reveal them by activating this option in settings when creating the interaction.</p>
+                <img src="https://dev.learnloop.co.uk/img/slide-type-example-short-text.png" class="img-fluid mx-auto d-block">
+                <p>Short text interactions allow attendees to provide short free text responses which appear on the host screen. By default attendees will be able to respond 10 times but you can set a different number of allowed responses per person. To keep responses short the default character limit is 200, but you can set this to a different value if required. You can set the responses not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
           </div>
@@ -109,7 +109,7 @@ const chartTypeInfo = () => {
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/interaction-chart-example-bar.png" class="img-fluid mx-auto d-block">
+                <img src="https://dev.learnloop.co.uk/img/slide-chart-example-bar.png" class="img-fluid mx-auto d-block">
                 <p>You can hover over any of the bars to show the exact number of responses that option has received.</p>
               </div>
             </div>
@@ -122,7 +122,7 @@ const chartTypeInfo = () => {
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/interaction-chart-example-doughnut.png" class="img-fluid mx-auto d-block">
+                <img src="https://dev.learnloop.co.uk/img/slide-chart-example-doughnut.png" class="img-fluid mx-auto d-block">
                 <p>You can hover over any of the segments to show the exact number of responses that option has received.</p>
               </div>
             </div>
@@ -142,9 +142,9 @@ const optionsMinMaxInfo = () => {
     html: `
       <div class="text-start">
         <p>By default attendees must select between one and all of the available options. You can change the minimum and maximum if required. If the attendee attempts to submit a response with fewer than the minimum number of options selected they will receive an alert like this one:</p>
-        <img src="https://dev.learnloop.co.uk/img/interaction-selection-min.png" class="img-fluid mx-auto d-block">
+        <img src="https://dev.learnloop.co.uk/img/slide-selection-min.png" class="img-fluid mx-auto d-block">
         <p>Or, if they select more options than the maximum, they will receive an alert like this one:</p>
-        <img src="https://dev.learnloop.co.uk/img/interaction-selection-max.png" class="img-fluid mx-auto d-block">
+        <img src="https://dev.learnloop.co.uk/img/slide-selection-max.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: '60%',
     confirmButtonColor: '#17a2b8',
@@ -159,7 +159,7 @@ const submissionLimitInfo = () => {
     html: `
       <div class="text-start">
         <p>By default attendees can respond only once to interactions (10 times for text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
-        <img src="https://dev.learnloop.co.uk/img/interaction-submission-limit.png" class="img-fluid mx-auto d-block">
+        <img src="https://dev.learnloop.co.uk/img/slide-submission-limit.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: '60%',
     confirmButtonColor: '#17a2b8',
@@ -174,7 +174,7 @@ const hideResponsesInfo = () => {
     html: `
       <div class="text-start">
         <p>If you want to prevent attendees from seeing what others are responding until you reveal the answer you can select this option. Your screen will display this view until your click to reveal the responses:</p>
-        <img src="https://dev.learnloop.co.uk/img/interaction-hide-responses.png" class="img-fluid mx-auto d-block">
+        <img src="https://dev.learnloop.co.uk/img/slide-hide-responses.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: '60%',
     confirmButtonColor: '#17a2b8',
@@ -210,10 +210,10 @@ const keepSubmissionLimitWithinMinMax = () => {
   const submissionLimit = settings.value.submissionLimit;
   if (submissionLimit < 1) settings.value.submissionLimit = 1;
   else if (
-    submissionLimit > config.interact.create.interactions.submissionLimitMax
+    submissionLimit > config.interaction.create.slides.submissionLimitMax
   )
     settings.value.submissionLimit =
-      config.interact.create.interactions.submissionLimitMax;
+      config.interaction.create.slides.submissionLimitMax;
   else return true;
 };
 const keepSelectedLimitsWithinMinMax = () => {
@@ -232,13 +232,13 @@ const keepSelectedLimitsWithinMinMax = () => {
 let submit = () => {
   newOption.value = '';
   document
-    .getElementById('editInteractionModal' + props.index)
+    .getElementById('editSlideModal' + props.index)
     .classList.add('was-validated');
   if (!type.value) return false;
   if (settings.value.optionsLimit == 0) {
     options.value = [];
   } else if (
-    options.value.length < config.interact.create.interactions.minimumOptions
+    options.value.length < config.interaction.create.slides.minimumOptions
   ) {
     Swal.fire({
       icon: 'error',
@@ -246,7 +246,7 @@ let submit = () => {
       title: 'Too few options added',
       text:
         'You need to add at least ' +
-        config.interact.create.interactions.minimumOptions +
+        config.interaction.create.slides.minimumOptions +
         ' options.',
       confirmButtonColor: '#17a2b8',
     });
@@ -260,7 +260,7 @@ let submit = () => {
       text:
         'You can have up to ' +
         settings.value.optionsLimit +
-        ' options for the interaction type selected.',
+        ' options for the slide type selected.',
       confirmButtonColor: '#17a2b8',
     });
     return false;
@@ -269,7 +269,7 @@ let submit = () => {
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
   if (charts.value && !chart.value) return false;
   emit(
-    'hideEditInteractionModal',
+    'hideEditSlideModal',
     props.index,
     JSON.stringify({
       prompt: prompt.value,
@@ -289,28 +289,26 @@ let submit = () => {
     settings.value = {};
   }
   document
-    .getElementById('editInteractionModal' + props.index)
+    .getElementById('editSlideModal' + props.index)
     .classList.remove('was-validated');
 };
 </script>
 
 <template>
-  <div class="modal fade" :id="'editInteractionModal' + index">
+  <div class="modal fade" :id="'editSlideModal' + index">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">
-            {{ index < 0 ? 'Add an' : 'Edit' }} interaction
-          </h4>
+          <h4 class="modal-title">{{ index < 0 ? 'Add an' : 'Edit' }} slide</h4>
           <button
             v-if="index == -1"
             type="button"
             class="btn-close"
-            @click.prevent="emit('hideEditInteractionModal')"
+            @click.prevent="emit('hideEditSlideModal')"
           ></button>
         </div>
         <div class="modal-body">
-          <div id="editInteractionForm" class="needs-validation" novalidate>
+          <div id="editSlideForm" class="needs-validation" novalidate>
             <div class="form-floating mb-3">
               <input
                 type="text"
@@ -322,10 +320,9 @@ let submit = () => {
                 autocomplete="off"
                 required
               />
-              <label for="prompt">Question or instruction to attendees</label>
-              <div class="invalid-feedback">
-                Please provide a prompt for this interaction.
-              </div>
+              <label for="prompt"
+                >Title, question or instruction to attendees</label
+              >
             </div>
             <div class="input-group mb-3">
               <div class="form-floating">
@@ -337,20 +334,15 @@ let submit = () => {
                   autocomplete="off"
                   required
                 >
-                  <option disabled value="">
-                    Please select an interaction type
-                  </option>
+                  <option disabled value="">Please select an slide type</option>
                   <option
-                    v-for="type in config.interact.create.interactions.types"
+                    v-for="type in config.interaction.create.slides.types"
                     :value="type.id"
                   >
                     {{ type.name }}
                   </option>
                 </select>
                 <label for="type">Type</label>
-                <div class="invalid-feedback">
-                  Please select an interaction type.
-                </div>
               </div>
               <div class="input-group-text">
                 <font-awesome-icon
@@ -389,7 +381,6 @@ let submit = () => {
                     @click="chartTypeInfo"
                   />
                 </div>
-                <div class="invalid-feedback">Please select a chart type.</div>
               </div>
               <div v-if="settings.optionsLimit" class="card mb-3">
                 <div class="card-header">
@@ -461,7 +452,7 @@ let submit = () => {
                     </button>
                   </div>
                   <div class="invalid-feedback">
-                    Please provide some options for this interaction.
+                    Please provide some options for this slide.
                   </div>
                 </div>
               </div>
@@ -554,7 +545,7 @@ let submit = () => {
                             @change="keepSubmissionLimitWithinMinMax"
                             min="1"
                             :max="
-                              config.interact.create.interactions
+                              config.interaction.create.slides
                                 .submissionLimitMax
                             "
                             class="form-control"
@@ -624,10 +615,10 @@ let submit = () => {
           <div class="text-center">
             <button
               class="btn btn-teal text-center"
-              id="submitEditInteractForm"
+              id="submitEditInteractionForm"
               v-on:click.prevent="submit"
             >
-              {{ index < 0 ? 'Add' : 'Update' }} interaction
+              {{ index < 0 ? 'Add' : 'Update' }} slide
             </button>
           </div>
         </div>

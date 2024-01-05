@@ -63,43 +63,43 @@ const router = createRouter({
       ],
     },
     {
-      path: '/interact',
-      name: 'interact',
+      path: '/interaction',
+      name: 'interaction',
       children: [
         {
           path: 'create',
-          name: 'interact-create',
-          component: () => import('../interact/Create.vue'),
+          name: 'interaction-create',
+          component: () => import('../interaction/Create.vue'),
         },
         {
           path: 'created',
-          name: 'interact-created',
-          component: () => import('../interact/Created.vue'),
+          name: 'interaction-created',
+          component: () => import('../interaction/Created.vue'),
         },
         {
           path: 'instructions/:id?',
-          name: 'interact-instructions',
-          component: () => import('../interact/Instructions.vue'),
+          name: 'interaction-instructions',
+          component: () => import('../interaction/Instructions.vue'),
         },
         {
           path: 'host/:id?', //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
-          name: 'interact-host',
-          component: () => import('../interact/Host.vue'),
+          name: 'interaction-host',
+          component: () => import('../interaction/Host.vue'),
         },
         {
           path: 'edit/:id?', //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
-          name: 'interact-edit',
-          component: () => import('../interact/Create.vue'),
+          name: 'interaction-edit',
+          component: () => import('../interaction/Create.vue'),
         },
         {
           path: 'resetPIN/:id?', //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
-          name: 'interact-resetPIN',
+          name: 'interaction-resetPIN',
           component: Home,
         },
         {
           path: ':id?',
-          name: 'interact-join',
-          component: () => import('../interact/Join.vue'),
+          name: 'interaction-join',
+          component: () => import('../interaction/Join.vue'),
         },
       ],
     },

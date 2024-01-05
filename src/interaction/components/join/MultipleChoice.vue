@@ -1,10 +1,10 @@
 <script setup>
 import { ref } from 'vue';
-import { interactSession } from '../../../data/interactSession.js';
+import { interactionSession } from '../../../data/interactionSession.js';
 import Toast from '../../../assets/Toast.js';
 
 const props = defineProps([
-  'interaction',
+  'slide',
   'spinner',
   'btnSubmitText',
   'btnSubmitBelowText',
@@ -16,8 +16,8 @@ let selection = ref([]);
 
 let submit = () => {
   let selectedCount = selection.value.length;
-  let selectedMin = props.interaction.settings.selectedLimit.min;
-  let selectedMax = props.interaction.settings.selectedLimit.max;
+  let selectedMin = props.slide.settings.selectedLimit.min;
+  let selectedMax = props.slide.settings.selectedLimit.max;
   if (selectedCount < selectedMin) {
     Toast.fire({
       icon: 'error',
@@ -31,7 +31,7 @@ let submit = () => {
       title: 'Please select no more than ' + selectedMax + ' option(s)',
     });
   } else {
-    props.interaction.response = JSON.stringify(selection.value);
+    props.slide.response = JSON.stringify(selection.value);
     emit('submit');
   }
 };
@@ -39,30 +39,29 @@ let submit = () => {
 
 <template>
   <p class="text-center">
-    <strong>{{ interaction.prompt }}</strong>
+    <strong>{{ slide.prompt }}</strong>
   </p>
   <p
     class="text-center"
     v-if="
-      interaction.settings.selectedLimit.min > 1 ||
-      interaction.settings.selectedLimit.max < interaction.options.length
+      slide.settings.selectedLimit.min > 1 ||
+      slide.settings.selectedLimit.max < slide.options.length
     "
   >
     <small>
       Please select
       {{
-        interaction.settings.selectedLimit.min ==
-        interaction.settings.selectedLimit.max
-          ? interaction.settings.selectedLimit.min
+        slide.settings.selectedLimit.min == slide.settings.selectedLimit.max
+          ? slide.settings.selectedLimit.min
           : ' between ' +
-            interaction.settings.selectedLimit.min +
+            slide.settings.selectedLimit.min +
             ' and ' +
-            interaction.settings.selectedLimit.max
+            slide.settings.selectedLimit.max
       }}
       options(s)
     </small>
   </p>
-  <div v-for="(option, index) in interaction.options" class="form-check">
+  <div v-for="(option, index) in slide.options" class="form-check">
     <input
       type="checkbox"
       class="form-check-input"
@@ -70,7 +69,7 @@ let submit = () => {
       :name="'option-' + index"
       :value="index"
       v-model="selection"
-      :disabled="interaction.closed"
+      :disabled="slide.closed"
     />{{ option }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
@@ -81,8 +80,7 @@ let submit = () => {
       class="btn btn-teal mt-4"
       @click="submit"
       :disabled="
-        interaction.closed ||
-        interactSession.hostStatus.lockedInteractions[currentIndex]
+        slide.closed || interactionSession.hostStatus.lockedSlides[currentIndex]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>

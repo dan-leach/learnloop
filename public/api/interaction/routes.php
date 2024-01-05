@@ -7,7 +7,7 @@ require 'mail.php';
 function insertSession($data, $link)
 {
     $res = new stdClass();
-    $res->id = createUniqueID($link, 'interact');
+    $res->id = createUniqueID($link, 'interaction');
     $res->pin = createPin();
     $pinHash = hashPin($res->pin);
 
@@ -26,17 +26,17 @@ function insertSession($data, $link)
     }
     $title = htmlspecialchars($data->title);
     if (strlen($title) == 0) $errMsg .= "Title is blank. ";
-    if (sizeof($data->interactions) < 1) {
-        $errMsg .= "No interactions defined. ";
+    if (sizeof($data->slides) < 1) {
+        $errMsg .= "No slides defined. ";
     } else {
-        $interactions = json_encode($data->interactions);
+        $slides = json_encode($data->slides);
     }
 
     if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
 
-    if (!dbInsertSession($res->id, $name, $email, $title, $feedbackID, $interactions, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
+    if (!dbInsertSession($res->id, $name, $email, $title, $feedbackID, $slides, $pinHash, $link)) send_error_response("dbInsertSession failed for an unknown reason", 500);
 
-    if ($email) sendSessionCreatedMessage($name, $title, $feedbackID, $interactions, $res->id, $res->pin, $email);
+    if ($email) sendSessionCreatedMessage($name, $title, $feedbackID, $slides, $res->id, $res->pin, $email);
 
     return $res;
 }
@@ -70,19 +70,19 @@ function updateSession($id, $pin, $data, $link)
         if (!dbFeedbackSessionExists($feedbackID, $link)) send_error_response("Feedback session ID not recognised", 400);
     }
     if (strlen($title) == 0) $errMsg .= "Title is blank. ";
-    if (sizeof($data->interactions) < 1) {
-        $errMsg .= "No interactions defined. ";
+    if (sizeof($data->slides) < 1) {
+        $errMsg .= "No slides defined. ";
     } else {
-        $interactions = json_encode($data->interactions);
+        $slides = json_encode($data->slides);
     }
 
     if (strlen($errMsg) > 0) send_error_response($errMsg, 400);
 
-    if (!dbUpdateSession($id, $name, $email, $title, $feedbackID, $interactions, $link)) send_error_response("dbUpdateSession failed for an unknown reason", 500);
+    if (!dbUpdateSession($id, $name, $email, $title, $feedbackID, $slides, $link)) send_error_response("dbUpdateSession failed for an unknown reason", 500);
 
     if (!dbDeleteSubmissions($id, $link)) send_error_response("dbDeleteSubmissions failed for an unknown reason", 500);
 
-    if ($email) sendSessionUpdatedMessage($name, $title, $feedbackID, $interactions, $id, $email);
+    if ($email) sendSessionUpdatedMessage($name, $title, $feedbackID, $slides, $id, $email);
 
     return true;
 }
@@ -95,7 +95,7 @@ function fetchDetails($id, $link)
     unset($res['pinHash']);
     $res['name'] = htmlspecialchars_decode($res['name']);
     $res['title'] = htmlspecialchars_decode($res['title']);
-    $res['interactions'] = json_decode($res['interactions']);
+    $res['slides'] = json_decode($res['slides']);
     $res['hostStatus'] = json_decode($res['hostStatus']);
     return $res;
 }
@@ -107,12 +107,12 @@ function fetchHostStatus($id, $link)
 function insertSubmission($id, $data, $link)
 {
     //sanitize and validate
-    $interactionIndex = $data->interactionIndex;
-    if (!filter_var($interactionIndex, FILTER_VALIDATE_INT)) send_error_response("interactionIndex must be of type [integer]", 400);
+    $slideIndex = $data->slideIndex;
+    if (!filter_var($slideIndex, FILTER_VALIDATE_INT)) send_error_response("slideIndex must be of type [integer]", 400);
     $response = htmlspecialchars($data->response);
     if (strlen($response) == 0) send_error_response("Response cannot be blank", 400);
 
-    if (!dbInsertSubmissiion($id, $interactionIndex, $response, $link)) send_error_response("response failed for an unknown reason", 500);
+    if (!dbInsertSubmissiion($id, $slideIndex, $response, $link)) send_error_response("response failed for an unknown reason", 500);
 
     return true;
 }
@@ -126,14 +126,14 @@ function fetchDetailsHost($id, $pin, $link)
     unset($res['pinHash']);
     $res['name'] = htmlspecialchars_decode($res['name']);
     $res['title'] = htmlspecialchars_decode($res['title']);
-    $res['interactions'] = json_decode($res['interactions']);
+    $res['slides'] = json_decode($res['slides']);
     return $res;
 }
 function fetchNewSubmissions($id, $pin, $data, $link)
 {
     $sessionDetails = dbSelectDetails($id, $link);
     if (!pinIsValid($pin, $sessionDetails['pinHash'])) send_error_response("Invalid pin", 401);
-    $res = dbSelectNewSubmissions($id, $data->interactionIndex, $data->lastSubmissionId, $link);
+    $res = dbSelectNewSubmissions($id, $data->slideIndex, $data->lastSubmissionId, $link);
     return $res;
 }
 function updateHostStatus($id, $pin, $data, $link)

@@ -1,6 +1,6 @@
 <script setup>
 const emit = defineEmits(['showResponses']);
-const props = defineProps(['interaction']);
+const props = defineProps(['slide']);
 </script>
 
 <template>
@@ -8,8 +8,8 @@ const props = defineProps(['interaction']);
     <p class="display-6 card p-3 responses-info">
       <strong>
         <transition name="bounce" mode="out-in">
-          <span :key="interaction.submissions.length">
-            {{ interaction.submissions.length }}
+          <span :key="slide.submissions.length">
+            {{ slide.submissions.length }}
           </span>
         </transition>
       </strong>
