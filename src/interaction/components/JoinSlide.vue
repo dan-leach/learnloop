@@ -105,6 +105,16 @@ const submit = () => {
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
         />
+        <BulletPoints
+          v-else-if="
+            interactionSession.slides[currentIndex].type == 'bulletPoints'
+          "
+          :slide="interactionSession.slides[currentIndex]"
+        />
+        <p v-else>
+          Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
+          not recognised
+        </p>
       </div>
     </div>
   </div>

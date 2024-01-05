@@ -26,7 +26,6 @@ let fetchHostStatusFailCount = 0;
 const fetchHostStatus = () => {
   api('interaction', 'fetchHostStatus', interactionSession.id, null, null).then(
     function (res) {
-      console.log(res);
       facilitatorIndex.value = res.facilitatorIndex;
       interactionSession.hostStatus.lockedSlides = res.lockedSlides;
       if (
