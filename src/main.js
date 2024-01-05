@@ -29,6 +29,7 @@ import {
   faAsterisk,
   faLock,
   faLockOpen,
+  faArrowRightArrowLeft,
 } from '@fortawesome/free-solid-svg-icons';
 /* add icons to the library */
 library.add(
@@ -48,7 +49,8 @@ library.add(
   faTimes,
   faAsterisk,
   faLock,
-  faLockOpen
+  faLockOpen,
+  faArrowRightArrowLeft
 );
 
 import { cookies } from './data/cookies.js';

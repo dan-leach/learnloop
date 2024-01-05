@@ -1,7 +1,8 @@
 Current:
-Change interactions to slides
-Change interact to interaction
 Change image file names from interaction to slide (and change short-text to free-text)
+Work out image upload and storage
+Add option to include image with all slide types
+Create image and image grid slide types
 
 Later:
 check how old feedback sessions function on the new frontend and api

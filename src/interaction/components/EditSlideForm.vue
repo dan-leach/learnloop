@@ -10,6 +10,7 @@ const emit = defineEmits(['hideEditSlideModal']);
 let prompt = ref('');
 let type = ref('');
 let isInteractive = ref(true);
+let content = ref({});
 let options = ref([]);
 let settings = ref({});
 let chart = ref('');
@@ -17,8 +18,10 @@ let charts = ref('');
 
 if (props.index > -1) {
   const slide = interactionSession.slides[props.index];
+  console.log(slide);
   prompt.value = slide.prompt;
   type.value = slide.type;
+  content.value = slide.content;
   options.value = slide.options;
   settings.value = slide.settings;
 }
@@ -30,6 +33,7 @@ watch(type, (newType, oldType) => {
     charts.value = config.interaction.create.slides.types[type.value].charts;
     isInteractive.value =
       config.interaction.create.slides.types[type.value].isInteractive;
+    content.value = config.interaction.create.slides.types[type.value].content;
   }
   if (settings.value.selectedLimit) {
     settings.value.selectedLimit.max = options.value.length;
@@ -44,12 +48,12 @@ const questionTypeInfo = () => {
     title: 'Question types',
     html: `
       <div class="text-start">
-        <p>There are several different slide types available. Click below to see examples and further details about each:</p>
+        <p>There are several different slide types available. Interactive slide types are denoted by &#8644;.<br> Click below to see examples and further details about each.</p>
         <div class="accordion" id="accordionTypes">
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingOne">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                Single choice
+                Single choice &#8644;
               </button>
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
@@ -62,7 +66,7 @@ const questionTypeInfo = () => {
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingTwo">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-                Multiple choice
+                Multiple choice &#8644;
               </button>
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
@@ -75,7 +79,7 @@ const questionTypeInfo = () => {
           <div class="accordion-item">
             <h2 class="accordion-header" id="headingThree">
               <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
-                Free text
+                Free text &#8644;
               </button>
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
@@ -85,7 +89,20 @@ const questionTypeInfo = () => {
               </div>
             </div>
           </div>
-        </div>     
+          <div class="accordion-item">
+          <h2 class="accordion-header" id="headingFour">
+            <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseFour" aria-expanded="false" aria-controls="collapseFour">
+              Bullet points
+            </button>
+          </h2>
+          <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionFour">
+            <div class="accordion-body">
+              <img src="https://dev.learnloop.co.uk/img/slide-type-example-bullet-points.png" class="img-fluid mx-auto d-block">
+              <p>Bullet points is a non-interactive slide type which allows you to show text in bullet point format. By default the content on this slide will show on the host's screen only, not the attendees devices, but this can be changed in settings if preferred.</p>
+            </div>
+          </div>
+        </div>
+        </div>
       </div>`,
     width: '60%',
     confirmButtonColor: '#17a2b8',
@@ -127,7 +144,7 @@ const chartTypeInfo = () => {
               </div>
             </div>
           </div>
-        </div>     
+        </div>
       </div>`,
     width: '60%',
     confirmButtonColor: '#17a2b8',
@@ -181,6 +198,20 @@ const hideResponsesInfo = () => {
   });
 };
 
+const hostScreenOnlyInfo = () => {
+  Swal.fire({
+    icon: 'info',
+    iconColor: '#17a2b8',
+    title: 'Show slide content on host screen only',
+    html: `
+      <div class="text-start">
+        <p>By default the content shown on non-interactive slides is not show on attendees devices. If you want them to be able to view the slide on their device you can change this option.</p>
+      </div>`,
+    width: '60%',
+    confirmButtonColor: '#17a2b8',
+  });
+};
+
 let newOption = ref('');
 const addOption = () => {
   if (newOption.value) {
@@ -203,6 +234,27 @@ const removeOption = (index) => {
 };
 const sortOption = (index, x) =>
   options.value.splice(index + x, 0, options.value.splice(index, 1)[0]);
+
+let newBullet = ref('');
+const addBullet = () => {
+  if (newBullet.value) {
+    content.value.bullets.push(newBullet.value);
+    newBullet.value = '';
+  } else {
+    document.getElementById('newBullet').classList.add('is-invalid');
+    setTimeout(
+      () => document.getElementById('newBullet').classList.remove('is-invalid'),
+      3000
+    );
+  }
+};
+const removeBullet = (index) => content.value.bullets.splice(index, 1);
+const sortBullet = (index, x) =>
+  content.value.bullets.splice(
+    index + x,
+    0,
+    content.value.bullets.splice(index, 1)[0]
+  );
 
 let showSettings = ref(false);
 
@@ -231,10 +283,21 @@ const keepSelectedLimitsWithinMinMax = () => {
 
 let submit = () => {
   newOption.value = '';
+  newBullet.value = '';
   document
     .getElementById('editSlideModal' + props.index)
     .classList.add('was-validated');
   if (!type.value) return false;
+  if (content.value.bullets && !content.value.bullets.length) {
+    Swal.fire({
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Too few bullet points added',
+      text: 'You need to add at least 1 bullet point.',
+      confirmButtonColor: '#17a2b8',
+    });
+    return false;
+  }
   if (settings.value.optionsLimit == 0) {
     options.value = [];
   } else if (
@@ -276,6 +339,7 @@ let submit = () => {
       type: type.value,
       isInteractive: isInteractive.value,
       chart: chart.value,
+      content: content.value,
       options: options.value,
       settings: settings.value,
     })
@@ -285,6 +349,7 @@ let submit = () => {
     type.value = '';
     chart.value = '';
     charts.value = [];
+    content.value = {};
     options.value = [];
     settings.value = {};
   }
@@ -299,7 +364,7 @@ let submit = () => {
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">{{ index < 0 ? 'Add an' : 'Edit' }} slide</h4>
+          <h4 class="modal-title">{{ index < 0 ? 'Add a' : 'Edit' }} slide</h4>
           <button
             v-if="index == -1"
             type="button"
@@ -334,12 +399,12 @@ let submit = () => {
                   autocomplete="off"
                   required
                 >
-                  <option disabled value="">Please select an slide type</option>
+                  <option disabled value="">Please select a slide type</option>
                   <option
                     v-for="type in config.interaction.create.slides.types"
                     :value="type.id"
                   >
-                    {{ type.name }}
+                    {{ type.name }} {{ type.isInteractive ? '&#8644;' : '' }}
                   </option>
                 </select>
                 <label for="type">Type</label>
@@ -390,7 +455,7 @@ let submit = () => {
                   <table class="table" id="optionsTable">
                     <TransitionGroup name="list" tag="tbody">
                       <tr v-for="(option, index) in options" :key="option">
-                        <td class="p-0 ps-2">
+                        <td class="p-0 ps-2 sort-controls">
                           <button
                             v-if="index != 0"
                             class="btn btn-default btn-sm p-0"
@@ -413,7 +478,7 @@ let submit = () => {
                           </button>
                         </td>
                         <td>{{ option }}</td>
-                        <td>
+                        <td class="delete-control">
                           <button
                             style="float: right"
                             class="btn btn-danger btn-sm"
@@ -453,6 +518,83 @@ let submit = () => {
                   </div>
                   <div class="invalid-feedback">
                     Please provide some options for this slide.
+                  </div>
+                </div>
+              </div>
+              <div v-if="content">
+                <div v-if="content.bullets" class="card mb-3">
+                  <div class="card-header">
+                    <label for="newBullets" class="px-2 form-label"
+                      >Bullet points</label
+                    >
+                  </div>
+                  <div class="card-body">
+                    <table class="table" id="bulletsTable">
+                      <TransitionGroup name="list" tag="tbody">
+                        <tr
+                          v-for="(bullet, index) in content.bullets"
+                          :key="bullet"
+                        >
+                          <td class="p-0 ps-2 sort-controls">
+                            <button
+                              v-if="index != 0"
+                              class="btn btn-default btn-sm p-0"
+                              id="btnSortUp"
+                              @click.prevent="sortBullet(index, -1)"
+                            >
+                              <font-awesome-icon
+                                :icon="['fas', 'chevron-up']"
+                              /></button
+                            ><br />
+                            <button
+                              v-if="index != content.bullets.length - 1"
+                              class="btn btn-default btn-sm p-0"
+                              id="btnSortDown"
+                              @click.prevent="sortBullet(index, 1)"
+                            >
+                              <font-awesome-icon
+                                :icon="['fas', 'chevron-down']"
+                              />
+                            </button>
+                          </td>
+                          <td>
+                            {{ bullet }}
+                          </td>
+                          <td class="delete-control">
+                            <button
+                              style="float: right"
+                              class="btn btn-danger btn-sm"
+                              id="btnRemoveBullet"
+                              @click.prevent="removeBullet(index)"
+                            >
+                              <font-awesome-icon :icon="['fas', 'trash-can']" />
+                            </button>
+                          </td>
+                        </tr>
+                      </TransitionGroup>
+                    </table>
+                    <div class="input-group">
+                      <input
+                        type="text"
+                        @keyup.enter="addBullet"
+                        class="form-control"
+                        id="newBullet"
+                        v-model="newBullet"
+                        placeholder="Add a bullet point..."
+                        name="newBullet"
+                        autocomplete="off"
+                        :required="!content.bullets.length"
+                      />
+                      <button
+                        class="btn btn-teal btn-sm"
+                        @click.prevent="addBullet"
+                      >
+                        Add
+                      </button>
+                    </div>
+                    <div class="invalid-feedback">
+                      Please provide some bullet points for this slide.
+                    </div>
                   </div>
                 </div>
               </div>
@@ -607,6 +749,34 @@ let submit = () => {
                         />
                       </div>
                     </div>
+                    <div
+                      v-if="
+                        !config.interaction.create.slides.types[type]
+                          .isInteractive
+                      "
+                      class="row align-items-center"
+                    >
+                      <div class="col-md-3">
+                        Show slide content on host screen only
+                      </div>
+                      <div class="col-md-1">
+                        <font-awesome-icon
+                          :icon="['fas', 'question-circle']"
+                          size="lg"
+                          style="color: black"
+                          @click="hostScreenOnlyInfo"
+                        />
+                      </div>
+                      <div class="col-md-8 px-5 form-check form-switch">
+                        <input
+                          v-model="settings.hostScreenOnly"
+                          class="form-check-input"
+                          type="checkbox"
+                          id="hostScreenOnly"
+                          name="hostScreenOnly"
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -630,5 +800,15 @@ let submit = () => {
 <style scoped>
 .form-check-input:checked {
   background-color: #17a2b8;
+}
+table {
+  table-layout: fixed;
+}
+td {
+  word-wrap: break-word;
+}
+.sort-controls,
+.delete-control {
+  width: 50px;
 }
 </style>

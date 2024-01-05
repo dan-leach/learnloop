@@ -6,6 +6,7 @@ import HideResponses from './host/HideResponses.vue';
 import SingleChoice from './host/SingleChoice.vue';
 import MultipleChoice from './host/MultipleChoice.vue';
 import FreeText from './host/FreeText.vue';
+import BulletPoints from './host/BulletPoints.vue';
 import { config } from '../../data/config.js';
 
 const props = defineProps(['currentIndex']);
@@ -66,6 +67,16 @@ const showResponses = () => {
           v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
           :slide="interactionSession.slides[currentIndex]"
         />
+        <BulletPoints
+          v-else-if="
+            interactionSession.slides[currentIndex].type == 'bulletPoints'
+          "
+          :slide="interactionSession.slides[currentIndex]"
+        />
+        <p v-else>
+          Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
+          not recognised
+        </p>
       </div>
     </Transition>
     <ul class="nav nav-justified m-2">

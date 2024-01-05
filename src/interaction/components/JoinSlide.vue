@@ -7,6 +7,7 @@ import End from './join/End.vue';
 import SingleChoice from './join/SingleChoice.vue';
 import MultipleChoice from './join/MultipleChoice.vue';
 import FreeText from './join/FreeText.vue';
+import BulletPoints from './join/BulletPoints.vue';
 import Swal from 'sweetalert2';
 import Toast from '../../assets/Toast.js';
 const props = defineProps(['currentIndex']);

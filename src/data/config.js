@@ -57,11 +57,19 @@ export const config = reactive({
     create: {
       slides: {
         types: {
+          //interactive slides
           singleChoice: {
             name: 'Single choice',
             id: 'singleChoice',
             isInteractive: true,
             charts: ['bar', 'doughnut'],
+            content: {
+              image: {
+                hasImage: false,
+                src: '',
+                caption: '',
+              },
+            },
             settings: {
               optionsLimit: 10, //fixed
               submissionLimit: 1, //default - can be changed by facilitator
@@ -73,6 +81,13 @@ export const config = reactive({
             id: 'multipleChoice',
             isInteractive: true,
             charts: ['bar', 'doughnut'],
+            content: {
+              image: {
+                hasImage: false,
+                src: '',
+                caption: '',
+              },
+            },
             settings: {
               optionsLimit: 10,
               selectedLimit: {
@@ -87,6 +102,13 @@ export const config = reactive({
             name: 'Free text',
             id: 'freeText',
             isInteractive: true,
+            content: {
+              image: {
+                hasImage: false,
+                src: '',
+                caption: '',
+              },
+            },
             settings: {
               optionsLimit: 0,
               characterLimit: {
@@ -95,6 +117,52 @@ export const config = reactive({
               },
               submissionLimit: 10,
               hideResponses: false,
+            },
+          },
+          //static slides
+          bulletPoints: {
+            name: 'Bullet points',
+            id: 'bulletPoints',
+            content: {
+              bullets: [],
+              image: {
+                hasImage: false,
+                src: '',
+                caption: '',
+              },
+            },
+            isInteractive: false,
+            settings: {
+              optionsLimit: 0,
+              hostScreenOnly: true,
+            },
+          },
+          singleImage: {
+            name: 'Single image',
+            id: 'singleImage',
+            content: {
+              image: {
+                hasImage: true,
+                src: '',
+                caption: '',
+              },
+            },
+            isInteractive: false,
+            settings: {
+              optionsLimit: 0,
+              hostScreenOnly: true,
+            },
+          },
+          imageGrid: {
+            name: 'Image grid',
+            id: 'imageGrid',
+            content: {
+              images: [],
+            },
+            isInteractive: false,
+            settings: {
+              optionsLimit: 0,
+              hostScreenOnly: true,
             },
           },
         },
