@@ -1,6 +1,7 @@
 <script setup>
 import { ref, watch } from 'vue';
 import { interactionSession } from '../../data/interactionSession.js';
+import { api } from '../../data/api.js';
 import { config } from '../../data/config.js';
 import Swal from 'sweetalert2';
 import Dropzone from 'dropzone';
@@ -213,6 +214,7 @@ const hostScreenOnlyInfo = () => {
   });
 };
 
+let showOptions = ref(true);
 let newOption = ref('');
 const addOption = () => {
   if (newOption.value) {
@@ -236,6 +238,7 @@ const removeOption = (index) => {
 const sortOption = (index, x) =>
   options.value.splice(index + x, 0, options.value.splice(index, 1)[0]);
 
+let showBullets = ref(true);
 let newBullet = ref('');
 const addBullet = () => {
   if (newBullet.value) {
@@ -257,8 +260,74 @@ const sortBullet = (index, x) =>
     content.value.bullets.splice(index, 1)[0]
   );
 
-let showSettings = ref(false);
+let showImage = ref(true);
+let image = ref({});
+const checkImageValid = (image) => {
+  if (!image) {
+    Swal.fire({
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Invalid image',
+      text: 'No image file provided',
+      confirmButtonColor: '#17a2b8',
+    });
+    return false;
+  }
+  if (
+    image.type != 'image/png' &&
+    image.type != 'image/jpg' &&
+    image.type != 'image/jpeg' &&
+    image.type != 'image/gif'
+  ) {
+    Swal.fire({
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Invalid image',
+      text: 'Images need to be of format png, jpg, jpeg or gif.',
+      confirmButtonColor: '#17a2b8',
+    });
+    return false;
+  }
+  if (image.size > config.interaction.create.slides.imageSizeLimit) {
+    Swal.fire({
+      icon: 'error',
+      iconColor: '#17a2b8',
+      title: 'Invalid image',
+      text:
+        image.name +
+        ' is too large (max ' +
+        config.interaction.create.slides.imageSizeLimit / 1000000 +
+        'MB).',
+      confirmButtonColor: '#17a2b8',
+    });
+    return false;
+  }
+  return true;
+};
+const uploadImage = () => {
+  image.value = document.getElementById('imageFile').files[0];
+  if (!checkImageValid(image.value)) return false;
+  //const fd = new FormData();
+  //fd.append(image.name, image);
+  api(
+    'interaction',
+    'uploadImage',
+    interactionSession.id,
+    interactionSession.pin,
+    image
+  ).then(
+    function (res) {
+      console.log(res);
+    },
+    function (error) {
+      console.log(error);
+    }
+  );
+};
 
+let showImages = ref(true);
+
+let showSettings = ref(false);
 const keepSubmissionLimitWithinMinMax = () => {
   const submissionLimit = settings.value.submissionLimit;
   if (submissionLimit < 1) settings.value.submissionLimit = 1;
@@ -329,6 +398,7 @@ let submit = () => {
     });
     return false;
   }
+  if (!checkImageValid(image.value)) return false;
   if (!prompt.value) return false;
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
   if (charts.value && !chart.value) return false;
@@ -375,6 +445,7 @@ let submit = () => {
         </div>
         <div class="modal-body">
           <div id="editSlideForm" class="needs-validation" novalidate>
+            <!--prompt-->
             <div class="form-floating mb-3">
               <input
                 type="text"
@@ -392,6 +463,7 @@ let submit = () => {
                   : 'Slide heading'
               }}</label>
             </div>
+            <!--type-->
             <div class="input-group mb-3">
               <div class="form-floating">
                 <select
@@ -422,6 +494,7 @@ let submit = () => {
               </div>
             </div>
             <div v-if="type">
+              <!--chart type-->
               <div v-if="charts" class="input-group mb-3">
                 <div class="form-floating">
                   <select
@@ -450,11 +523,32 @@ let submit = () => {
                   />
                 </div>
               </div>
+              <!--options-->
               <div v-if="settings.optionsLimit" class="card mb-3">
                 <div class="card-header">
-                  <label for="newOption" class="px-2 form-label">Options</label>
+                  <button
+                    id="btnShowOptions"
+                    class="btn"
+                    @click="showOptions = !showOptions"
+                  >
+                    <label for="newOption" class="form-label me-2"
+                      >Options</label
+                    ><font-awesome-icon
+                      v-if="!showOptions"
+                      :icon="['fas', 'chevron-down']"
+                    />
+                    <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
+                  </button>
                 </div>
-                <div class="card-body">
+                <div class="card-body" v-if="showOptions">
+                  <p>
+                    Add different response options for your attendees to choose.
+                    <br />
+                    <span v-if="type == 'multipleChoice'">
+                      Control how many options must be selected in the settings
+                      panel below.</span
+                    >
+                  </p>
                   <table class="table" id="optionsTable">
                     <TransitionGroup name="list" tag="tbody">
                       <tr v-for="(option, index) in options" :key="option">
@@ -525,13 +619,25 @@ let submit = () => {
                 </div>
               </div>
               <div v-if="content">
+                <!--bullets-->
                 <div v-if="content.bullets" class="card mb-3">
                   <div class="card-header">
-                    <label for="newBullets" class="px-2 form-label"
-                      >Bullet points</label
+                    <button
+                      id="btnShowBullets"
+                      class="btn"
+                      @click="showBullets = !showBullets"
                     >
+                      <label for="newBullets" class="form-label me-2"
+                        >Bullet points</label
+                      ><font-awesome-icon
+                        v-if="!showBullets"
+                        :icon="['fas', 'chevron-down']"
+                      />
+                      <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
+                    </button>
                   </div>
-                  <div class="card-body">
+                  <div class="card-body" v-if="showBullets">
+                    <p>Add each bullet point to display on this slide.</p>
                     <table class="table" id="bulletsTable">
                       <TransitionGroup name="list" tag="tbody">
                         <tr
@@ -600,25 +706,57 @@ let submit = () => {
                     </div>
                   </div>
                 </div>
+                <!--image-->
                 <div v-if="content.image" class="card mb-3">
                   <div class="card-header">
-                    <label for="imageUpload" class="px-2 form-label"
-                      >Image</label
+                    <button
+                      id="btnShowImage"
+                      class="btn"
+                      @click="showImage = !showImage"
                     >
+                      <label for="imageUpload" class="form-label me-2"
+                        >Image</label
+                      ><font-awesome-icon
+                        v-if="!showImage"
+                        :icon="['fas', 'chevron-down']"
+                      />
+                      <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
+                    </button>
                   </div>
-                  <div class="card-body">
+                  <div class="card-body" v-if="showImage">
                     <p>
-                      <span v-if="!content.image.required"> Optional:</span>
-                      Select an image to display on this slide
+                      Select an image to display on this slide<span
+                        v-if="!content.image.required"
+                      >
+                        (optional)</span
+                      >.
                     </p>
-                    <input class="form-control" type="file" id="formFile" />
+                    <div class="input-group">
+                      <input
+                        class="form-control"
+                        type="file"
+                        id="imageFile"
+                        @change="imageFileChange"
+                        accept=".jpeg,.jpg,.png,.gif"
+                        :required="content.image.required"
+                      />
+                      <button
+                        class="btn btn-teal"
+                        type="button"
+                        id="btnUploadImage"
+                        @click="uploadImage"
+                      >
+                        Upload
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
+              <!--settings-->
               <div class="card mb-3">
                 <div class="card-header">
                   <button
-                    id="btnExtraSettings"
+                    id="btnShowSettings"
                     class="btn"
                     @click="showSettings = !showSettings"
                   >
@@ -630,169 +768,166 @@ let submit = () => {
                     <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
                   </button>
                 </div>
-                <div v-if="showSettings">
-                  <div class="card-body">
-                    <div
-                      v-if="settings.selectedLimit"
-                      class="row align-items-center mb-3"
-                    >
-                      <div class="col-md-3">
-                        Number of options attendees must select
-                      </div>
-                      <div class="col-md-1 mt-2">
-                        <font-awesome-icon
-                          :icon="['fas', 'question-circle']"
-                          size="lg"
-                          style="color: black"
-                          @click="optionsMinMaxInfo"
-                        />
-                      </div>
-                      <div class="col-md-4 mt-2">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            v-model="settings.selectedLimit.min"
-                            @change="keepSelectedLimitsWithinMinMax"
-                            min="1"
-                            :max="options.length ? options.length : 1"
-                            class="form-control"
-                            id="selectedLimitMin"
-                            name="selectedLimit"
-                            autocomplete="off"
-                          />
-                          <label for="selectedLimitMin">Minimum</label>
-                        </div>
-                      </div>
-                      <div class="col-md-4 mt-2">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            v-model="settings.selectedLimit.max"
-                            @change="keepSelectedLimitsWithinMinMax"
-                            min="1"
-                            :max="options.length ? options.length : 1"
-                            class="form-control"
-                            id="selectedLimitMax"
-                            placeholder="1"
-                            name="selectedLimit"
-                            autocomplete="off"
-                          />
-                          <label for="selectedLimitMax">Maximum</label>
-                        </div>
-                      </div>
+                <div class="card-body" v-if="showSettings">
+                  <div
+                    v-if="settings.selectedLimit"
+                    class="row align-items-center mb-3"
+                  >
+                    <div class="col-md-3">
+                      Number of options attendees must select
                     </div>
-                    <div
-                      v-if="settings.submissionLimit"
-                      class="row align-items-center mb-3"
-                    >
-                      <div class="col-md-3">
-                        Number of responses attendees can submit
-                      </div>
-                      <div class="col-md-1">
-                        <font-awesome-icon
-                          :icon="['fas', 'question-circle']"
-                          size="lg"
-                          style="color: black"
-                          @click="submissionLimitInfo"
-                        />
-                      </div>
-                      <div class="col-md-8">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            v-model.lazy="settings.submissionLimit"
-                            @change="keepSubmissionLimitWithinMinMax"
-                            min="1"
-                            :max="
-                              config.interaction.create.slides
-                                .submissionLimitMax
-                            "
-                            class="form-control"
-                            id="submissionLimitMax"
-                            name="submissionLimitMax"
-                            autocomplete="off"
-                            required
-                          />
-                          <label for="submissionLimitMax">Maximum</label>
-                        </div>
-                      </div>
+                    <div class="col-md-1 mt-2">
+                      <font-awesome-icon
+                        :icon="['fas', 'question-circle']"
+                        size="lg"
+                        style="color: black"
+                        @click="optionsMinMaxInfo"
+                      />
                     </div>
-                    <div
-                      v-if="settings.characterLimit"
-                      class="row align-items-center mb-3"
-                    >
-                      <div class="col-md-3">
-                        Character limit for each response
-                      </div>
-                      <div class="col-md-1"></div>
-                      <div class="col-md-8">
-                        <div class="form-floating">
-                          <input
-                            type="number"
-                            placeholder=""
-                            v-model.lazy="settings.characterLimit.max"
-                            class="form-control"
-                            id="characterLimit"
-                            name="characterLimit"
-                            autocomplete="off"
-                            required
-                          />
-                          <label for="characterLimit">Maximum</label>
-                        </div>
-                      </div>
-                    </div>
-                    <div
-                      v-if="settings.hideResponses != undefined"
-                      class="row align-items-center"
-                    >
-                      <div class="col-md-3">
-                        Hide attendee responses until you reveal them
-                      </div>
-                      <div class="col-md-1">
-                        <font-awesome-icon
-                          :icon="['fas', 'question-circle']"
-                          size="lg"
-                          style="color: black"
-                          @click="hideResponsesInfo"
-                        />
-                      </div>
-                      <div class="col-md-8 px-5 form-check form-switch">
+                    <div class="col-md-4 mt-2">
+                      <div class="form-floating">
                         <input
-                          v-model="settings.hideResponses"
-                          class="form-check-input"
-                          type="checkbox"
-                          id="hideResponses"
-                          name="hideResponses"
+                          type="number"
+                          v-model="settings.selectedLimit.min"
+                          @change="keepSelectedLimitsWithinMinMax"
+                          min="1"
+                          :max="options.length ? options.length : 1"
+                          class="form-control"
+                          id="selectedLimitMin"
+                          name="selectedLimit"
+                          autocomplete="off"
                         />
+                        <label for="selectedLimitMin">Minimum</label>
                       </div>
                     </div>
-                    <div
-                      v-if="
-                        !config.interaction.create.slides.types[type]
-                          .isInteractive
-                      "
-                      class="row align-items-center"
-                    >
-                      <div class="col-md-3">
-                        Show slide content on host screen only
-                      </div>
-                      <div class="col-md-1">
-                        <font-awesome-icon
-                          :icon="['fas', 'question-circle']"
-                          size="lg"
-                          style="color: black"
-                          @click="hostScreenOnlyInfo"
-                        />
-                      </div>
-                      <div class="col-md-8 px-5 form-check form-switch">
+                    <div class="col-md-4 mt-2">
+                      <div class="form-floating">
                         <input
-                          v-model="settings.hostScreenOnly"
-                          class="form-check-input"
-                          type="checkbox"
-                          id="hostScreenOnly"
-                          name="hostScreenOnly"
+                          type="number"
+                          v-model="settings.selectedLimit.max"
+                          @change="keepSelectedLimitsWithinMinMax"
+                          min="1"
+                          :max="options.length ? options.length : 1"
+                          class="form-control"
+                          id="selectedLimitMax"
+                          placeholder="1"
+                          name="selectedLimit"
+                          autocomplete="off"
                         />
+                        <label for="selectedLimitMax">Maximum</label>
                       </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="settings.submissionLimit"
+                    class="row align-items-center mb-3"
+                  >
+                    <div class="col-md-3">
+                      Number of responses attendees can submit
+                    </div>
+                    <div class="col-md-1">
+                      <font-awesome-icon
+                        :icon="['fas', 'question-circle']"
+                        size="lg"
+                        style="color: black"
+                        @click="submissionLimitInfo"
+                      />
+                    </div>
+                    <div class="col-md-8">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          v-model.lazy="settings.submissionLimit"
+                          @change="keepSubmissionLimitWithinMinMax"
+                          min="1"
+                          :max="
+                            config.interaction.create.slides.submissionLimitMax
+                          "
+                          class="form-control"
+                          id="submissionLimitMax"
+                          name="submissionLimitMax"
+                          autocomplete="off"
+                          required
+                        />
+                        <label for="submissionLimitMax">Maximum</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="settings.characterLimit"
+                    class="row align-items-center mb-3"
+                  >
+                    <div class="col-md-3">
+                      Character limit for each response
+                    </div>
+                    <div class="col-md-1"></div>
+                    <div class="col-md-8">
+                      <div class="form-floating">
+                        <input
+                          type="number"
+                          placeholder=""
+                          v-model.lazy="settings.characterLimit.max"
+                          class="form-control"
+                          id="characterLimit"
+                          name="characterLimit"
+                          autocomplete="off"
+                          required
+                        />
+                        <label for="characterLimit">Maximum</label>
+                      </div>
+                    </div>
+                  </div>
+                  <div
+                    v-if="settings.hideResponses != undefined"
+                    class="row align-items-center"
+                  >
+                    <div class="col-md-3">
+                      Hide attendee responses until you reveal them
+                    </div>
+                    <div class="col-md-1">
+                      <font-awesome-icon
+                        :icon="['fas', 'question-circle']"
+                        size="lg"
+                        style="color: black"
+                        @click="hideResponsesInfo"
+                      />
+                    </div>
+                    <div class="col-md-8 px-5 form-check form-switch">
+                      <input
+                        v-model="settings.hideResponses"
+                        class="form-check-input"
+                        type="checkbox"
+                        id="hideResponses"
+                        name="hideResponses"
+                      />
+                    </div>
+                  </div>
+                  <div
+                    v-if="
+                      !config.interaction.create.slides.types[type]
+                        .isInteractive
+                    "
+                    class="row align-items-center"
+                  >
+                    <div class="col-md-3">
+                      Show slide content on host screen only
+                    </div>
+                    <div class="col-md-1">
+                      <font-awesome-icon
+                        :icon="['fas', 'question-circle']"
+                        size="lg"
+                        style="color: black"
+                        @click="hostScreenOnlyInfo"
+                      />
+                    </div>
+                    <div class="col-md-8 px-5 form-check form-switch">
+                      <input
+                        v-model="settings.hostScreenOnly"
+                        class="form-check-input"
+                        type="checkbox"
+                        id="hostScreenOnly"
+                        name="hostScreenOnly"
+                      />
                     </div>
                   </div>
                 </div>

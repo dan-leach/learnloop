@@ -171,6 +171,7 @@ export const config = reactive({
             },
           },
         },
+        imageSizeLimit: 5000000,
         submissionLimitMax: 100,
         minimumOptions: 2,
       },

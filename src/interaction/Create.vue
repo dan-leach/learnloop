@@ -340,8 +340,8 @@ onMounted(() => {
           <thead>
             <tr>
               <th class="bg-transparent p-0 ps-2"></th>
-              <th class="bg-transparent p-0 ps-2">Prompt</th>
-              <th class="bg-transparent p-0 ps-2">Type</th>
+              <th class="bg-transparent p-0 ps-2">Question/heading</th>
+              <th class="bg-transparent p-0 ps-2">Slide type</th>
               <th class="bg-transparent p-0 ps-2">
                 <button
                   class="btn btn-teal btn-sm btn-right"
