@@ -1,6 +1,7 @@
 Current:
-Change image file names from interaction to slide (and change short-text to free-text)
 Work out image upload and storage
+
+Change image file names from interaction to slide (and change short-text to free-text)
 Add option to include image with all slide types
 Create image and image grid slide types
 
