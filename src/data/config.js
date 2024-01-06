@@ -66,6 +66,7 @@ export const config = reactive({
             content: {
               image: {
                 hasImage: false,
+                required: false,
                 src: '',
                 caption: '',
               },
@@ -84,6 +85,7 @@ export const config = reactive({
             content: {
               image: {
                 hasImage: false,
+                required: false,
                 src: '',
                 caption: '',
               },
@@ -105,6 +107,7 @@ export const config = reactive({
             content: {
               image: {
                 hasImage: false,
+                required: false,
                 src: '',
                 caption: '',
               },
@@ -127,6 +130,7 @@ export const config = reactive({
               bullets: [],
               image: {
                 hasImage: false,
+                required: false,
                 src: '',
                 caption: '',
               },
@@ -143,6 +147,7 @@ export const config = reactive({
             content: {
               image: {
                 hasImage: true,
+                required: true,
                 src: '',
                 caption: '',
               },

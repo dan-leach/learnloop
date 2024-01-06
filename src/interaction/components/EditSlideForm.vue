@@ -3,6 +3,7 @@ import { ref, watch } from 'vue';
 import { interactionSession } from '../../data/interactionSession.js';
 import { config } from '../../data/config.js';
 import Swal from 'sweetalert2';
+import Dropzone from 'dropzone';
 
 const props = defineProps(['index']);
 const emit = defineEmits(['hideEditSlideModal']);
@@ -385,9 +386,11 @@ let submit = () => {
                 autocomplete="off"
                 required
               />
-              <label for="prompt"
-                >Title, question or instruction to attendees</label
-              >
+              <label for="prompt">{{
+                isInteractive
+                  ? 'Question or instruction to attendees'
+                  : 'Slide heading'
+              }}</label>
             </div>
             <div class="input-group mb-3">
               <div class="form-floating">
@@ -595,6 +598,20 @@ let submit = () => {
                     <div class="invalid-feedback">
                       Please provide some bullet points for this slide.
                     </div>
+                  </div>
+                </div>
+                <div v-if="content.image" class="card mb-3">
+                  <div class="card-header">
+                    <label for="imageUpload" class="px-2 form-label"
+                      >Image</label
+                    >
+                  </div>
+                  <div class="card-body">
+                    <p>
+                      <span v-if="!content.image.required"> Optional:</span>
+                      Select an image to display on this slide
+                    </p>
+                    <input class="form-control" type="file" id="formFile" />
                   </div>
                 </div>
               </div>
