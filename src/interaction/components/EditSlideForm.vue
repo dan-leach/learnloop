@@ -1,22 +1,22 @@
 <script setup>
-import { ref, watch } from 'vue';
-import { interactionSession } from '../../data/interactionSession.js';
-import { api } from '../../data/api.js';
-import { config } from '../../data/config.js';
-import Swal from 'sweetalert2';
-import Dropzone from 'dropzone';
+import { ref, watch } from "vue";
+import { interactionSession } from "../../data/interactionSession.js";
+import { api } from "../../data/api.js";
+import { config } from "../../data/config.js";
+import Swal from "sweetalert2";
+import Uploader from "./Uploader.vue";
 
-const props = defineProps(['index']);
-const emit = defineEmits(['hideEditSlideModal']);
+const props = defineProps(["index"]);
+const emit = defineEmits(["hideEditSlideModal"]);
 
-let prompt = ref('');
-let type = ref('');
+let prompt = ref("");
+let type = ref("");
 let isInteractive = ref(true);
 let content = ref({});
 let options = ref([]);
 let settings = ref({});
-let chart = ref('');
-let charts = ref('');
+let chart = ref("");
+let charts = ref("");
 
 if (props.index > -1) {
   const slide = interactionSession.slides[props.index];
@@ -45,9 +45,9 @@ watch(type, (newType, oldType) => {
 
 const questionTypeInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Question types',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Question types",
     html: `
       <div class="text-start">
         <p>There are several different slide types available. Interactive slide types are denoted by &#8644;.<br> Click below to see examples and further details about each.</p>
@@ -106,16 +106,16 @@ const questionTypeInfo = () => {
         </div>
         </div>
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
 const chartTypeInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Chart types',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Chart types",
     html: `
       <div class="text-start">
         <p>There are two different chart types available for showing single choice or multiple choice interaction results. Click below to see examples and further details:</p>
@@ -148,16 +148,16 @@ const chartTypeInfo = () => {
           </div>
         </div>
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
 const optionsMinMaxInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Minimum and maximum number of options',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Minimum and maximum number of options",
     html: `
       <div class="text-start">
         <p>By default attendees must select between one and all of the available options. You can change the minimum and maximum if required. If the attendee attempts to submit a response with fewer than the minimum number of options selected they will receive an alert like this one:</p>
@@ -165,68 +165,68 @@ const optionsMinMaxInfo = () => {
         <p>Or, if they select more options than the maximum, they will receive an alert like this one:</p>
         <img src="https://dev.learnloop.co.uk/img/slide-selection-max.png" class="img-fluid mx-auto d-block">
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
 const submissionLimitInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Number of responses',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Number of responses",
     html: `
       <div class="text-start">
         <p>By default attendees can respond only once to interactions (10 times for free text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
         <img src="https://dev.learnloop.co.uk/img/slide-submission-limit.png" class="img-fluid mx-auto d-block">
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
 const hideResponsesInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Hide responses until you reveal them',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Hide responses until you reveal them",
     html: `
       <div class="text-start">
         <p>If you want to prevent attendees from seeing what others are responding until you reveal the answer you can select this option. Your screen will display this view until your click to reveal the responses:</p>
         <img src="https://dev.learnloop.co.uk/img/slide-hide-responses.png" class="img-fluid mx-auto d-block">
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
 const hostScreenOnlyInfo = () => {
   Swal.fire({
-    icon: 'info',
-    iconColor: '#17a2b8',
-    title: 'Show slide content on host screen only',
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Show slide content on host screen only",
     html: `
       <div class="text-start">
         <p>By default the content shown on non-interactive slides is not show on attendees devices. If you want them to be able to view the slide on their device you can change this option.</p>
       </div>`,
-    width: '60%',
-    confirmButtonColor: '#17a2b8',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
   });
 };
 
 let showOptions = ref(true);
-let newOption = ref('');
+let newOption = ref("");
 const addOption = () => {
   if (newOption.value) {
     options.value.push(newOption.value);
-    newOption.value = '';
+    newOption.value = "";
     if (settings.value.selectedLimit)
       if (settings.value.selectedLimit.max == options.value.length - 1)
         settings.value.selectedLimit.max++;
   } else {
-    document.getElementById('newOption').classList.add('is-invalid');
+    document.getElementById("newOption").classList.add("is-invalid");
     setTimeout(
-      () => document.getElementById('newOption').classList.remove('is-invalid'),
+      () => document.getElementById("newOption").classList.remove("is-invalid"),
       3000
     );
   }
@@ -239,15 +239,15 @@ const sortOption = (index, x) =>
   options.value.splice(index + x, 0, options.value.splice(index, 1)[0]);
 
 let showBullets = ref(true);
-let newBullet = ref('');
+let newBullet = ref("");
 const addBullet = () => {
   if (newBullet.value) {
     content.value.bullets.push(newBullet.value);
-    newBullet.value = '';
+    newBullet.value = "";
   } else {
-    document.getElementById('newBullet').classList.add('is-invalid');
+    document.getElementById("newBullet").classList.add("is-invalid");
     setTimeout(
-      () => document.getElementById('newBullet').classList.remove('is-invalid'),
+      () => document.getElementById("newBullet").classList.remove("is-invalid"),
       3000
     );
   }
@@ -261,59 +261,10 @@ const sortBullet = (index, x) =>
   );
 
 let showImage = ref(true);
-let image = ref({});
-const checkImageValid = (image) => {
-  if (!image) {
-    Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Invalid image',
-      text: 'No image file provided',
-      confirmButtonColor: '#17a2b8',
-    });
-    return false;
-  }
-  if (
-    image.type != 'image/png' &&
-    image.type != 'image/jpg' &&
-    image.type != 'image/jpeg' &&
-    image.type != 'image/gif'
-  ) {
-    Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Invalid image',
-      text: 'Images need to be of format png, jpg, jpeg or gif.',
-      confirmButtonColor: '#17a2b8',
-    });
-    return false;
-  }
-  if (image.size > config.interaction.create.slides.imageSizeLimit) {
-    Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Invalid image',
-      text:
-        image.name +
-        ' is too large (max ' +
-        config.interaction.create.slides.imageSizeLimit / 1000000 +
-        'MB).',
-      confirmButtonColor: '#17a2b8',
-    });
-    return false;
-  }
-  return true;
+const maxImages = ref(1);
+const onChange = (allMedia) => {
+  console.log("onChange", allMedia[0].imageID);
 };
-const uploadImage = () => {
-  console.log('uploadImage start...');
-  image.value = document.getElementById('imageFile').files[0];
-  //if (!checkImageValid(image.value)) return false;
-
-  const formData = new FormData();
-  formData.append('module', 'interaction');
-};
-
-let showImages = ref(true);
 
 let showSettings = ref(false);
 const keepSubmissionLimitWithinMinMax = () => {
@@ -339,95 +290,20 @@ const keepSelectedLimitsWithinMinMax = () => {
     settings.value.selectedLimit.max = settings.value.selectedLimit.min;
 };
 
-const goButtonClick = () => {
-  //https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequestUpload
-  console.log('go');
-  const fileInput = document.getElementById('file');
-  const progressBar = document.querySelector('progress');
-  const log = document.querySelector('output');
-  const abortButton = document.getElementById('abort');
-
-  const xhr = new XMLHttpRequest();
-  xhr.timeout = 2000; // 2 seconds
-
-  // Link abort button
-  abortButton.addEventListener(
-    'click',
-    () => {
-      xhr.abort();
-    },
-    { once: true }
-  );
-
-  // When the upload starts, we display the progress bar
-  xhr.upload.addEventListener('loadstart', (event) => {
-    progressBar.classList.add('visible');
-    progressBar.value = 0;
-    progressBar.max = event.total;
-    log.textContent = 'Uploading (0%)…';
-    abortButton.disabled = false;
-  });
-
-  // Each time a progress event is received, we update the bar
-  xhr.upload.addEventListener('progress', (event) => {
-    progressBar.value = event.loaded;
-    log.textContent = `Uploading (${(
-      (event.loaded / event.total) *
-      100
-    ).toFixed(2)}%)…`;
-  });
-
-  // When the upload is finished, we hide the progress bar.
-  xhr.upload.addEventListener('loadend', (event) => {
-    progressBar.classList.remove('visible');
-    if (event.loaded !== 0) {
-      log.textContent = 'Upload finished.';
-      console.log('upload finished', event);
-    }
-    abortButton.disabled = true;
-  });
-
-  // In case of an error, an abort, or a timeout, we hide the progress bar
-  // Note that these events can be listened to on the xhr object too
-  function errorAction(event) {
-    progressBar.classList.remove('visible');
-    log.textContent = `Upload failed: ${event.type}`;
-    console.log('upload error', xhr);
-  }
-  xhr.upload.addEventListener('error', errorAction);
-  xhr.upload.addEventListener('abort', errorAction);
-  xhr.upload.addEventListener('timeout', errorAction);
-
-  // Build the payload
-  const fileData = new FormData();
-  fileData.append('file', fileInput.files[0]);
-
-  // Theoretically, event listeners could be set after the open() call
-  // but browsers are buggy here
-  xhr.open(
-    'POST',
-    'https://dev.learnloop.co.uk/api/interaction/uploads/',
-    true
-  );
-
-  // Note that the event listener must be set before sending (as it is a preflighted request)
-  xhr.send(fileData);
-};
-
 let submit = () => {
-  newOption.value = '';
-  newBullet.value = '';
+  newOption.value = "";
+  newBullet.value = "";
   document
-    .getElementById('editSlideModal' + props.index)
-    .classList.add('was-validated');
+    .getElementById("editSlideModal" + props.index)
+    .classList.add("was-validated");
   if (!type.value) return false;
   if (content.value.bullets && !content.value.bullets.length) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too few bullet points added',
-      text: 'You need to add at least 1 bullet point.',
-      confirmButtonColor: '#17a2b8',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too few bullet points added",
+      text: "You need to add at least 1 bullet point.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
@@ -437,27 +313,27 @@ let submit = () => {
     options.value.length < config.interaction.create.slides.minimumOptions
   ) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too few options added',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too few options added",
       text:
-        'You need to add at least ' +
+        "You need to add at least " +
         config.interaction.create.slides.minimumOptions +
-        ' options.',
-      confirmButtonColor: '#17a2b8',
+        " options.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
   if (options.value.length > settings.value.optionsLimit) {
     Swal.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Too many options added',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Too many options added",
       text:
-        'You can have up to ' +
+        "You can have up to " +
         settings.value.optionsLimit +
-        ' options for the slide type selected.',
-      confirmButtonColor: '#17a2b8',
+        " options for the slide type selected.",
+      confirmButtonColor: "#17a2b8",
     });
     return false;
   }
@@ -466,7 +342,7 @@ let submit = () => {
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
   if (charts.value && !chart.value) return false;
   emit(
-    'hideEditSlideModal',
+    "hideEditSlideModal",
     props.index,
     JSON.stringify({
       prompt: prompt.value,
@@ -479,17 +355,17 @@ let submit = () => {
     })
   );
   if (props.index == -1) {
-    prompt.value = '';
-    type.value = '';
-    chart.value = '';
+    prompt.value = "";
+    type.value = "";
+    chart.value = "";
     charts.value = [];
     content.value = {};
     options.value = [];
     settings.value = {};
   }
   document
-    .getElementById('editSlideModal' + props.index)
-    .classList.remove('was-validated');
+    .getElementById("editSlideModal" + props.index)
+    .classList.remove("was-validated");
 };
 </script>
 
@@ -498,7 +374,7 @@ let submit = () => {
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">{{ index < 0 ? 'Add a' : 'Edit' }} slide</h4>
+          <h4 class="modal-title">{{ index < 0 ? "Add a" : "Edit" }} slide</h4>
           <button
             v-if="index == -1"
             type="button"
@@ -522,8 +398,8 @@ let submit = () => {
               />
               <label for="prompt">{{
                 isInteractive
-                  ? 'Question or instruction to attendees'
-                  : 'Slide heading'
+                  ? "Question or instruction to attendees"
+                  : "Slide heading"
               }}</label>
             </div>
             <!--type-->
@@ -542,7 +418,7 @@ let submit = () => {
                     v-for="type in config.interaction.create.slides.types"
                     :value="type.id"
                   >
-                    {{ type.name }} {{ type.isInteractive ? '&#8644;' : '' }}
+                    {{ type.name }} {{ type.isInteractive ? "&#8644;" : "" }}
                   </option>
                 </select>
                 <label for="type">Type</label>
@@ -787,63 +663,8 @@ let submit = () => {
                     </button>
                   </div>
                   <div class="card-body">
-                    <h1>Upload a file</h1>
-                    <p>
-                      <label for="file">File to upload</label
-                      ><input type="file" id="file" />
-                    </p>
-                    <p>
-                      <progress />
-                    </p>
-                    <p>
-                      <output></output>
-                    </p>
-                    <p>
-                      <button disabled id="abort">Abort</button>
-                    </p>
-                    <p>
-                      <button @click="goButtonClick">Go</button>
-                    </p>
+                    <uploader @change="onChange" :max="maxImages"> </uploader>
                   </div>
-                  <!--<div class="card-body" v-if="showImage">
-                    <p>
-                      Select an image to display on this slide<span
-                        v-if="!content.image.required"
-                      >
-                        (optional)</span
-                      >.
-                    </p>
-                    <form
-                      id="imageForm"
-                      action="https://dev.learnloop.co.uk/api"
-                      method="post"
-                      enctype="multipart/form-data"
-                    >
-                      <input
-                        type="text"
-                        name="module"
-                        value="interaction"
-                        readonly
-                      />
-                      <div class="input-group">
-                        <input
-                          class="form-control"
-                          type="file"
-                          id="imageFile"
-                          accept=".jpeg,.jpg,.png,.gif"
-                          :required="content.image.required"
-                        />
-                        <button
-                          class="btn btn-teal"
-                          type="button"
-                          id="btnUploadImage"
-                          @click="uploadImage"
-                        >
-                          Upload
-                        </button>
-                      </div>
-                    </form>
-                  </div>-->
                 </div>
               </div>
               <!--settings-->
@@ -1034,7 +855,7 @@ let submit = () => {
               id="submitEditInteractionForm"
               v-on:click.prevent="submit"
             >
-              {{ index < 0 ? 'Add' : 'Update' }} slide
+              {{ index < 0 ? "Add" : "Update" }} slide
             </button>
           </div>
         </div>
