@@ -1,15 +1,15 @@
 <script setup>
-import { interactionSession } from '../../../data/interactionSession.js';
-import Toast from '../../../assets/Toast.js';
+import { interactionSession } from "../../../data/interactionSession.js";
+import Toast from "../../../assets/Toast.js";
 
 const props = defineProps([
-  'slide',
-  'spinner',
-  'btnSubmitText',
-  'btnSubmitBelowText',
-  'currentIndex',
+  "slide",
+  "spinner",
+  "btnSubmitText",
+  "btnSubmitBelowText",
+  "currentIndex",
 ]);
-const emit = defineEmits(['submit']);
+const emit = defineEmits(["submit"]);
 
 let submit = () => {
   let length = props.slide.response.length;
@@ -17,22 +17,22 @@ let submit = () => {
   let maxLength = props.slide.settings.characterLimit.max;
   if (length < minLength) {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
+      icon: "error",
+      iconColor: "#17a2b8",
       title:
-        'Your response must be at least ' + minLength + ' characters in length',
+        "Your response must be at least " + minLength + " characters in length",
     });
   } else if (length > maxLength) {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
+      icon: "error",
+      iconColor: "#17a2b8",
       title:
-        'Your response cannot be more than ' +
+        "Your response cannot be more than " +
         maxLength +
-        ' characters in length',
+        " characters in length",
     });
   } else {
-    emit('submit');
+    emit("submit");
   }
 };
 </script>
