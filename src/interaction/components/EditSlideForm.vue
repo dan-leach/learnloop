@@ -1,7 +1,6 @@
 <script setup>
 import { ref, watch } from "vue";
 import { interactionSession } from "../../data/interactionSession.js";
-import { api } from "../../data/api.js";
 import { config } from "../../data/config.js";
 import Swal from "sweetalert2";
 import Uploader from "./Uploader.vue";
@@ -263,7 +262,15 @@ const sortBullet = (index, x) =>
 let showImage = ref(true);
 const maxImages = ref(1);
 const onChange = (allMedia) => {
-  console.log("onChange", allMedia[0].imageID);
+  if (allMedia.length) {
+    console.log("Images uploaded", allMedia[0].imageID);
+    content.value.image.src = allMedia[0].imageID;
+    content.value.image.hasImage = true;
+  } else {
+    console.log("No images");
+    content.value.image.src = "";
+    content.value.image.hasImage = false;
+  }
 };
 
 let showSettings = ref(false);

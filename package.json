@@ -19,7 +19,6 @@
     "dropzone": "^6.0.0-beta.2",
     "sweetalert2": "^11.6.13",
     "vue": "^3.3.4",
-    "vue-media-upload": "^2.2.4",
     "vue-router": "^4.2.4"
   },
   "devDependencies": {
