@@ -29,6 +29,34 @@
             </svg>
           </button>
         </div>
+
+        <div
+          v-for="(image, index) in savedMedia"
+          :key="index"
+          class="mu-image-container"
+        >
+          <img :src="image.url" alt="" class="mu-images-preview" />
+          <button
+            @click="removeAddedMedia(index)"
+            class="mu-close-btn"
+            type="button"
+          >
+            <svg
+              class="mu-times-icon"
+              xmlns="http://www.w3.org/2000/svg"
+              width="0.65em"
+              height="0.65em"
+              preserveAspectRatio="xMidYMid meet"
+              viewBox="0 0 352 512"
+            >
+              <path
+                d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+        </div>
+
         <!--UPLOAD BUTTON-->
         <div class="mu-plusbox-container" v-if="addedMedia.length < max">
           <label
@@ -130,6 +158,7 @@ export default {
   },
   methods: {
     init() {
+      console.log(this.media);
       this.savedMedia = this.media;
       this.config.headers = this.headers;
 
@@ -171,7 +200,7 @@ export default {
             }
             let addedImage = {
               url: url,
-              imageID: data.imageID,
+              src: data.src,
               size: files[i].size,
               type: files[i].type,
             };

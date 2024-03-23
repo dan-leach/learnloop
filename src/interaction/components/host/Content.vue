@@ -5,11 +5,8 @@ const props = defineProps(["slide"]);
 
 <template>
   <div class="d-flex">
-    <div class="image-container m-2" v-if="slide.content.image.src">
-      <img
-        :src="config.api.imagesUrl + slide.content.image.src"
-        class="img-fluid"
-      />
+    <div class="image-container m-2" v-for="image in slide.content.images">
+      <img :src="config.api.imagesUrl + image.src" class="img-fluid" />
     </div>
     <div class="paragraph-container d-flex flex-column justify m-2">
       <p v-for="paragraph in slide.content.paragraphs">{{ paragraph }}</p>

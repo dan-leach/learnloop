@@ -15,10 +15,7 @@ const slide = ref({
   type: "",
   isInteractive: false,
   content: {
-    image: {
-      src: "",
-      hasImage: false,
-    },
+    images: [],
     paragraphs: [],
     bullets: [],
   },
@@ -305,16 +302,8 @@ const sortBullet = (index, x) =>
     slide.value.content.bullets.splice(index, 1)[0]
   );
 
-const imageChange = (allMedia) => {
-  if (allMedia.length) {
-    console.log("Images uploaded", allMedia[0].imageID);
-    slide.value.content.image.src = allMedia[0].imageID;
-    slide.value.content.image.hasImage = true;
-  } else {
-    console.log("No images");
-    slide.value.content.image.src = "";
-    slide.value.content.image.hasImage = false;
-  }
+const imagesChange = (allMedia) => {
+  if (allMedia.length) slide.value.content.images = allMedia;
 };
 
 const keepSubmissionLimitWithinMinMax = () => {
@@ -414,10 +403,7 @@ let submit = () => {
       type: "",
       isInteractive: false,
       content: {
-        image: {
-          src: "",
-          hasImage: false,
-        },
+        images: [],
         paragraphs: [],
         bullets: [],
       },
@@ -532,7 +518,7 @@ let submit = () => {
                     Slide content is not itself interactive but can be used to
                     provide additional context for an interaction.
                   </p>
-                  <!--image-->
+                  <!--images-->
                   <div class="card mb-3">
                     <div class="card-header">
                       <button
@@ -543,7 +529,7 @@ let submit = () => {
                         "
                       >
                         <label for="imageUpload" class="form-label me-2"
-                          >Image</label
+                          >Images</label
                         ><font-awesome-icon
                           v-if="!slide.show.content.images"
                           :icon="['fas', 'chevron-down']"
@@ -561,7 +547,8 @@ let submit = () => {
                         your slide.
                       </p>
                       <uploader
-                        @change="imageChange"
+                        @change="imagesChange"
+                        :media="slide.content.images"
                         :max="config.interaction.create.slides.images.max"
                       >
                       </uploader>
