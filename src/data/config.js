@@ -62,16 +62,8 @@ export const config = reactive({
             name: "Single choice",
             id: "singleChoice",
             isInteractive: true,
-            charts: ["bar", "doughnut"],
-            content: {
-              image: {
-                hasImage: false,
-                required: false,
-                src: "",
-                caption: "",
-              },
-            },
             settings: {
+              charts: ["bar", "doughnut"],
               optionsLimit: 10, //fixed
               submissionLimit: 1, //default - can be changed by facilitator
               hideResponses: false,
@@ -81,16 +73,8 @@ export const config = reactive({
             name: "Multiple choice",
             id: "multipleChoice",
             isInteractive: true,
-            charts: ["bar", "doughnut"],
-            content: {
-              image: {
-                hasImage: false,
-                required: false,
-                src: "",
-                caption: "",
-              },
-            },
             settings: {
+              charts: ["bar", "doughnut"],
               optionsLimit: 10,
               selectedLimit: {
                 min: 1, //default - can be changed by facilitator
@@ -104,14 +88,6 @@ export const config = reactive({
             name: "Free text",
             id: "freeText",
             isInteractive: true,
-            content: {
-              image: {
-                hasImage: false,
-                required: false,
-                src: "",
-                caption: "",
-              },
-            },
             settings: {
               optionsLimit: 0,
               characterLimit: {
@@ -123,56 +99,18 @@ export const config = reactive({
             },
           },
           //static slides
-          bulletPoints: {
-            name: "Bullet points",
-            id: "bulletPoints",
-            content: {
-              bullets: [],
-              image: {
-                hasImage: false,
-                required: false,
-                src: "",
-                caption: "",
-              },
-            },
+          static: {
+            name: "Static",
+            id: "static",
             isInteractive: false,
-            settings: {
-              optionsLimit: 0,
-              hostScreenOnly: true,
-            },
-          },
-          singleImage: {
-            name: "Single image",
-            id: "singleImage",
-            content: {
-              image: {
-                hasImage: true,
-                required: true,
-                src: "",
-                caption: "",
-              },
-            },
-            isInteractive: false,
-            settings: {
-              optionsLimit: 0,
-              hostScreenOnly: true,
-            },
-          },
-          imageGrid: {
-            name: "Image grid",
-            id: "imageGrid",
-            content: {
-              images: [],
-            },
-            isInteractive: false,
-            settings: {
-              optionsLimit: 0,
-              hostScreenOnly: true,
-            },
           },
         },
         submissionLimitMax: 100,
         minimumOptions: 2,
+        images: {
+          max: 10,
+          maxSize: 500000,
+        },
       },
     },
   },
@@ -460,7 +398,8 @@ export const config = reactive({
     ],
   },
   api: {
-    url: "https://dev.learnloop.co.uk/api",
+    url: "https://dev.learnloop.co.uk/api/",
+    imagesUrl: "https://dev.learnloop.co.uk/api/interaction/uploads/img/",
     timeoutDuration: 15000,
   },
 });

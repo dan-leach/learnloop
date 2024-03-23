@@ -1,19 +1,21 @@
 <script setup>
-import { interactionSession } from '../../data/interactionSession.js';
-import WaitingRoom from './host/WaitingRoom.vue';
-import End from './host/End.vue';
-import HideResponses from './host/HideResponses.vue';
-import SingleChoice from './host/SingleChoice.vue';
-import MultipleChoice from './host/MultipleChoice.vue';
-import FreeText from './host/FreeText.vue';
-import BulletPoints from './host/BulletPoints.vue';
-import { config } from '../../data/config.js';
+import { interactionSession } from "../../data/interactionSession.js";
+import WaitingRoom from "./host/WaitingRoom.vue";
+import End from "./host/End.vue";
+import HideResponses from "./host/HideResponses.vue";
+import SingleChoice from "./host/SingleChoice.vue";
+import MultipleChoice from "./host/MultipleChoice.vue";
+import FreeText from "./host/FreeText.vue";
+import Static from "./host/Static.vue";
+import { config } from "../../data/config.js";
 
-const props = defineProps(['currentIndex']);
-const emit = defineEmits(['goForward', 'goBack', 'toggleLockSlide']);
+const props = defineProps(["currentIndex"]);
+const emit = defineEmits(["goForward", "goBack", "toggleLockSlide"]);
 
 const showResponses = () => {
-  interactionSession.slides[props.currentIndex].settings.hideResponses = false;
+  interactionSession.slides[
+    props.currentIndex
+  ].interaction.settings.hideResponses = false;
   interactionSession.slides[props.currentIndex].submissions = [];
 };
 </script>
@@ -46,7 +48,8 @@ const showResponses = () => {
         />
         <HideResponses
           v-else-if="
-            interactionSession.slides[currentIndex].settings.hideResponses
+            interactionSession.slides[currentIndex].interaction.settings
+              .hideResponses
           "
           @showResponses="showResponses"
           :slide="interactionSession.slides[currentIndex]"
@@ -67,10 +70,8 @@ const showResponses = () => {
           v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
           :slide="interactionSession.slides[currentIndex]"
         />
-        <BulletPoints
-          v-else-if="
-            interactionSession.slides[currentIndex].type == 'bulletPoints'
-          "
+        <Static
+          v-else-if="interactionSession.slides[currentIndex].type == 'static'"
           :slide="interactionSession.slides[currentIndex]"
         />
         <p v-else>

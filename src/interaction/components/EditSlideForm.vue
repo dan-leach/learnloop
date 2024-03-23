@@ -8,37 +8,55 @@ import Uploader from "./Uploader.vue";
 const props = defineProps(["index"]);
 const emit = defineEmits(["hideEditSlideModal"]);
 
-let prompt = ref("");
-let type = ref("");
-let isInteractive = ref(true);
-let content = ref({});
-let options = ref([]);
-let settings = ref({});
-let chart = ref("");
-let charts = ref("");
+const type = ref("");
 
-if (props.index > -1) {
-  const slide = interactionSession.slides[props.index];
-  console.log(slide);
-  prompt.value = slide.prompt;
-  type.value = slide.type;
-  content.value = slide.content;
-  options.value = slide.options;
-  settings.value = slide.settings;
-}
+const slide = ref({
+  prompt: "",
+  type: "",
+  isInteractive: false,
+  content: {
+    image: {
+      src: "",
+      hasImage: false,
+    },
+    paragraphs: [],
+    bullets: [],
+  },
+  interaction: {
+    options: [],
+    settings: {},
+  },
+  show: {
+    content: {
+      main: true,
+      images: false,
+      paragraphs: false,
+      bullets: false,
+    },
+    interaction: {
+      main: true,
+      options: true,
+      settings: true,
+    },
+  },
+});
+
+if (props.index > -1) slide.value = interactionSession.slides[props.index];
 
 watch(type, (newType, oldType) => {
-  if (type.value) {
-    settings.value =
-      config.interaction.create.slides.types[type.value].settings;
-    charts.value = config.interaction.create.slides.types[type.value].charts;
-    isInteractive.value =
-      config.interaction.create.slides.types[type.value].isInteractive;
-    content.value = config.interaction.create.slides.types[type.value].content;
-  }
-  if (settings.value.selectedLimit) {
-    settings.value.selectedLimit.max = options.value.length;
-    keepSelectedLimitsWithinMinMax();
+  slide.value.type = type;
+  if (slide.value.type) {
+    slide.value.isInteractive =
+      config.interaction.create.slides.types[slide.value.type].isInteractive;
+    if (slide.value.isInteractive) {
+      slide.value.interaction.settings =
+        config.interaction.create.slides.types[slide.value.type].settings;
+      if (slide.value.interaction.settings.selectedLimit) {
+        slide.value.interaction.settings.selectedLimit.max =
+          slide.value.interaction.options.length;
+        keepSelectedLimitsWithinMinMax();
+      }
+    }
   }
 });
 
@@ -213,15 +231,17 @@ const hostScreenOnlyInfo = () => {
   });
 };
 
-let showOptions = ref(true);
 let newOption = ref("");
 const addOption = () => {
   if (newOption.value) {
-    options.value.push(newOption.value);
+    slide.value.interaction.options.push(newOption.value);
     newOption.value = "";
-    if (settings.value.selectedLimit)
-      if (settings.value.selectedLimit.max == options.value.length - 1)
-        settings.value.selectedLimit.max++;
+    if (slide.value.interaction.settings.selectedLimit)
+      if (
+        slide.value.interaction.settings.selectedLimit.max ==
+        slide.value.interaction.options.length - 1
+      )
+        slide.value.interaction.settings.selectedLimit.max++;
   } else {
     document.getElementById("newOption").classList.add("is-invalid");
     setTimeout(
@@ -231,17 +251,43 @@ const addOption = () => {
   }
 };
 const removeOption = (index) => {
-  options.value.splice(index, 1);
+  slide.value.interaction.options.splice(index, 1);
   keepSelectedLimitsWithinMinMax();
 };
 const sortOption = (index, x) =>
-  options.value.splice(index + x, 0, options.value.splice(index, 1)[0]);
+  slide.value.interaction.options.splice(
+    index + x,
+    0,
+    slide.value.interaction.options.splice(index, 1)[0]
+  );
 
-let showBullets = ref(true);
+let newParagraph = ref("");
+const addParagraph = () => {
+  if (newParagraph.value) {
+    slide.value.content.paragraphs.push(newParagraph.value);
+    newParagraph.value = "";
+  } else {
+    document.getElementById("newParagraph").classList.add("is-invalid");
+    setTimeout(
+      () =>
+        document.getElementById("newParagraph").classList.remove("is-invalid"),
+      3000
+    );
+  }
+};
+const removeParagraph = (index) =>
+  slide.value.content.paragraphs.splice(index, 1);
+const sortParagraph = (index, x) =>
+  slide.value.content.paragraphs.splice(
+    index + x,
+    0,
+    slide.value.content.paragraphs.splice(index, 1)[0]
+  );
+
 let newBullet = ref("");
 const addBullet = () => {
   if (newBullet.value) {
-    content.value.bullets.push(newBullet.value);
+    slide.value.content.bullets.push(newBullet.value);
     newBullet.value = "";
   } else {
     document.getElementById("newBullet").classList.add("is-invalid");
@@ -251,73 +297,77 @@ const addBullet = () => {
     );
   }
 };
-const removeBullet = (index) => content.value.bullets.splice(index, 1);
+const removeBullet = (index) => slide.value.content.bullets.splice(index, 1);
 const sortBullet = (index, x) =>
-  content.value.bullets.splice(
+  slide.value.content.bullets.splice(
     index + x,
     0,
-    content.value.bullets.splice(index, 1)[0]
+    slide.value.content.bullets.splice(index, 1)[0]
   );
 
-let showImage = ref(true);
-const maxImages = ref(1);
-const onChange = (allMedia) => {
+const imageChange = (allMedia) => {
   if (allMedia.length) {
     console.log("Images uploaded", allMedia[0].imageID);
-    content.value.image.src = allMedia[0].imageID;
-    content.value.image.hasImage = true;
+    slide.value.content.image.src = allMedia[0].imageID;
+    slide.value.content.image.hasImage = true;
   } else {
     console.log("No images");
-    content.value.image.src = "";
-    content.value.image.hasImage = false;
+    slide.value.content.image.src = "";
+    slide.value.content.image.hasImage = false;
   }
 };
 
-let showSettings = ref(false);
 const keepSubmissionLimitWithinMinMax = () => {
-  const submissionLimit = settings.value.submissionLimit;
-  if (submissionLimit < 1) settings.value.submissionLimit = 1;
+  const submissionLimit = slide.value.interaction.settings.submissionLimit;
+  if (submissionLimit < 1) slide.value.interaction.settings.submissionLimit = 1;
   else if (
     submissionLimit > config.interaction.create.slides.submissionLimitMax
   )
-    settings.value.submissionLimit =
+    slide.value.interaction.settings.submissionLimit =
       config.interaction.create.slides.submissionLimitMax;
   else return true;
 };
 const keepSelectedLimitsWithinMinMax = () => {
-  if (settings.value.selectedLimit.min > options.value.length)
-    settings.value.selectedLimit.min = options.value.length;
-  if (settings.value.selectedLimit.min < 1)
-    settings.value.selectedLimit.min = 1;
-  if (settings.value.selectedLimit.max > options.value.length)
-    settings.value.selectedLimit.max = options.value.length;
-  if (settings.value.selectedLimit.max < 1)
-    settings.value.selectedLimit.max = 1;
-  if (settings.value.selectedLimit.min > settings.value.selectedLimit.max)
-    settings.value.selectedLimit.max = settings.value.selectedLimit.min;
+  if (
+    slide.value.interaction.settings.selectedLimit.min >
+    slide.value.interaction.options.length
+  )
+    slide.value.interaction.settings.selectedLimit.min =
+      slide.value.interaction.options.length;
+  if (slide.value.interaction.settings.selectedLimit.min < 1)
+    slide.value.interaction.settings.selectedLimit.min = 1;
+  if (
+    slide.value.interaction.settings.selectedLimit.max >
+    slide.value.interaction.options.length
+  )
+    slide.value.interaction.settings.selectedLimit.max =
+      slide.value.interaction.options.length;
+  if (slide.value.interaction.settings.selectedLimit.max < 1)
+    slide.value.interaction.settings.selectedLimit.max = 1;
+  if (
+    slide.value.interaction.settings.selectedLimit.min >
+    slide.value.interaction.settings.selectedLimit.max
+  )
+    slide.value.interaction.settings.selectedLimit.max =
+      slide.value.interaction.settings.selectedLimit.min;
 };
 
 let submit = () => {
-  newOption.value = "";
   newBullet.value = "";
+  newParagraph.value = "";
+  newOption.value = "";
   document
     .getElementById("editSlideModal" + props.index)
     .classList.add("was-validated");
-  if (!type.value) return false;
-  if (content.value.bullets && !content.value.bullets.length) {
-    Swal.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title: "Too few bullet points added",
-      text: "You need to add at least 1 bullet point.",
-      confirmButtonColor: "#17a2b8",
-    });
-    return false;
-  }
-  if (settings.value.optionsLimit == 0) {
-    options.value = [];
+  if (!slide.value.type) return false;
+  if (
+    slide.value.interaction.settings.optionsLimit == 0 ||
+    !slide.value.isInteractive
+  ) {
+    slide.value.interaction.options = [];
   } else if (
-    options.value.length < config.interaction.create.slides.minimumOptions
+    slide.value.interaction.options.length <
+    config.interaction.create.slides.minimumOptions
   ) {
     Swal.fire({
       icon: "error",
@@ -331,44 +381,64 @@ let submit = () => {
     });
     return false;
   }
-  if (options.value.length > settings.value.optionsLimit) {
+  if (
+    slide.value.interaction.options.length >
+    slide.value.interaction.settings.optionsLimit
+  ) {
     Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
       title: "Too many options added",
       text:
         "You can have up to " +
-        settings.value.optionsLimit +
+        slide.value.interaction.settings.optionsLimit +
         " options for the slide type selected.",
       confirmButtonColor: "#17a2b8",
     });
     return false;
   }
   //  if (!checkImageValid(image.value)) return false;
-  if (!prompt.value) return false;
-  if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
-  if (charts.value && !chart.value) return false;
-  emit(
-    "hideEditSlideModal",
-    props.index,
-    JSON.stringify({
-      prompt: prompt.value,
-      type: type.value,
-      isInteractive: isInteractive.value,
-      chart: chart.value,
-      content: content.value,
-      options: options.value,
-      settings: settings.value,
-    })
-  );
+  if (!slide.value.prompt) return false;
+  if (slide.value.interaction.settings.selectedLimit)
+    keepSelectedLimitsWithinMinMax();
+  if (
+    slide.value.interaction.settings.charts &&
+    !slide.value.interaction.settings.chart
+  )
+    return false;
+  emit("hideEditSlideModal", props.index, JSON.stringify(slide.value));
   if (props.index == -1) {
-    prompt.value = "";
     type.value = "";
-    chart.value = "";
-    charts.value = [];
-    content.value = {};
-    options.value = [];
-    settings.value = {};
+    slide.value = {
+      prompt: "",
+      type: "",
+      isInteractive: false,
+      content: {
+        image: {
+          src: "",
+          hasImage: false,
+        },
+        paragraphs: [],
+        bullets: [],
+      },
+      interaction: {
+        options: [],
+        settings: {},
+      },
+      show: {
+        content: {
+          main: true,
+          images: false,
+          paragraphs: false,
+          bullets: false,
+        },
+        interaction: {
+          main: true,
+          options: true,
+          settings: true,
+        },
+      },
+    };
   }
   document
     .getElementById("editSlideModal" + props.index)
@@ -391,24 +461,6 @@ let submit = () => {
         </div>
         <div class="modal-body">
           <div id="editSlideForm" class="needs-validation" novalidate>
-            <!--prompt-->
-            <div class="form-floating mb-3">
-              <input
-                type="text"
-                v-model="prompt"
-                class="form-control"
-                id="prompt"
-                placeholder=""
-                name="prompt"
-                autocomplete="off"
-                required
-              />
-              <label for="prompt">{{
-                isInteractive
-                  ? "Question or instruction to attendees"
-                  : "Slide heading"
-              }}</label>
-            </div>
             <!--type-->
             <div class="input-group mb-3">
               <div class="form-floating">
@@ -439,417 +491,673 @@ let submit = () => {
                 />
               </div>
             </div>
-            <div v-if="type">
-              <!--chart type-->
-              <div v-if="charts" class="input-group mb-3">
-                <div class="form-floating">
-                  <select
-                    v-model="chart"
-                    class="form-control"
-                    id="chart"
-                    name="chart"
-                    autocomplete="off"
-                    required
-                  >
-                    <option disabled value="">
-                      Please select a chart type
-                    </option>
-                    <option v-for="chart in charts" :value="chart">
-                      {{ chart.charAt(0).toUpperCase() + chart.slice(1) }}
-                    </option>
-                  </select>
-                  <label for="type">Chart type</label>
-                </div>
-                <div class="input-group-text">
-                  <font-awesome-icon
-                    :icon="['fas', 'question-circle']"
-                    size="lg"
-                    style="color: black"
-                    @click="chartTypeInfo"
-                  />
-                </div>
+            <div v-if="slide.type">
+              <!--prompt-->
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  v-model="slide.prompt"
+                  class="form-control"
+                  id="prompt"
+                  placeholder=""
+                  name="prompt"
+                  autocomplete="off"
+                  required
+                />
+                <label for="prompt">{{
+                  slide.isInteractive
+                    ? "Question or instruction to attendees"
+                    : "Slide heading"
+                }}</label>
               </div>
-              <!--options-->
-              <div v-if="settings.optionsLimit" class="card mb-3">
-                <div class="card-header">
-                  <button
-                    id="btnShowOptions"
-                    class="btn"
-                    @click="showOptions = !showOptions"
-                  >
-                    <label for="newOption" class="form-label me-2"
-                      >Options</label
-                    ><font-awesome-icon
-                      v-if="!showOptions"
-                      :icon="['fas', 'chevron-down']"
-                    />
-                    <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
-                  </button>
-                </div>
-                <div class="card-body" v-if="showOptions">
-                  <p>
-                    Add different response options for your attendees to choose.
-                    <br />
-                    <span v-if="type == 'multipleChoice'">
-                      Control how many options must be selected in the settings
-                      panel below.</span
-                    >
-                  </p>
-                  <table class="table" id="optionsTable">
-                    <TransitionGroup name="list" tag="tbody">
-                      <tr v-for="(option, index) in options" :key="option">
-                        <td class="p-0 ps-2 sort-controls">
-                          <button
-                            v-if="index != 0"
-                            class="btn btn-default btn-sm p-0"
-                            id="btnSortUp"
-                            @click.prevent="sortOption(index, -1)"
-                          >
-                            <font-awesome-icon
-                              :icon="['fas', 'chevron-up']"
-                            /></button
-                          ><br />
-                          <button
-                            v-if="index != options.length - 1"
-                            class="btn btn-default btn-sm p-0"
-                            id="btnSortDown"
-                            @click.prevent="sortOption(index, 1)"
-                          >
-                            <font-awesome-icon
-                              :icon="['fas', 'chevron-down']"
-                            />
-                          </button>
-                        </td>
-                        <td>{{ option }}</td>
-                        <td class="delete-control">
-                          <button
-                            style="float: right"
-                            class="btn btn-danger btn-sm"
-                            id="btnRemoveOption"
-                            @click.prevent="removeOption(index)"
-                          >
-                            <font-awesome-icon :icon="['fas', 'trash-can']" />
-                          </button>
-                        </td>
-                      </tr>
-                    </TransitionGroup>
-                  </table>
-                  <div class="input-group">
-                    <input
-                      type="text"
-                      @keyup.enter="addOption"
-                      class="form-control"
-                      id="newOption"
-                      v-model="newOption"
-                      :placeholder="
-                        options.length >= settings.optionsLimit
-                          ? 'Max options reached'
-                          : 'Add an option...'
-                      "
-                      name="newOption"
-                      autocomplete="off"
-                      :required="!options.length"
-                      :disabled="options.length >= settings.optionsLimit"
-                    />
-                    <button
-                      class="btn btn-teal btn-sm"
-                      @click.prevent="addOption"
-                      :disabled="options.length >= settings.optionsLimit"
-                    >
-                      Add
-                    </button>
-                  </div>
-                  <div class="invalid-feedback">
-                    Please provide some options for this slide.
-                  </div>
-                </div>
-              </div>
-              <div v-if="content">
-                <!--bullets-->
-                <div v-if="content.bullets" class="card mb-3">
-                  <div class="card-header">
-                    <button
-                      id="btnShowBullets"
-                      class="btn"
-                      @click="showBullets = !showBullets"
-                    >
-                      <label for="newBullets" class="form-label me-2"
-                        >Bullet points</label
-                      ><font-awesome-icon
-                        v-if="!showBullets"
-                        :icon="['fas', 'chevron-down']"
-                      />
-                      <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
-                    </button>
-                  </div>
-                  <div class="card-body" v-if="showBullets">
-                    <p>Add each bullet point to display on this slide.</p>
-                    <table class="table" id="bulletsTable">
-                      <TransitionGroup name="list" tag="tbody">
-                        <tr
-                          v-for="(bullet, index) in content.bullets"
-                          :key="bullet"
-                        >
-                          <td class="p-0 ps-2 sort-controls">
-                            <button
-                              v-if="index != 0"
-                              class="btn btn-default btn-sm p-0"
-                              id="btnSortUp"
-                              @click.prevent="sortBullet(index, -1)"
-                            >
-                              <font-awesome-icon
-                                :icon="['fas', 'chevron-up']"
-                              /></button
-                            ><br />
-                            <button
-                              v-if="index != content.bullets.length - 1"
-                              class="btn btn-default btn-sm p-0"
-                              id="btnSortDown"
-                              @click.prevent="sortBullet(index, 1)"
-                            >
-                              <font-awesome-icon
-                                :icon="['fas', 'chevron-down']"
-                              />
-                            </button>
-                          </td>
-                          <td>
-                            {{ bullet }}
-                          </td>
-                          <td class="delete-control">
-                            <button
-                              style="float: right"
-                              class="btn btn-danger btn-sm"
-                              id="btnRemoveBullet"
-                              @click.prevent="removeBullet(index)"
-                            >
-                              <font-awesome-icon :icon="['fas', 'trash-can']" />
-                            </button>
-                          </td>
-                        </tr>
-                      </TransitionGroup>
-                    </table>
-                    <div class="input-group">
-                      <input
-                        type="text"
-                        @keyup.enter="addBullet"
-                        class="form-control"
-                        id="newBullet"
-                        v-model="newBullet"
-                        placeholder="Add a bullet point..."
-                        name="newBullet"
-                        autocomplete="off"
-                        :required="!content.bullets.length"
-                      />
-                      <button
-                        class="btn btn-teal btn-sm"
-                        @click.prevent="addBullet"
-                      >
-                        Add
-                      </button>
-                    </div>
-                    <div class="invalid-feedback">
-                      Please provide some bullet points for this slide.
-                    </div>
-                  </div>
-                </div>
-                <!--image-->
-                <div v-if="content.image" class="card mb-3">
-                  <div class="card-header">
-                    <button
-                      id="btnShowImage"
-                      class="btn"
-                      @click="showImage = !showImage"
-                    >
-                      <label for="imageUpload" class="form-label me-2"
-                        >Image</label
-                      ><font-awesome-icon
-                        v-if="!showImage"
-                        :icon="['fas', 'chevron-down']"
-                      />
-                      <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
-                    </button>
-                  </div>
-                  <div class="card-body">
-                    <uploader @change="onChange" :max="maxImages"> </uploader>
-                  </div>
-                </div>
-              </div>
-              <!--settings-->
+              <!--content-->
               <div class="card mb-3">
                 <div class="card-header">
                   <button
-                    id="btnShowSettings"
+                    id="btnShowContent"
                     class="btn"
-                    @click="showSettings = !showSettings"
+                    @click="slide.show.content.main = !slide.show.content.main"
                   >
-                    <span class="form-label me-2">Settings</span
+                    <label for="content" class="form-label me-2"
+                      ><strong>Slide content</strong></label
                     ><font-awesome-icon
-                      v-if="!showSettings"
+                      v-if="!slide.show.content.main"
                       :icon="['fas', 'chevron-down']"
                     />
                     <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
                   </button>
                 </div>
-                <div class="card-body" v-if="showSettings">
-                  <div
-                    v-if="settings.selectedLimit"
-                    class="row align-items-center mb-3"
-                  >
-                    <div class="col-md-3">
-                      Number of options attendees must select
+                <div class="card-body" v-if="slide.show.content.main">
+                  <p class="ms-1 small">
+                    Slide content is not itself interactive but can be used to
+                    provide additional context for an interaction.
+                  </p>
+                  <!--image-->
+                  <div class="card mb-3">
+                    <div class="card-header">
+                      <button
+                        id="btnShowImage"
+                        class="btn"
+                        @click="
+                          slide.show.content.images = !slide.show.content.images
+                        "
+                      >
+                        <label for="imageUpload" class="form-label me-2"
+                          >Image</label
+                        ><font-awesome-icon
+                          v-if="!slide.show.content.images"
+                          :icon="['fas', 'chevron-down']"
+                        />
+                        <font-awesome-icon
+                          v-else
+                          :icon="['fas', 'chevron-up']"
+                        />
+                        <br />
+                      </button>
                     </div>
-                    <div class="col-md-1 mt-2">
-                      <font-awesome-icon
-                        :icon="['fas', 'question-circle']"
-                        size="lg"
-                        style="color: black"
-                        @click="optionsMinMaxInfo"
-                      />
+                    <div class="card-body" v-if="slide.show.content.images">
+                      <p class="ms-1 small">
+                        Optional: add any images you would like to appear on
+                        your slide.
+                      </p>
+                      <uploader
+                        @change="imageChange"
+                        :max="config.interaction.create.slides.images.max"
+                      >
+                      </uploader>
                     </div>
-                    <div class="col-md-4 mt-2">
-                      <div class="form-floating">
+                  </div>
+                  <!--paragraphs-->
+                  <div class="card mb-3">
+                    <div class="card-header">
+                      <button
+                        id="btnShowParagraphs"
+                        class="btn"
+                        @click="
+                          slide.show.content.paragraphs =
+                            !slide.show.content.paragraphs
+                        "
+                      >
+                        <label for="text" class="form-label me-2"
+                          >Text paragraphs</label
+                        ><font-awesome-icon
+                          v-if="!slide.show.content.paragraphs"
+                          :icon="['fas', 'chevron-down']"
+                        />
+                        <font-awesome-icon
+                          v-else
+                          :icon="['fas', 'chevron-up']"
+                        />
+                      </button>
+                    </div>
+                    <div class="card-body" v-if="slide.show.content.paragraphs">
+                      <p class="ms-1 mb-0 small">
+                        Optional: add paragraphs of text to appear on your
+                        slide.
+                      </p>
+                      <table class="table" id="paragraphsTable">
+                        <TransitionGroup name="list" tag="tbody">
+                          <tr
+                            v-for="(paragraph, index) in slide.content
+                              .paragraphs"
+                            :key="paragraph"
+                          >
+                            <td class="p-0 ps-2 sort-controls">
+                              <button
+                                v-if="index != 0"
+                                class="btn btn-default btn-sm p-0"
+                                id="btnSortUp"
+                                @click.prevent="sortParagraph(index, -1)"
+                              >
+                                <font-awesome-icon
+                                  :icon="['fas', 'chevron-up']"
+                                /></button
+                              ><br />
+                              <button
+                                v-if="
+                                  index != slide.content.paragraphs.length - 1
+                                "
+                                class="btn btn-default btn-sm p-0"
+                                id="btnSortDown"
+                                @click.prevent="sortParagraph(index, 1)"
+                              >
+                                <font-awesome-icon
+                                  :icon="['fas', 'chevron-down']"
+                                />
+                              </button>
+                            </td>
+                            <td>
+                              {{ paragraph }}
+                            </td>
+                            <td class="delete-control">
+                              <button
+                                style="float: right"
+                                class="btn btn-danger btn-sm"
+                                id="btnRemoveParagraphs"
+                                @click.prevent="removeParagraph(index)"
+                              >
+                                <font-awesome-icon
+                                  :icon="['fas', 'trash-can']"
+                                />
+                              </button>
+                            </td>
+                          </tr>
+                        </TransitionGroup>
+                      </table>
+                      <div class="input-group">
                         <input
-                          type="number"
-                          v-model="settings.selectedLimit.min"
-                          @change="keepSelectedLimitsWithinMinMax"
-                          min="1"
-                          :max="options.length ? options.length : 1"
+                          type="text"
+                          @keyup.enter="addParagraph"
                           class="form-control"
-                          id="selectedLimitMin"
-                          name="selectedLimit"
+                          id="newParagraph"
+                          v-model="newParagraph"
+                          placeholder="Add a paragraph..."
+                          name="newParagraph"
                           autocomplete="off"
                         />
-                        <label for="selectedLimitMin">Minimum</label>
+                        <button
+                          class="btn btn-teal btn-sm"
+                          @click.prevent="addParagraph"
+                        >
+                          Add
+                        </button>
                       </div>
-                    </div>
-                    <div class="col-md-4 mt-2">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          v-model="settings.selectedLimit.max"
-                          @change="keepSelectedLimitsWithinMinMax"
-                          min="1"
-                          :max="options.length ? options.length : 1"
-                          class="form-control"
-                          id="selectedLimitMax"
-                          placeholder="1"
-                          name="selectedLimit"
-                          autocomplete="off"
-                        />
-                        <label for="selectedLimitMax">Maximum</label>
+                      <div class="invalid-feedback">
+                        Please some paragraphs for this slide.
                       </div>
                     </div>
                   </div>
-                  <div
-                    v-if="settings.submissionLimit"
-                    class="row align-items-center mb-3"
-                  >
-                    <div class="col-md-3">
-                      Number of responses attendees can submit
-                    </div>
-                    <div class="col-md-1">
-                      <font-awesome-icon
-                        :icon="['fas', 'question-circle']"
-                        size="lg"
-                        style="color: black"
-                        @click="submissionLimitInfo"
-                      />
-                    </div>
-                    <div class="col-md-8">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          v-model.lazy="settings.submissionLimit"
-                          @change="keepSubmissionLimitWithinMinMax"
-                          min="1"
-                          :max="
-                            config.interaction.create.slides.submissionLimitMax
-                          "
-                          class="form-control"
-                          id="submissionLimitMax"
-                          name="submissionLimitMax"
-                          autocomplete="off"
-                          required
+                  <!--bullets-->
+                  <div class="card mb-3">
+                    <div class="card-header">
+                      <button
+                        id="btnShowBullets"
+                        class="btn"
+                        @click="
+                          slide.show.content.bullets =
+                            !slide.show.content.bullets
+                        "
+                      >
+                        <label for="newBullets" class="form-label me-2"
+                          >Bullet points</label
+                        ><font-awesome-icon
+                          v-if="!slide.show.content.bullets"
+                          :icon="['fas', 'chevron-down']"
                         />
-                        <label for="submissionLimitMax">Maximum</label>
+                        <font-awesome-icon
+                          v-else
+                          :icon="['fas', 'chevron-up']"
+                        />
+                      </button>
+                    </div>
+                    <div class="card-body" v-if="slide.show.content.bullets">
+                      <p class="ms-1 mb-0 small">
+                        Optional: add bullet points to appear on your slide.
+                      </p>
+                      <table class="table" id="bulletsTable">
+                        <TransitionGroup name="list" tag="tbody">
+                          <tr
+                            v-for="(bullet, index) in slide.content.bullets"
+                            :key="bullet"
+                          >
+                            <td class="p-0 ps-2 sort-controls">
+                              <button
+                                v-if="index != 0"
+                                class="btn btn-default btn-sm p-0"
+                                id="btnSortUp"
+                                @click.prevent="sortBullet(index, -1)"
+                              >
+                                <font-awesome-icon
+                                  :icon="['fas', 'chevron-up']"
+                                /></button
+                              ><br />
+                              <button
+                                v-if="index != slide.content.bullets.length - 1"
+                                class="btn btn-default btn-sm p-0"
+                                id="btnSortDown"
+                                @click.prevent="sortBullet(index, 1)"
+                              >
+                                <font-awesome-icon
+                                  :icon="['fas', 'chevron-down']"
+                                />
+                              </button>
+                            </td>
+                            <td>
+                              {{ bullet }}
+                            </td>
+                            <td class="delete-control">
+                              <button
+                                style="float: right"
+                                class="btn btn-danger btn-sm"
+                                id="btnRemoveBullet"
+                                @click.prevent="removeBullet(index)"
+                              >
+                                <font-awesome-icon
+                                  :icon="['fas', 'trash-can']"
+                                />
+                              </button>
+                            </td>
+                          </tr>
+                        </TransitionGroup>
+                      </table>
+                      <div class="input-group">
+                        <input
+                          type="text"
+                          @keyup.enter="addBullet"
+                          class="form-control"
+                          id="newBullet"
+                          v-model="newBullet"
+                          placeholder="Add a bullet point..."
+                          name="newBullet"
+                          autocomplete="off"
+                        />
+                        <button
+                          class="btn btn-teal btn-sm"
+                          @click.prevent="addBullet"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div class="invalid-feedback">
+                        Please provide some bullet points for this slide.
                       </div>
                     </div>
                   </div>
-                  <div
-                    v-if="settings.characterLimit"
-                    class="row align-items-center mb-3"
-                  >
-                    <div class="col-md-3">
-                      Character limit for each response
-                    </div>
-                    <div class="col-md-1"></div>
-                    <div class="col-md-8">
-                      <div class="form-floating">
-                        <input
-                          type="number"
-                          placeholder=""
-                          v-model.lazy="settings.characterLimit.max"
-                          class="form-control"
-                          id="characterLimit"
-                          name="characterLimit"
-                          autocomplete="off"
-                          required
-                        />
-                        <label for="characterLimit">Maximum</label>
-                      </div>
-                    </div>
-                  </div>
-                  <div
-                    v-if="settings.hideResponses != undefined"
-                    class="row align-items-center"
-                  >
-                    <div class="col-md-3">
-                      Hide attendee responses until you reveal them
-                    </div>
-                    <div class="col-md-1">
-                      <font-awesome-icon
-                        :icon="['fas', 'question-circle']"
-                        size="lg"
-                        style="color: black"
-                        @click="hideResponsesInfo"
-                      />
-                    </div>
-                    <div class="col-md-8 px-5 form-check form-switch">
-                      <input
-                        v-model="settings.hideResponses"
-                        class="form-check-input"
-                        type="checkbox"
-                        id="hideResponses"
-                        name="hideResponses"
-                      />
-                    </div>
-                  </div>
-                  <div
-                    v-if="
-                      !config.interaction.create.slides.types[type]
-                        .isInteractive
+                </div>
+              </div>
+              <!--interaction-->
+              <div class="card mb-3">
+                <div class="card-header">
+                  <button
+                    id="btnShowInteraction"
+                    class="btn"
+                    @click="
+                      slide.show.interaction.main = !slide.show.interaction.main
                     "
-                    class="row align-items-center"
                   >
-                    <div class="col-md-3">
-                      Show slide content on host screen only
+                    <label for="interaction" class="form-label me-2"
+                      ><strong>Slide interaction</strong></label
+                    ><font-awesome-icon
+                      v-if="!slide.show.interaction.main"
+                      :icon="['fas', 'chevron-down']"
+                    />
+                    <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
+                  </button>
+                </div>
+                <div class="card-body" v-if="slide.show.interaction.main">
+                  <p class="ms-1 small" v-if="!slide.isInteractive">
+                    This slide type does not have an interaction.
+                  </p>
+                  <div v-else>
+                    <!--chart type-->
+                    <div
+                      v-if="slide.interaction.settings.charts"
+                      class="input-group mb-3"
+                    >
+                      <div class="form-floating">
+                        <select
+                          v-model="slide.interaction.settings.chart"
+                          class="form-control"
+                          id="chartType"
+                          name="chartType"
+                          autocomplete="off"
+                          required
+                        >
+                          <option disabled value="">
+                            Please select a chart type
+                          </option>
+                          <option
+                            v-for="chart in slide.interaction.settings.charts"
+                            :value="chart"
+                          >
+                            {{ chart.charAt(0).toUpperCase() + chart.slice(1) }}
+                          </option>
+                        </select>
+                        <label for="chartType">Chart type</label>
+                      </div>
+                      <div class="input-group-text">
+                        <font-awesome-icon
+                          :icon="['fas', 'question-circle']"
+                          size="lg"
+                          style="color: black"
+                          @click="chartTypeInfo"
+                        />
+                      </div>
                     </div>
-                    <div class="col-md-1">
-                      <font-awesome-icon
-                        :icon="['fas', 'question-circle']"
-                        size="lg"
-                        style="color: black"
-                        @click="hostScreenOnlyInfo"
-                      />
+                    <!--options-->
+                    <div
+                      v-if="slide.interaction.settings.optionsLimit"
+                      class="card mb-3"
+                    >
+                      <div class="card-header">
+                        <button
+                          id="btnShowOptions"
+                          class="btn"
+                          @click="
+                            slide.show.interaction.options =
+                              !slide.show.interaction.options
+                          "
+                        >
+                          <label for="newOption" class="form-label me-2"
+                            >Options</label
+                          ><font-awesome-icon
+                            v-if="!slide.show.interaction.options"
+                            :icon="['fas', 'chevron-down']"
+                          />
+                          <font-awesome-icon
+                            v-else
+                            :icon="['fas', 'chevron-up']"
+                          />
+                        </button>
+                      </div>
+                      <div
+                        class="card-body"
+                        v-if="slide.show.interaction.options"
+                      >
+                        <p class="ms-1 mb-0 small">
+                          Add different response options for your attendees to
+                          choose.
+                          <span v-if="slide.type == 'multipleChoice'">
+                            <br />
+                            Control how many options must be selected in the
+                            settings panel below.</span
+                          >
+                        </p>
+                        <table class="table" id="optionsTable">
+                          <TransitionGroup name="list" tag="tbody">
+                            <tr
+                              v-for="(option, index) in slide.interaction
+                                .options"
+                              :key="option"
+                            >
+                              <td class="p-0 ps-2 sort-controls">
+                                <button
+                                  v-if="index != 0"
+                                  class="btn btn-default btn-sm p-0"
+                                  id="btnSortUp"
+                                  @click.prevent="sortOption(index, -1)"
+                                >
+                                  <font-awesome-icon
+                                    :icon="['fas', 'chevron-up']"
+                                  /></button
+                                ><br />
+                                <button
+                                  v-if="
+                                    index !=
+                                    slide.interaction.options.length - 1
+                                  "
+                                  class="btn btn-default btn-sm p-0"
+                                  id="btnSortDown"
+                                  @click.prevent="sortOption(index, 1)"
+                                >
+                                  <font-awesome-icon
+                                    :icon="['fas', 'chevron-down']"
+                                  />
+                                </button>
+                              </td>
+                              <td>{{ option }}</td>
+                              <td class="delete-control">
+                                <button
+                                  style="float: right"
+                                  class="btn btn-danger btn-sm"
+                                  id="btnRemoveOption"
+                                  @click.prevent="removeOption(index)"
+                                >
+                                  <font-awesome-icon
+                                    :icon="['fas', 'trash-can']"
+                                  />
+                                </button>
+                              </td>
+                            </tr>
+                          </TransitionGroup>
+                        </table>
+                        <div class="input-group">
+                          <input
+                            type="text"
+                            @keyup.enter="addOption"
+                            class="form-control"
+                            id="newOption"
+                            v-model="newOption"
+                            :placeholder="
+                              slide.interaction.options.length >=
+                              slide.interaction.settings.optionsLimit
+                                ? 'Max options reached'
+                                : 'Add an option...'
+                            "
+                            name="newOption"
+                            autocomplete="off"
+                            :required="!slide.interaction.options.length"
+                            :disabled="
+                              slide.interaction.options.length >=
+                              slide.interaction.settings.optionsLimit
+                            "
+                          />
+                          <button
+                            class="btn btn-teal btn-sm"
+                            @click.prevent="addOption"
+                            :disabled="
+                              slide.interaction.options.length >=
+                              slide.interaction.settings.optionsLimit
+                            "
+                          >
+                            Add
+                          </button>
+                        </div>
+                        <div class="invalid-feedback">
+                          Please provide some options for this slide.
+                        </div>
+                      </div>
                     </div>
-                    <div class="col-md-8 px-5 form-check form-switch">
-                      <input
-                        v-model="settings.hostScreenOnly"
-                        class="form-check-input"
-                        type="checkbox"
-                        id="hostScreenOnly"
-                        name="hostScreenOnly"
-                      />
+                    <!--settings-->
+                    <div class="card mb-3">
+                      <div class="card-header">
+                        <button
+                          id="btnShowSettings"
+                          class="btn"
+                          @click="
+                            slide.show.interaction.settings =
+                              !slide.show.interaction.settings
+                          "
+                        >
+                          <span class="form-label me-2">Settings</span
+                          ><font-awesome-icon
+                            v-if="!slide.show.interaction.settings"
+                            :icon="['fas', 'chevron-down']"
+                          />
+                          <font-awesome-icon
+                            v-else
+                            :icon="['fas', 'chevron-up']"
+                          />
+                        </button>
+                      </div>
+                      <div
+                        class="card-body"
+                        v-if="slide.show.interaction.settings"
+                      >
+                        <div
+                          v-if="slide.interaction.settings.selectedLimit"
+                          class="row align-items-center mb-3"
+                        >
+                          <div class="col-md-3">
+                            Number of options attendees must select
+                          </div>
+                          <div class="col-md-1 mt-2">
+                            <font-awesome-icon
+                              :icon="['fas', 'question-circle']"
+                              size="lg"
+                              style="color: black"
+                              @click="optionsMinMaxInfo"
+                            />
+                          </div>
+                          <div class="col-md-4 mt-2">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                v-model="
+                                  slide.interaction.settings.selectedLimit.min
+                                "
+                                @change="keepSelectedLimitsWithinMinMax"
+                                min="1"
+                                :max="
+                                  slide.interaction.options.length
+                                    ? slide.interaction.options.length
+                                    : 1
+                                "
+                                class="form-control"
+                                id="selectedLimitMin"
+                                name="selectedLimit"
+                                autocomplete="off"
+                              />
+                              <label for="selectedLimitMin">Minimum</label>
+                            </div>
+                          </div>
+                          <div class="col-md-4 mt-2">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                v-model="
+                                  slide.interaction.settings.selectedLimit.max
+                                "
+                                @change="keepSelectedLimitsWithinMinMax"
+                                min="1"
+                                :max="
+                                  slide.interaction.options.length
+                                    ? slide.interaction.options.length
+                                    : 1
+                                "
+                                class="form-control"
+                                id="selectedLimitMax"
+                                placeholder="1"
+                                name="selectedLimit"
+                                autocomplete="off"
+                              />
+                              <label for="selectedLimitMax">Maximum</label>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          v-if="slide.interaction.settings.submissionLimit"
+                          class="row align-items-center mb-3"
+                        >
+                          <div class="col-md-3">
+                            Number of responses attendees can submit
+                          </div>
+                          <div class="col-md-1">
+                            <font-awesome-icon
+                              :icon="['fas', 'question-circle']"
+                              size="lg"
+                              style="color: black"
+                              @click="submissionLimitInfo"
+                            />
+                          </div>
+                          <div class="col-md-8">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                v-model.lazy="
+                                  slide.interaction.settings.submissionLimit
+                                "
+                                @change="keepSubmissionLimitWithinMinMax"
+                                min="1"
+                                :max="
+                                  config.interaction.create.slides
+                                    .submissionLimitMax
+                                "
+                                class="form-control"
+                                id="submissionLimitMax"
+                                name="submissionLimitMax"
+                                autocomplete="off"
+                                required
+                              />
+                              <label for="submissionLimitMax">Maximum</label>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          v-if="slide.interaction.settings.characterLimit"
+                          class="row align-items-center mb-3"
+                        >
+                          <div class="col-md-3">
+                            Character limit for each response
+                          </div>
+                          <div class="col-md-1"></div>
+                          <div class="col-md-8">
+                            <div class="form-floating">
+                              <input
+                                type="number"
+                                placeholder=""
+                                v-model.lazy="
+                                  slide.interaction.settings.characterLimit.max
+                                "
+                                class="form-control"
+                                id="characterLimit"
+                                name="characterLimit"
+                                autocomplete="off"
+                                required
+                              />
+                              <label for="characterLimit">Maximum</label>
+                            </div>
+                          </div>
+                        </div>
+                        <div
+                          v-if="
+                            slide.interaction.settings.hideResponses !=
+                            undefined
+                          "
+                          class="row align-items-center"
+                        >
+                          <div class="col-md-3">
+                            Hide attendee responses until you reveal them
+                          </div>
+                          <div class="col-md-1">
+                            <font-awesome-icon
+                              :icon="['fas', 'question-circle']"
+                              size="lg"
+                              style="color: black"
+                              @click="hideResponsesInfo"
+                            />
+                          </div>
+                          <div class="col-md-8 px-5 form-check form-switch">
+                            <input
+                              v-model="slide.interaction.settings.hideResponses"
+                              class="form-check-input"
+                              type="checkbox"
+                              id="hideResponses"
+                              name="hideResponses"
+                            />
+                          </div>
+                        </div>
+                        <div
+                          v-if="
+                            !config.interaction.create.slides.types[type]
+                              .isInteractive
+                          "
+                          class="row align-items-center"
+                        >
+                          <div class="col-md-3">
+                            Show slide content on host screen only
+                          </div>
+                          <div class="col-md-1">
+                            <font-awesome-icon
+                              :icon="['fas', 'question-circle']"
+                              size="lg"
+                              style="color: black"
+                              @click="hostScreenOnlyInfo"
+                            />
+                          </div>
+                          <div class="col-md-8 px-5 form-check form-switch">
+                            <input
+                              v-model="
+                                slide.interaction.settings.hostScreenOnly
+                              "
+                              class="form-check-input"
+                              type="checkbox"
+                              id="hostScreenOnly"
+                              name="hostScreenOnly"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
