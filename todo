@@ -1,16 +1,12 @@
 Current:
-Work out image upload and storage
+Testing
 
-Change image file names from interaction to slide (and change short-text to free-text)
-Add option to include image with all slide types
-Create image and image grid slide types
+Change image file names from interaction to slide (and change short-text to free-text) for informational images
 
 Later:
 check how old feedback sessions function on the new frontend and api
 Check cookies work as expected
 Have arrow keys control slide movements
-Change from interactions to slides
-Create content slide types
 Create media slot for interaction type slides
 
 Improvements:
