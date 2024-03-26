@@ -158,7 +158,6 @@ export default {
   },
   methods: {
     init() {
-      console.log(this.media);
       this.savedMedia = this.media;
       this.config.headers = this.headers;
 

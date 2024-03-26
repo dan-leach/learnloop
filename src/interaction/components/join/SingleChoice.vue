@@ -1,24 +1,24 @@
 <script setup>
-import { interactionSession } from '../../../data/interactionSession.js';
-import Toast from '../../../assets/Toast.js';
+import { interactionSession } from "../../../data/interactionSession.js";
+import Toast from "../../../assets/Toast.js";
 
 const props = defineProps([
-  'slide',
-  'spinner',
-  'btnSubmitText',
-  'btnSubmitBelowText',
-  'currentIndex',
+  "slide",
+  "spinner",
+  "btnSubmitText",
+  "btnSubmitBelowText",
+  "currentIndex",
 ]);
-const emit = defineEmits(['submit']);
+const emit = defineEmits(["submit"]);
 
 let submit = () => {
-  if (props.slide.response !== '') {
-    emit('submit');
+  if (props.slide.interaction.response !== "") {
+    emit("submit");
   } else {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Please choose an option',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Please choose an option",
     });
   }
 };
@@ -28,15 +28,15 @@ let submit = () => {
   <p class="text-center">
     <strong>{{ slide.prompt }}</strong>
   </p>
-  <div v-for="(option, index) in slide.options" class="form-check">
+  <div v-for="(option, index) in slide.interaction.options" class="form-check">
     <input
       type="radio"
       class="form-check-input"
       :id="'option-' + index"
       :name="'option-' + index"
       :value="index"
-      v-model="slide.response"
-      :disabled="slide.closed"
+      v-model="slide.interaction.response"
+      :disabled="slide.interaction.closed"
     />{{ option }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
@@ -47,7 +47,8 @@ let submit = () => {
       class="btn btn-teal mt-4"
       @click="submit"
       :disabled="
-        slide.closed || interactionSession.hostStatus.lockedSlides[currentIndex]
+        slide.interaction.closed ||
+        interactionSession.hostStatus.lockedSlides[currentIndex]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>

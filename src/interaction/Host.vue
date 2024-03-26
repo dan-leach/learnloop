@@ -1,14 +1,14 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import router from '../router';
-import { api } from '../data/api.js';
-import { interactionSession } from '../data/interactionSession.js';
-import { config } from '../data/config.js';
-import Swal from 'sweetalert2';
-import Loading from '../components/Loading.vue';
-import HostSlide from './components/HostSlide.vue';
-import Toast from '../assets/Toast.js';
+import { onBeforeUnmount, onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import router from "../router";
+import { api } from "../data/api.js";
+import { interactionSession } from "../data/interactionSession.js";
+import { config } from "../data/config.js";
+import Swal from "sweetalert2";
+import Loading from "../components/Loading.vue";
+import HostSlide from "./components/HostSlide.vue";
+import Toast from "../assets/Toast.js";
 
 const loading = ref(true);
 const currentIndex = ref(0);
@@ -16,23 +16,23 @@ const currentIndex = ref(0);
 const updateHostStatus = () => {
   interactionSession.hostStatus.facilitatorIndex = currentIndex.value;
   api(
-    'interaction',
-    'updateHostStatus',
+    "interaction",
+    "updateHostStatus",
     interactionSession.id,
     interactionSession.pin,
     interactionSession.hostStatus
   ).then(
     function () {},
     function (error) {
-      console.log('updateHostStatus failed', error);
+      console.log("updateHostStatus failed", error);
     }
   );
 };
 
 const fetchSubmissionCount = () => {
   api(
-    'interaction',
-    'fetchSubmissionCount',
+    "interaction",
+    "fetchSubmissionCount",
     interactionSession.id,
     interactionSession.pin,
     null
@@ -41,7 +41,7 @@ const fetchSubmissionCount = () => {
       interactionSession.submissionCount = res;
     },
     function (error) {
-      console.log('fetchSubmissionCount failed', error);
+      console.log("fetchSubmissionCount failed", error);
     }
   );
 };
@@ -54,16 +54,18 @@ const goToSlide = (index) => {
     index == interactionSession.slides.length - 1
   ) {
     Toast.fire({
-      icon: 'info',
-      iconColor: '#17a2b8',
-      title: 'Press F11 to toggle fullscreen.',
-      position: 'center',
+      icon: "info",
+      iconColor: "#17a2b8",
+      title: "Press F11 to toggle fullscreen.",
+      position: "center",
     });
   }
   currentIndex.value = index;
   updateHostStatus();
   if (index == 0) fetchSubmissionCount();
-  interactionSession.slides[currentIndex.value].submissions = [];
+  if (interactionSession.slides[currentIndex.value].interaction)
+    interactionSession.slides[currentIndex.value].interaction.submissions = [];
+  console.log(interactionSession.slides[currentIndex.value]);
 };
 const toggleLockSlide = () => {
   interactionSession.hostStatus.lockedSlides[currentIndex.value] =
@@ -73,13 +75,15 @@ const toggleLockSlide = () => {
 
 let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = () => {
-  const submissions = interactionSession.slides[currentIndex.value].submissions;
+  if (!interactionSession.slides[currentIndex.value].interaction) return;
+  const submissions =
+    interactionSession.slides[currentIndex.value].interaction.submissions;
   const lastSubmissionId = submissions.length
     ? submissions[submissions.length - 1].id
     : 0;
   api(
-    'interaction',
-    'fetchNewSubmissions',
+    "interaction",
+    "fetchNewSubmissions",
     interactionSession.id,
     interactionSession.pin,
     {
@@ -95,7 +99,7 @@ const fetchNewSubmissions = () => {
     function (error) {
       fetchNewSubmissionsFailCount++;
       console.log(
-        'fetchNewSubmissions failed - failCount: ' +
+        "fetchNewSubmissions failed - failCount: " +
           fetchNewSubmissionsFailCount,
         error
       );
@@ -103,12 +107,12 @@ const fetchNewSubmissions = () => {
         Swal.fire({
           toast: true,
           showConfirmButton: false,
-          icon: 'error',
-          iconColor: '#17a2b8',
-          title: 'Connection to LearnLoop failed',
-          text: 'Please check your internet connection',
-          position: 'bottom',
-          width: '450px',
+          icon: "error",
+          iconColor: "#17a2b8",
+          title: "Connection to LearnLoop failed",
+          text: "Please check your internet connection",
+          position: "bottom",
+          width: "450px",
         });
     }
   );
@@ -116,8 +120,8 @@ const fetchNewSubmissions = () => {
 
 const fetchDetailsHost = () => {
   api(
-    'interaction',
-    'fetchDetailsHost',
+    "interaction",
+    "fetchDetailsHost",
     interactionSession.id,
     interactionSession.pin,
     null
@@ -125,7 +129,7 @@ const fetchDetailsHost = () => {
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
-          'interactionSession.id != res.id',
+          "interactionSession.id != res.id",
           interactionSession.id,
           response.id
         );
@@ -134,12 +138,17 @@ const fetchDetailsHost = () => {
       interactionSession.title = res.title;
       interactionSession.name = res.name;
       interactionSession.feedbackID = res.feedbackID;
-      res.slides.unshift({ type: 'waitingRoom' });
-      res.slides.push({ type: 'end' });
+      res.slides.unshift({ type: "waitingRoom" });
+      res.slides.push({ type: "end" });
       interactionSession.slides = res.slides;
       for (let slide of interactionSession.slides) {
-        slide.submissions = [];
-        slide.submissionsCount = 0;
+        if (slide.interaction) {
+          slide.interaction.submissions = [];
+          slide.interaction.submissionsCount = 0;
+          if (slide.isInteractive && slide.hasContent) {
+            slide.content.show = true;
+          }
+        }
       }
       loading.value = false;
       fetchSubmissionCount();
@@ -152,13 +161,13 @@ const fetchDetailsHost = () => {
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to launch interaction session hosting',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to launch interaction session hosting",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
@@ -166,7 +175,7 @@ const fetchDetailsHost = () => {
 onMounted(() => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
-    title: 'Enter session ID and PIN',
+    title: "Enter session ID and PIN",
     html:
       "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
       '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
@@ -174,21 +183,21 @@ onMounted(() => {
       '">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
-    confirmButtonColor: '#17a2b8',
+    confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      interactionSession.id = document.getElementById('swalFormId').value;
-      interactionSession.pin = document.getElementById('swalFormPin').value;
-      if (interactionSession.pin == '')
-        Swal.showValidationMessage('Please enter your PIN');
-      if (interactionSession.id == '')
-        Swal.showValidationMessage('Please enter a session ID');
+      interactionSession.id = document.getElementById("swalFormId").value;
+      interactionSession.pin = document.getElementById("swalFormPin").value;
+      if (interactionSession.pin == "")
+        Swal.showValidationMessage("Please enter your PIN");
+      if (interactionSession.id == "")
+        Swal.showValidationMessage("Please enter a session ID");
     },
   }).then((result) => {
     if (result.isConfirmed) {
-      history.replaceState({}, '', interactionSession.id);
+      history.replaceState({}, "", interactionSession.id);
       fetchDetailsHost();
     } else {
-      router.push('/');
+      router.push("/");
     }
   });
 });
@@ -196,15 +205,15 @@ onMounted(() => {
 onBeforeUnmount(() => {
   let hostStatus = { facilitatorIndex: 0 };
   api(
-    'interaction',
-    'updateHostStatus',
+    "interaction",
+    "updateHostStatus",
     interactionSession.id,
     interactionSession.pin,
     hostStatus
   ).then(
     function () {},
     function (error) {
-      console.log('updateHostStatus failed', error);
+      console.log("updateHostStatus failed", error);
     }
   );
 });

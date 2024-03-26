@@ -4,6 +4,7 @@ import { interactionSession } from "../../data/interactionSession.js";
 import { config } from "../../data/config.js";
 import Swal from "sweetalert2";
 import Uploader from "./Uploader.vue";
+import { faScaleUnbalanced } from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps(["index"]);
 const emit = defineEmits(["hideEditSlideModal"]);
@@ -13,6 +14,7 @@ const type = ref("");
 const slide = ref({
   prompt: "",
   type: "",
+  hasContent: false,
   isInteractive: false,
   content: {
     images: [],
@@ -342,6 +344,13 @@ const keepSelectedLimitsWithinMinMax = () => {
 };
 
 let submit = () => {
+  console.log(slide);
+  slide.value.hasContent =
+    slide.value.content.images.length ||
+    slide.value.content.bullets.length ||
+    slide.value.content.paragraphs.length
+      ? true
+      : false;
   newBullet.value = "";
   newParagraph.value = "";
   newOption.value = "";
@@ -401,6 +410,7 @@ let submit = () => {
     slide.value = {
       prompt: "",
       type: "",
+      hasContent: false,
       isInteractive: false,
       content: {
         images: [],
@@ -1115,10 +1125,7 @@ let submit = () => {
                           </div>
                         </div>
                         <div
-                          v-if="
-                            !config.interaction.create.slides.types[type]
-                              .isInteractive
-                          "
+                          v-if="!slide.isInteractive"
                           class="row align-items-center"
                         >
                           <div class="col-md-3">

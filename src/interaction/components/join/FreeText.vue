@@ -12,9 +12,9 @@ const props = defineProps([
 const emit = defineEmits(["submit"]);
 
 let submit = () => {
-  let length = props.slide.response.length;
-  let minLength = props.slide.settings.characterLimit.min;
-  let maxLength = props.slide.settings.characterLimit.max;
+  let length = props.slide.interaction.response.length;
+  let minLength = props.slide.interaction.settings.characterLimit.min;
+  let maxLength = props.slide.interaction.settings.characterLimit.max;
   if (length < minLength) {
     Toast.fire({
       icon: "error",
@@ -44,9 +44,9 @@ let submit = () => {
   <textarea
     class="response-field form-control"
     rows="5"
-    v-model="slide.response"
-    :disabled="slide.closed"
-    :maxLength="slide.settings.characterLimit.max"
+    v-model="slide.interaction.response"
+    :disabled="slide.interaction.closed"
+    :maxLength="slide.interaction.settings.characterLimit.max"
   ></textarea>
   <div class="text-center">
     <button
@@ -55,7 +55,8 @@ let submit = () => {
       class="btn btn-teal mt-4"
       @click="submit"
       :disabled="
-        slide.closed || interactionSession.hostStatus.lockedSlides[currentIndex]
+        slide.interaction.closed ||
+        interactionSession.hostStatus.lockedSlides[currentIndex]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>

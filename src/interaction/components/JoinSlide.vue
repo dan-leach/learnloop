@@ -7,7 +7,7 @@ import End from "./join/End.vue";
 import SingleChoice from "./join/SingleChoice.vue";
 import MultipleChoice from "./join/MultipleChoice.vue";
 import FreeText from "./join/FreeText.vue";
-import Static from "./join/Static.vue";
+import Content from "./join/Content.vue";
 import Swal from "sweetalert2";
 import Toast from "../../assets/Toast.js";
 const props = defineProps(["currentIndex"]);
@@ -18,12 +18,12 @@ let btnSubmitBelowText = ref("");
 
 const submit = () => {
   let slide = interactionSession.slides[props.currentIndex];
-  slide.closed = true;
+  slide.interaction.closed = true;
   spinner.value = true;
   btnSubmitText.value = "Please wait";
   api("interaction", "insertSubmission", interactionSession.id, null, {
     slideIndex: props.currentIndex,
-    response: slide.response,
+    response: slide.interaction.response,
   }).then(
     function (res) {
       Toast.fire({
@@ -32,20 +32,24 @@ const submit = () => {
         title: "Your response was submitted",
       });
       spinner.value = false;
-      slide.submissionCount++;
+      slide.interaction.submissionCount++;
       console.log(
-        slide.submissionCount,
+        slide.interaction.submissionCount,
         slide.interaction.settings.submissionLimit
       );
-      if (slide.submissionCount < slide.interaction.settings.submissionLimit) {
-        slide.closed = false;
+      if (
+        slide.interaction.submissionCount <
+        slide.interaction.settings.submissionLimit
+      ) {
+        slide.interaction.closed = false;
         btnSubmitText.value = "Submit";
         btnSubmitBelowText.value = "You may submit multiple responses";
-        slide.response = "";
+        slide.interaction.response = "";
       } else {
         btnSubmitText.value = "Done";
         btnSubmitBelowText.value =
-          slide.submissionCount == slide.interaction.settings.submissionLimit
+          slide.interaction.submissionCount ==
+          slide.interaction.settings.submissionLimit
             ? "You have reached the submission limit"
             : "";
       }
@@ -58,7 +62,7 @@ const submit = () => {
         text: error,
         confirmButtonColor: "#17a2b8",
       });
-      slide.closed = false;
+      slide.interaction.closed = false;
       spinner.value = false;
       btnSubmitText.value = "Try again?";
     }
@@ -70,6 +74,7 @@ const submit = () => {
   <div>
     <div class="d-flex justify-content-center">
       <div class="full-width">
+        <Content :slide="interactionSession.slides[currentIndex]" />
         <WaitingRoom
           v-if="interactionSession.slides[currentIndex].type == 'waitingRoom'"
         />
@@ -108,10 +113,9 @@ const submit = () => {
           :btnSubmitBelowText="btnSubmitBelowText"
           @submit="submit"
         />
-        <Static
+        <div
           v-else-if="interactionSession.slides[currentIndex].type == 'static'"
-          :slide="interactionSession.slides[currentIndex]"
-        />
+        ></div>
         <p v-else>
           Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
           not recognised

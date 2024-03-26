@@ -1,38 +1,38 @@
 <script setup>
-import { ref } from 'vue';
-import { interactionSession } from '../../../data/interactionSession.js';
-import Toast from '../../../assets/Toast.js';
+import { ref } from "vue";
+import { interactionSession } from "../../../data/interactionSession.js";
+import Toast from "../../../assets/Toast.js";
 
 const props = defineProps([
-  'slide',
-  'spinner',
-  'btnSubmitText',
-  'btnSubmitBelowText',
-  'currentIndex',
+  "slide",
+  "spinner",
+  "btnSubmitText",
+  "btnSubmitBelowText",
+  "currentIndex",
 ]);
-const emit = defineEmits(['submit']);
+const emit = defineEmits(["submit"]);
 
 let selection = ref([]);
 
 let submit = () => {
   let selectedCount = selection.value.length;
-  let selectedMin = props.slide.settings.selectedLimit.min;
-  let selectedMax = props.slide.settings.selectedLimit.max;
+  let selectedMin = props.slide.interaction.settings.selectedLimit.min;
+  let selectedMax = props.slide.interaction.settings.selectedLimit.max;
   if (selectedCount < selectedMin) {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Please select at least ' + selectedMin + ' option(s)',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Please select at least " + selectedMin + " option(s)",
     });
   } else if (selectedCount > selectedMax) {
     Toast.fire({
-      icon: 'error',
-      iconColor: '#17a2b8',
-      title: 'Please select no more than ' + selectedMax + ' option(s)',
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Please select no more than " + selectedMax + " option(s)",
     });
   } else {
-    props.slide.response = JSON.stringify(selection.value);
-    emit('submit');
+    props.slide.interaction.response = JSON.stringify(selection.value);
+    emit("submit");
   }
 };
 </script>
@@ -44,24 +44,26 @@ let submit = () => {
   <p
     class="text-center"
     v-if="
-      slide.settings.selectedLimit.min > 1 ||
-      slide.settings.selectedLimit.max < slide.options.length
+      slide.interaction.settings.selectedLimit.min > 1 ||
+      slide.interaction.settings.selectedLimit.max <
+        slide.interaction.options.length
     "
   >
     <small>
       Please select
       {{
-        slide.settings.selectedLimit.min == slide.settings.selectedLimit.max
-          ? slide.settings.selectedLimit.min
-          : ' between ' +
-            slide.settings.selectedLimit.min +
-            ' and ' +
-            slide.settings.selectedLimit.max
+        slide.interaction.settings.selectedLimit.min ==
+        slide.interaction.settings.selectedLimit.max
+          ? slide.interaction.settings.selectedLimit.min
+          : " between " +
+            slide.interaction.settings.selectedLimit.min +
+            " and " +
+            slide.interaction.settings.selectedLimit.max
       }}
       options(s)
     </small>
   </p>
-  <div v-for="(option, index) in slide.options" class="form-check">
+  <div v-for="(option, index) in slide.interaction.options" class="form-check">
     <input
       type="checkbox"
       class="form-check-input"
@@ -69,7 +71,7 @@ let submit = () => {
       :name="'option-' + index"
       :value="index"
       v-model="selection"
-      :disabled="slide.closed"
+      :disabled="slide.interaction.closed"
     />{{ option }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
@@ -80,7 +82,8 @@ let submit = () => {
       class="btn btn-teal mt-4"
       @click="submit"
       :disabled="
-        slide.closed || interactionSession.hostStatus.lockedSlides[currentIndex]
+        slide.interaction.closed ||
+        interactionSession.hostStatus.lockedSlides[currentIndex]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>

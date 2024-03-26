@@ -1,13 +1,13 @@
 <script setup>
-import { onMounted, ref } from 'vue';
-import { useRouter } from 'vue-router';
-import router from '../router';
-import { api } from '../data/api.js';
-import { interactionSession } from '../data/interactionSession.js';
-import { config } from '../data/config.js';
-import Swal from 'sweetalert2';
-import Loading from '../components/Loading.vue';
-import JoinSlide from './components/JoinSlide.vue';
+import { onMounted, ref } from "vue";
+import { useRouter } from "vue-router";
+import router from "../router";
+import { api } from "../data/api.js";
+import { interactionSession } from "../data/interactionSession.js";
+import { config } from "../data/config.js";
+import Swal from "sweetalert2";
+import Loading from "../components/Loading.vue";
+import JoinSlide from "./components/JoinSlide.vue";
 
 const loading = ref(true);
 const showSlide = ref(true);
@@ -24,15 +24,17 @@ const goToSlide = (index) => {
 
 let fetchHostStatusFailCount = 0;
 const fetchHostStatus = () => {
-  api('interaction', 'fetchHostStatus', interactionSession.id, null, null).then(
+  api("interaction", "fetchHostStatus", interactionSession.id, null, null).then(
     function (res) {
       facilitatorIndex.value = res.facilitatorIndex;
       interactionSession.hostStatus.lockedSlides = res.lockedSlides;
       if (
         currentIndex.value == 0 ||
-        interactionSession.slides[currentIndex.value].response === '' ||
-        interactionSession.slides[currentIndex.value].response === undefined ||
-        interactionSession.slides[currentIndex.value].closed
+        interactionSession.slides[currentIndex.value].interaction.response ===
+          "" ||
+        interactionSession.slides[currentIndex.value].interaction.response ===
+          undefined ||
+        interactionSession.slides[currentIndex.value].interaction.closed
       ) {
         if (currentIndex.value != facilitatorIndex.value)
           goToSlide(facilitatorIndex.value);
@@ -43,30 +45,30 @@ const fetchHostStatus = () => {
     function (error) {
       fetchHostStatusFailCount++;
       console.log(
-        'fetchHostStatus failed - failCount: ' + fetchHostStatusFailCount,
+        "fetchHostStatus failed - failCount: " + fetchHostStatusFailCount,
         error
       );
       if (fetchHostStatusFailCount > 5 && !Swal.isVisible())
         Swal.fire({
           toast: true,
           showConfirmButton: false,
-          icon: 'error',
-          iconColor: '#17a2b8',
-          title: 'Connection to LearnLoop failed',
-          text: 'Please check your internet connection',
-          position: 'bottom',
-          width: '450px',
+          icon: "error",
+          iconColor: "#17a2b8",
+          title: "Connection to LearnLoop failed",
+          text: "Please check your internet connection",
+          position: "bottom",
+          width: "450px",
         });
     }
   );
 };
 
 const fetchDetails = () => {
-  api('interaction', 'fetchDetails', interactionSession.id, null, null).then(
+  api("interaction", "fetchDetails", interactionSession.id, null, null).then(
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
-          'interactionSession.id != res.id',
+          "interactionSession.id != res.id",
           interactionSession.id,
           res.id
         );
@@ -75,10 +77,12 @@ const fetchDetails = () => {
       interactionSession.title = res.title;
       interactionSession.name = res.name;
       interactionSession.feedbackID = res.feedbackID;
-      res.slides.unshift({ type: 'waitingRoom' });
-      res.slides.push({ type: 'end' });
+      res.slides.unshift({ type: "waitingRoom" });
+      res.slides.push({ type: "end" });
       interactionSession.slides = res.slides;
-      for (let slide of interactionSession.slides) slide.submissionCount = 0;
+      for (let slide of interactionSession.slides) {
+        if (slide.interaction) slide.interaction.submissionCount = 0;
+      }
       facilitatorIndex.value = res.hostStatus.facilitatorIndex;
       currentIndex.value = facilitatorIndex.value;
       loading.value = false;
@@ -89,13 +93,13 @@ const fetchDetails = () => {
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to join interaction session',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to join interaction session",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
@@ -104,23 +108,23 @@ onMounted(() => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
   if (!interactionSession.id) {
     Swal.fire({
-      title: 'Enter session ID',
+      title: "Enter session ID",
       html:
         "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
         '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
-      confirmButtonColor: '#17a2b8',
+      confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactionSession.id = document.getElementById('swalFormId').value;
-        if (interactionSession.id == '')
-          Swal.showValidationMessage('Please enter a session ID');
+        interactionSession.id = document.getElementById("swalFormId").value;
+        if (interactionSession.id == "")
+          Swal.showValidationMessage("Please enter a session ID");
       },
     }).then((result) => {
       if (result.isConfirmed) {
-        history.replaceState({}, '', interactionSession.id);
+        history.replaceState({}, "", interactionSession.id);
         fetchDetails();
       } else {
-        router.push('/');
+        router.push("/");
       }
     });
   } else {

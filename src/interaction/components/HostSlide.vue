@@ -1,12 +1,13 @@
 <script setup>
 import { interactionSession } from "../../data/interactionSession.js";
+import { ref } from "vue";
 import WaitingRoom from "./host/WaitingRoom.vue";
 import End from "./host/End.vue";
 import HideResponses from "./host/HideResponses.vue";
 import SingleChoice from "./host/SingleChoice.vue";
 import MultipleChoice from "./host/MultipleChoice.vue";
 import FreeText from "./host/FreeText.vue";
-import Static from "./host/Static.vue";
+import Content from "./host/Content.vue";
 import { config } from "../../data/config.js";
 
 const props = defineProps(["currentIndex"]);
@@ -16,7 +17,7 @@ const showResponses = () => {
   interactionSession.slides[
     props.currentIndex
   ].interaction.settings.hideResponses = false;
-  interactionSession.slides[props.currentIndex].submissions = [];
+  interactionSession.slides[props.currentIndex].interaction.submissions = [];
 };
 </script>
 
@@ -31,8 +32,28 @@ const showResponses = () => {
       class="display-6 text-center m-1"
     >
       {{ interactionSession.slides[currentIndex].prompt }}
+      <button
+        class="btn btn-teal btn-sm m-4"
+        @click="
+          interactionSession.slides[currentIndex].content.show =
+            !interactionSession.slides[currentIndex].content.show
+        "
+        v-if="
+          interactionSession.slides[currentIndex].hasContent &&
+          interactionSession.slides[currentIndex].isInteractive
+        "
+      >
+        Toggle content / responses
+      </button>
     </p>
-    <Transition mode="out-in">
+    <Content
+      :slide="interactionSession.slides[currentIndex]"
+      v-if="
+        interactionSession.slides[currentIndex].hasContent &&
+        interactionSession.slides[currentIndex].content.show
+      "
+    />
+    <Transition mode="out-in" v-else>
       <div
         id="chart-area"
         class="d-flex justify-content-center chart-area mx-4"
@@ -70,10 +91,10 @@ const showResponses = () => {
           v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
           :slide="interactionSession.slides[currentIndex]"
         />
-        <Static
+        <!--blank div if static slide-->
+        <div
           v-else-if="interactionSession.slides[currentIndex].type == 'static'"
-          :slide="interactionSession.slides[currentIndex]"
-        />
+        ></div>
         <p v-else>
           Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
           not recognised
