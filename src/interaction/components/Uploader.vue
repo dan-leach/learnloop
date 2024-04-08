@@ -1,60 +1,90 @@
 <template>
   <div>
     <div class="mu-container" :class="isInvalid ? 'mu-red-border' : ''">
-      <div class="mu-elements-wraper">
+      <!--<div class="mu-elements-wraper">-->
+      <div>
         <!--IMAGES PREVIEW-->
         <div
           v-for="(image, index) in addedMedia"
           :key="index"
-          class="mu-image-container"
+          class="d-flex align-items-center flex-wrap"
         >
-          <img :src="image.url" alt="" class="mu-images-preview" />
-          <button
-            @click="removeAddedMedia(index)"
-            class="mu-close-btn"
-            type="button"
-          >
-            <svg
-              class="mu-times-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="0.65em"
-              height="0.65em"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 352 512"
+          <div class="mu-image-container">
+            <img :src="image.url" alt="" class="mu-images-preview" />
+
+            <button
+              @click="removeAddedMedia(index)"
+              class="mu-close-btn"
+              type="button"
             >
-              <path
-                d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
+              <svg
+                class="mu-times-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="0.65em"
+                height="0.65em"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 352 512"
+              >
+                <path
+                  d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+          <!--caption-->
+          <div class="form-floating flex-grow-1">
+            <input
+              type="text"
+              v-model="image.caption"
+              class="form-control"
+              id="caption"
+              placeholder=""
+              name="caption"
+              autocomplete="off"
+              required
+            />
+            <label for="caption">Caption</label>
+          </div>
         </div>
 
-        <div
-          v-for="(image, index) in savedMedia"
-          :key="index"
-          class="mu-image-container"
-        >
-          <img :src="image.url" alt="" class="mu-images-preview" />
-          <button
-            @click="removeAddedMedia(index)"
-            class="mu-close-btn"
-            type="button"
-          >
-            <svg
-              class="mu-times-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="0.65em"
-              height="0.65em"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 352 512"
+        <div v-for="(image, index) in savedMedia" :key="index" class="d-flex">
+          <div class="mu-image-container">
+            <img :src="image.url" alt="" class="mu-images-preview" />
+            <button
+              @click="removeSavedMedia(index)"
+              class="mu-close-btn"
+              type="button"
             >
-              <path
-                d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
+              <svg
+                class="mu-times-icon"
+                xmlns="http://www.w3.org/2000/svg"
+                width="0.65em"
+                height="0.65em"
+                preserveAspectRatio="xMidYMid meet"
+                viewBox="0 0 352 512"
+              >
+                <path
+                  d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
+                  fill="currentColor"
+                />
+              </svg>
+            </button>
+          </div>
+          <!--caption-->
+          <div class="form-floating mb-3">
+            <input
+              type="text"
+              v-model="image.caption"
+              class="form-control"
+              id="caption"
+              placeholder=""
+              name="caption"
+              autocomplete="off"
+              required
+            />
+            <label for="caption">Caption</label>
+          </div>
         </div>
 
         <!--UPLOAD BUTTON-->

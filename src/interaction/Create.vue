@@ -66,6 +66,10 @@ const feedbackIdInfo = () => {
   });
 };
 
+const previewSession = () => {
+  router.push("/interaction/host/preview");
+};
+
 let isEdit =
   useRouter().currentRoute.value.name == "interaction-edit" ? true : false;
 let loading = ref(isEdit ? true : false);
@@ -413,6 +417,15 @@ onMounted(() => {
           />
         </template>
         <EditSlideForm index="-1" @hideEditSlideModal="hideEditSlideModal" />
+      </div>
+      <div class="text-center mb-3">
+        <button
+          class="btn btn-teal"
+          id="previewSession"
+          @click="previewSession"
+        >
+          Preview interaction session
+        </button>
       </div>
       <div class="text-center mb-3">
         <button

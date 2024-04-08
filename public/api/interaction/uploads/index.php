@@ -17,9 +17,9 @@ $imageFileType = strtolower(pathinfo($_FILES["image"]["name"],PATHINFO_EXTENSION
 $res = new stdClass();
 $res->error = false;
 $res->msg = "";
-$res->imageID = buildID() . '.' . $imageFileType;
+$res->src = buildID() . '.' . $imageFileType;
 
-$target_file = $target_dir . basename($res->imageID);
+$target_file = $target_dir . basename($res->src);
 
 // Check if image file is a actual image or fake image
 if(isset($_POST["submit"])) {

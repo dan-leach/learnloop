@@ -7,6 +7,7 @@ const props = defineProps(["slide"]);
   <div class="d-flex flex-column align-items-center" v-if="slide.content">
     <div class="image-container m-2" v-for="image in slide.content.images">
       <img :src="config.api.imagesUrl + image.src" class="img-fluid" />
+      <p class="text-center">{{ image.caption }}</p>
     </div>
     <div
       class="paragraph-container d-flex flex-column justify m-2"

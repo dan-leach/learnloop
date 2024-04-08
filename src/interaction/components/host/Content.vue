@@ -15,7 +15,10 @@ const toggleExpandImage = (image) => {
 </script>
 
 <template>
-  <div class="d-flex flex-wrap align-items-center" v-if="slide.content">
+  <div
+    class="d-flex flex-wrap flex-column align-items-center"
+    v-if="slide.content"
+  >
     <div
       class="d-flex flex-wrap align-items-center"
       v-if="slide.content.images.length"
@@ -33,6 +36,17 @@ const toggleExpandImage = (image) => {
           @click="toggleExpandImage(image)"
           v-if="!image.hide"
         />
+        <p
+          class="text-center"
+          :class="
+            image.expand
+              ? 'position-absolute bottom-0 start-50 translate-middle-x'
+              : ''
+          "
+          v-if="!image.hide"
+        >
+          {{ image.caption }}
+        </p>
       </div>
     </div>
     <div
@@ -59,8 +73,11 @@ const toggleExpandImage = (image) => {
   font-size: 1.5em;
   flex: 1 1 0;
 }
+.image-container {
+  max-width: 50%;
+  max-height: 50%;
+}
 .img-fluid:hover {
-  transform: scale(1.1);
   border: 5px solid #17a2b8;
 }
 </style>
