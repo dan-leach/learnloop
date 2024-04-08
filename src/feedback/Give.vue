@@ -291,6 +291,16 @@ const fetchDetails = () => {
       feedbackSession.questions = res.questions;
       for (let question of feedbackSession.questions) {
         question.response = "";
+        if (!question.settings) {
+          //for pre-v5 custom questions
+          question.settings = {
+            selectedLimit: {
+              min: 1,
+              max: 100,
+            },
+            characterLimit: 500,
+          };
+        }
         if (question.settings.required == undefined) {
           //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
           if (question.type == "text" || question.type == "select")

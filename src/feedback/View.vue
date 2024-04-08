@@ -155,14 +155,15 @@ onMounted(() => {
           Download feedback as PDF
         </button>
       </form>
-      <button
-        v-else
-        class="btn btn-teal mb-3"
-        id="btnDownloadFeedback"
-        @click.prevent="showDownloadFeedbackForm"
-      >
-        Download feedback as PDF
-      </button>
+      <div v-else>
+        <button
+          class="btn btn-teal mb-3"
+          id="btnDownloadFeedback"
+          @click.prevent="showDownloadFeedbackForm"
+        >
+          Download feedback as PDF
+        </button>
+      </div>
       <DownloadFeedbackForm
         @hideDownloadFeedbackModal="hideDownloadFeedbackModal"
       />

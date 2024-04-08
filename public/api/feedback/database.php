@@ -1,8 +1,8 @@
 <?php
 
-$tblSessions = 'tbl_feedback_sessions_dev';
-$tblSubmissions = 'tbl_feedback_submissions_dev';
-$tblAttendance = 'tbl_feedback_attendance_dev';
+$tblSessions = 'tbl_feedback_sessions_v5';
+$tblSubmissions = 'tbl_feedback_submissions_v5';
+$tblAttendance = 'tbl_feedback_attendance_v5';
 
 function dbSessionExists($id, $link){ //returns true if $id already exists in table
     global $tblSessions;
