@@ -3,7 +3,7 @@ import { reactive } from "vue";
 export const config = reactive({
   version: "5.0",
   author: "Dan Leach",
-  web: "https://danleach.uk",
+  web: "https://github.com/dan-leach",
   repo: "https://github.com/dan-leach/learnloop",
   email: "mail@learnloop.co.uk",
   feedback: {

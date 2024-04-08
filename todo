@@ -1,7 +1,7 @@
 Current:
 Testing
 
-Change image file names from interaction to slide (and change short-text to free-text) for informational images
+- Fix interaction create help / images
 
 Later:
 check how old feedback sessions function on the new frontend and api

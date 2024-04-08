@@ -1,21 +1,18 @@
 <script setup>
-import { ref, onBeforeUnmount } from 'vue';
-import router from '../router';
-import { interactionSession } from '../data/interactionSession.js';
-import { config } from '../data/config.js';
-import Toast from '../assets/Toast.js';
+import { ref, onBeforeUnmount } from "vue";
+import router from "../router";
+import { interactionSession } from "../data/interactionSession.js";
+import { config } from "../data/config.js";
+import Toast from "../assets/Toast.js";
 
 if (!interactionSession.id || !interactionSession.pin)
-  router.push('/interaction/create');
+  router.push("/interaction/create");
 
 const link = ref({});
-link.value.join = config.client.url + '/' + interactionSession.id;
+link.value.join = config.client.url + "/" + interactionSession.id;
 link.value.host =
-  config.client.url + '/interaction/host/' + interactionSession.id;
-link.value.qr =
-  'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
-  link.value.join +
-  '&choe=UTF-8&chld=h|1';
+  config.client.url + "/interaction/host/" + interactionSession.id;
+link.value.qr = config.api.url + "shared/QRcode/?id=" + interactionSession.id;
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
 const copyText = (string) => {
@@ -23,16 +20,16 @@ const copyText = (string) => {
   navigator.clipboard.writeText(string).then(
     function () {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        title: 'Copied',
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error copying to clipboard: ' + error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
       });
     }
   );
@@ -41,19 +38,19 @@ const copyImg = async (src) => {
   if (!clipboard.value) return;
   const response = await fetch(src);
   const blob = await response.blob();
-  navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]).then(
+  navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(
     function () {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        title: 'Copied',
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error copying to clipboard: ' + error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
       });
     }
   );
@@ -118,7 +115,7 @@ const copyImg = async (src) => {
             <div>
               <div class="text-center p-4 mb-4 shadow">
                 <p @click="copyText(link.join)" class="display-6">
-                  {{ link.join.replace('https://', '') }}
+                  {{ link.join.replace("https://", "") }}
                   <button v-if="clipboard" class="btn btn-outline-dark">
                     <font-awesome-icon :icon="['fas', 'copy']" />
                   </button>
@@ -145,7 +142,7 @@ const copyImg = async (src) => {
           <p>
             Provide the direct link above or ask them to go to
             <a :href="config.client.url">{{
-              config.client.url.replace('https://', '')
+              config.client.url.replace("https://", "")
             }}</a>
             and enter the session ID:
             <strong>{{ interactionSession.id }}</strong> in the interaction
@@ -178,7 +175,7 @@ const copyImg = async (src) => {
         <div class="accordion-body">
           <div class="d-flex text-center justify-content-around">
             <p @click="copyText(link.host)" class="display-6 p-4 shadow">
-              {{ link.host.replace('https://', '') }}
+              {{ link.host.replace("https://", "") }}
               <button v-if="clipboard" class="btn btn-outline-dark">
                 <font-awesome-icon :icon="['fas', 'copy']" />
               </button>

@@ -51,12 +51,10 @@ const deleteSubmissions = () => {
       <div class="align-self-center me-4">
         <img
           :src="
-            'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' +
-            config.client.url +
-            '/' +
-            interactionSession.id +
-            '&choe=UTF-8&chld=q|1'
+            'https://dev.learnloop.co.uk/api/shared/QRcode/?id=' +
+            interactionSession.id
           "
+          class="qr-code"
         />
       </div>
       <div class="align-self-center">
@@ -66,9 +64,7 @@ const deleteSubmissions = () => {
           and enter this code:
         </p>
         <p class="m-2">
-          <span class="join-id px-4 py-1">{{
-            isPreview ? "preview" : interactionSession.id
-          }}</span>
+          <span class="join-id px-4 py-1">{{ interactionSession.id }}</span>
         </p>
       </div>
     </div>
@@ -103,5 +99,8 @@ const deleteSubmissions = () => {
   background-color: white;
   border: 1px solid #0000002d;
   border-radius: 5px;
+}
+.qr-code {
+  width: 200px;
 }
 </style>

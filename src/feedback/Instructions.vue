@@ -26,9 +26,7 @@ const fetchDetails = () => {
       feedbackSession.name = res.name;
       link.value.give = config.client.url + "/" + feedbackSession.id;
       link.value.qr =
-        "https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=" +
-        link.value.give +
-        "&choe=UTF-8&chld=h|1";
+        config.api.url + "shared/QRcode/?id=" + interactionSession.id;
       loading.value = false;
     },
     function (error) {
@@ -87,15 +85,7 @@ onMounted(() => {
       </p>
       <div class="give-panel text-center m-2 p-2 d-flex justify-content-around">
         <div class="align-self-center me-4">
-          <img
-            :src="
-              'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' +
-              config.client.url +
-              '/' +
-              feedbackSession.id +
-              '&choe=UTF-8&chld=q|1'
-            "
-          />
+          <img :src="link.qr" />
         </div>
         <div class="align-self-center">
           <p class="give-instructions">

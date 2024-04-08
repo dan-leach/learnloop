@@ -1,10 +1,10 @@
 <script setup>
-import { RouterLink, RouterView } from 'vue-router';
-import { config } from './data/config.js';
-import { Tooltip } from 'bootstrap';
+import { RouterLink, RouterView } from "vue-router";
+import { config } from "./data/config.js";
+import { Tooltip } from "bootstrap";
 new Tooltip(document.body, {
   selector: "[data-bs-toggle='tooltip']",
-  trigger: 'hover',
+  trigger: "hover",
 });
 </script>
 
@@ -15,9 +15,6 @@ new Tooltip(document.body, {
         <RouterLink to="/" class="navbar-brand"
           ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
         /></RouterLink>
-        <p class="fs-3 text-danger">
-          This version of LearnLoop is under development
-        </p>
       </div>
     </nav>
     <div id="app-view" :class="{ container: !config.client.isFocusView }">

@@ -5,7 +5,7 @@
     by LearnLoop. You must not use this website if you do not agree to this
     policy.
   </p>
-  <div class="accordion" id="accordionPrivacy">
+  <div class="accordion mb-4" id="accordionPrivacy">
     <h2>Feedback</h2>
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingOne">
@@ -202,7 +202,7 @@
         </div>
       </div>
     </div>
-    <h2>Interaction</h2>
+    <h2 class="mt-2">Interaction</h2>
     <div class="accordion-item">
       <h2 class="accordion-header" id="headingFour">
         <button

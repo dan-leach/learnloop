@@ -1,22 +1,22 @@
 <script setup>
-import { ref, onMounted } from 'vue';
-import router from '../router';
-import { useRouter } from 'vue-router';
-import { api } from '../data/api.js';
-import { interactionSession } from '../data/interactionSession.js';
-import { config } from '../data/config.js';
-import Swal from 'sweetalert2';
-import Loading from '../components/Loading.vue';
+import { ref, onMounted } from "vue";
+import router from "../router";
+import { useRouter } from "vue-router";
+import { api } from "../data/api.js";
+import { interactionSession } from "../data/interactionSession.js";
+import { config } from "../data/config.js";
+import Swal from "sweetalert2";
+import Loading from "../components/Loading.vue";
 
 const link = ref({});
 const loading = ref(true);
 
 const fetchDetails = () => {
-  api('interaction', 'fetchDetails', interactionSession.id, null, null).then(
+  api("interaction", "fetchDetails", interactionSession.id, null, null).then(
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
-          'interactionSession.id != res.id',
+          "interactionSession.id != res.id",
           interactionSession.id,
           res.id
         );
@@ -24,24 +24,22 @@ const fetchDetails = () => {
       }
       interactionSession.title = res.title;
       interactionSession.name = res.name;
-      link.value.join = config.client.url + '/' + interactionSession.id;
+      link.value.join = config.client.url + "/" + interactionSession.id;
       link.value.host =
-        config.client.url + '/interaction/host/' + interactionSession.id;
+        config.client.url + "/interaction/host/" + interactionSession.id;
       link.value.qr =
-        'https://chart.googleapis.com/chart?chs=500x500&cht=qr&chl=' +
-        link.value.join +
-        '&choe=UTF-8&chld=h|1';
+        config.api.url + "shared/QRcode/?id=" + interactionSession.id;
       loading.value = false;
     },
     function (error) {
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to fetch interaction session details',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to fetch interaction session details",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
-      router.push('/');
+      router.push("/");
     }
   );
 };
@@ -50,25 +48,25 @@ onMounted(() => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
   if (!interactionSession.id) {
     Swal.fire({
-      title: 'Enter session ID',
+      title: "Enter session ID",
       html: '<div class="overflow-hidden"><input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
-      confirmButtonColor: '#17a2b8',
+      confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactionSession.id = document.getElementById('swalFormId').value;
-        if (interactionSession.id == '')
-          Swal.showValidationMessage('Please enter a session ID');
+        interactionSession.id = document.getElementById("swalFormId").value;
+        if (interactionSession.id == "")
+          Swal.showValidationMessage("Please enter a session ID");
       },
     }).then((result) => {
       if (result.isConfirmed) {
         history.replaceState(
           {},
-          '',
-          '/interaction/instructions/' + interactionSession.id
+          "",
+          "/interaction/instructions/" + interactionSession.id
         );
         fetchDetails();
       } else {
-        router.push('/');
+        router.push("/");
       }
     });
   } else {
@@ -89,15 +87,7 @@ onMounted(() => {
       </p>
       <div class="join-panel text-center m-2 p-2 d-flex justify-content-around">
         <div class="align-self-center me-4">
-          <img
-            :src="
-              'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' +
-              config.client.url +
-              '/' +
-              interactionSession.id +
-              '&choe=UTF-8&chld=q|1'
-            "
-          />
+          <img class="qr-code" :src="link.qr" />
         </div>
         <div class="align-self-center">
           <p class="join-instructions">
@@ -131,5 +121,8 @@ onMounted(() => {
   background-color: white;
   border: 1px solid #0000002d;
   border-radius: 5px;
+}
+.qr-code {
+  width: 200px;
 }
 </style>

@@ -269,7 +269,6 @@ onBeforeUnmount(() => {
       </p>
       <HostSlide
         :currentIndex="currentIndex"
-        :isPreview="isPreview"
         class="m-2"
         :class="{ container: !config.client.isFocusView }"
         @goForward="goToSlide(currentIndex + 1)"
