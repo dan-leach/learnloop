@@ -237,6 +237,30 @@ onMounted(() => {
   feedbackSession.reset();
   interactionSession.reset();
   let id = useRouter().currentRoute.value.params.id;
+  if (window.location.toString().includes("?")) {
+    //v4 query
+    let v4Param = window.location.toString().split("?")[1];
+    console.log("v4Param", v4Param);
+    if (v4Param.includes("view=")) {
+      v4Param = v4Param.replace("view=", "");
+      router.push("/feedback/view/" + v4Param);
+    } else if (v4Param.includes("notifications=")) {
+      v4Param = v4Param.replace("notifications=", "");
+      setNotificationPreference(v4Param);
+    } else if (v4Param.includes("edit=")) {
+      v4Param = v4Param.replace("edit=", "");
+      router.push("/feedback/edit/" + v4Param);
+    } else if (v4Param.includes("resetpin=")) {
+      v4Param = v4Param.replace("resetpin=", "");
+      resetPin("feedback", v4Param);
+    } else if (v4Param.includes("attendance=")) {
+      v4Param = v4Param.replace("attendance=", "");
+      router.push("/feedback/attendance/" + v4Param);
+    } else {
+      router.push("/feedback/" + v4Param);
+    }
+    return;
+  }
   let routeName = useRouter().currentRoute.value.name;
   if (routeName == "interaction-resetPIN") resetPin("interaction", id);
   if (routeName == "feedback-resetPIN") resetPin("feedback", id);
