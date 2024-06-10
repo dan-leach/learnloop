@@ -61,8 +61,7 @@ const deleteSubmissions = () => {
       <div class="align-self-center">
         <p class="join-instructions">
           Scan the QR code, or go to<br />
-          <strong
-            >{{ config.client.url.replace("https://", "") }}/interaction</strong
+          <strong>{{ config.client.url.replace("https://", "") }}</strong
           ><br />
           and enter this code:
         </p>
@@ -93,6 +92,7 @@ const deleteSubmissions = () => {
 }
 .join-id {
   font-size: 3rem;
+  letter-spacing: 10px;
   font-family: serif;
   border: 2px solid #17a2b8;
   border-radius: 15px;

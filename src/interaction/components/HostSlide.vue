@@ -1,6 +1,5 @@
 <script setup>
 import { interactionSession } from "../../data/interactionSession.js";
-import { ref } from "vue";
 import WaitingRoom from "./host/WaitingRoom.vue";
 import End from "./host/End.vue";
 import HideResponses from "./host/HideResponses.vue";
@@ -19,6 +18,13 @@ const showResponses = () => {
   ].interaction.settings.hideResponses = false;
   interactionSession.slides[props.currentIndex].interaction.submissions = [];
 };
+
+const toggleContent = () => {
+  interactionSession.slides[props.currentIndex].content.show =
+    !interactionSession.slides[props.currentIndex].content.show;
+  if (!interactionSession.slides[props.currentIndex].content.show)
+    showResponses();
+};
 </script>
 
 <template>
@@ -35,10 +41,7 @@ const showResponses = () => {
       {{ interactionSession.slides[currentIndex].prompt }}
       <button
         class="btn btn-teal btn-sm m-4"
-        @click="
-          interactionSession.slides[currentIndex].content.show =
-            !interactionSession.slides[currentIndex].content.show
-        "
+        @click="toggleContent"
         v-if="
           interactionSession.slides[currentIndex].hasContent &&
           interactionSession.slides[currentIndex].isInteractive
@@ -160,6 +163,7 @@ const showResponses = () => {
   font-family: serif;
   font-size: 1.2rem;
   border-radius: 5px;
+  letter-spacing: 2px;
 }
 
 .v-enter-active,

@@ -17,7 +17,10 @@ import { config } from "../../../data/config.js";
         class="feedback-panel text-center m-2 p-2 d-flex justify-content-around"
       >
         <div class="align-self-center me-4">
-          <img :src="config.api.url + '/shared/QRcode/?id=' + feedbackID" />
+          <img
+            :src="config.api.url + '/shared/QRcode/?id=' + feedbackID"
+            class="qr-code"
+          />
         </div>
         <div class="align-self-center">
           <p class="feedback-instructions">
@@ -25,7 +28,7 @@ import { config } from "../../../data/config.js";
             scan the QR code, or<br />go to
             <strong>{{ config.client.url.replace("https://", "") }}</strong
             ><br />
-            and enter this code <br />in the feedback panel:
+            and enter this code:
           </p>
           <p class="m-2">
             <span class="feedback-id px-4 py-1">{{ feedbackID }}</span>
@@ -44,6 +47,7 @@ import { config } from "../../../data/config.js";
 }
 .feedback-id {
   font-size: 3rem;
+  letter-spacing: 10px;
   font-family: serif;
   border: 2px solid #17a2b8;
   border-radius: 15px;
@@ -53,5 +57,8 @@ import { config } from "../../../data/config.js";
   background-color: white;
   border: 1px solid #0000002d;
   border-radius: 5px;
+}
+.qr-code {
+  width: 200px;
 }
 </style>
