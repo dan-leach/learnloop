@@ -109,7 +109,7 @@ const showEditQuestionForm = (index) => {
 const hideEditQuestionModal = (index, question) => {
   if (!index) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
-  } else if (index === -1) {
+  } else if (index == -1) {
     feedbackSession.questions.push(JSON.parse(question));
   } else {
     feedbackSession.questions[index] = JSON.parse(question);
