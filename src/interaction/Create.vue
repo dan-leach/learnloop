@@ -235,7 +235,7 @@ onMounted(() => {
         router.push("/");
       }
     });
-  } else {
+  } else if (!interactionSession.slides.length) {
     Swal.fire({
       title: "Private Beta",
       text: "LearnLoop Interaction is in private beta and can only be used by invitation. Unless you have joined the beta-testing group and had your email approved, you will not be able to create an interaction session.",

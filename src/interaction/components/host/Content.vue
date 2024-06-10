@@ -20,13 +20,13 @@ const toggleExpandImage = (image) => {
     v-if="slide.content"
   >
     <div
-      class="d-flex flex-wrap align-items-center"
+      class="d-flex flex-wrap align-items-center justify-content-around"
       v-if="slide.content.images.length"
     >
       <div class="image-container m-2" v-for="image in slide.content.images">
         <img
           :src="config.api.imagesUrl + image.src"
-          class="img-fluid"
+          class="img-fluid img-bg"
           :class="
             image.expand
               ? 'position-absolute top-50 start-50 translate-middle'
@@ -79,5 +79,8 @@ const toggleExpandImage = (image) => {
 }
 .img-fluid:hover {
   border: 5px solid #17a2b8;
+}
+.img-bg {
+  background-color: #f0f7f9;
 }
 </style>

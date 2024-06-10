@@ -26,6 +26,7 @@ BEFORE BUILD:
 3. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
 4. Update the path to the api in src/data/api.js to be relative not absolute
 5. Re-enable sendMail for errors in api/index.php
+6. Remove 'dev' from url string in api/shared/QRcode
 
 ON BETA-END:
 

@@ -51,7 +51,8 @@ const deleteSubmissions = () => {
       <div class="align-self-center me-4">
         <img
           :src="
-            'https://dev.learnloop.co.uk/api/shared/QRcode/?id=' +
+            config.client.url +
+            '/api/shared/QRcode/?id=' +
             interactionSession.id
           "
           class="qr-code"
@@ -60,7 +61,9 @@ const deleteSubmissions = () => {
       <div class="align-self-center">
         <p class="join-instructions">
           Scan the QR code, or go to<br />
-          <strong>LearnLoop.co.uk/interaction</strong><br />
+          <strong
+            >{{ config.client.url.replace("https://", "") }}/interaction</strong
+          ><br />
           and enter this code:
         </p>
         <p class="m-2">

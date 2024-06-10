@@ -1,6 +1,6 @@
 <script setup>
-const props = defineProps(['feedbackID']);
-import { config } from '../../../data/config.js';
+const props = defineProps(["feedbackID"]);
+import { config } from "../../../data/config.js";
 </script>
 
 <template>
@@ -17,20 +17,13 @@ import { config } from '../../../data/config.js';
         class="feedback-panel text-center m-2 p-2 d-flex justify-content-around"
       >
         <div class="align-self-center me-4">
-          <img
-            :src="
-              'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' +
-              config.client.url +
-              '/' +
-              feedbackID +
-              '&choe=UTF-8&chld=q|1'
-            "
-          />
+          <img :src="config.api.url + '/shared/QRcode/?id=' + feedbackID" />
         </div>
         <div class="align-self-center">
           <p class="feedback-instructions">
             Click the link on your device,<br />
-            scan the QR code, or<br />go to <strong>LearnLoop.co.uk</strong
+            scan the QR code, or<br />go to
+            <strong>{{ config.client.url.replace("https://", "") }}</strong
             ><br />
             and enter this code <br />in the feedback panel:
           </p>

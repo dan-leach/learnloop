@@ -24,7 +24,8 @@ const showResponses = () => {
 <template>
   <div id="slide-view" :class="{ focusView: config.client.isFocusView }">
     <p v-if="config.client.isFocusView" class="text-center m-1">
-      To join go to LearnLoop.co.uk and use the code
+      To join go to {{ config.client.url.replace("https://", "") }}
+      and use the code
       <span class="join-id-top p-1">{{ interactionSession.id }}</span>
     </p>
     <p
@@ -107,9 +108,6 @@ const showResponses = () => {
           v-if="currentIndex > 0"
           class="btn btn-lg"
           @click="emit('goBack')"
-          data-bs-toggle="tooltip"
-          data-bs-placement="top"
-          title="Go to previous slide"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
         </button>
@@ -138,9 +136,6 @@ const showResponses = () => {
           v-if="currentIndex < interactionSession.slides.length - 1"
           class="btn btn-lg"
           @click="emit('goForward')"
-          data-bs-toggle="tooltip"
-          data-bs-placement="top"
-          title="Go to next slide"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
         </button>

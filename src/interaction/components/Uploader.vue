@@ -81,7 +81,6 @@
               placeholder=""
               name="caption"
               autocomplete="off"
-              required
             />
             <label for="caption">Caption</label>
           </div>
