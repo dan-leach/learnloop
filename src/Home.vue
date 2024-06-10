@@ -8,19 +8,19 @@ import Swal from "sweetalert2";
 import { feedbackSession } from "./data/feedbackSession.js";
 import { interactionSession } from "./data/interactionSession.js";
 
-const giveFeedback = () => {
+const viewFeedback = () => {
   if (feedbackSession.id) {
     document.getElementById("feedbackID").classList.remove("is-invalid");
-    router.push("/feedback/" + feedbackSession.id);
+    router.push("/feedback/view/" + feedbackSession.id);
   } else {
     document.getElementById("feedbackID").classList.add("is-invalid");
   }
 };
 
-const joinInteraction = () => {
+const hostInteraction = () => {
   if (interactionSession.id) {
     document.getElementById("interactionID").classList.remove("is-invalid");
-    router.push("/interaction/" + interactionSession.id);
+    router.push("/interaction/host/" + interactionSession.id);
   } else {
     document.getElementById("interactionID").classList.add("is-invalid");
   }
@@ -276,170 +276,146 @@ onMounted(() => {
 
 <template>
   <main>
-    <div class="d-flex justify-content-around flex-wrap mt-5">
-      <div class="d-flex justify-content-around flex-wrap">
-        <div class="card bg-transparent shadow p-2 m-2">
-          <h1 class="text-center">Feedback</h1>
-          <p class="text-center">
-            Quickly gather anonymous feedback on teaching
-          </p>
-          <div class="input-group m-2">
-            <input
-              id="feedbackID"
-              type="text"
-              placeholder="Session ID"
-              autocomplete="off"
-              class="form-control"
-              v-model="feedbackSession.id"
-              @keyup.enter="giveFeedback"
-            />
-            <button
-              type="button"
-              id="giveFeedback"
-              class="btn btn-teal me-3"
-              @click="giveFeedback"
-            >
-              Give feedback
-            </button>
-          </div>
-          <ul class="nav nav-pills justify-content-between m-2 d-flex">
-            <li class="nav-item mb-2 flex-grow-1 d-flex">
-              <button
-                class="nav-link active flex-grow-1"
-                @click="router.push('/feedback/create')"
-              >
-                Create a new feedback session
-              </button>
-            </li>
-            <li class="nav-item dropdown flex-grow-1 d-flex more-options">
-              <button
-                class="nav-link active dropdown-toggle flex-grow-1"
-                data-bs-toggle="dropdown"
-                href="#"
-              >
-                More options
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a
-                    class="dropdown-item"
-                    @click="router.push('/feedback/edit/')"
-                    >Edit existing session</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    @click="router.push('/feedback/view/')"
-                    >View feedback</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    @click="router.push('/feedback/attendance/')"
-                    >View attendance</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" @click="closeSession('feedback')"
-                    >Close session</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" @click="resetPin('feedback')"
-                    >Reset PIN</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" @click="setNotificationPreference()"
-                    >Set notification preferences</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" @click="findMySessions('feedback')"
-                    >Find my sessions</a
-                  >
-                </li>
-              </ul>
-            </li>
-          </ul>
+    <div class="d-flex justify-content-around flex-wrap mt-2">
+      <div class="card bg-transparent shadow p-2 m-2">
+        <h1 class="text-center">Feedback</h1>
+        <p class="text-center">Quickly gather anonymous feedback on teaching</p>
+        <div class="input-group m-2">
+          <input
+            id="feedbackID"
+            type="text"
+            placeholder="Session ID"
+            autocomplete="off"
+            class="form-control"
+            v-model="feedbackSession.id"
+            @keyup.enter="viewFeedback"
+          />
+          <button
+            type="button"
+            id="viewFeedback"
+            class="btn btn-teal me-3"
+            @click="viewFeedback"
+          >
+            View feedback
+          </button>
         </div>
+        <ul class="nav nav-pills justify-content-between m-2 d-flex">
+          <li class="nav-item mb-2 flex-grow-1 d-flex">
+            <button
+              class="nav-link active flex-grow-1"
+              @click="router.push('/feedback/create')"
+            >
+              Create a new feedback session
+            </button>
+          </li>
+          <li class="nav-item dropdown flex-grow-1 d-flex more-options">
+            <button
+              class="nav-link active dropdown-toggle flex-grow-1"
+              data-bs-toggle="dropdown"
+              href="#"
+            >
+              More options
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a class="dropdown-item" @click="router.push('/feedback/edit/')"
+                  >Edit existing session</a
+                >
+              </li>
+              <li>
+                <a
+                  class="dropdown-item"
+                  @click="router.push('/feedback/attendance/')"
+                  >View attendance</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="closeSession('feedback')"
+                  >Close session</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="resetPin('feedback')"
+                  >Reset PIN</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="setNotificationPreference()"
+                  >Set notification preferences</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="findMySessions('feedback')"
+                  >Find my sessions</a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
       </div>
-      <div class="d-flex justify-content-around flex-wrap">
-        <div class="card bg-transparent shadow p-2 m-2">
-          <h1 class="text-center">Interaction</h1>
-          <p class="text-center">Engage with your audience interactively</p>
-          <div class="input-group m-2">
-            <input
-              id="interactionID"
-              type="text"
-              placeholder="Session ID"
-              autocomplete="off"
-              class="form-control"
-              v-model="interactionSession.id"
-              @keyup.enter="joinInteraction"
-            />
-            <button
-              type="button"
-              id="joinInteraction"
-              class="btn btn-teal me-3"
-              @click="joinInteraction"
-            >
-              Join session
-            </button>
-          </div>
-          <ul class="nav nav-pills justify-content-between m-2 d-flex">
-            <li class="nav-item mb-2 flex-grow-1 d-flex">
-              <button
-                class="nav-link active flex-grow-1"
-                @click="router.push('/interaction/create')"
-              >
-                Create a new interaction session
-              </button>
-            </li>
-            <li class="nav-item dropdown flex-grow-1 d-flex more-options">
-              <button
-                class="nav-link active dropdown-toggle flex-grow-1"
-                data-bs-toggle="dropdown"
-                href="#"
-              >
-                More options
-              </button>
-              <ul class="dropdown-menu">
-                <li>
-                  <a
-                    class="dropdown-item"
-                    @click="router.push('/interaction/edit/')"
-                    >Edit existing session</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    @click="router.push('/interaction/host/?')"
-                    >Host existing session</a
-                  >
-                </li>
-                <li>
-                  <a class="dropdown-item" @click="resetPin('interaction')"
-                    >Reset PIN</a
-                  >
-                </li>
-                <li>
-                  <a
-                    class="dropdown-item"
-                    @click="findMySessions('interaction')"
-                    >Find my sessions</a
-                  >
-                </li>
-              </ul>
-            </li>
-          </ul>
-          <p class="text-center text-danger bg-dark p-1 mt-3">
-            <strong>Interaction is in private beta by invitation only</strong>
-          </p>
+      <div class="card bg-transparent shadow p-2 m-2">
+        <h1 class="text-center">Interaction</h1>
+        <p class="text-center">Engage with your audience interactively</p>
+        <div class="input-group m-2">
+          <input
+            id="interactionID"
+            type="text"
+            placeholder="Session ID"
+            autocomplete="off"
+            class="form-control"
+            v-model="interactionSession.id"
+            @keyup.enter="hostInteraction"
+          />
+          <button
+            type="button"
+            id="hostInteraction"
+            class="btn btn-teal me-3"
+            @click="hostInteraction"
+          >
+            Host session
+          </button>
         </div>
+        <ul class="nav nav-pills justify-content-between m-2 d-flex">
+          <li class="nav-item mb-2 flex-grow-1 d-flex">
+            <button
+              class="nav-link active flex-grow-1"
+              @click="router.push('/interaction/create')"
+            >
+              Create a new interaction session
+            </button>
+          </li>
+          <li class="nav-item dropdown flex-grow-1 d-flex more-options">
+            <button
+              class="nav-link active dropdown-toggle flex-grow-1"
+              data-bs-toggle="dropdown"
+              href="#"
+            >
+              More options
+            </button>
+            <ul class="dropdown-menu">
+              <li>
+                <a
+                  class="dropdown-item"
+                  @click="router.push('/interaction/edit/')"
+                  >Edit existing session</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="resetPin('interaction')"
+                  >Reset PIN</a
+                >
+              </li>
+              <li>
+                <a class="dropdown-item" @click="findMySessions('interaction')"
+                  >Find my sessions</a
+                >
+              </li>
+            </ul>
+          </li>
+        </ul>
+        <p class="text-center text-danger bg-dark p-1 mt-3">
+          <strong>Interaction is in private beta by invitation only</strong>
+        </p>
       </div>
     </div>
     <Quote />
