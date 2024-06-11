@@ -273,6 +273,7 @@ onBeforeUnmount(() => {
         :class="{ container: !config.client.isFocusView }"
         @goForward="goToSlide(currentIndex + 1)"
         @goBack="goToSlide(currentIndex - 1)"
+        @goStart="goToSlide(0)"
         @toggleLockSlide="toggleLockSlide"
       />
     </div>

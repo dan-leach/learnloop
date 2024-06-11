@@ -10,7 +10,7 @@ import Content from "./host/Content.vue";
 import { config } from "../../data/config.js";
 
 const props = defineProps(["currentIndex"]);
-const emit = defineEmits(["goForward", "goBack", "toggleLockSlide"]);
+const emit = defineEmits(["goForward", "goBack", "goStart", "toggleLockSlide"]);
 
 const showResponses = () => {
   interactionSession.slides[
@@ -29,16 +29,55 @@ const toggleContent = () => {
 
 <template>
   <div id="slide-view" :class="{ focusView: config.client.isFocusView }">
-    <p v-if="config.client.isFocusView" class="text-center m-1">
-      To join go to {{ config.client.url.replace("https://", "") }}
-      and use the code
-      <span class="join-id-top p-1">{{ interactionSession.id }}</span>
-    </p>
+    <ul class="nav nav-justified m-2" v-if="config.client.isFocusView">
+      <li class="nav-item">
+        <button
+          v-if="currentIndex > 0"
+          class="btn btn-lg"
+          @click="emit('goBack')"
+        >
+          <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
+        </button>
+      </li>
+      <li>
+        <p class="text-center m-1">
+          To join go to {{ config.client.url.replace("https://", "") }}
+          and use the code
+          <span class="join-id-top p-1">{{ interactionSession.id }}</span>
+        </p>
+      </li>
+      <li class="nav-item">
+        <button
+          v-if="currentIndex < interactionSession.slides.length - 1"
+          class="btn btn-lg"
+          @click="emit('goForward')"
+        >
+          <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
+        </button>
+      </li>
+    </ul>
     <p
       v-if="interactionSession.slides[currentIndex].type != 'waitingRoom'"
       class="display-6 text-center m-1"
     >
       {{ interactionSession.slides[currentIndex].prompt }}
+      <button
+        v-if="interactionSession.slides[currentIndex].isInteractive"
+        class="btn btn-lg"
+        @click="emit('toggleLockSlide')"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Lock this slide to prevent attendees submitting further responses"
+      >
+        <font-awesome-icon
+          :icon="['fas', 'lock']"
+          v-if="interactionSession.hostStatus.lockedSlides[currentIndex]"
+        />
+        <font-awesome-icon
+          :icon="['fas', 'lock-open']"
+          v-if="!interactionSession.hostStatus.lockedSlides[currentIndex]"
+        />
+      </button>
       <button
         class="btn btn-teal btn-sm m-4"
         @click="toggleContent"
@@ -50,6 +89,31 @@ const toggleContent = () => {
         Toggle content / responses
       </button>
     </p>
+    <div class="text-center">
+      <button
+        v-if="currentIndex == 0"
+        class="btn btn-lg btn-teal mb-2"
+        @click="emit('goForward')"
+      >
+        Start <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
+      </button>
+    </div>
+    <div class="text-center">
+      <button
+        v-if="currentIndex == interactionSession.slides.length - 1"
+        class="btn btn-lg btn-teal mx-2 mb-2"
+        @click="emit('goBack')"
+      >
+        <font-awesome-icon :icon="['fas', 'circle-chevron-left']" /> Back
+      </button>
+      <button
+        v-if="currentIndex == interactionSession.slides.length - 1"
+        class="btn btn-lg btn-teal mx-2 mb-2"
+        @click="emit('goStart')"
+      >
+        Restart
+      </button>
+    </div>
     <Content
       :slide="interactionSession.slides[currentIndex]"
       v-if="
@@ -105,45 +169,6 @@ const toggleContent = () => {
         </p>
       </div>
     </Transition>
-    <ul class="nav nav-justified m-2">
-      <li class="nav-item">
-        <button
-          v-if="currentIndex > 0"
-          class="btn btn-lg"
-          @click="emit('goBack')"
-        >
-          <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          v-if="interactionSession.slides[currentIndex].isInteractive"
-          class="btn btn-lg"
-          @click="emit('toggleLockSlide')"
-          data-bs-toggle="tooltip"
-          data-bs-placement="top"
-          title="Lock this slide to prevent attendees submitting further responses"
-        >
-          <font-awesome-icon
-            :icon="['fas', 'lock']"
-            v-if="interactionSession.hostStatus.lockedSlides[currentIndex]"
-          />
-          <font-awesome-icon
-            :icon="['fas', 'lock-open']"
-            v-if="!interactionSession.hostStatus.lockedSlides[currentIndex]"
-          />
-        </button>
-      </li>
-      <li class="nav-item">
-        <button
-          v-if="currentIndex < interactionSession.slides.length - 1"
-          class="btn btn-lg"
-          @click="emit('goForward')"
-        >
-          <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
-        </button>
-      </li>
-    </ul>
   </div>
 </template>
 

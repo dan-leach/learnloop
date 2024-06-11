@@ -1,5 +1,6 @@
 Current:
 Testing
+Fix slide title not showing on attendee view for static slides
 
 - Fix interaction create help / images
 
@@ -23,10 +24,9 @@ BEFORE BUILD:
 
 1. Remove form actions 'https://dev.learnloop.co.uk/api' change to 'api/'
 2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative
-3. Check if any feedback sessions exist in live database with id starting with 'i' and do retroactive fix to change to 'f' and email facilitator
-4. Update the path to the api in src/data/api.js to be relative not absolute
-5. Re-enable sendMail for errors in api/index.php
-6. Remove 'dev' from url string in api/shared/QRcode
+3. Update the path to the api in src/data/api.js to be relative not absolute
+4. Re-enable sendMail for errors in api/index.php
+5. Remove 'dev' from url string in api/shared/QRcode
 
 ON BETA-END:
 
