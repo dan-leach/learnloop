@@ -179,9 +179,9 @@ if (isPreview.value) {
 }
 const exitPreviewSession = () => {
   config.client.isFocusView = false;
-  router.push("/interaction/create");
   interactionSession.slides.shift();
   interactionSession.slides.pop();
+  router.push("/interaction/edit/" + interactionSession.id);
 };
 
 onMounted(() => {

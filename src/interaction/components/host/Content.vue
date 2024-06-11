@@ -25,18 +25,20 @@ const emit = defineEmits(["toggleContent"]);
           :aria-labelledby="'imgModalLabel' + index"
           aria-hidden="true"
         >
-          <div class="modal-dialog modal-fullscreen">
+          <div
+            class="modal-dialog modal-fullscreen"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          >
             <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title" :id="'imgModalLabel' + index">
+              <div class="modal-header d-flex justify-content-around">
+                <h5
+                  class="modal-title display-5 flex-grow-1 text-center"
+                  :id="'imgModalLabel' + index"
+                >
                   {{ image.caption }}
                 </h5>
-                <button
-                  type="button"
-                  class="btn-close"
-                  data-bs-dismiss="modal"
-                  aria-label="Close"
-                ></button>
+                <button type="button" class="btn-close"></button>
               </div>
               <div
                 class="modal-body d-flex justify-content-center align-items-center"

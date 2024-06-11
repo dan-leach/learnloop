@@ -1,3 +1,7 @@
+<script setup>
+import { config } from "../../data/config.js";
+</script>
+
 <template>
   <div>
     <div class="mu-container" :class="isInvalid ? 'mu-red-border' : ''">
@@ -48,9 +52,17 @@
           </div>
         </div>
 
-        <div v-for="(image, index) in savedMedia" :key="index" class="d-flex">
+        <div
+          v-for="(image, index) in savedMedia"
+          :key="index"
+          class="d-flex align-items-center flex-wrap"
+        >
           <div class="mu-image-container">
-            <img :src="image.url" alt="" class="mu-images-preview" />
+            <img
+              :src="config.api.imagesUrl + image.src"
+              alt=""
+              class="mu-images-preview"
+            />
             <button
               @click="removeSavedMedia(index)"
               class="mu-close-btn"
@@ -72,7 +84,7 @@
             </button>
           </div>
           <!--caption-->
-          <div class="form-floating mb-3">
+          <div class="form-floating flex-grow-1">
             <input
               type="text"
               v-model="image.caption"

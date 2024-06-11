@@ -209,32 +209,36 @@ const fetchDetailsHost = () => {
 onMounted(() => {
   if (isEdit) {
     interactionSession.id = useRouter().currentRoute.value.params.id;
-    Swal.fire({
-      title: "Enter session ID and PIN",
-      html:
-        "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-        interactionSession.id +
-        '">' +
-        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        interactionSession.id = document.getElementById("swalFormId").value;
-        interactionSession.pin = document.getElementById("swalFormPin").value;
-        if (interactionSession.pin == "")
-          Swal.showValidationMessage("Please enter your PIN");
-        if (interactionSession.id == "")
-          Swal.showValidationMessage("Please enter a session ID");
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, "", interactionSession.id);
-        fetchDetailsHost();
-      } else {
-        router.push("/");
-      }
-    });
+    if (interactionSession.pin) {
+      loading.value = false;
+    } else {
+      Swal.fire({
+        title: "Enter session ID and PIN",
+        html:
+          "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+          '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+          interactionSession.id +
+          '">' +
+          '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
+        showCancelButton: true,
+        confirmButtonColor: "#17a2b8",
+        preConfirm: () => {
+          interactionSession.id = document.getElementById("swalFormId").value;
+          interactionSession.pin = document.getElementById("swalFormPin").value;
+          if (interactionSession.pin == "")
+            Swal.showValidationMessage("Please enter your PIN");
+          if (interactionSession.id == "")
+            Swal.showValidationMessage("Please enter a session ID");
+        },
+      }).then((result) => {
+        if (result.isConfirmed) {
+          history.replaceState({}, "", interactionSession.id);
+          fetchDetailsHost();
+        } else {
+          router.push("/");
+        }
+      });
+    }
   } else if (!interactionSession.slides.length && !interactionSession.title) {
     Swal.fire({
       title: "Private Beta",
