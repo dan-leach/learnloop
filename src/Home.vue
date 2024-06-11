@@ -276,6 +276,14 @@ onMounted(() => {
 
 <template>
   <main>
+    <p class="text-center fs-5 mt-2">
+      Welcome to the version 5 of LearnLoop. This version is under active
+      development so it might behave in unpredictable ways. Please let me know
+      about any issues you find. If you prefer to wait until the update is
+      formally released, please use
+      <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
+      instead.
+    </p>
     <div class="d-flex justify-content-around flex-wrap mt-2">
       <div class="card bg-transparent shadow p-2 m-2">
         <h1 class="text-center">Feedback</h1>

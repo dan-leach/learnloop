@@ -1,6 +1,7 @@
 Current:
-Testing
+Testing how new content layout works with interactions
 Videos
+Add toast to draw attention to the top right code entry
 
 - Fix interaction create help / images
 
@@ -11,7 +12,6 @@ Have arrow keys control slide movements
 Create media slot for interaction type slides
 
 Improvements:
-Preview of feedback form, question, interaction
 Prevent subsession update email when that subsession hasn't changed
 Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
 Create readme and changelog
