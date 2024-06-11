@@ -118,6 +118,8 @@ const fetchNewSubmissions = () => {
   );
 };
 
+let myInterval; //declared here to be accessible by onMounted and onBeforeUnmount
+
 const fetchDetailsHost = () => {
   api(
     "interaction",
@@ -152,7 +154,7 @@ const fetchDetailsHost = () => {
       fetchSubmissionCount();
       updateHostStatus();
       fetchNewSubmissions();
-      setInterval(
+      myInterval = setInterval(
         fetchNewSubmissions,
         config.interaction.host.newSubmissionsPollInterval
       );
@@ -228,7 +230,7 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  if (!isPreview) {
+  if (!isPreview.value) {
     let hostStatus = { facilitatorIndex: 0 };
     api(
       "interaction",
@@ -242,6 +244,7 @@ onBeforeUnmount(() => {
         console.log("updateHostStatus failed", error);
       }
     );
+    clearInterval(myInterval);
   }
 });
 </script>
