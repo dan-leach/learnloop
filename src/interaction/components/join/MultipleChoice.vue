@@ -38,9 +38,6 @@ let submit = () => {
 </script>
 
 <template>
-  <p class="text-center">
-    <strong>{{ slide.prompt }}</strong>
-  </p>
   <p
     class="text-center"
     v-if="

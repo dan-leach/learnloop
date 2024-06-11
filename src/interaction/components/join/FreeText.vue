@@ -38,9 +38,6 @@ let submit = () => {
 </script>
 
 <template>
-  <p class="text-center">
-    <strong>{{ slide.prompt }}</strong>
-  </p>
   <textarea
     class="response-field form-control"
     rows="5"

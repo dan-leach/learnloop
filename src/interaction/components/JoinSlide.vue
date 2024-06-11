@@ -72,6 +72,9 @@ const submit = () => {
 
 <template>
   <div>
+    <p class="text-center">
+      <strong>{{ interactionSession.slides[currentIndex].prompt }}</strong>
+    </p>
     <div class="d-flex justify-content-center">
       <div class="full-width">
         <Content :slide="interactionSession.slides[currentIndex]" />

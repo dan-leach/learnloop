@@ -25,9 +25,6 @@ let submit = () => {
 </script>
 
 <template>
-  <p class="text-center">
-    <strong>{{ slide.prompt }}</strong>
-  </p>
   <div v-for="(option, index) in slide.interaction.options" class="form-check">
     <input
       type="radio"
