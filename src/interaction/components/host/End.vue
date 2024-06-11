@@ -5,9 +5,6 @@ import { config } from "../../../data/config.js";
 
 <template>
   <div>
-    <p class="display-6 text-center">
-      The slides for this session have finished
-    </p>
     <div v-if="feedbackID">
       <p class="text-center">
         Please follow the instructions below to provide feedback to the session
@@ -25,7 +22,7 @@ import { config } from "../../../data/config.js";
         <div class="align-self-center">
           <p class="feedback-instructions">
             Click the link on your device,<br />
-            scan the QR code, or<br />go to
+            scan the QR code, or go to<br />
             <strong>{{ config.client.url.replace("https://", "") }}</strong
             ><br />
             and enter this code:

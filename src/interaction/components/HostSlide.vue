@@ -89,6 +89,20 @@ const toggleContent = () => {
         Toggle content / responses
       </button>
     </p>
+    <div
+      class="text-center"
+      v-if="currentIndex == interactionSession.slides.length - 1"
+    >
+      <p class="display-6">The slides for this session have finished</p>
+      <div>
+        <button class="btn btn-lg btn-teal mx-2 mb-2" @click="emit('goBack')">
+          <font-awesome-icon :icon="['fas', 'circle-chevron-left']" /> Back
+        </button>
+        <button class="btn btn-lg btn-teal mx-2 mb-2" @click="emit('goStart')">
+          Restart
+        </button>
+      </div>
+    </div>
     <div class="text-center">
       <button
         v-if="currentIndex == 0"
@@ -96,22 +110,6 @@ const toggleContent = () => {
         @click="emit('goForward')"
       >
         Start <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
-      </button>
-    </div>
-    <div class="text-center">
-      <button
-        v-if="currentIndex == interactionSession.slides.length - 1"
-        class="btn btn-lg btn-teal mx-2 mb-2"
-        @click="emit('goBack')"
-      >
-        <font-awesome-icon :icon="['fas', 'circle-chevron-left']" /> Back
-      </button>
-      <button
-        v-if="currentIndex == interactionSession.slides.length - 1"
-        class="btn btn-lg btn-teal mx-2 mb-2"
-        @click="emit('goStart')"
-      >
-        Restart
       </button>
     </div>
     <Content
