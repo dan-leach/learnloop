@@ -17,8 +17,8 @@ const slide = ref({
   isInteractive: false,
   content: {
     images: [],
-    paragraphs: [],
-    bullets: [],
+    textStrings: [],
+    useBulletPoints: true,
   },
   interaction: {
     options: [],
@@ -28,8 +28,7 @@ const slide = ref({
     content: {
       main: true,
       images: false,
-      paragraphs: false,
-      bullets: false,
+      textStrings: false,
     },
     interaction: {
       main: true,
@@ -259,48 +258,27 @@ const sortOption = (index, x) =>
     slide.value.interaction.options.splice(index, 1)[0]
   );
 
-let newParagraph = ref("");
-const addParagraph = () => {
-  if (newParagraph.value) {
-    slide.value.content.paragraphs.push(newParagraph.value);
-    newParagraph.value = "";
+let newTextString = ref("");
+const addTextString = () => {
+  if (newTextString.value) {
+    slide.value.content.textStrings.push(newTextString.value);
+    newTextString.value = "";
   } else {
-    document.getElementById("newParagraph").classList.add("is-invalid");
+    document.getElementById("newTextString").classList.add("is-invalid");
     setTimeout(
       () =>
-        document.getElementById("newParagraph").classList.remove("is-invalid"),
+        document.getElementById("newTextString").classList.remove("is-invalid"),
       3000
     );
   }
 };
-const removeParagraph = (index) =>
-  slide.value.content.paragraphs.splice(index, 1);
-const sortParagraph = (index, x) =>
-  slide.value.content.paragraphs.splice(
+const removeTextString = (index) =>
+  slide.value.content.textStrings.splice(index, 1);
+const sortTextString = (index, x) =>
+  slide.value.content.textStrings.splice(
     index + x,
     0,
-    slide.value.content.paragraphs.splice(index, 1)[0]
-  );
-
-let newBullet = ref("");
-const addBullet = () => {
-  if (newBullet.value) {
-    slide.value.content.bullets.push(newBullet.value);
-    newBullet.value = "";
-  } else {
-    document.getElementById("newBullet").classList.add("is-invalid");
-    setTimeout(
-      () => document.getElementById("newBullet").classList.remove("is-invalid"),
-      3000
-    );
-  }
-};
-const removeBullet = (index) => slide.value.content.bullets.splice(index, 1);
-const sortBullet = (index, x) =>
-  slide.value.content.bullets.splice(
-    index + x,
-    0,
-    slide.value.content.bullets.splice(index, 1)[0]
+    slide.value.content.textStrings.splice(index, 1)[0]
   );
 
 const imagesChange = (allMedia) => {
@@ -345,13 +323,10 @@ const keepSelectedLimitsWithinMinMax = () => {
 let submit = () => {
   console.log(slide);
   slide.value.hasContent =
-    slide.value.content.images.length ||
-    slide.value.content.bullets.length ||
-    slide.value.content.paragraphs.length
+    slide.value.content.images.length || slide.value.content.textStrings.length
       ? true
       : false;
-  newBullet.value = "";
-  newParagraph.value = "";
+  newTextString.value = "";
   newOption.value = "";
   document
     .getElementById("editSlideModal" + props.index)
@@ -413,8 +388,8 @@ let submit = () => {
       isInteractive: false,
       content: {
         images: [],
-        paragraphs: [],
-        bullets: [],
+        textStrings: [],
+        useBulletPoints: true,
       },
       interaction: {
         options: [],
@@ -424,8 +399,7 @@ let submit = () => {
         content: {
           main: true,
           images: false,
-          paragraphs: false,
-          bullets: false,
+          textStrings: false,
         },
         interaction: {
           main: true,
@@ -563,21 +537,21 @@ let submit = () => {
                       </uploader>
                     </div>
                   </div>
-                  <!--paragraphs-->
+                  <!--text strings-->
                   <div class="card mb-3">
                     <div class="card-header">
                       <button
-                        id="btnShowParagraphs"
+                        id="btnShowTextStrings"
                         class="btn"
                         @click="
-                          slide.show.content.paragraphs =
-                            !slide.show.content.paragraphs
+                          slide.show.content.textStrings =
+                            !slide.show.content.textStrings
                         "
                       >
-                        <label for="text" class="form-label me-2"
-                          >Text paragraphs</label
+                        <label for="newTextStrings" class="form-label me-2"
+                          >Text</label
                         ><font-awesome-icon
-                          v-if="!slide.show.content.paragraphs"
+                          v-if="!slide.show.content.textStrings"
                           :icon="['fas', 'chevron-down']"
                         />
                         <font-awesome-icon
@@ -586,24 +560,41 @@ let submit = () => {
                         />
                       </button>
                     </div>
-                    <div class="card-body" v-if="slide.show.content.paragraphs">
+                    <div
+                      class="card-body"
+                      v-if="slide.show.content.textStrings"
+                    >
                       <p class="ms-1 mb-0 small">
-                        Optional: add paragraphs of text to appear on your
-                        slide.
-                      </p>
-                      <table class="table" id="paragraphsTable">
+                        Optional: add text to appear on your slide.
+
+                      <div class="d-flex">
+                        Bullet points
+                        <div class="mx-3 form-check form-switch">
+                          <input
+                            v-model="slide.content.useBulletPoints"
+                            class="form-check-input"
+                            type="checkbox"
+                            id="hideResponses"
+                            name="hideResponses"
+                          />
+                        </div>
+                      </div>
+
+                    </p>
+
+                      <table class="table" id="textStringsTable">
                         <TransitionGroup name="list" tag="tbody">
                           <tr
-                            v-for="(paragraph, index) in slide.content
-                              .paragraphs"
-                            :key="paragraph"
+                            v-for="(textString, index) in slide.content
+                              .textStrings"
+                            :key="textString"
                           >
                             <td class="p-0 ps-2 sort-controls">
                               <button
                                 v-if="index != 0"
                                 class="btn btn-default btn-sm p-0"
                                 id="btnSortUp"
-                                @click.prevent="sortParagraph(index, -1)"
+                                @click.prevent="sortTextString(index, -1)"
                               >
                                 <font-awesome-icon
                                   :icon="['fas', 'chevron-up']"
@@ -611,11 +602,11 @@ let submit = () => {
                               ><br />
                               <button
                                 v-if="
-                                  index != slide.content.paragraphs.length - 1
+                                  index != slide.content.textStrings.length - 1
                                 "
                                 class="btn btn-default btn-sm p-0"
                                 id="btnSortDown"
-                                @click.prevent="sortParagraph(index, 1)"
+                                @click.prevent="sortTextString(index, 1)"
                               >
                                 <font-awesome-icon
                                   :icon="['fas', 'chevron-down']"
@@ -623,14 +614,14 @@ let submit = () => {
                               </button>
                             </td>
                             <td>
-                              {{ paragraph }}
+                              {{ textString }}
                             </td>
                             <td class="delete-control">
                               <button
                                 style="float: right"
                                 class="btn btn-danger btn-sm"
-                                id="btnRemoveParagraphs"
-                                @click.prevent="removeParagraph(index)"
+                                id="btnRemoveTextString"
+                                @click.prevent="removeTextString(index)"
                               >
                                 <font-awesome-icon
                                   :icon="['fas', 'trash-can']"
@@ -643,119 +634,35 @@ let submit = () => {
                       <div class="input-group">
                         <input
                           type="text"
-                          @keyup.enter="addParagraph"
+                          @keyup.enter="addTextString"
                           class="form-control"
-                          id="newParagraph"
-                          v-model="newParagraph"
-                          placeholder="Add a paragraph..."
-                          name="newParagraph"
-                          autocomplete="off"
-                        />
-                        <button
-                          class="btn btn-teal btn-sm"
-                          @click.prevent="addParagraph"
-                        >
-                          Add
-                        </button>
-                      </div>
-                      <div class="invalid-feedback">
-                        Please some paragraphs for this slide.
-                      </div>
-                    </div>
-                  </div>
-                  <!--bullets-->
-                  <div class="card mb-3">
-                    <div class="card-header">
-                      <button
-                        id="btnShowBullets"
-                        class="btn"
-                        @click="
-                          slide.show.content.bullets =
-                            !slide.show.content.bullets
-                        "
-                      >
-                        <label for="newBullets" class="form-label me-2"
-                          >Bullet points</label
-                        ><font-awesome-icon
-                          v-if="!slide.show.content.bullets"
-                          :icon="['fas', 'chevron-down']"
-                        />
-                        <font-awesome-icon
-                          v-else
-                          :icon="['fas', 'chevron-up']"
-                        />
-                      </button>
-                    </div>
-                    <div class="card-body" v-if="slide.show.content.bullets">
-                      <p class="ms-1 mb-0 small">
-                        Optional: add bullet points to appear on your slide.
-                      </p>
-                      <table class="table" id="bulletsTable">
-                        <TransitionGroup name="list" tag="tbody">
-                          <tr
-                            v-for="(bullet, index) in slide.content.bullets"
-                            :key="bullet"
-                          >
-                            <td class="p-0 ps-2 sort-controls">
-                              <button
-                                v-if="index != 0"
-                                class="btn btn-default btn-sm p-0"
-                                id="btnSortUp"
-                                @click.prevent="sortBullet(index, -1)"
-                              >
-                                <font-awesome-icon
-                                  :icon="['fas', 'chevron-up']"
-                                /></button
-                              ><br />
-                              <button
-                                v-if="index != slide.content.bullets.length - 1"
-                                class="btn btn-default btn-sm p-0"
-                                id="btnSortDown"
-                                @click.prevent="sortBullet(index, 1)"
-                              >
-                                <font-awesome-icon
-                                  :icon="['fas', 'chevron-down']"
-                                />
-                              </button>
-                            </td>
-                            <td>
-                              {{ bullet }}
-                            </td>
-                            <td class="delete-control">
-                              <button
-                                style="float: right"
-                                class="btn btn-danger btn-sm"
-                                id="btnRemoveBullet"
-                                @click.prevent="removeBullet(index)"
-                              >
-                                <font-awesome-icon
-                                  :icon="['fas', 'trash-can']"
-                                />
-                              </button>
-                            </td>
-                          </tr>
-                        </TransitionGroup>
-                      </table>
-                      <div class="input-group">
-                        <input
-                          type="text"
-                          @keyup.enter="addBullet"
-                          class="form-control"
-                          id="newBullet"
-                          v-model="newBullet"
+                          id="newTextString"
+                          v-model="newTextString"
+                          v-if="slide.content.useBulletPoints"
                           placeholder="Add a bullet point..."
-                          name="newBullet"
+                          name="newTextString"
+                          autocomplete="off"
+                        />
+                        <textarea
+                        v-else
+                          rows="5"
+                          @keyup.enter="addTextString"
+                          class="form-control"
+                          id="newTextString"
+                          v-model="newTextString"
+                          placeholder="Enter your text... add a new block to separate paragraphs"
+                          name="newTextString"
                           autocomplete="off"
                         />
                         <button
                           class="btn btn-teal btn-sm"
-                          @click.prevent="addBullet"
+                          @click.prevent="addTextString"
                         >
                           Add
                         </button>
                       </div>
                       <div class="invalid-feedback">
-                        Please provide some bullet points for this slide.
+                        Please provide some text for this slide.
                       </div>
                     </div>
                   </div>
