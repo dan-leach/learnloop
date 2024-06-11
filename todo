@@ -1,8 +1,6 @@
 Current:
 Testing
 Fix hanging state when host ID entered has spaces at end
-Limit image size
-
 Videos
 
 - Fix interaction create help / images

@@ -14,9 +14,9 @@ const go = () => {
   if (goID.value) {
     document.getElementById("inputGo").classList.remove("is-invalid");
     if (goID.value.charAt(0) == "i") {
-      router.push("/interaction/" + goID.value);
+      router.push("/interaction/" + goID.value.trim());
     } else {
-      router.push("/feedback/" + goID.value);
+      router.push("/feedback/" + goID.value.trim());
     }
   } else {
     document.getElementById("inputGo").classList.add("is-invalid");

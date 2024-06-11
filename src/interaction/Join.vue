@@ -28,17 +28,18 @@ const fetchHostStatus = () => {
     function (res) {
       facilitatorIndex.value = res.facilitatorIndex;
       interactionSession.hostStatus.lockedSlides = res.lockedSlides;
-      if (
-        currentIndex.value == 0 ||
-        interactionSession.slides[currentIndex.value].interaction.response ===
-          "" ||
-        interactionSession.slides[currentIndex.value].interaction.response ===
-          undefined ||
-        interactionSession.slides[currentIndex.value].interaction.closed
-      ) {
-        if (currentIndex.value != facilitatorIndex.value)
-          goToSlide(facilitatorIndex.value);
+      let awaitUser = false;
+      if (interactionSession.slides[currentIndex.value].interaction) {
+        if (interactionSession.slides[currentIndex.value].interaction.response)
+          awaitUser = true;
+        if (
+          interactionSession.slides[currentIndex.value].interaction.closed ||
+          interactionSession.hostStatus.lockedSlides[currentIndex.value]
+        )
+          awaitUser = false;
       }
+      if (currentIndex.value != facilitatorIndex.value && !awaitUser)
+        goToSlide(facilitatorIndex.value);
       fetchHostStatusFailCount = 0;
       Swal.close();
     },

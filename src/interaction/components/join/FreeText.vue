@@ -42,7 +42,10 @@ let submit = () => {
     class="response-field form-control"
     rows="5"
     v-model="slide.interaction.response"
-    :disabled="slide.interaction.closed"
+    :disabled="
+      slide.interaction.closed ||
+      interactionSession.hostStatus.lockedSlides[currentIndex]
+    "
     :maxLength="slide.interaction.settings.characterLimit.max"
   ></textarea>
   <div class="text-center">

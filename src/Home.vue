@@ -11,7 +11,7 @@ import { interactionSession } from "./data/interactionSession.js";
 const viewFeedback = () => {
   if (feedbackSession.id) {
     document.getElementById("feedbackID").classList.remove("is-invalid");
-    router.push("/feedback/view/" + feedbackSession.id);
+    router.push("/feedback/view/" + feedbackSession.id.trim());
   } else {
     document.getElementById("feedbackID").classList.add("is-invalid");
   }
@@ -20,7 +20,7 @@ const viewFeedback = () => {
 const hostInteraction = () => {
   if (interactionSession.id) {
     document.getElementById("interactionID").classList.remove("is-invalid");
-    router.push("/interaction/host/" + interactionSession.id);
+    router.push("/interaction/host/" + interactionSession.id.trim());
   } else {
     document.getElementById("interactionID").classList.add("is-invalid");
   }

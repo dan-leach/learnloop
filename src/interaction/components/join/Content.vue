@@ -53,16 +53,18 @@ const props = defineProps(["slide"]);
     </div>
     <div
       class="paragraph-container d-flex flex-column justify m-2"
-      v-if="slide.content.paragraphs.length"
+      v-if="slide.content.textStrings.length && !slide.content.useBulletPoints"
     >
-      <p v-for="paragraph in slide.content.paragraphs">{{ paragraph }}</p>
+      <p v-for="textString in slide.content.textStrings">{{ textString }}</p>
     </div>
     <div
       class="bullets-container d-flex flex-column justify m-2"
-      v-if="slide.content.bullets.length"
+      v-if="slide.content.textStrings.length && slide.content.useBulletPoints"
     >
       <ul>
-        <li v-for="bullet in slide.content.bullets">{{ bullet }}</li>
+        <li v-for="textString in slide.content.textStrings">
+          {{ textString }}
+        </li>
       </ul>
     </div>
   </div>
