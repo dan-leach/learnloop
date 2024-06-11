@@ -117,7 +117,7 @@ export const config = reactive({
   client: {
     url: "https://dev.learnloop.co.uk",
     isFocusView: false,
-    showApiConsole: true,
+    showApiConsole: false,
     subsessionEmailPrompt: true,
     regions: [
       //each array is of the hospitals in that region

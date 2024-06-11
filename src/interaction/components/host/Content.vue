@@ -1,19 +1,39 @@
 <script setup>
+import { onMounted, onUpdated } from "vue";
 import { config } from "../../../data/config.js";
 const props = defineProps(["slide"]);
 const emit = defineEmits(["toggleContent"]);
+
+const setImageContainerWidth = () => {
+  let imageContainerIsFullWidth = props.slide.content.textStrings.length
+    ? false
+    : true;
+  let imageCount = props.slide.content.images.length;
+  let className = imageContainerIsFullWidth
+    ? "image-container-" + imageCount
+    : "image-container-half-" + imageCount;
+  for (let i = 0; i < imageCount; i++)
+    document
+      .getElementById("imageContainer" + i)
+      .setAttribute("class", className);
+};
+
+onMounted(() => {
+  if (props.slide.content.images.length) setImageContainerWidth();
+});
+onUpdated(() => {
+  if (props.slide.content.images.length) setImageContainerWidth();
+});
 </script>
 
 <template>
-  <div
-    class="d-flex flex-wrap flex-column align-items-center"
-    v-if="slide.content"
-  >
+  <div class="d-flex" v-if="slide.content">
     <div
-      class="d-flex flex-wrap align-items-center justify-content-around"
+      class="images-container d-flex flex-wrap align-items-center align-content-stretch justify-content-around"
       v-if="slide.content.images.length"
     >
       <div
+        :id="'imageContainer' + index"
         class="image-container m-2"
         v-for="(image, index) in slide.content.images"
       >
@@ -59,25 +79,26 @@ const emit = defineEmits(["toggleContent"]);
           :id="image.src"
           data-bs-toggle="modal"
           :data-bs-target="'#imgModal' + index"
-          v-if="!image.hide"
         />
-        <p class="text-center" v-if="!image.hide">
+        <p class="text-center" v-if="slide.content.images.length == 1">
           {{ image.caption }}
         </p>
       </div>
     </div>
     <div
-      class="paragraph-container d-flex flex-column justify m-2"
-      v-if="slide.content.paragraphs.length"
+      class="paragraph-container d-flex flex-column align-items-center justify m-2"
+      v-if="slide.content.textStrings.length && !slide.content.useBulletPoints"
     >
-      <p v-for="paragraph in slide.content.paragraphs">{{ paragraph }}</p>
+      <p v-for="textString in slide.content.textStrings">{{ textString }}</p>
     </div>
     <div
-      class="bullets-container d-flex flex-column justify m-2"
-      v-if="slide.content.bullets.length"
+      class="bullets-container d-flex flex-column align-items-center justify m-2"
+      v-if="slide.content.textStrings.length && slide.content.useBulletPoints"
     >
       <ul>
-        <li v-for="bullet in slide.content.bullets">{{ bullet }}</li>
+        <li v-for="textString in slide.content.textStrings">
+          {{ textString }}
+        </li>
       </ul>
     </div>
   </div>
@@ -86,13 +107,95 @@ const emit = defineEmits(["toggleContent"]);
 <style scoped>
 .bullets-container,
 .paragraph-container,
-.image-container {
+.images-container {
   font-size: 1.5em;
   flex: 1 1 0;
 }
-.image-container {
-  max-width: 50%;
-  max-height: 50%;
+
+.image-container-1 {
+  max-width: 90%;
+  max-height: 90%;
+}
+.image-container-2 {
+  max-width: 45%;
+  max-height: 90%;
+}
+.image-container-3 {
+  max-width: 30%;
+  max-height: 90%;
+}
+.image-container-4 {
+  max-width: 45%;
+  max-height: 45%;
+}
+.image-container-5 {
+  max-width: 30%;
+  max-height: 45%;
+}
+.image-container-6 {
+  max-width: 30%;
+  max-height: 45%;
+}
+.image-container-7 {
+  max-width: 30%;
+  max-height: 30%;
+}
+.image-container-8 {
+  max-width: 30%;
+  max-height: 30%;
+}
+.image-container-1 {
+  max-width: 30%;
+  max-height: 30%;
+}
+.image-container-10 {
+  max-width: 22%;
+  max-height: 30%;
+}
+
+.image-container-half-1 {
+  max-width: 90%;
+  max-height: 90%;
+}
+.image-container-half-2 {
+  max-width: 90%;
+  max-height: 45%;
+}
+.image-container-half-3 {
+  max-width: 90%;
+  max-height: 30%;
+}
+.image-container-half-4 {
+  max-width: 90%;
+  max-height: 22%;
+}
+.image-container-half-5 {
+  max-width: 45%;
+  max-height: 30%;
+}
+.image-container-half-6 {
+  max-width: 45%;
+  max-height: 30%;
+}
+.image-container-half-7 {
+  max-width: 45%;
+  max-height: 22%;
+}
+.image-container-half-8 {
+  max-width: 45%;
+  max-height: 22%;
+}
+.image-container-half-9 {
+  max-width: 30%;
+  max-height: 30%;
+}
+.image-container-half-10 {
+  max-width: 30%;
+  max-height: 22%;
+}
+
+.slide-img {
+  max-height: 20%;
 }
 .slide-img:hover {
   border: 5px solid #17a2b8;

@@ -38,7 +38,10 @@ const slide = ref({
   },
 });
 
-if (props.index > -1) slide.value = interactionSession.slides[props.index];
+if (props.index > -1) {
+  slide.value = interactionSession.slides[props.index];
+  type.value = interactionSession.slides[props.index].type;
+}
 
 watch(type, (newType, oldType) => {
   slide.value.type = type;
@@ -53,6 +56,8 @@ watch(type, (newType, oldType) => {
           slide.value.interaction.options.length;
         keepSelectedLimitsWithinMinMax();
       }
+    } else {
+      slide.value.interaction.settings = {}
     }
   }
 });
@@ -369,7 +374,6 @@ let submit = () => {
     });
     return false;
   }
-  //  if (!checkImageValid(image.value)) return false;
   if (!slide.value.prompt) return false;
   if (slide.value.interaction.settings.selectedLimit)
     keepSelectedLimitsWithinMinMax();
@@ -498,7 +502,7 @@ let submit = () => {
                 </div>
                 <div class="card-body" v-if="slide.show.content.main">
                   <p class="ms-1 small">
-                    Slide content is not itself interactive but can be used to
+                    Slide content can optionally be added to your slide. It is not interactive but can be used to
                     provide additional context for an interaction.
                   </p>
                   <!--images-->
@@ -526,8 +530,7 @@ let submit = () => {
                     </div>
                     <div class="card-body" v-if="slide.show.content.images">
                       <p class="ms-1 small">
-                        Optional: add any images you would like to appear on
-                        your slide.
+                        Note: if your slide contains multiple images captions will appear only when you click to enlarge the image.
                       </p>
                       <uploader
                         @change="imagesChange"
@@ -565,8 +568,6 @@ let submit = () => {
                       v-if="slide.show.content.textStrings"
                     >
                       <p class="ms-1 mb-0 small">
-                        Optional: add text to appear on your slide.
-
                       <div class="d-flex">
                         Bullet points
                         <div class="mx-3 form-check form-switch">
@@ -579,7 +580,6 @@ let submit = () => {
                           />
                         </div>
                       </div>
-
                     </p>
 
                       <table class="table" id="textStringsTable">
