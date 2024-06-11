@@ -4,7 +4,6 @@ import { interactionSession } from "../../data/interactionSession.js";
 import { config } from "../../data/config.js";
 import Swal from "sweetalert2";
 import Uploader from "./Uploader.vue";
-import { faScaleUnbalanced } from "@fortawesome/free-solid-svg-icons";
 
 const props = defineProps(["index"]);
 const emit = defineEmits(["hideEditSlideModal"]);

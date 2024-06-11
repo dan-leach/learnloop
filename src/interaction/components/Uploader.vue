@@ -5,138 +5,114 @@ import { config } from "../../data/config.js";
 <template>
   <div>
     <div class="mu-container" :class="isInvalid ? 'mu-red-border' : ''">
-      <!--<div class="mu-elements-wraper">-->
-      <div>
-        <!--IMAGES PREVIEW-->
-        <div
-          v-for="(image, index) in addedMedia"
-          :key="index"
-          class="d-flex align-items-center flex-wrap"
-        >
-          <div class="mu-image-container">
-            <img :src="image.url" alt="" class="mu-images-preview" />
-
-            <button
-              @click="removeAddedMedia(index)"
-              class="mu-close-btn"
-              type="button"
-            >
-              <svg
-                class="mu-times-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="0.65em"
-                height="0.65em"
-                preserveAspectRatio="xMidYMid meet"
-                viewBox="0 0 352 512"
+      <!--IMAGES PREVIEW-->
+      <table class="table" id="imageTable">
+        <TransitionGroup name="list" tag="tbody">
+          <tr v-for="(image, index) in images" :key="index">
+            <td class="bg-transparent p-0 ps-2">
+              <button
+                v-if="index != 0"
+                class="btn btn-default btn-sm p-0"
+                id="btnSortUp"
+                @click="sortImage(index, -1)"
               >
-                <path
-                  d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          </div>
-          <!--caption-->
-          <div class="form-floating flex-grow-1">
-            <input
-              type="text"
-              v-model="image.caption"
-              class="form-control"
-              id="caption"
-              placeholder=""
-              name="caption"
-              autocomplete="off"
-              required
-            />
-            <label for="caption">Caption</label>
-          </div>
-        </div>
-
-        <div
-          v-for="(image, index) in savedMedia"
-          :key="index"
-          class="d-flex align-items-center flex-wrap"
-        >
-          <div class="mu-image-container">
-            <img
-              :src="config.api.imagesUrl + image.src"
-              alt=""
-              class="mu-images-preview"
-            />
-            <button
-              @click="removeSavedMedia(index)"
-              class="mu-close-btn"
-              type="button"
-            >
-              <svg
-                class="mu-times-icon"
-                xmlns="http://www.w3.org/2000/svg"
-                width="0.65em"
-                height="0.65em"
-                preserveAspectRatio="xMidYMid meet"
-                viewBox="0 0 352 512"
+                <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+              ><br />
+              <button
+                v-if="index != images.length - 1"
+                class="btn btn-default btn-sm p-0"
+                id="btnSortDown"
+                @click="sortImage(index, 1)"
               >
-                <path
-                  d="m242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28L75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256L9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"
-                  fill="currentColor"
+                <font-awesome-icon :icon="['fas', 'chevron-down']" />
+              </button>
+            </td>
+            <td class="bg-transparent">
+              <div class="mu-image-container">
+                <img
+                  :src="config.api.imagesUrl + image.src"
+                  alt=""
+                  class="mu-images-preview"
                 />
-              </svg>
-            </button>
-          </div>
-          <!--caption-->
-          <div class="form-floating flex-grow-1">
-            <input
-              type="text"
-              v-model="image.caption"
-              class="form-control"
-              id="caption"
-              placeholder=""
-              name="caption"
-              autocomplete="off"
-            />
-            <label for="caption">Caption</label>
-          </div>
-        </div>
-
-        <!--UPLOAD BUTTON-->
-        <div class="mu-plusbox-container" v-if="addedMedia.length < max">
-          <label
-            class="mu-plusbox d-flex align-items-center justify-content-center"
-          >
-            <div v-if="isLoading" class="spinner-border" role="status">
-              <span class="sr-only">Loading...</span>
-            </div>
-            <svg
-              v-else
-              class="mu-plus-icon"
-              xmlns="http://www.w3.org/2000/svg"
-              width="1em"
-              height="1em"
-              preserveAspectRatio="xMidYMid meet"
-              viewBox="0 0 24 24"
-            >
-              <g fill="none">
-                <path
-                  d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11s11-4.925 11-11S18.075 1 12 1zm1 15a1 1 0 1 1-2 0v-3H8a1 1 0 1 1 0-2h3V8a1 1 0 1 1 2 0v3h3a1 1 0 1 1 0 2h-3v3z"
-                  :fill="
-                    addedMedia.length < max && !isLoading
-                      ? 'currentColor'
-                      : 'grey'
-                  "
+              </div>
+            </td>
+            <td class="bg-transparent">
+              <div class="form-floating flex-grow-1">
+                <input
+                  type="text"
+                  v-model="image.caption"
+                  class="form-control"
+                  id="caption"
+                  placeholder=""
+                  name="caption"
+                  autocomplete="off"
                 />
-              </g>
-            </svg>
-            <input
-              @change="fileChange"
-              type="file"
-              accept="image/*"
-              multiple
-              hidden
-              :disabled="addedMedia.length >= max || isLoading"
-            />
-          </label>
-        </div>
-      </div>
+                <label for="caption">Caption </label>
+              </div>
+            </td>
+            <td class="bg-transparent">
+              <button
+                class="btn btn-danger btn-sm btn-right ms-4 mb-2"
+                id="btnRemoveImage"
+                @click="removeImage(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'trash-can']" />
+              </button>
+            </td>
+          </tr>
+          <tr key="add">
+            <td></td>
+            <td>
+              <!--UPLOAD BUTTON-->
+              <div class="mu-plusbox-container" v-if="images.length < max">
+                <label
+                  class="mu-plusbox d-flex align-items-center justify-content-center"
+                >
+                  <div v-if="isLoading" class="spinner-border" role="status">
+                    <span class="sr-only">Loading...</span>
+                  </div>
+                  <svg
+                    v-else
+                    class="mu-plus-icon"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="1em"
+                    height="1em"
+                    preserveAspectRatio="xMidYMid meet"
+                    viewBox="0 0 24 24"
+                  >
+                    <g fill="none">
+                      <path
+                        d="M12 1C5.925 1 1 5.925 1 12s4.925 11 11 11s11-4.925 11-11S18.075 1 12 1zm1 15a1 1 0 1 1-2 0v-3H8a1 1 0 1 1 0-2h3V8a1 1 0 1 1 2 0v3h3a1 1 0 1 1 0 2h-3v3z"
+                        :fill="
+                          images.length < max && !isLoading
+                            ? 'currentColor'
+                            : 'grey'
+                        "
+                      />
+                    </g>
+                  </svg>
+                  <input
+                    @change="fileChange"
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    hidden
+                    :disabled="images.length >= max || isLoading"
+                  />
+                </label>
+              </div>
+            </td>
+            <td>
+              {{
+                images.length < max
+                  ? ""
+                  : "You cannot add more than " + max + " images per slide"
+              }}
+            </td>
+            <td></td>
+          </tr>
+        </TransitionGroup>
+      </table>
     </div>
   </div>
 </template>
@@ -186,10 +162,7 @@ export default {
   },
   data() {
     return {
-      addedMedia: [],
-      savedMedia: [],
-      removedMedia: [],
-
+      images: [],
       config: {
         headers: null,
       },
@@ -199,25 +172,16 @@ export default {
   },
   methods: {
     init() {
-      this.savedMedia = this.media;
+      this.images = this.media;
       this.config.headers = this.headers;
-
-      this.savedMedia.forEach((image, index) => {
-        if (!this.savedMedia[index].url) {
-          this.savedMedia[index].url = this.location + "/" + image.name;
-        }
-      });
-
       setTimeout(() => (this.isLoading = false), 1000);
-
-      this.$emit("init", this.allMedia);
     },
     async fileChange(event) {
       this.isLoading = true;
       let files = event.target.files;
 
       for (var i = 0; i < files.length; i++) {
-        if (!this.max || this.allMedia.length < this.max) {
+        if (!this.max || this.images.length < this.max) {
           if (files[i].size <= this.maxFilesize * 1000000) {
             let formData = new FormData();
             let url = URL.createObjectURL(files[i]);
@@ -244,12 +208,8 @@ export default {
               size: files[i].size,
               type: files[i].type,
             };
-            this.addedMedia.push(addedImage);
-
-            this.$emit("change", this.allMedia);
-            this.$emit("add", addedImage, this.addedMedia);
+            this.images.push(addedImage);
           } else {
-            this.$emit("maxFilesize", files[i].size);
             if (this.warnings) {
               alert(
                 "The file you are trying to upload is too big. \nMaximum Filesize: " +
@@ -260,7 +220,6 @@ export default {
             break;
           }
         } else {
-          this.$emit("max");
           if (this.warnings) {
             alert(
               "You have reached the maximum number of files that you can upload. \nMaximum Files: " +
@@ -273,28 +232,13 @@ export default {
       event.target.value = null;
       this.isLoading = false;
     },
-    removeAddedMedia(index) {
-      let removedImage = this.addedMedia[index];
-      this.addedMedia.splice(index, 1);
-
-      this.$emit("change", this.allMedia);
-      this.$emit("remove", removedImage, this.removedMedia);
+    removeImage(index) {
+      this.images.splice(index, 1);
     },
-    removeSavedMedia(index) {
-      let removedImage = this.savedMedia[index];
-      this.removedMedia.push(removedImage);
-      this.savedMedia.splice(index, 1);
-
-      this.$emit("change", this.allMedia);
-      this.$emit("remove", removedImage, this.removedMedia);
+    sortImage(index, x) {
+      this.images.splice(index + x, 0, this.images.splice(index, 1)[0]);
     },
   },
-  computed: {
-    allMedia() {
-      return [...this.savedMedia, ...this.addedMedia];
-    },
-  },
-  emits: ["init", "change", "add", "remove", "max", "maxFilesize"],
 };
 </script>
 

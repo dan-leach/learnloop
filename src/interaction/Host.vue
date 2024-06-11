@@ -179,6 +179,7 @@ if (isPreview.value) {
 }
 const exitPreviewSession = () => {
   config.client.isFocusView = false;
+  currentIndex.value = 0;
   interactionSession.slides.shift();
   interactionSession.slides.pop();
   router.push("/interaction/edit/" + interactionSession.id);

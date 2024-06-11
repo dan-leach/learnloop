@@ -56,10 +56,7 @@ const toggleContent = () => {
         </button>
       </li>
     </ul>
-    <p
-      v-if="interactionSession.slides[currentIndex].type != 'waitingRoom'"
-      class="display-6 text-center m-1"
-    >
+    <p class="display-6 text-center m-1">
       {{ interactionSession.slides[currentIndex].prompt }}
       <button
         v-if="interactionSession.slides[currentIndex].isInteractive"
