@@ -66,7 +66,9 @@ const deleteSubmissions = () => {
           and enter this code:
         </p>
         <p class="m-2">
-          <span class="join-id px-4 py-1">{{ interactionSession.id }}</span>
+          <span class="join-id px-4 py-1">{{
+            interactionSession.id ? interactionSession.id : "preview"
+          }}</span>
         </p>
       </div>
     </div>

@@ -173,8 +173,15 @@ const fetchDetailsHost = () => {
 };
 
 const isPreview = ref(useRouter().currentRoute.value.params.id == "preview");
+if (isPreview.value) {
+  interactionSession.slides.unshift({ type: "waitingRoom" });
+  interactionSession.slides.push({ type: "end" });
+}
 const exitPreviewSession = () => {
+  config.client.isFocusView = false;
   router.push("/interaction/create");
+  interactionSession.slides.shift();
+  interactionSession.slides.pop();
 };
 
 onMounted(() => {
@@ -268,7 +275,17 @@ onBeforeUnmount(() => {
         Interaction
       </h1>
       <p v-if="!config.client.isFocusView" class="text-center">
-        {{ interactionSession.title }} | {{ interactionSession.name }}
+        {{
+          interactionSession.title
+            ? interactionSession.title
+            : "[Session title]"
+        }}
+        |
+        {{
+          interactionSession.name
+            ? interactionSession.name
+            : "[Facilitator name]"
+        }}
       </p>
       <HostSlide
         :currentIndex="currentIndex"

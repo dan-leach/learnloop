@@ -235,7 +235,7 @@ onMounted(() => {
         router.push("/");
       }
     });
-  } else if (!interactionSession.slides.length) {
+  } else if (!interactionSession.slides.length && !interactionSession.title) {
     Swal.fire({
       title: "Private Beta",
       text: "LearnLoop Interaction is in private beta and can only be used by invitation. Unless you have joined the beta-testing group and had your email approved, you will not be able to create an interaction session.",
@@ -384,7 +384,10 @@ onMounted(() => {
                     <font-awesome-icon :icon="['fas', 'chevron-down']" />
                   </button>
                 </td>
-                <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
+                <td
+                  class="bg-transparent prompt-cell"
+                  v-if="slide.type != 'waitingRoom'"
+                >
                   {{ slide.prompt }}
                 </td>
                 <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
@@ -392,7 +395,7 @@ onMounted(() => {
                 </td>
                 <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
                   <button
-                    class="btn btn-danger btn-sm btn-right ms-4"
+                    class="btn btn-danger btn-sm btn-right ms-4 mb-2"
                     id="btnRemoveSlide"
                     @click="removeSlide(index)"
                   >
@@ -459,5 +462,8 @@ onMounted(() => {
 .list-leave-to {
   opacity: 0;
   transform: translateX(30px);
+}
+.prompt-cell {
+  max-width: 50vw;
 }
 </style>
