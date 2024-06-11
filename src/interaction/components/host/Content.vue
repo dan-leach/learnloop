@@ -2,16 +2,6 @@
 import { config } from "../../../data/config.js";
 const props = defineProps(["slide"]);
 const emit = defineEmits(["toggleContent"]);
-
-const toggleExpandImage = (image) => {
-  let expand = image.expand ? false : true;
-  for (let img of props.slide.content.images) {
-    img.expand = false;
-    img.hide = expand ? true : false;
-  }
-  image.hide = false;
-  image.expand = expand;
-};
 </script>
 
 <template>
@@ -23,28 +13,53 @@ const toggleExpandImage = (image) => {
       class="d-flex flex-wrap align-items-center justify-content-around"
       v-if="slide.content.images.length"
     >
-      <div class="image-container m-2" v-for="image in slide.content.images">
+      <div
+        class="image-container m-2"
+        v-for="(image, index) in slide.content.images"
+      >
+        <!-- Modal -->
+        <div
+          class="modal fade"
+          :id="'imgModal' + index"
+          tabindex="-1"
+          :aria-labelledby="'imgModalLabel' + index"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-fullscreen">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" :id="'imgModalLabel' + index">
+                  {{ image.caption }}
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div
+                class="modal-body d-flex justify-content-center align-items-center"
+              >
+                <img
+                  :src="config.api.imagesUrl + image.src"
+                  class="img-fluid modal-img"
+                  :id="image.src + '-onModal'"
+                  data-bs-dismiss="modal"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
         <img
           :src="config.api.imagesUrl + image.src"
-          class="img-fluid img-bg"
-          :class="
-            image.expand
-              ? 'position-absolute top-50 start-50 translate-middle'
-              : ''
-          "
+          class="slide-img img-fluid img-bg"
           :id="image.src"
-          @click="toggleExpandImage(image)"
+          data-bs-toggle="modal"
+          :data-bs-target="'#imgModal' + index"
           v-if="!image.hide"
         />
-        <p
-          class="text-center"
-          :class="
-            image.expand
-              ? 'position-absolute bottom-0 start-50 translate-middle-x'
-              : ''
-          "
-          v-if="!image.hide"
-        >
+        <p class="text-center" v-if="!image.hide">
           {{ image.caption }}
         </p>
       </div>
@@ -77,10 +92,16 @@ const toggleExpandImage = (image) => {
   max-width: 50%;
   max-height: 50%;
 }
-.img-fluid:hover {
+.slide-img:hover {
   border: 5px solid #17a2b8;
 }
 .img-bg {
   background-color: #f0f7f9;
+}
+.modal-content {
+  background-color: #f0f7f9;
+}
+.modal-img {
+  max-height: 100%;
 }
 </style>
