@@ -52,6 +52,26 @@ const props = defineProps(["slide"]);
       <p class="text-center">{{ image.caption }}</p>
     </div>
     <div
+      class="video-container d-flex flex-wrap align-items-center align-content-stretch justify-content-around"
+      v-if="slide.content.video.youtubeIDs.length"
+    >
+      <div
+        :id="'videoContainer' + index"
+        class="video-container m-2"
+        v-for="(id, index) in slide.content.video.youtubeIDs"
+      >
+        <iframe
+          :src="'https://www.youtube.com/embed/' + id"
+          width="100%"
+          title="YouTube video player"
+          frameborder="0"
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+          referrerpolicy="strict-origin-when-cross-origin"
+          allowfullscreen
+        ></iframe>
+      </div>
+    </div>
+    <div
       class="paragraph-container d-flex flex-column justify m-2"
       v-if="slide.content.textStrings.length && !slide.content.useBulletPoints"
     >

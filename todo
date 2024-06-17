@@ -6,11 +6,9 @@ Later:
 check how old feedback sessions function on the new frontend and api
 Check cookies work as expected
 Have arrow keys control slide movements
-Create media slot for interaction type slides
 
 Improvements:
 Prevent subsession update email when that subsession hasn't changed
-Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
 Create changelog
 Update api to use modern js fetch
 Add auto-create feedback session for an interact session?

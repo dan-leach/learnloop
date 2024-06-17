@@ -19,6 +19,9 @@ const slide = ref({
     images: [],
     textStrings: [],
     useBulletPoints: true,
+    video: {
+      youtubeIDs: [],
+    }
   },
   interaction: {
     options: [],
@@ -29,6 +32,7 @@ const slide = ref({
       main: true,
       images: false,
       textStrings: false,
+      video: true,
     },
     interaction: {
       main: true,
@@ -248,6 +252,37 @@ const sortOption = (index, x) =>
     slide.value.interaction.options.splice(index, 1)[0]
   );
 
+let newVideo = ref("");
+const youtube_parser = (url) => {
+    var regExp = /^.*((youtu.be\/)|(v\/)|(\/u\/\w\/)|(embed\/)|(watch\?))\??v?=?([^#&?]*).*/;
+    var match = url.match(regExp);
+    return (match&&match[7].length==11)? match[7] : false;
+}
+const addVideo = () => {
+  if (newVideo.value) {
+    let ID = youtube_parser(newVideo.value)
+    if (ID) {
+      slide.value.content.video.youtubeIDs.push(ID);
+      newVideo.value = "";
+    } else {
+      Swal.fire({
+        title: "Invalid video URL",
+        text: "The URL provided does not match the format expected for a YouTube video.",
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  } else {
+    document.getElementById("newVideo").classList.add("is-invalid");
+    setTimeout(
+      () => document.getElementById("newVideo").classList.remove("is-invalid"),
+      3000
+    );
+  }
+};
+const removeVideo = (index) => slide.value.content.video.youtubeIDs.splice(index, 1);
+
 let newTextString = ref("");
 const addTextString = () => {
   if (newTextString.value) {
@@ -313,7 +348,7 @@ const keepSelectedLimitsWithinMinMax = () => {
 let submit = () => {
   console.log(slide);
   slide.value.hasContent =
-    slide.value.content.images.length || slide.value.content.textStrings.length
+    slide.value.content.images.length || slide.value.content.textStrings.length || slide.value.content.video.youtubeIDs.length
       ? true
       : false;
   newTextString.value = "";
@@ -379,6 +414,9 @@ let submit = () => {
         images: [],
         textStrings: [],
         useBulletPoints: true,
+        video: {
+          youtubeIDs: [],
+        }
       },
       interaction: {
         options: [],
@@ -389,6 +427,7 @@ let submit = () => {
           main: true,
           images: false,
           textStrings: false,
+          video: true,
         },
         interaction: {
           main: true,
@@ -648,6 +687,66 @@ let submit = () => {
                       </div>
                       <div class="invalid-feedback">
                         Please provide some text for this slide.
+                      </div>
+                    </div>
+                  </div>
+                  <!--video-->
+                  <div class="card mb-3">
+                    <div class="card-header">
+                      <button
+                        id="btnShowContent"
+                        class="btn"
+                        @click="slide.show.content.video = !slide.show.content.video"
+                      >
+                        <label for="content" class="form-label me-2"
+                          >Video</label
+                        ><font-awesome-icon
+                          v-if="!slide.show.content.video"
+                          :icon="['fas', 'chevron-down']"
+                        />
+                        <font-awesome-icon v-else :icon="['fas', 'chevron-up']" />
+                      </button>
+                    </div>
+                    <div class="card-body" v-if="slide.show.content.video">
+                      <p class="ms-1 small">
+                        Embed a video from YouTube with the video URL.
+                      </p>
+                      <div v-for="(id, index) in slide.content.video.youtubeIDs" class="text-center">
+                        <iframe :src="'https://www.youtube.com/embed/'+id" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+                        <div class="text-center">
+                        <button
+                          class="btn btn-danger mb-2"
+                          id="btnRemoveVideo"
+                          @click.prevent="removeVideo(index)"
+                        >
+                          Remove video 
+                          <font-awesome-icon
+                            :icon="['fas', 'trash-can']"
+                            class="ms-2"
+                          />
+                        </button>
+                        </div>
+                      </div>
+                      <div class="input-group" v-if="slide.content.video.youtubeIDs.length < config.interaction.create.slides.videos.max">
+                        <input
+                          type="text"
+                          @keyup.enter="addVideo"
+                          class="form-control"
+                          id="newVideo"
+                          v-model="newVideo"
+                          placeholder="Add a video..."
+                          name="newVideo"
+                          autocomplete="off"
+                        />
+                        <button
+                          class="btn btn-teal btn-sm"
+                          @click.prevent="addVideo"
+                        >
+                          Add
+                        </button>
+                      </div>
+                      <div class="invalid-feedback">
+                        Please provide a video for this slide.
                       </div>
                     </div>
                   </div>

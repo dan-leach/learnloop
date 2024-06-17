@@ -25,7 +25,6 @@ function escapeProblemChars(str) {
 }
 
 function api(module, route, id, pin, data) {
-  console.log(escapeProblemChars(JSON.stringify(data)));
   return new Promise(function (resolve, reject) {
     setTimeout(function () {
       reject(
