@@ -91,7 +91,7 @@ onMounted(() => {
         <strong>{{ feedbackSession.date }}</strong
         >.
       </p>
-      <form method="post" action="https://dev.learnloop.co.uk/api/">
+      <form method="post" :action="config.api.url">
         <input type="text" name="module" value="feedback" readonly hidden />
         <input
           type="text"
@@ -130,7 +130,7 @@ onMounted(() => {
           </div>
         </div>
       </form>
-      <form method="post" action="https://dev.learnloop.co.uk/api/">
+      <form method="post" :action="config.api.url">
         <input type="text" name="module" value="feedback" readonly hidden />
         <input
           type="text"

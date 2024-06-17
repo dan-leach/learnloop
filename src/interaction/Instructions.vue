@@ -6,10 +6,34 @@ import { api } from "../data/api.js";
 import { interactionSession } from "../data/interactionSession.js";
 import { config } from "../data/config.js";
 import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
 import Loading from "../components/Loading.vue";
 
 const link = ref({});
 const loading = ref(true);
+
+let clipboard = ref(false);
+if (navigator.clipboard) clipboard.value = true;
+const copyText = (string) => {
+  if (!clipboard.value) return;
+  navigator.clipboard.writeText(string).then(
+    function () {
+      Toast.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        iconColor: "#17a2b8",
+        title: "Copied",
+      });
+    },
+    function (error) {
+      Toast.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
+      });
+    }
+  );
+};
 
 const fetchDetails = () => {
   api("interaction", "fetchDetails", interactionSession.id, null, null).then(
@@ -92,7 +116,8 @@ onMounted(() => {
         <div class="align-self-center">
           <p class="join-instructions">
             Scan the QR code, or go to<br />
-            <strong>LearnLoop.co.uk/interaction</strong><br />
+            <strong>{{ config.client.url.replace("https://", "") }}</strong
+            ><br />
             and enter this code:
           </p>
           <p class="m-2">
@@ -100,6 +125,19 @@ onMounted(() => {
           </p>
         </div>
       </div>
+      <p class="text-center fs-4 m-4">
+        Direct link:
+        <a :href="link.join" target="_blank">{{
+          link.join.replace("https://", "")
+        }}</a>
+        <font-awesome-icon
+          :icon="['fas', 'copy']"
+          size="lg"
+          class="mx-2 btn-copy p-1 align-middle"
+          style="color: black"
+          @click="copyText(link.join)"
+        />
+      </p>
     </div>
   </Transition>
 </template>
@@ -116,6 +154,7 @@ onMounted(() => {
   border: 2px solid #17a2b8;
   border-radius: 15px;
   color: #17a2b8;
+  letter-spacing: 10px;
 }
 .join-panel {
   background-color: white;
@@ -124,5 +163,15 @@ onMounted(() => {
 }
 .qr-code {
   width: 200px;
+}
+a {
+  color: black;
+}
+.btn-copy {
+  border: 5px solid transparent;
+  border-radius: 5px;
+}
+.btn-copy:hover {
+  border: 5px solid #17a2b8;
 }
 </style>

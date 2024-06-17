@@ -14,7 +14,7 @@ function api(module, route, id, pin, data) {
       );
     }, config.api.timeoutDuration);
     let req = new XMLHttpRequest();
-    req.open("POST", "https://dev.learnloop.co.uk/api/");
+    req.open("POST", config.api.url);
     req.onload = function () {
       if (req.status == 200) {
         try {

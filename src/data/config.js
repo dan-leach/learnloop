@@ -115,7 +115,7 @@ export const config = reactive({
     },
   },
   client: {
-    url: "https://dev.learnloop.co.uk",
+    url: "https://dev.LearnLoop.co.uk",
     isFocusView: false,
     subsessionEmailPrompt: true,
     regions: [

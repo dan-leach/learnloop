@@ -6,10 +6,34 @@ import { api } from "../data/api.js";
 import { feedbackSession } from "../data/feedbackSession.js";
 import { config } from "../data/config.js";
 import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
 import Loading from "../components/Loading.vue";
 
 const link = ref({});
 const loading = ref(true);
+
+let clipboard = ref(false);
+if (navigator.clipboard) clipboard.value = true;
+const copyText = (string) => {
+  if (!clipboard.value) return;
+  navigator.clipboard.writeText(string).then(
+    function () {
+      Toast.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        iconColor: "#17a2b8",
+        title: "Copied",
+      });
+    },
+    function (error) {
+      Toast.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error copying to clipboard: " + error,
+      });
+    }
+  );
+};
 
 const fetchDetails = () => {
   api("feedback", "fetchDetails", feedbackSession.id, null, null).then(
@@ -26,7 +50,7 @@ const fetchDetails = () => {
       feedbackSession.name = res.name;
       link.value.give = config.client.url + "/" + feedbackSession.id;
       link.value.qr =
-        config.api.url + "shared/QRcode/?id=" + interactionSession.id;
+        config.api.url + "shared/QRcode/?id=" + feedbackSession.id;
       loading.value = false;
     },
     function (error) {
@@ -90,7 +114,8 @@ onMounted(() => {
         <div class="align-self-center">
           <p class="give-instructions">
             Scan the QR code, or go to<br />
-            <strong>LearnLoop.co.uk/feedback</strong><br />
+            <strong>{{ config.client.url.replace("https://", "") }}</strong
+            ><br />
             and enter this code:
           </p>
           <p class="m-2">
@@ -98,6 +123,19 @@ onMounted(() => {
           </p>
         </div>
       </div>
+      <p class="text-center fs-4 m-4">
+        Direct link:
+        <a :href="link.give" target="_blank">{{
+          link.give.replace("https://", "")
+        }}</a>
+        <font-awesome-icon
+          :icon="['fas', 'copy']"
+          size="lg"
+          class="mx-2 btn-copy p-1 align-middle"
+          style="color: black"
+          @click="copyText(link.give)"
+        />
+      </p>
     </div>
   </Transition>
 </template>
@@ -114,10 +152,21 @@ onMounted(() => {
   border: 2px solid #17a2b8;
   border-radius: 15px;
   color: #17a2b8;
+  letter-spacing: 10px;
 }
 .give-panel {
   background-color: white;
   border: 1px solid #0000002d;
   border-radius: 5px;
+}
+a {
+  color: black;
+}
+.btn-copy {
+  border: 5px solid transparent;
+  border-radius: 5px;
+}
+.btn-copy:hover {
+  border: 5px solid #17a2b8;
 }
 </style>

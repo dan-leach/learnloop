@@ -2,6 +2,7 @@
 import { onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { api } from "./data/api.js";
+import { config } from "./data/config.js";
 import router from "./router";
 import Quote from "./components/Quote.vue";
 import Swal from "sweetalert2";
@@ -32,7 +33,9 @@ const resetPin = (module, id) => {
   Swal.fire({
     title: "Reset PIN",
     html:
-      "<div class='overflow-hidden'>You will need your session ID which you can find in emails relating to your session.<br>For example: learnloop.co.uk/?<mark>aBc123</mark>.<br>" +
+      "<div class='overflow-hidden'>You will need your session ID which you can find in emails relating to your session.<br>For example: " +
+      config.client.url.replace("https://", "") +
+      "/<mark>aBc123</mark>.<br>" +
       '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="' +
       id +
       '">' +

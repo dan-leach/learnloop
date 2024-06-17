@@ -84,7 +84,7 @@ const copyImg = async (src) => {
     ><br />
     Please check your inbox (or your junk mail) to ensure you received it. If it
     didn't arrive be sure to make a note of these details. Add
-    mail@learnloop.co.uk your safe senders list for next time.
+    {{ config.email }} your safe senders list for next time.
   </p>
   <div class="accordion" id="accordionCreated">
     <div class="accordion-item">

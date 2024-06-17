@@ -187,7 +187,7 @@ export default {
             let url = URL.createObjectURL(files[i]);
             formData.set("image", files[i]);
             const { data } = await axios.post(
-              "https://dev.learnloop.co.uk/api/interaction/uploads/index.php",
+              config.api.url + "/interaction/uploads/index.php",
               formData,
               this.config
             );

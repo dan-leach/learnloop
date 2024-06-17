@@ -44,7 +44,7 @@ const submit = () => {
     </p>
     <form
       method="post"
-      action="https://dev.learnloop.co.uk/api/"
+      :action="config.api.url"
       id="fetchCertificateForm"
       class="needs-validation"
       novalidate

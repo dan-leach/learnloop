@@ -1,8 +1,9 @@
 <script setup>
-import { onMounted } from 'vue';
-import Modal from 'bootstrap/js/dist/modal';
-import { feedbackSession } from '../../data/feedbackSession.js';
-const emit = defineEmits(['hideDownloadFeedbackModal']);
+import { onMounted } from "vue";
+import Modal from "bootstrap/js/dist/modal";
+import { config } from "../../data/config.js";
+import { feedbackSession } from "../../data/feedbackSession.js";
+const emit = defineEmits(["hideDownloadFeedbackModal"]);
 </script>
 
 <template>
@@ -25,7 +26,7 @@ const emit = defineEmits(['hideDownloadFeedbackModal']);
           <form
             id="downloadFeedbackPostForm"
             method="post"
-            action="https://dev.learnloop.co.uk/api/"
+            :action="config.api.url"
           >
             <input type="text" name="module" value="feedback" readonly hidden />
             <input

@@ -1,15 +1,15 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import 'bootstrap';
-import '@/assets/main.css';
+import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap";
+import "@/assets/main.css";
 
-import { createApp } from 'vue';
-import App from './App.vue';
-import router from './router';
+import { createApp } from "vue";
+import App from "./App.vue";
+import router from "./router";
 
 /* import the fontawesome core */
-import { library } from '@fortawesome/fontawesome-svg-core';
+import { library } from "@fortawesome/fontawesome-svg-core";
 /* import font awesome icon component */
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 /* import specific icons */
 import {
   faRotateRight,
@@ -30,7 +30,7 @@ import {
   faLock,
   faLockOpen,
   faArrowRightArrowLeft,
-} from '@fortawesome/free-solid-svg-icons';
+} from "@fortawesome/free-solid-svg-icons";
 /* add icons to the library */
 library.add(
   faRotateRight,
@@ -53,14 +53,14 @@ library.add(
   faArrowRightArrowLeft
 );
 
-import { cookies } from './data/cookies.js';
+import { cookies } from "./data/cookies.js";
 if (document.cookie) {
   try {
     const raw = document.cookie;
-    const splits = raw.split('; ');
+    const splits = raw.split("; ");
     const sliced = [];
     for (let split of splits) {
-      const index = split.indexOf('=');
+      const index = split.indexOf("=");
       sliced.push(split.slice(index + 1));
     }
     for (let slice of sliced) cookies.push(JSON.parse(slice));
@@ -69,8 +69,8 @@ if (document.cookie) {
   }
 }
 
-const app = createApp(App).component('font-awesome-icon', FontAwesomeIcon);
+const app = createApp(App).component("font-awesome-icon", FontAwesomeIcon);
 
 app.use(router);
 
-app.mount('#app');
+app.mount("#app");

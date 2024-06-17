@@ -1,3 +1,6 @@
+<script setup>
+import { config } from "./data/config.js";
+</script>
 <template>
   <h1 class="text-center display-4">Privacy Policy</h1>
   <p>
@@ -51,10 +54,10 @@
           </p>
           <p>
             If you want your data to be removed from the database please email
-            mail@learnloop.co.uk with the details of your feedback. As your
-            feedback is not directly attributable to you, you will need to
-            provide details regarding the feedback text to allow the entry to be
-            identified and removed.
+            <a :href="'mailto:' + config.email">{{ config.email }}</a> with the
+            details of your feedback. As your feedback is not directly
+            attributable to you, you will need to provide details regarding the
+            feedback text to allow the entry to be identified and removed.
           </p>
           <p>
             If you leave a feedback form before submitting it, or if you use the
@@ -129,7 +132,8 @@
           </p>
           <p>
             If you want your data to be removed from the database please email
-            mail@learnloop.co.uk with the session ID and facilitator email.
+            <a :href="'mailto:' + config.email">{{ config.email }}</a> with the
+            session ID and facilitator email.
           </p>
           <p>
             Unless you disable email notifications at the time of creating the
@@ -196,8 +200,9 @@
           </p>
           <p>
             If you want all data relating to your sessions to be removed from
-            the database please email mail@learnloop.co.uk with the session ID
-            and facilitator email.
+            the database please email
+            <a :href="'mailto:' + config.email">{{ config.email }}</a> with the
+            session ID and facilitator email.
           </p>
         </div>
       </div>
@@ -243,10 +248,11 @@
           </p>
           <p>
             If you want your data to be removed from the database please email
-            mail@learnloop.co.uk. As your responses are not directly
-            attributable to you, you will need to provide details to allow the
-            entry to be identified and removed. Many interactive responses will
-            not be specific enough for this to be possible.
+            <a :href="'mailto:' + config.email">{{ config.email }}</a
+            >. As your responses are not directly attributable to you, you will
+            need to provide details to allow the entry to be identified and
+            removed. Many interactive responses will not be specific enough for
+            this to be possible.
           </p>
         </div>
       </div>
@@ -293,7 +299,8 @@
           </p>
           <p>
             If you want your data to be removed from the database please email
-            mail@learnloop.co.uk with the session ID and facilitator email.
+            <a :href="'mailto:' + config.email">{{ config.email }}</a> with the
+            session ID and facilitator email.
           </p>
         </div>
       </div>
@@ -340,8 +347,9 @@
           </p>
           <p>
             If you want all data relating to your sessions to be removed from
-            the database please email mail@learnloop.co.uk with the session ID
-            and facilitator email.
+            the database please email
+            <a :href="'mailto:' + config.email">{{ config.email }}</a> with the
+            session ID and facilitator email.
           </p>
         </div>
       </div>

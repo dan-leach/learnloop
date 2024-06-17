@@ -12,9 +12,10 @@ require 'private/betaTesters.php';
 
 function handle_error($error)
 {
-    //sendMail(addHeader().$error."<br><br>".addFooter(false), 'LearnLoop error notification', 'mail@learnloop.co.uk', 'LearnLoop');
+    global $adminEmail;
+    sendMail(addHeader().$error."<br><br>".addFooter(false), 'LearnLoop error notification', $adminEmail, 'LearnLoop');
     http_response_code(500);
-    die(json_encode('Sorry, an unexpected error has occurred. This event has been logged. If you keep seeing this message please contact mail@learnloop.co.uk including the error message below and a description of what you were doing when it appeared. ' . preg_replace('/[[:cntrl:]]/', '', $error)));
+    die(json_encode('Sorry, an unexpected error has occurred. This event has been logged. If you keep seeing this message please contact ' . $adminEmail . ' including the error message below and a description of what you were doing when it appeared. ' . preg_replace('/[[:cntrl:]]/', '', $error)));
 }
 set_exception_handler('handle_error');
 

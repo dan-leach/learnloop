@@ -5,6 +5,7 @@ import router from "../router";
 import Modal from "bootstrap/js/dist/modal";
 import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
+import { config } from "../data/config.js";
 import Loading from "../components/Loading.vue";
 import DownloadFeedbackForm from "./components/DownloadFeedbackForm.vue";
 import Swal from "sweetalert2";
@@ -124,11 +125,7 @@ onMounted(() => {
         <strong>{{ feedbackSession.name }}</strong> on
         <strong>{{ feedbackSession.date }}</strong>
       </p>
-      <form
-        v-if="!isSeries"
-        method="post"
-        action="https://dev.learnloop.co.uk/api/"
-      >
+      <form v-if="!isSeries" method="post" :action="config.api.url">
         <input type="text" name="module" value="feedback" readonly hidden />
         <input
           type="text"

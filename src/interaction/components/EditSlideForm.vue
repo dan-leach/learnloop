@@ -79,7 +79,7 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/slide-type-example-single-choice.png" class="img-fluid mx-auto d-block">
+                <img src="`+config.client.url+`/img/slide-type-example-single-choice.png" class="img-fluid mx-auto d-block">
                 <p>Single choice interactions allow you to provide a selection of options from which attendees can choose only one. By default attendees will be able to respond only once but you can allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
@@ -92,7 +92,7 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/slide-type-example-multiple-choice.png" class="img-fluid mx-auto d-block">
+                <img src="`+config.client.url+`/img/slide-type-example-multiple-choice.png" class="img-fluid mx-auto d-block">
                 <p>Multiple choice interactions allow you to provide a selection of options from which attendees can choose. By default attendees must chose at least 1 option and can select as many as they wish, but optionally you can set a minimum and maximum number of options per response. By default attendees will be able to respond only once but you can optionally allow a higher number of responses per person. You can set the results not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
@@ -105,7 +105,7 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/slide-type-example-free-text.png" class="img-fluid mx-auto d-block">
+                <img src="`+config.client.url+`/img/slide-type-example-free-text.png" class="img-fluid mx-auto d-block">
                 <p>Free text interactions allow attendees to provide typed responses which appear on the host screen. By default attendees will be able to respond 10 times but you can set a different number of allowed responses per person. To keep responses short the default character limit is 200, but you can set this to a different value if required. You can set the responses not to appear on the host view until after you reveal them by activating this option in settings when creating the slide.</p>
               </div>
             </div>
@@ -118,7 +118,7 @@ const questionTypeInfo = () => {
           </h2>
           <div id="collapseFour" class="accordion-collapse collapse" aria-labelledby="headingFour" data-bs-parent="#accordionFour">
             <div class="accordion-body">
-              <img src="https://dev.learnloop.co.uk/img/slide-type-example-bullet-points.png" class="img-fluid mx-auto d-block">
+              <img src="`+config.client.url+`/img/slide-type-example-bullet-points.png" class="img-fluid mx-auto d-block">
               <p>Bullet points is a non-interactive slide type which allows you to show text in bullet point format. By default the content on this slide will show on the host's screen only, not the attendees devices, but this can be changed in settings if preferred.</p>
             </div>
           </div>
@@ -147,7 +147,7 @@ const chartTypeInfo = () => {
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/slide-chart-example-bar.png" class="img-fluid mx-auto d-block">
+                <img src="`+config.client.url+`/img/slide-chart-example-bar.png" class="img-fluid mx-auto d-block">
                 <p>You can hover over any of the bars to show the exact number of responses that option has received.</p>
               </div>
             </div>
@@ -160,7 +160,7 @@ const chartTypeInfo = () => {
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/slide-chart-example-doughnut.png" class="img-fluid mx-auto d-block">
+                <img src="`+config.client.url+`/img/slide-chart-example-doughnut.png" class="img-fluid mx-auto d-block">
                 <p>You can hover over any of the segments to show the exact number of responses that option has received.</p>
               </div>
             </div>
@@ -180,9 +180,9 @@ const optionsMinMaxInfo = () => {
     html: `
       <div class="text-start">
         <p>By default attendees must select between one and all of the available options. You can change the minimum and maximum if required. If the attendee attempts to submit a response with fewer than the minimum number of options selected they will receive an alert like this one:</p>
-        <img src="https://dev.learnloop.co.uk/img/slide-selection-min.png" class="img-fluid mx-auto d-block">
+        <img src="`+config.client.url+`/img/slide-selection-min.png" class="img-fluid mx-auto d-block">
         <p>Or, if they select more options than the maximum, they will receive an alert like this one:</p>
-        <img src="https://dev.learnloop.co.uk/img/slide-selection-max.png" class="img-fluid mx-auto d-block">
+        <img src="`+config.client.url+`/img/slide-selection-max.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: "60%",
     confirmButtonColor: "#17a2b8",
@@ -197,7 +197,7 @@ const submissionLimitInfo = () => {
     html: `
       <div class="text-start">
         <p>By default attendees can respond only once to interactions (10 times for free text interactions). You can change this number if required. Once they have responded the maximum number of times the interaction will be disabled on their device:</p>
-        <img src="https://dev.learnloop.co.uk/img/slide-submission-limit.png" class="img-fluid mx-auto d-block">
+        <img src="`+config.client.url+`/img/slide-submission-limit.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: "60%",
     confirmButtonColor: "#17a2b8",
@@ -212,7 +212,7 @@ const hideResponsesInfo = () => {
     html: `
       <div class="text-start">
         <p>If you want to prevent attendees from seeing what others are responding until you reveal the answer you can select this option. Your screen will display this view until your click to reveal the responses:</p>
-        <img src="https://dev.learnloop.co.uk/img/slide-hide-responses.png" class="img-fluid mx-auto d-block">
+        <img src="`+config.client.url+`/img/slide-hide-responses.png" class="img-fluid mx-auto d-block">
       </div>`,
     width: "60%",
     confirmButtonColor: "#17a2b8",

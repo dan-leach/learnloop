@@ -38,7 +38,8 @@ const questionTypeInfo = () => {
     icon: "info",
     iconColor: "#17a2b8",
     title: "Question types",
-    html: `
+    html:
+      `
       <div class="text-start">
         <p>There are several different custom question types available to capture feedback from your attendees. Click below to see examples and further details about each:</p>
         <div class="accordion" id="accordionTypes">
@@ -50,7 +51,9 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/question-type-example-text.png" class="img-fluid mx-auto d-block">
+                <img src="` +
+      config.client.url +
+      `/img/question-type-example-text.png" class="img-fluid mx-auto d-block">
                 <p>Text questions will show your prompt above a free-text input area. You can set the question to be compulsory (default) or optional, and set a character limit (default: 500 characters).</p>
               </div>
             </div>
@@ -63,7 +66,9 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/question-type-example-select.png" class="img-fluid mx-auto d-block">
+                <img src="` +
+      config.client.url +
+      `/img/question-type-example-select.png" class="img-fluid mx-auto d-block">
                 <p>Drop-down select will show a drop-down menu listing your defined options. Users can only select one of the options. You can define up to 20 options and set the question to be compulsory (default) or optional.</p>
               </div>
             </div>
@@ -76,7 +81,9 @@ const questionTypeInfo = () => {
             </h2>
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
-                <img src="https://dev.learnloop.co.uk/img/question-type-example-checkbox.png" class="img-fluid mx-auto d-block">
+                <img src="` +
+      config.client.url +
+      `/img/question-type-example-checkbox.png" class="img-fluid mx-auto d-block">
                 <p>Checkbox questions will show a list of your defined options. Users can select multiple questions. By default they must select between 1 and all the options, but you can set a minimum and maximum number, as well as setting the question to be compulsory (default) or optional. </p>
               </div>
             </div>

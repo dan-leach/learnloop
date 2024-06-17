@@ -14,19 +14,16 @@ Create media slot for interaction type slides
 Improvements:
 Prevent subsession update email when that subsession hasn't changed
 Convert downloads to modal pop ups to make different options (like downloading just subsession feedback) clearer
-Create readme and changelog
+Create changelog
 Update api to use modern js fetch
 Add auto-create feedback session for an interact session?
 Add interaction related quotes
-Add mailto links to privacy policy
 
 BEFORE BUILD:
 
-1. Remove form actions 'https://dev.learnloop.co.uk/api' change to 'api/'
 2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative
 3. Update the path to the api in src/data/api.js to be relative not absolute
 4. Re-enable sendMail for errors in api/index.php
-5. Remove 'dev' from url string in api/shared/QRcode
 
 ON BETA-END:
 
@@ -53,3 +50,4 @@ ON DEPLOY:
 
 2.  Remove the allow CORS from the htaccess in dev.learnloop.co.uk
 3.  Check directory privacy attached to api/private/ and api/shared/
+4.  Remove dev per readme
