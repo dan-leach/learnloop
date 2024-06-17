@@ -84,13 +84,13 @@ function organiseQuestionFeedback($questions, $questionFeedback){
 }
 
 function outputFeedbackPDF($feedback){
-    global $rootURL;
-
+    
     require('FPDF/fpdf.php');
             
     class PDFa extends FPDF {
         // Page footer
         function Footer() {
+            global $rootURL;
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
             $this->Image('shared/logo.png',80,270,50,0,'', $rootURL);
@@ -241,12 +241,12 @@ function countAttendees($attendees){
 }
 
 function outputAttendancePDF($attendance){
-    global $rootURL;
     require('FPDF/fpdf.php');
                 
     class PDFb extends FPDF {
         // Page footer
         function Footer() {
+            global $rootURL;
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
             $this->Image('shared/logo.png',80,270,50,0,'', $rootURL);
@@ -329,7 +329,6 @@ function outputAttendanceCSV($attendance){
 
 function outputCertificate($details, $name){
     $stringOfSubsessionTitles = buildStringOfSubsessionTitles($details);
-    global $rootURL;
     require('FPDF/fpdf.php');
 
     class PDFc extends FPDF
@@ -350,6 +349,7 @@ function outputCertificate($details, $name){
             // Page footer
             function Footer()
             {
+                global $rootURL;
                 // Position at 1.5 cm from bottom
                 $this->SetY(-15);
                 $this->Image('shared/logo.png',80,270,50,0,'',$rootURL);

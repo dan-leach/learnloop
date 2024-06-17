@@ -32,7 +32,7 @@ const slide = ref({
       main: true,
       images: false,
       textStrings: false,
-      video: true,
+      video: false,
     },
     interaction: {
       main: true,

@@ -4,7 +4,7 @@ export const config = reactive({
   version: "5.0",
   author: "Dan Leach",
   web: "https://github.com/dan-leach",
-  repo: "https://github.com/dan-leach/learnloop",
+  repo: "https://github.com/dan-leach/learnloop/tree/v5",
   email: "mail@learnloop.co.uk",
   feedback: {
     create: {

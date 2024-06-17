@@ -19,7 +19,7 @@ function insertSession($data, $link)
     $email = filter_var($data->email, FILTER_SANITIZE_EMAIL);
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) $errMsg .= "Email is not valid. ";
     global $betaTesters;
-    if (!in_array($email, $betaTesters)) send_error_response("The email provided has not been authorised for beta-testing", 401);
+    if (!in_array(strtolower($email), $betaTesters)) send_error_response("The email provided has not been authorised for beta-testing", 401);
     $feedbackID = ($data->feedbackID) ? htmlspecialchars($data->feedbackID) : "";
     if ($feedbackID) {
         if (!dbFeedbackSessionExists($feedbackID, $link)) send_error_response("Feedback session ID not recognised", 400);

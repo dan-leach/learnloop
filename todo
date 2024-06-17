@@ -24,6 +24,7 @@ ON BETA-END:
 2. Remove from interact/create beta-testers Swal fire and it's else block
 3. On homepage move interact card back into same d-flex div as feedback card and remove beta-testing warning
 4. Remove betaTester.php import in api/index.php and remove betaTester.php file
+5. Update config repo URL
 
 ON DEPLOY:
 
