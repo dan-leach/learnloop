@@ -4,7 +4,28 @@ function escapeAmpersand(str) {
   return str.replace(/&/g, "%26");
 }
 
+function escapeLongdash(str) {
+  return str.replace(/–/g, "-");
+}
+
+function escapeRightQuote(str) {
+  return str.replace(/’/g, "'");
+}
+
+function escapeLeftQuote(str) {
+  return str.replace(/‘/g, "'");
+}
+
+function escapeProblemChars(str) {
+  let output = escapeAmpersand(str);
+  output = escapeLongdash(output);
+  output = escapeRightQuote(output);
+  output = escapeLeftQuote(output);
+  return output;
+}
+
 function api(module, route, id, pin, data) {
+  console.log(escapeProblemChars(JSON.stringify(data)));
   return new Promise(function (resolve, reject) {
     setTimeout(function () {
       reject(
@@ -54,7 +75,7 @@ function api(module, route, id, pin, data) {
         "&pin=" +
         pin +
         "&data=" +
-        escapeAmpersand(JSON.stringify(data))
+        escapeProblemChars(JSON.stringify(data))
     );
     if (config.api.showApiConsole) console.log(route, data ? data : "");
   });
