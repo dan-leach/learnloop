@@ -266,9 +266,9 @@ onMounted(() => {
   }
   let routeName = useRouter().currentRoute.value.name;
   if (routeName == "interaction-resetPIN") resetPin("interaction", id);
-  if (routeName == "feedback-resetPIN") resetPin("feedback", id);
-  if (routeName == "feedback-notifications") setNotificationPreference(id);
-  if (routeName == "home" && id) {
+  else if (routeName == "feedback-resetPIN") resetPin("feedback", id);
+  else if (routeName == "feedback-notifications") setNotificationPreference(id);
+  else if (routeName == "home" && id) {
     if (id.charAt(0) == "i") router.push("/interaction/" + id);
     else router.push("/feedback/" + id);
   } else {
