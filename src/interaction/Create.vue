@@ -66,15 +66,13 @@ const feedbackIdInfo = () => {
   });
 };
 
-const previewSession = () => {
-  router.push("/interaction/host/preview");
-};
-
-let isEdit =
+interactionSession.editMode =
   useRouter().currentRoute.value.name == "interaction-edit" ? true : false;
-let loading = ref(isEdit ? true : false);
+let loading = ref(interactionSession.editMode ? true : false);
 let btnSubmit = ref({
-  text: isEdit ? "Update interaction session" : "Create interaction session",
+  text: interactionSession.editMode
+    ? "Update interaction session"
+    : "Create interaction session",
   wait: false,
 });
 const formIsValid = () => {
@@ -103,7 +101,7 @@ const submit = () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
-  if (isEdit) {
+  if (interactionSession.editMode) {
     api(
       "interaction",
       "updateSession",
@@ -158,6 +156,10 @@ const submit = () => {
   }
 };
 
+const previewSession = () => {
+  router.push("/interaction/host/preview");
+};
+
 const fetchDetailsHost = () => {
   api(
     "interaction",
@@ -207,7 +209,7 @@ const fetchDetailsHost = () => {
 };
 
 onMounted(() => {
-  if (isEdit) {
+  if (interactionSession.editMode) {
     interactionSession.id = useRouter().currentRoute.value.params.id;
     if (interactionSession.pin) {
       loading.value = false;

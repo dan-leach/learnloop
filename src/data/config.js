@@ -112,7 +112,7 @@ export const config = reactive({
           maxSize: 500000,
         },
         videos: {
-          max: 2,
+          max: 1,
         },
       },
     },

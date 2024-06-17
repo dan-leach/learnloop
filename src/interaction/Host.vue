@@ -61,8 +61,8 @@ const goToSlide = (index) => {
     });
   }
   currentIndex.value = index;
-  updateHostStatus();
-  if (index == 0) fetchSubmissionCount();
+  if (!isPreview.value) updateHostStatus();
+  if (index == 0 && !isPreview.value) fetchSubmissionCount();
   if (interactionSession.slides[currentIndex.value].interaction)
     interactionSession.slides[currentIndex.value].interaction.submissions = [];
   console.log(interactionSession.slides[currentIndex.value]);
@@ -70,7 +70,7 @@ const goToSlide = (index) => {
 const toggleLockSlide = () => {
   interactionSession.hostStatus.lockedSlides[currentIndex.value] =
     !interactionSession.hostStatus.lockedSlides[currentIndex.value];
-  updateHostStatus();
+  if (!isPreview.value) updateHostStatus();
 };
 
 let fetchNewSubmissionsFailCount = 0;
@@ -178,11 +178,16 @@ if (isPreview.value) {
   interactionSession.slides.push({ type: "end" });
 }
 const exitPreviewSession = () => {
+  loading.value = true;
   config.client.isFocusView = false;
   currentIndex.value = 0;
   interactionSession.slides.shift();
   interactionSession.slides.pop();
-  router.push("/interaction/edit/" + interactionSession.id);
+  if (interactionSession.editMode) {
+    router.push("/interaction/edit/" + interactionSession.id);
+  } else {
+    router.push("/interaction/create");
+  }
 };
 
 onMounted(() => {
@@ -290,6 +295,7 @@ onBeforeUnmount(() => {
       </p>
       <HostSlide
         :currentIndex="currentIndex"
+        :isPreview="isPreview"
         class="m-2"
         :class="{ container: !config.client.isFocusView }"
         @goForward="goToSlide(currentIndex + 1)"

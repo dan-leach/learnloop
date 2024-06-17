@@ -9,7 +9,7 @@ import FreeText from "./host/FreeText.vue";
 import Content from "./host/Content.vue";
 import { config } from "../../data/config.js";
 
-const props = defineProps(["currentIndex"]);
+const props = defineProps(["currentIndex", "isPreview"]);
 const emit = defineEmits(["goForward", "goBack", "goStart", "toggleLockSlide"]);
 
 const showResponses = () => {
@@ -43,7 +43,9 @@ const toggleContent = () => {
         <p class="text-center m-1">
           To join go to {{ config.client.url.replace("https://", "") }}
           and use the code
-          <span class="join-id-top p-1">{{ interactionSession.id }}</span>
+          <span class="join-id-top p-1">{{
+            isPreview ? "preview" : interactionSession.id
+          }}</span>
         </p>
       </li>
       <li class="nav-item">
