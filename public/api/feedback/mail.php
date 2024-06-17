@@ -2,12 +2,13 @@
 
 function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $seriesName, $seriesTitle, $notifications, $certificate, $attendance, $questions, $id, $pin, $email)
 {
+    global $rootURL;
 
     $messageContent = addHeader();
 
     $messageContent .= "
             <p>Hello " . $name . ",<br><br>
-            A feedback request has been successfully created on <a href='https://learnloop.co.uk'>LearnLoop</a> for your session '" . $title . "' delivered on " . $date . ".
+            A feedback request has been successfully created on <a href='" . $rootURL . "'>LearnLoop</a> for your session '" . $title . "' delivered on " . $date . ".
         ";
 
     if ($isSubsession) $messageContent .= "<br>This feedback request was created by " . $seriesName . " for the session series '" . $seriesTitle . "'.";
@@ -16,7 +17,7 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
         </p><p>Please keep this email for future reference.</p>
         <span style='font-size:2em'>Your session ID is <strong>" . $id . "</strong><br>
         Your session PIN is <strong>" . $pin . "</strong></span><br>
-        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/feedback/resetPIN/" . $id . "'>Reset your PIN</a>.<br>
+        Do not share your PIN or this email with attendees. <a href='" . $rootURL . "/feedback/resetPIN/" . $id . "'>Reset your PIN</a>.<br>
     ";
 
     if ($subsessionTitles) {
@@ -41,7 +42,7 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
         $messageContent .= "<br>";
     }
 
-    $messageContent .= "<a href='https://learnloop.co.uk/feedback/edit/" . $id . "'>Edit your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
+    $messageContent .= "<a href='" . $rootURL . "/feedback/edit/" . $id . "'>Edit your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
         <p style='font-size:1.5em'>How to direct attendees to the feedback form</p>
     ";
 
@@ -51,20 +52,20 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
         ";
     } else {
         $messageContent .= "
-            You can share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a><br>
-            Or, ask them to go to <a href='https://learnloop.co.uk/feedback'>learnloop.co.uk</a> and enter the session ID.<br>
-            Or, <a href='https://learnloop.co.uk/feedback/instructions/" . $id . "'>show a page with instructions on how to reach the feedback form</a> including a QR code for your attendees to scan.<br>
+            You can share the direct link: <a href='" . $rootURL . "/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/" . $id . "</a><br>
+            Or, ask them to go to <a href='" . $rootURL . "'>" . str_replace("https://", "", $rootURL) . "</a> and enter the session ID.<br>
+            Or, <a href='" . $rootURL . "/feedback/instructions/" . $id . "'>show a page with instructions on how to reach the feedback form</a> including a QR code for your attendees to scan.<br>
         ";
         if (!$isSubsession && $certificate) $messageContent .= "<br>Don't forget to let your attendees know that they'll be able to download a certificate of attendance after completing feedback.";
     }
 
     $messageContent .= "
         <p style='font-size:1.5em'>View your feedback</p>
-        <p>Go to <a href='https://learnloop.co.uk/feedback/view/" . $id . "'>learnloop.co.uk/feedback/view/" . $id . "</a> and enter your PIN to retrieve submitted feedback.<br>";
+        <p>Go to <a href='" . $rootURL . "/feedback/view/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/feedback/view/" . $id . "</a> and enter your PIN to retrieve submitted feedback.<br>";
     $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. " : "Email notification of feedback submissions is <strong>disabled</strong>. ";
-    $messageContent .= "<a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Update your notification preferences</a>.<br>
+    $messageContent .= "<a href='" . $rootURL . "/feedback/notifications/" . $id . "'>Update your notification preferences</a>.<br>
     ";
-    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/feedback/attendance/" . $id . "'>View attendance register</a>.<br>";
+    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='" . $rootURL . "/feedback/attendance/" . $id . "'>View attendance register</a>.<br>";
     $messageContent .= "<br>";
 
     $messageContent .= addFooter($isSubsession);
@@ -78,12 +79,13 @@ function sendSessionCreatedMessage($isSubsession, $subsessionTitles, $date, $nam
 
 function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $name, $title, $seriesName, $seriesTitle, $notifications, $certificate, $attendance, $questions, $id, $email)
 {
+    global $rootURL;
 
     $messageContent = addHeader();
 
     $messageContent .= "
             <p>Hello " . $name . ",<br><br>
-            Your feedback request has been successfully updated on <a href='https://learnloop.co.uk'>LearnLoop</a> for your session '" . $title . "' delivered on " . $date . ".
+            Your feedback request has been successfully updated on <a href='" . $rootURL . "'>LearnLoop</a> for your session '" . $title . "' delivered on " . $date . ".
         ";
 
     if ($isSubsession) $messageContent .= "<br>This feedback request was created by " . $seriesName . " for the session series '" . $seriesTitle . "'.";
@@ -91,7 +93,7 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
     $messageContent .= "
         </p>
         <span style='font-size:2em'>Your session ID is <strong>" . $id . "</strong></span><br>
-        Refer to the email sent when you session was created for your PIN or <a href='https://learnloop.co.uk/feedback/resetPIN/" . $id . "'>reset your PIN</a>.<br>
+        Refer to the email sent when you session was created for your PIN or <a href='" . $rootURL . "/feedback/resetPIN/" . $id . "'>reset your PIN</a>.<br>
     ";
 
     if ($subsessionTitles) {
@@ -116,7 +118,7 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
         $messageContent .= "<br>";
     }
 
-    $messageContent .= "<a href='https://learnloop.co.uk/feedback/edit/" . $id . "'>Make further edits to your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
+    $messageContent .= "<a href='" . $rootURL . "/feedback/edit/" . $id . "'>Make further edits to your session</a>. This option is only available <strong>before</strong> feedback has been submitted.
         <p style='font-size:1.5em'>How to direct attendees to the feedback form</p>
     ";
 
@@ -126,20 +128,20 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
         ";
     } else {
         $messageContent .= "
-            You can share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a><br>
-            Or, ask them to go to <a href='https://learnloop.co.uk/feedback'>learnloop.co.uk/feedback</a> and enter the session ID.<br>
-            Or, <a href='https://learnloop.co.uk/feedback/instructions/" . $id . "'>show a page with instructions on how to reach the feedback form</a> including a QR code for your attendees to scan.<br>
+            You can share the direct link: <a href='" . $rootURL . "/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/" . $id . "</a><br>
+            Or, ask them to go to <a href='" . $rootURL . "/feedback'>" . str_replace("https://", "", $rootURL) . "/feedback</a> and enter the session ID.<br>
+            Or, <a href='" . $rootURL . "/feedback/instructions/" . $id . "'>show a page with instructions on how to reach the feedback form</a> including a QR code for your attendees to scan.<br>
         ";
         if (!$isSubsession && $certificate) $messageContent .= "<br>Don't forget to let your attendees know that they'll be able to download a certificate of attendance after completing feedback.";
     }
 
     $messageContent .= "
         <p style='font-size:1.5em'>View your feedback</p>
-        <p>Go to <a href='https://learnloop.co.uk/view/" . $id . "'>learnloop.co.uk/view/" . $id . "</a> and enter your PIN to retrieve submitted feedback.<br>";
+        <p>Go to <a href='" . $rootURL . "/feedback/view/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/feedback/view/" . $id . "</a> and enter your PIN to retrieve submitted feedback.<br>";
     $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. " : "Email notification of feedback submissions is <strong>disabled</strong>. ";
-    $messageContent .= "<a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Update your notification preferences</a>.<br>
+    $messageContent .= "<a href='" . $rootURL . "/feedback/notifications/" . $id . "'>Update your notification preferences</a>.<br>
     ";
-    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='https://learnloop.co.uk/feedback/attendance/" . $id . "'>View attendance register</a>.<br>";
+    if (!$isSubsession && $attendance) $messageContent .= "The attendance register is <strong>enabled</strong>. <a href='" . $rootURL . "/feedback/attendance/" . $id . "'>View attendance register</a>.<br>";
     $messageContent .= "<br>";
 
     $messageContent .= addFooter($isSubsession);
@@ -153,6 +155,8 @@ function sendSessionUpdatedMessage($isSubsession, $subsessionTitles, $date, $nam
 
 function sendFeedbackNotification($isSubsession, $date, $name, $title, $seriesName, $seriesTitle, $id, $email)
 {
+    global $rootURL;
+    
     $d = date_create($date);
     $date = date_format($d, 'd/m/Y');
 
@@ -167,9 +171,9 @@ function sendFeedbackNotification($isSubsession, $date, $name, $title, $seriesNa
 
     $messageContent .= "
         </p><p style='font-size:1.5em'>View your feedback</p>
-        <p>Go to <a href='https://learnloop.co.uk/feedback/view/" . $id . "'>learnloop.co.uk/feedback/view/" . $id . "</a> and enter your PIN (refer to session creation email, or <a href='https://learnloop.co.uk/feedback/resetPIN/" . $id . "'>reset your PIN</a>) to retrieve submitted feedback.<br>
+        <p>Go to <a href='" . $rootURL . "/feedback/view/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/feedback/view/" . $id . "</a> and enter your PIN (refer to session creation email, or <a href='" . $rootURL . "/feedback/resetPIN/" . $id . "'>reset your PIN</a>) to retrieve submitted feedback.<br>
         Please note, to avoid overloading your inbox, no further notifications will be sent for feedback submitted within the next 2 hours.</p>
-        <p><a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Update your notification preferences</a> if you don't want to receive these emails.</p>
+        <p><a href='" . $rootURL . "/feedback/notifications/" . $id . "'>Update your notification preferences</a> if you don't want to receive these emails.</p>
     ";
 
     $messageContent .= addFooter(false);
@@ -183,6 +187,8 @@ function sendFeedbackNotification($isSubsession, $date, $name, $title, $seriesNa
 
 function sendNotificationPreferenceStatus($id, $date, $name, $title, $email, $notifications)
 {
+    global $rootURL;
+
     $d = date_create($date);
     $date = date_format($d, 'd/m/Y');
 
@@ -194,7 +200,7 @@ function sendNotificationPreferenceStatus($id, $date, $name, $title, $email, $no
     ";
 
     $messageContent .= ($notifications) ? "Email notification of feedback submissions is <strong>enabled</strong>. " : "Email notification of feedback submissions is <strong>disabled</strong>. ";
-    $messageContent .= "<br><br><a href='https://learnloop.co.uk/feedback/notifications/" . $id . "'>Click here</a> to update your notification preferences.<br><br>";
+    $messageContent .= "<br><br><a href='" . $rootURL . "/feedback/notifications/" . $id . "'>Click here</a> to update your notification preferences.<br><br>";
 
     $messageContent .= addFooter(false);
 
@@ -227,6 +233,8 @@ function sendResetPin($name, $title, $email, $pin)
 
 function sendFoundSessions($foundDetails, $email)
 {
+    global $rootURL;
+    
     $name = $foundDetails[count($foundDetails) - 1]['name'];
 
     $messageContent = addHeader();
@@ -234,13 +242,13 @@ function sendFoundSessions($foundDetails, $email)
     $messageContent .= "
         <p>Hello " . $name . ",<br><br>
         Here are the details of your sessions on LearnLoop.</p>
-        <p>Go to <a href='https://learnloop.co.uk'>LearnLoop.co.uk</a> and use the session ID and PIN to view submitted feedback or the attendance register. A link is provided to reset the PIN if you don't have the original.</p>
+        <p>Go to <a href='" . $rootURL . "'>" . str_replace("https://", "", $rootURL) . "</a> and use the session ID and PIN to view submitted feedback or the attendance register. A link is provided to reset the PIN if you don't have the original.</p>
     ";
 
     foreach ($foundDetails as $details) {
         $messageContent .= "
             <p style='font-size:1.2em'>" . $details['title'] . "<br>
-            Date: " . formatDateHuman($details['date']) . " | Session ID:  " . $details['id'] . " | Status: " . ($details['closed'] ? "closed" : "open") . " | <a href='https://learnloop.co.uk/feedback/resetPIN/" . $details['id'] . "'>Reset PIN</a></p>
+            Date: " . formatDateHuman($details['date']) . " | Session ID:  " . $details['id'] . " | Status: " . ($details['closed'] ? "closed" : "open") . " | <a href='" . $rootURL . "/feedback/resetPIN/" . $details['id'] . "'>Reset PIN</a></p>
         ";
     }
 
@@ -257,6 +265,9 @@ function sendFoundSessions($foundDetails, $email)
 
 function sendSessionClosed($details, $isSubsession)
 {
+
+    global $adminEmail;
+
     $messageContent = addHeader();
 
     $messageContent .= "
@@ -266,7 +277,7 @@ function sendSessionClosed($details, $isSubsession)
     if ($isSubsession) {
         $messageContent .= "<p>This action was performed by the session series organiser.</p>";
     } else {
-        $messageContent .= "<p>If you didn't request this please contact <a href='mailto:mail@learnloop.co.uk'>mail@learnloop.co.uk</a> for support.</p>";
+        $messageContent .= "<p>If you didn't request this please contact <a href='mailto:" . $adminEmail . "'>". $adminEmail . "</a> for support.</p>";
     }
 
     $messageContent .= addFooter(false);

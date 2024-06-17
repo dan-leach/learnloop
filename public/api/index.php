@@ -1,5 +1,10 @@
 <?php
 
+$devMode = true;
+$rootURL = "https://LearnLoop.co.uk";
+if ($devMode) $rootURL = "https://dev.LearnLoop.co.uk";
+$adminEmail = "mail@LearnLoop.co.uk";
+
 require 'shared/mail.php';
 require 'shared/utilities.php';
 require 'private/keys.php';

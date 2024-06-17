@@ -9,11 +9,13 @@ require 'PHPMailer/src/PHPMailer.php';
 require 'PHPMailer/src/SMTP.php';
 
 function sendMail($messageContent, $subject, $email, $name){
+    global $rootURL;
+    global $adminEmail;
     /* Create a new PHPMailer object. Passing TRUE to the constructor enables exceptions. */
     $mail = new PHPMailer(TRUE);
 
     /* Set the mail sender. */
-    $mail->setFrom('mail@learnloop.co.uk', 'LearnLoop');
+    $mail->setFrom($adminEmail, 'LearnLoop');
 
     /* Add a recipient. */
     $mail->addAddress($email, html_entity_decode($name));
@@ -41,10 +43,18 @@ function addHeader(){
 }
 
 function addFooter($includeInvite){
-    $res = "
+    global $devMode;
+    global $rootURL;
+    global $adminEmail;
+
+    $res = "";
+
+    if ($devMode) $res .= "This session uses the development version of LearnLoop and may include experimental features which might not be supported long-term. Please report any bugs or other feedback to <a href='mailto:" . $adminEmail . "'>" . $adminEmail . "</a>.<br><br>";
+
+    $res .= "
             Kind regards,<br>
-            <strong><a href='https://learnloop.co.uk'>LearnLoop</a></strong><br>";
-    if ($includeInvite) $res .= "<br><i>You can request feedback for your own sessions using LearnLoop. Visit <a href='https://learnloop.co.uk'>learnloop.co.uk</a> to get started!</i>";
+            <strong><a href='" . $rootURL . "'>LearnLoop</a></strong><br>";
+    if ($includeInvite) $res .= "<br><i>You can request feedback for your own sessions using LearnLoop. Visit <a href='" . $rootURL . "'>" . str_replace("https://", "", $rootURL) . "</a> to get started!</i>";
     $res .= "
         </html>";
     return $res;

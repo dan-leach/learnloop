@@ -84,6 +84,8 @@ function organiseQuestionFeedback($questions, $questionFeedback){
 }
 
 function outputFeedbackPDF($feedback){
+    global $rootURL;
+
     require('FPDF/fpdf.php');
             
     class PDFa extends FPDF {
@@ -91,11 +93,11 @@ function outputFeedbackPDF($feedback){
         function Footer() {
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
-            $this->Image('shared/logo.png',80,270,50,0,'','https://learnloop.co.uk' );
+            $this->Image('shared/logo.png',80,270,50,0,'', $rootURL);
             // Arial italic 8
             $this->SetFont('Arial','',10);
             // Page number
-            $this->Cell(0,5,'Want to collect feedback on your next session? Visit LearnLoop.co.uk',0,0,'C',false,'https://learnloop.co.uk');
+            $this->Cell(0,5,'Want to collect feedback on your next session? Visit ' . str_replace("https://", "", $rootURL), 0, 0, 'C', false, $rootURL);
             $this->SetFont('Arial','I',10);
             $this->Cell(0,5,'Page '.$this->PageNo().' of {nb}',0,0,'R');
         }
@@ -239,6 +241,7 @@ function countAttendees($attendees){
 }
 
 function outputAttendancePDF($attendance){
+    global $rootURL;
     require('FPDF/fpdf.php');
                 
     class PDFb extends FPDF {
@@ -246,11 +249,11 @@ function outputAttendancePDF($attendance){
         function Footer() {
             // Position at 1.5 cm from bottom
             $this->SetY(-15);
-            $this->Image('shared/logo.png',80,270,50,0,'','https://learnloop.co.uk' );
+            $this->Image('shared/logo.png',80,270,50,0,'', $rootURL);
             // Arial italic 8
             $this->SetFont('Arial','',10);
             // Page number
-            $this->Cell(0,5,'Want to collect feedback on your next session? Visit LearnLoop.co.uk',0,0,'C',false,'https://learnloop.co.uk');
+            $this->Cell(0,5,'Want to collect feedback on your next session? Visit ' . str_replace("https://", "", $rootURL), 0, 0, 'C', false, $rootURL);
             $this->SetFont('Arial','I',10);
             $this->Cell(0,5,'Page '.$this->PageNo().' of {nb}',0,0,'R');
         }
@@ -326,7 +329,7 @@ function outputAttendanceCSV($attendance){
 
 function outputCertificate($details, $name){
     $stringOfSubsessionTitles = buildStringOfSubsessionTitles($details);
-    
+    global $rootURL;
     require('FPDF/fpdf.php');
 
     class PDFc extends FPDF
@@ -349,11 +352,11 @@ function outputCertificate($details, $name){
             {
                 // Position at 1.5 cm from bottom
                 $this->SetY(-15);
-                $this->Image('shared/logo.png',80,270,50,0,'','https://learnloop.co.uk');
+                $this->Image('shared/logo.png',80,270,50,0,'',$rootURL);
                 // Arial italic 8
                 $this->SetFont('Arial','',10);
                 // Page number
-                $this->Cell(0,10,'Want to collect feedback on your next session? Visit LearnLoop.co.uk',0,0,'C',false,'https://learnloop.co.uk');
+                $this->Cell(0,10,'Want to collect feedback on your next session? Visit ' . str_replace("https://", "", $rootURL), 0, 0, 'C', false, $rootURL);
             }
         }
         

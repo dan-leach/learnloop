@@ -3,14 +3,16 @@
 function sendSessionCreatedMessage($name, $title, $feedbackID, $slides, $id, $pin, $email)
 {
 
+    global $rootURL;
+
     $messageContent = addHeader();
 
     $messageContent .= "
         <p>Hello " . $name . ",<br><br>
-        A interaction session has been successfully created on <a href='https://learnloop.co.uk'>LearnLoop</a> for your session '" . $title . "'. Please keep this email for future reference.</p>
+        A interaction session has been successfully created on <a href='" . $rootURL . "'>LearnLoop</a> for your session '" . $title . "'. Please keep this email for future reference.</p>
         <span style='font-size:2em'>Your session ID is <strong>" . $id . "</strong><br>
         Your session PIN is <strong>" . $pin . "</strong></span><br>
-        Do not share your PIN or this email with attendees. <a href='https://learnloop.co.uk/interaction/resetPIN/" . $id . "'>Reset your PIN</a>.<br>
+        Do not share your PIN or this email with attendees. <a href='" . $rootURL . "/interaction/resetPIN/" . $id . "'>Reset your PIN</a>.<br>
         <br>
         Your session contains the following slides:<br>
     ";
@@ -22,15 +24,15 @@ function sendSessionCreatedMessage($name, $title, $feedbackID, $slides, $id, $pi
     if ($feedbackID) $messageContent .= "Your attendees will be directed at the end of the session to the feedback form with ID: " . $feedbackID . "<br>";
 
     $messageContent .= "
-        <br><a href='https://learnloop.co.uk/interaction/edit/" . $id . "'>Edit your session</a>.
+        <br><a href='" . $rootURL . "/interaction/edit/" . $id . "'>Edit your session</a>.
         <p style='font-size:1.5em'>How to launch your interaction session</p>
-        Go to <a href='https://learnloop.co.uk/interaction/host/" . $id . "'>learnloop.co.uk/interaction/host/" . $id . "</a> and enter your session PIN.
+        Go to <a href='" . $rootURL . "/interaction/host/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/interaction/host/" . $id . "</a> and enter your session PIN.
         <p style='font-size:1.5em'>How to direct attendees to the interaction session</p>
         When you launch your session instructions will appear onscreen for attendees to follow. Alternatively you can:
         <ul>
-            <li>share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a></li>
-            <li>ask them to go to <a href='https://learnloop.co.uk/interaction'>learnloop.co.uk/interaction</a> and enter the session ID</li>
-            <li><a href='https://learnloop.co.uk/interaction/instructions/" . $id . "'> show a page with instructions on how to join</a> including a QR code for your attendees to scan</li>
+            <li>share the direct link: <a href='" . $rootURL . "/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/" . $id . "</a></li>
+            <li>ask them to go to <a href='" . $rootURL . "'>" . str_replace("https://", "", $rootURL) . "</a> and enter the session ID</li>
+            <li><a href='" . $rootURL . "/interaction/instructions/" . $id . "'> show a page with instructions on how to join</a> including a QR code for your attendees to scan</li>
         </ul>
         <br>
     ";
@@ -46,15 +48,16 @@ function sendSessionCreatedMessage($name, $title, $feedbackID, $slides, $id, $pi
 
 function sendSessionUpdatedMessage($name, $title, $feedbackID, $slides, $id, $email)
 {
+    global $rootURL;
 
     $messageContent = addHeader();
 
     $messageContent .= "
         <p>Hello " . $name . ",<br><br>
-        Your interaction session '" . $title . "' has been successfully updated on <a href='https://learnloop.co.uk'>LearnLoop</a>.
+        Your interaction session '" . $title . "' has been successfully updated on <a href='" . $rootURL . "'>LearnLoop</a>.
         </p>
         <span style='font-size:2em'>Your session ID is <strong>" . $id . "</strong></span><br>
-        Refer to the email sent when you session was created for your PIN or <a href='https://learnloop.co.uk/interaction/resetPIN/" . $id . "'>reset your PIN</a>.<br>
+        Refer to the email sent when you session was created for your PIN or <a href='" . $rootURL . "/interaction/resetPIN/" . $id . "'>reset your PIN</a>.<br>
         <br>
         Your session contains the following slides:<br>
     ";
@@ -66,15 +69,15 @@ function sendSessionUpdatedMessage($name, $title, $feedbackID, $slides, $id, $em
     if ($feedbackID) $messageContent .= "Your attendees will be directed at the end of the session to the feedback form with ID: " . $feedbackID . "<br>";
 
     $messageContent .= "
-        <br><a href='https://learnloop.co.uk/interaction/edit/" . $id . "'>Make further changes to your session</a>.
+        <br><a href='" . $rootURL . "/interaction/edit/" . $id . "'>Make further changes to your session</a>.
         <p style='font-size:1.5em'>How to launch your interaction session</p>
-        Go to <a href='https://learnloop.co.uk/interaction/host/" . $id . "'>learnloop.co.uk/interaction/host/" . $id . "</a> and enter your session PIN.
+        Go to <a href='" . $rootURL . "/interaction/host/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/interaction/host/" . $id . "</a> and enter your session PIN.
         <p style='font-size:1.5em'>How to direct attendees to the interaction session</p>
         When you launch your session instructions will appear onscreen for attendees to follow. Alternatively you can:
         <ul>
-            <li>share the direct link: <a href='https://learnloop.co.uk/" . $id . "'>learnloop.co.uk/" . $id . "</a></li>
-            <li>ask them to go to <a href='https://learnloop.co.uk/interaction'>learnloop.co.uk/interaction</a> and enter the session ID</li>
-            <li><a href='https://learnloop.co.uk/interaction/instructions/" . $id . "'> show a page with instructions on how to join</a> including a QR code for your attendees to scan</li>
+            <li>share the direct link: <a href='" . $rootURL . "/" . $id . "'>" . str_replace("https://", "", $rootURL) . "/" . $id . "</a></li>
+            <li>ask them to go to <a href='" . $rootURL . "'>" . str_replace("https://", "", $rootURL) . "</a> and enter the session ID</li>
+            <li><a href='" . $rootURL . "/interaction/instructions/" . $id . "'> show a page with instructions on how to join</a> including a QR code for your attendees to scan</li>
         </ul>
         <br>
     ";
@@ -117,13 +120,13 @@ function sendFoundSessions($foundDetails, $email)
     $messageContent .= "
         <p>Hello " . $name . ",<br><br>
         Here are the details of your interaction sessions on LearnLoop.</p>
-        <p>Go to <a href='https://learnloop.co.uk/interaction/host'>LearnLoop.co.uk/interaction/host</a> and use the session ID and PIN to launch your session. A link is provided to reset the PIN if you don't have the original.</p>
+        <p>Go to <a href='" . $rootURL . "/interaction/host'>" . str_replace("https://", "", $rootURL) . "/interaction/host</a> and use the session ID and PIN to launch your session. A link is provided to reset the PIN if you don't have the original.</p>
     ";
 
     foreach ($foundDetails as $details) {
         $messageContent .= "
             <p style='font-size:1.2em'>" . $details['title'] . "<br>
-            Session ID:  " . $details['id'] . " | <a href='https://learnloop.co.uk/interaction/resetPIN/" . $details['id'] . "'>Reset PIN</a></p>
+            Session ID:  " . $details['id'] . " | <a href='" . $rootURL . "/interaction/resetPIN/" . $details['id'] . "'>Reset PIN</a></p>
         ";
     }
 

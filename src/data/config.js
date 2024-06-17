@@ -117,7 +117,6 @@ export const config = reactive({
   client: {
     url: "https://dev.learnloop.co.uk",
     isFocusView: false,
-    showApiConsole: true,
     subsessionEmailPrompt: true,
     regions: [
       //each array is of the hospitals in that region
@@ -401,5 +400,6 @@ export const config = reactive({
     url: "https://dev.learnloop.co.uk/api/",
     imagesUrl: "https://dev.learnloop.co.uk/api/interaction/uploads/img/",
     timeoutDuration: 15000,
+    showApiConsole: true,
   },
 });
