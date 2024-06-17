@@ -33,3 +33,4 @@ private/
 # PHP libraries
 PHPMailer/
 FPDF/
+cache/
