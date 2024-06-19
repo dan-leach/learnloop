@@ -1,32 +1,32 @@
 <script setup>
-import { ref, watch } from "vue";
-import router from "./router";
-import { RouterLink, RouterView } from "vue-router";
-import { config } from "./data/config.js";
-import { Tooltip } from "bootstrap";
+import { ref, watch } from 'vue';
+import router from './router';
+import { RouterLink, RouterView } from 'vue-router';
+import { config } from './data/config.js';
+import { Tooltip } from 'bootstrap';
 new Tooltip(document.body, {
   selector: "[data-bs-toggle='tooltip']",
-  trigger: "hover",
+  trigger: 'hover',
 });
 
-let goID = ref("");
+let goID = ref('');
 const go = () => {
   if (goID.value) {
-    document.getElementById("inputGo").classList.remove("is-invalid");
-    if (goID.value.charAt(0) == "i") {
-      router.push("/interaction/" + goID.value.trim());
+    document.getElementById('inputGo').classList.remove('is-invalid');
+    if (goID.value.charAt(0) == 'i') {
+      router.push('/interaction/' + goID.value.trim());
     } else {
-      router.push("/feedback/" + goID.value.trim());
+      router.push('/feedback/' + goID.value.trim());
     }
   } else {
-    document.getElementById("inputGo").classList.add("is-invalid");
+    document.getElementById('inputGo').classList.add('is-invalid');
   }
-  goID.value = "";
+  goID.value = '';
 };
 
 let showGo = ref(true);
 router.afterEach((to, from) => {
-  if (to.name == "home") {
+  if (to.name == 'home') {
     showGo.value = true;
   } else {
     showGo.value = false;
@@ -42,7 +42,7 @@ router.afterEach((to, from) => {
       class="navbar bg-teal d-flex justify-content-between"
     >
       <RouterLink to="/" class="navbar-brand m-0"
-        ><img alt="LearnLoop logo" class="logo" src="@/assets/logo.png"
+        ><img alt="LearnLoop logo" class="logo" src="@/public/logo.png"
       /></RouterLink>
       <div class="input-group input-go me-2" v-if="showGo">
         <input

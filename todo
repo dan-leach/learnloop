@@ -1,4 +1,6 @@
 Current:
+Image compression for large uploads
+API for fetching images that checks valid session ID, then make img/ private
 
 Later:
 check how old feedback sessions function on the new frontend and api

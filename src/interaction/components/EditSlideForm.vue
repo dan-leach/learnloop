@@ -554,14 +554,18 @@ let submit = () => {
                     </div>
                     <div class="card-body" v-if="slide.show.content.images">
                       <p class="ms-1 small">
-                        Note: if your slide contains multiple images captions will appear only when you click to enlarge the image.
+                        Only upload images which are suitable for public release and which you hold the copyright for. Images uploaded to LearnLoop will be shown on attendee devices and are not guarranteed to be secure.
                       </p>
                       <uploader
                         @change="imagesChange"
                         :media="slide.content.images"
                         :max="config.interaction.create.slides.images.max"
+                        :maxFilesize="config.interaction.create.slides.images.maxFilesize"
                       >
                       </uploader>
+                      <p class="ms-1 small">
+                        Note: if your slide contains multiple images captions will appear only when you click to enlarge the image.
+                      </p>
                     </div>
                   </div>
                   <!--text strings-->

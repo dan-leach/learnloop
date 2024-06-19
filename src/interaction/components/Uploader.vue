@@ -1,13 +1,13 @@
 <script setup>
-import { config } from "../../data/config.js";
+import { config } from '../../data/config.js';
 </script>
 
 <template>
   <div>
     <div class="mu-container" :class="isInvalid ? 'mu-red-border' : ''">
-      <!--IMAGES PREVIEW-->
       <table class="table" id="imageTable">
         <TransitionGroup name="list" tag="tbody">
+          <!--IMAGES PREVIEW-->
           <tr v-for="(image, index) in images" :key="index">
             <td class="bg-transparent p-0 ps-2">
               <button
@@ -60,10 +60,10 @@ import { config } from "../../data/config.js";
               </button>
             </td>
           </tr>
+          <!--UPLOAD BUTTON-->
           <tr key="add">
             <td></td>
             <td>
-              <!--UPLOAD BUTTON-->
               <div class="mu-plusbox-container" v-if="images.length < max">
                 <label
                   class="mu-plusbox d-flex align-items-center justify-content-center"
@@ -103,11 +103,10 @@ import { config } from "../../data/config.js";
               </div>
             </td>
             <td>
-              {{
-                images.length < max
-                  ? ""
-                  : "You cannot add more than " + max + " images per slide"
-              }}
+              <p v-if="images.length < max">
+                Size limit per image: {{ maxFilesize / 1000000 }}MB<br />
+              </p>
+              <p v-else>You cannot add more than {{ max }} images per slide</p>
             </td>
             <td></td>
           </tr>
@@ -118,9 +117,9 @@ import { config } from "../../data/config.js";
 </template>
 
 <script>
-import axios from "axios";
-import Swal from "sweetalert2";
-import { config } from "../../data/config.js";
+import axios from 'axios';
+import Swal from 'sweetalert2';
+import { config } from '../../data/config.js';
 
 export default {
   props: {
@@ -138,7 +137,7 @@ export default {
     },
     location: {
       type: String,
-      default: "",
+      default: '',
     },
     max: {
       type: Number,
@@ -185,20 +184,20 @@ export default {
           if (files[i].size <= this.maxFilesize * 1000000) {
             let formData = new FormData();
             let url = URL.createObjectURL(files[i]);
-            formData.set("image", files[i]);
+            formData.set('image', files[i]);
             const { data } = await axios.post(
-              config.api.url + "/interaction/uploads/index.php",
+              config.api.url + '/interaction/uploads/index.php',
               formData,
               this.config
             );
             if (data.error) {
               this.isLoading = false;
               Swal.fire({
-                icon: "error",
-                iconColor: "#17a2b8",
-                title: "Error uploading image",
+                icon: 'error',
+                iconColor: '#17a2b8',
+                title: 'Error uploading image',
                 text: data.msg,
-                confirmButtonColor: "#17a2b8",
+                confirmButtonColor: '#17a2b8',
               });
               return;
             }
@@ -212,9 +211,9 @@ export default {
           } else {
             if (this.warnings) {
               alert(
-                "The file you are trying to upload is too big. \nMaximum Filesize: " +
+                'The file you are trying to upload is too big. \nMaximum Filesize: ' +
                   this.maxFilesize +
-                  "MB"
+                  'MB'
               );
             }
             break;
@@ -222,7 +221,7 @@ export default {
         } else {
           if (this.warnings) {
             alert(
-              "You have reached the maximum number of files that you can upload. \nMaximum Files: " +
+              'You have reached the maximum number of files that you can upload. \nMaximum Files: ' +
                 this.max
             );
           }

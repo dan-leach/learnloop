@@ -2,6 +2,8 @@
 
 //die('disabled');
 
+$imageSizeLimit = 20; //in MB
+
 
 function buildID(){
   $permitted_chars = '23456789abcdeghjkmnpqrstuvwxyzABCDEGHJKMNPQRSTUVWXYZ';
@@ -40,9 +42,9 @@ if (file_exists($target_file)) {
 }
 
 // Check file size
-if ($_FILES["image"]["size"] > 500000) { //500000
+if ($_FILES["image"]["size"] > ($imageSizeLimit * 1000000)) {
   $res->error = true;
-  $res->msg .= "Sorry, your file is too large. ";
+  $res->msg .= "Sorry, your file exceeds the size limit (" . $imageSizeLimit . "MB)";
 }
 
 // Allow certain file formats
