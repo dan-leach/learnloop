@@ -2,7 +2,9 @@
 
 All notable changes to the LearnLoop codebase will be documented in this file.
 
-## [v5.1] - 2024-06-19 - with thanks to Rosie Spooner for feedback
+## [v5.1] - 2024-06-19
+
+- with thanks to Rosie Spooner for feedback
 
 ### Changed
 
