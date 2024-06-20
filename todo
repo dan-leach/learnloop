@@ -1,4 +1,7 @@
 Current:
+Add host view images to slide type help
+Add imageCloud to slide type help
+Add appVersion field to session entries in database
 Image compression for large uploads
 API for fetching images that checks valid session ID, then make img/ private
 
@@ -9,10 +12,10 @@ Have arrow keys control slide movements
 
 Improvements:
 Prevent subsession update email when that subsession hasn't changed
-Create changelog
 Update api to use modern js fetch
 Add auto-create feedback session for an interact session?
 Add interaction related quotes
+Make date for feedback optional
 
 BEFORE BUILD:
 
