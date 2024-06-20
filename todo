@@ -18,7 +18,6 @@ Add interaction related quotes
 Make date for feedback optional
 
 BEFORE BUILD:
-
 2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative
 3. Update the path to the api in src/data/api.js to be relative not absolute
 4. Re-enable sendMail for errors in api/index.php
@@ -30,6 +29,7 @@ ON BETA-END:
 3. On homepage move interact card back into same d-flex div as feedback card and remove beta-testing warning
 4. Remove betaTester.php import in api/index.php and remove betaTester.php file
 5. Update config repo URL
+6. Reset logo src to @/assets/logo.png
 
 ON DEPLOY:
 
