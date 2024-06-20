@@ -1,7 +1,7 @@
 import { reactive } from 'vue';
 
 export const config = reactive({
-  version: '5.1',
+  version: '5.2',
   author: 'Dan Leach',
   web: 'https://github.com/dan-leach',
   repo: 'https://github.com/dan-leach/learnloop/tree/v5',
@@ -93,6 +93,20 @@ export const config = reactive({
               characterLimit: {
                 min: 1,
                 max: 200,
+              },
+              submissionLimit: 10,
+              hideResponses: false,
+            },
+          },
+          wordCloud: {
+            name: 'Word cloud',
+            id: 'wordCloud',
+            isInteractive: true,
+            settings: {
+              optionsLimit: 0,
+              characterLimit: {
+                min: 1,
+                max: 500,
               },
               submissionLimit: 10,
               hideResponses: false,
@@ -403,6 +417,6 @@ export const config = reactive({
     url: 'https://dev.learnloop.co.uk/api/',
     imagesUrl: 'https://dev.learnloop.co.uk/api/interaction/uploads/img/',
     timeoutDuration: 15000,
-    showApiConsole: true,
+    showApiConsole: false,
   },
 });

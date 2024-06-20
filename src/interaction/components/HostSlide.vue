@@ -1,16 +1,17 @@
 <script setup>
-import { interactionSession } from "../../data/interactionSession.js";
-import WaitingRoom from "./host/WaitingRoom.vue";
-import End from "./host/End.vue";
-import HideResponses from "./host/HideResponses.vue";
-import SingleChoice from "./host/SingleChoice.vue";
-import MultipleChoice from "./host/MultipleChoice.vue";
-import FreeText from "./host/FreeText.vue";
-import Content from "./host/Content.vue";
-import { config } from "../../data/config.js";
+import { interactionSession } from '../../data/interactionSession.js';
+import WaitingRoom from './host/WaitingRoom.vue';
+import End from './host/End.vue';
+import HideResponses from './host/HideResponses.vue';
+import SingleChoice from './host/SingleChoice.vue';
+import MultipleChoice from './host/MultipleChoice.vue';
+import FreeText from './host/FreeText.vue';
+import WordCloud from './host/WordCloud.vue';
+import Content from './host/Content.vue';
+import { config } from '../../data/config.js';
 
-const props = defineProps(["currentIndex", "isPreview"]);
-const emit = defineEmits(["goForward", "goBack", "goStart", "toggleLockSlide"]);
+const props = defineProps(['currentIndex', 'isPreview']);
+const emit = defineEmits(['goForward', 'goBack', 'goStart', 'toggleLockSlide']);
 
 const showResponses = () => {
   interactionSession.slides[
@@ -41,10 +42,10 @@ const toggleContent = () => {
       </li>
       <li>
         <p class="text-center m-1">
-          To join go to {{ config.client.url.replace("https://", "") }}
+          To join go to {{ config.client.url.replace('https://', '') }}
           and use the code
           <span class="join-id-top p-1">{{
-            isPreview ? "preview" : interactionSession.id
+            isPreview ? 'preview' : interactionSession.id
           }}</span>
         </p>
       </li>
@@ -156,10 +157,12 @@ const toggleContent = () => {
           v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
           :slide="interactionSession.slides[currentIndex]"
         />
-        <!--blank div if static slide-->
-        <div
-          v-else-if="interactionSession.slides[currentIndex].type == 'static'"
-        ></div>
+        <WordCloud
+          v-else-if="
+            interactionSession.slides[currentIndex].type == 'wordCloud'
+          "
+          :slide="interactionSession.slides[currentIndex]"
+        />
         <p v-else>
           Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
           not recognised
