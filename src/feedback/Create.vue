@@ -7,6 +7,7 @@ import { api } from "../data/api.js";
 import { config } from "../data/config.js";
 import Modal from "bootstrap/js/dist/modal";
 import EditSubsessionForm from "./components/EditSubsessionForm.vue";
+import EditOrganiserForm from "./components/EditOrganiserForm.vue";
 import EditQuestionForm from "./components/EditQuestionForm.vue";
 import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
@@ -132,6 +133,54 @@ const removeQuestion = (index) => {
   });
 };
 
+const organisersInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Facilitators",
+    html: '<div class="text-start">Adding an organiser allows them to view the feedback for this session. You can optionally allow them to edit this feedback session. There must be at least 1 organiser who is allowed to edit.<br><br>For a session series, adding an organiser here will allow them to view the feedback for all sessions. To allow facilitators to view the feedback for just their session, add their email to the session above.</div>',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+let editOrganiserModal;
+const showEditOrganiserForm = (index) => {
+  editOrganiserModal = new Modal(
+    document.getElementById("editOrganiserModal" + index),
+    {
+      backdrop: "static",
+      keyboard: false,
+      focus: true,
+    }
+  );
+  editOrganiserModal.show();
+};
+const hideEditOrganiserModal = (index, organiser) => {
+  if (!index) {
+    //user did not submit the form, closed using the X. Do nothing except hide the modal
+  } else if (index == -1) {
+    feedbackSession.organisers.push(JSON.parse(organiser));
+  } else {
+    feedbackSession.organisers[index] = JSON.parse(organiser);
+  }
+  editOrganiserModal.hide();
+};
+const sortOrganiser = (index, x) =>
+  feedbackSession.organisers.splice(
+    index + x,
+    0,
+    feedbackSession.organisers.splice(index, 1)[0]
+  );
+const removeOrganiser = (index) => {
+  Swal.fire({
+    title: "Remove this facilitator?",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+  }).then((result) => {
+    if (result.isConfirmed) feedbackSession.organisers.splice(index, 1);
+  });
+};
+
 const toggleCertificate = () => {
   feedbackSession.certificate = !feedbackSession.certificate;
   feedbackSession.attendance = feedbackSession.certificate;
@@ -174,6 +223,19 @@ const attendanceInfo = () => {
     iconColor: "#17a2b8",
     title: "Register of attendance (Optional)",
     html: '<div class="text-start">By default you will be able to generate an attendance report of people who have attended your session. The attendance report shows the name and organisation of each attendee who downloads a certificate of attendance. The attendee details are not linked to their feedback. To reduce the risk of attendees being linked to their feedback you will only be able to view a register of attendance once you have received at least 3 feedback submissions.<br><br>The certificate option must be enabled for the attendance register to be available.</div>',
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+const toggleMultipleDates = () => {
+  feedbackSession.multipleDates = !feedbackSession.multipleDates;
+};
+const multipleDatesInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Multiple dates (Optional)",
+    html: '<div class="text-start">By default you must provide a date for your session. The certificate (if enabled) will show this date.<br><br> If you are running the same session on multiple dates you can use the "Deliver on multiple dates" option. When this option is used the certificate will instead show the date when they submitted feedback. Your feedback report will be organised by the month the feedback was submitted.</div>',
     width: "60%",
     confirmButtonColor: "#17a2b8",
   });
@@ -371,9 +433,11 @@ onMounted(() => {
           class="card bg-transparent shadow p-2 mb-3 flex-grow-1 needs-validation details-card"
           novalidate
         >
+          <!--Session details-->
           <label for="sessionDetails" class="form-label"
             >Session {{ isSeries ? "series " : "" }}details</label
           >
+          <!--Title-->
           <div class="form-floating mb-3">
             <input
               type="text"
@@ -390,7 +454,8 @@ onMounted(() => {
             >
             <div class="invalid-feedback">Please fill out this field.</div>
           </div>
-          <div class="form-floating mb-3">
+          <!--Date-->
+          <div class="form-floating mb-3" v-if="!feedbackSession.multipleDates">
             <input
               type="date"
               placeholder=""
@@ -400,9 +465,23 @@ onMounted(() => {
               name="Date"
               autocomplete="off"
               required
+              :disabled="feedbackSession.multipleDates"
             />
             <label for="name">Date</label>
             <div class="invalid-feedback">Please fill out this field.</div>
+          </div>
+          <div class="form-floating mb-3" v-else>
+            <input
+              type="text"
+              placeholder=""
+              value="Multiple dates"
+              class="form-control"
+              id="multipleDatesMsg"
+              name="multipleDatesMsg"
+              autocomplete="off"
+              disabled
+            />
+            <label for="name">Date</label>
           </div>
           <div class="form-floating mb-3">
             <input
@@ -420,23 +499,8 @@ onMounted(() => {
             >
             <div class="invalid-feedback">Please fill out this field.</div>
           </div>
-          <div class="form-floating mb-3">
-            <input
-              type="email"
-              v-model="feedbackSession.email"
-              class="form-control"
-              id="email"
-              placeholder=""
-              name="email"
-              autocomplete="off"
-              required
-            />
-            <label for="email">
-              {{ isSeries ? "Organiser" : "Facilitator" }} email</label
-            >
-            <div class="invalid-feedback">Please fill out this field.</div>
-          </div>
         </form>
+        <!--Options-->
         <div class="card bg-transparent shadow p-2 mb-3 settings-card">
           <label for="furtherOptions" class="form-label">Options</label>
           <div class="d-flex align-items-center justify-content-start">
@@ -552,8 +616,39 @@ onMounted(() => {
               </span>
             </div>
           </div>
+          <div class="d-flex align-items-center justify-content-start">
+            <div class="d-flex align-items-center justify-content-start mb-3">
+              <button
+                class="btn btn-settings btn-teal btn-sm"
+                id="toggleMultipleDates"
+                @click="toggleMultipleDates"
+              >
+                {{
+                  feedbackSession.multipleDates
+                    ? "Deliver once only"
+                    : "Deliver on multiple dates"
+                }}
+              </button>
+              <font-awesome-icon
+                :icon="['fas', 'question-circle']"
+                size="xl"
+                class="mx-2"
+                style="color: black"
+                @click="multipleDatesInfo"
+              />
+            </div>
+            <div class="mb-3">
+              <span v-if="feedbackSession.multipleDates">
+                Feedback will be organised by date submitted
+              </span>
+              <span v-if="!feedbackSession.multipleDates">
+                Certificate will show date provided in session details
+              </span>
+            </div>
+          </div>
         </div>
       </div>
+      <!--subsessions-->
       <div class="card bg-transparent shadow p-2 mb-3">
         <label for="subsessionsTable" class="form-label">Sessions</label>
         <div class="d-flex flex-wrap align-items-center justify-content-start">
@@ -654,6 +749,7 @@ onMounted(() => {
           @hideEditSubsessionModal="hideEditSubsessionModal"
         />
       </div>
+      <!--custom questions-->
       <div class="card bg-transparent shadow p-2 mb-3">
         <label for="questionsTable" class="form-label">Custom questions</label>
         <div
@@ -763,6 +859,109 @@ onMounted(() => {
           />
         </div>
       </div>
+      <!--organisers-->
+      <div class="card bg-transparent shadow p-2 mb-3">
+        <label for="organisersTable" class="form-label">Organisers</label>
+        <div>
+          Add emails below to grant access to view feedback. You must add at
+          least one organiser with edit access (this will normally be your
+          email).
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            size="xl"
+            class="mx-2"
+            style="color: black"
+            @click="organisersInfo"
+          />
+        </div>
+        <table class="table" id="organisersTable">
+          <thead>
+            <tr>
+              <th class="bg-transparent p-0 ps-2"></th>
+              <th class="bg-transparent p-0 ps-2">Email</th>
+              <th class="bg-transparent p-0 ps-2">Can edit?</th>
+              <th class="bg-transparent p-0 ps-2">
+                <button
+                  class="btn btn-teal btn-sm btn-right"
+                  id="btnAddOrganiser"
+                  @click.prevent="showEditOrganiserForm(-1)"
+                >
+                  Add <i class="fas fa-plus"></i>
+                </button>
+              </th>
+            </tr>
+          </thead>
+          <TransitionGroup name="list" tag="tbody">
+            <template
+              v-for="(organiser, index) in feedbackSession.organisers"
+              :key="organiser"
+            >
+              <tr>
+                <td class="bg-transparent p-0 ps-2">
+                  <button
+                    v-if="index != 0"
+                    class="btn btn-default btn-sm p-0"
+                    id="btnSortUp"
+                    @click="sortOrganiser(index, -1)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+                  ><br />
+                  <button
+                    v-if="index != feedbackSession.organisers.length - 1"
+                    class="btn btn-default btn-sm p-0"
+                    id="btnSortDown"
+                    @click="sortOrganiser(index, 1)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'chevron-down']" />
+                  </button>
+                </td>
+                <td class="bg-transparent">{{ organiser.email }}</td>
+                <td class="bg-transparent">
+                  <font-awesome-icon
+                    v-if="organiser.canEdit"
+                    :icon="['fas', 'check']"
+                    size="2xl"
+                    style="color: green"
+                  />
+                  <font-awesome-icon
+                    v-else
+                    :icon="['fas', 'times']"
+                    size="2xl"
+                    style="color: red"
+                  />
+                </td>
+                <td class="bg-transparent">
+                  <button
+                    class="btn btn-danger btn-sm btn-right ms-4"
+                    id="btnRemoveOrganiser"
+                    @click="removeOrganiser(index)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'trash-can']" />
+                  </button>
+                  <button
+                    class="btn btn-teal btn-sm btn-right"
+                    id="btnEditOrganiser"
+                    @click="showEditOrganiserForm(index)"
+                  >
+                    <font-awesome-icon :icon="['fas', 'edit']" />
+                  </button>
+                </td>
+              </tr>
+            </template>
+          </TransitionGroup>
+        </table>
+        <template v-for="(organisers, index) in feedbackSession.organisers">
+          <EditOrganiserForm
+            :index="index"
+            @hideEditOrganiserModal="hideEditOrganiserModal"
+          />
+        </template>
+        <EditOrganiserForm
+          index="-1"
+          @hideEditOrganiserModal="hideEditOrganiserModal"
+        />
+      </div>
+
       <div class="text-center mb-3">
         <button
           class="btn btn-teal btn-lg"
@@ -817,5 +1016,9 @@ onMounted(() => {
 .list-leave-to {
   opacity: 0;
   transform: translateX(30px);
+}
+.table-info {
+  font-size: 0.5em;
+  font-weight: 100;
 }
 </style>

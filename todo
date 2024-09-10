@@ -1,4 +1,15 @@
 Current:
+Working on organisers feature for feedback
+
+- Check add, edit and remove work as planned
+- Check at least one facilitator with edit rights before
+- Add name for organiser back in to allow proper email greetings
+- Add isLead organiser boolean - and prevent this from being edited after submission
+- Update database structure
+- Update API
+- Consider backward compatibility
+
+Later:
 Add host view images to slide type help
 Add imageCloud to slide type help
 Add appVersion field to session entries in database
@@ -17,10 +28,7 @@ Add auto-create feedback session for an interact session?
 Add interaction related quotes
 Make date for feedback optional
 
-BEFORE BUILD:
-2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative
-3. Update the path to the api in src/data/api.js to be relative not absolute
-4. Re-enable sendMail for errors in api/index.php
+BEFORE BUILD: 2. Change path to images in EditQuestionForm.vue questionTypeInfo to relative 3. Update the path to the api in src/data/api.js to be relative not absolute 4. Re-enable sendMail for errors in api/index.php
 
 ON BETA-END:
 
