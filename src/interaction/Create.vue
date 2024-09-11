@@ -23,7 +23,7 @@ const showEditSlideForm = (index) => {
   editSlideModal.show();
 };
 const hideEditSlideModal = (index, slide) => {
-  if (!index) {
+  if (index === undefined) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
   } else if (index == -1) {
     interactionSession.slides.push(JSON.parse(slide));

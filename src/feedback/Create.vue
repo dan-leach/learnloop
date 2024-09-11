@@ -59,7 +59,7 @@ const showEditSubsessionForm = (index) => {
   editSubsessionModal.show();
 };
 const hideEditSubsessionModal = (index, subsession) => {
-  if (!index) {
+  if (index === undefined) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
   } else if (index == -1) {
     feedbackSession.subsessions.push(JSON.parse(subsession));
@@ -108,7 +108,7 @@ const showEditQuestionForm = (index) => {
   editQuestionModal.show();
 };
 const hideEditQuestionModal = (index, question) => {
-  if (!index) {
+  if (index === undefined) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
   } else if (index == -1) {
     feedbackSession.questions.push(JSON.parse(question));
@@ -156,7 +156,7 @@ const showEditOrganiserForm = (index) => {
   editOrganiserModal.show();
 };
 const hideEditOrganiserModal = (index, organiser) => {
-  if (!index) {
+  if (index === undefined) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
   } else if (index == -1) {
     feedbackSession.organisers.push(JSON.parse(organiser));
@@ -316,9 +316,9 @@ const loadUpdateDetails = () => {
 
 const formIsValid = () => {
   document.getElementById("createSessionForm").classList.add("was-validated");
-  if (!feedbackSession.title || !feedbackSession.name || !feedbackSession.email)
-    return false;
-  if (isSeries.value && !feedbackSession.subsessions.length)
+  if (!feedbackSession.title || !feedbackSession.name) return false;
+  if (!feedbackSession.multipleDates && !feedbackSession.date) return false;
+  if (isSeries.value && !feedbackSession.subsessions.length) {
     Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
@@ -326,6 +326,32 @@ const formIsValid = () => {
       text: "You need to add at least one session to your session series, or switch back to creating a feedback request for a single session.",
       confirmButtonColor: "#17a2b8",
     });
+    return false;
+  }
+  if (!feedbackSession.organisers.length) {
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "No organisers added to your session",
+      text: "You need to add at least one organiser to your session.",
+      confirmButtonColor: "#17a2b8",
+    });
+    return false;
+  }
+  let leadOrganiserCount = 0;
+  for (let organiser of feedbackSession.organisers) {
+    if (organiser.isLead) leadOrganiserCount++;
+  }
+  if (leadOrganiserCount != 1) {
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "A lead organiser must be designated",
+      text: "You need to assign the lead organiser role. Use the edit icon by the appropriate person. Only one person can have the lead organiser role.",
+      confirmButtonColor: "#17a2b8",
+    });
+    return false;
+  }
   return true;
 };
 const submit = () => {
@@ -878,7 +904,9 @@ onMounted(() => {
           <thead>
             <tr>
               <th class="bg-transparent p-0 ps-2"></th>
+              <th class="bg-transparent p-0 ps-2">Name</th>
               <th class="bg-transparent p-0 ps-2">Email</th>
+              <th class="bg-transparent p-0 ps-2">Lead</th>
               <th class="bg-transparent p-0 ps-2">Can edit?</th>
               <th class="bg-transparent p-0 ps-2">
                 <button
@@ -915,7 +943,22 @@ onMounted(() => {
                     <font-awesome-icon :icon="['fas', 'chevron-down']" />
                   </button>
                 </td>
+                <td class="bg-transparent">{{ organiser.name }}</td>
                 <td class="bg-transparent">{{ organiser.email }}</td>
+                <td class="bg-transparent">
+                  <font-awesome-icon
+                    v-if="organiser.isLead"
+                    :icon="['fas', 'check']"
+                    size="2xl"
+                    style="color: green"
+                  />
+                  <font-awesome-icon
+                    v-else
+                    :icon="['fas', 'times']"
+                    size="2xl"
+                    style="color: red"
+                  />
+                </td>
                 <td class="bg-transparent">
                   <font-awesome-icon
                     v-if="organiser.canEdit"

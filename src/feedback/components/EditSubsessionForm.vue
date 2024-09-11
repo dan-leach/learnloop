@@ -30,7 +30,6 @@ let submit = () => {
     .classList.add("was-validated");
   if (!title.value || !name.value) return false;
   if (email.value == "") {
-    console.log(config.client.subsessionEmailPrompt);
     if (config.client.subsessionEmailPrompt) {
       config.client.subsessionEmailPrompt = false;
       Swal.fire({
@@ -76,7 +75,6 @@ let submit = () => {
 };
 
 const createSubsession = () => {
-  console.log(email.value);
   emit(
     "hideEditSubsessionModal",
     props.index,

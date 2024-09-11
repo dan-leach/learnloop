@@ -1,10 +1,7 @@
 Current:
 Working on organisers feature for feedback
 
-- Check add, edit and remove work as planned
-- Check at least one facilitator with edit rights before
-- Add name for organiser back in to allow proper email greetings
-- Add isLead organiser boolean - and prevent this from being edited after submission
+- Prevent isLead organiser from being edited after submission
 - Update database structure
 - Update API
 - Consider backward compatibility
