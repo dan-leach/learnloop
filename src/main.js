@@ -71,6 +71,10 @@ if (document.cookie) {
 
 const app = createApp(App).component("font-awesome-icon", FontAwesomeIcon);
 
+// Import config and inject
+import { config } from "./data/fetchConfig";
+app.provide("config", config);
+
 app.use(router);
 
 app.mount("#app");

@@ -1,41 +1,93 @@
 <script setup>
-import { ref, watch } from 'vue';
-import router from './router';
-import { RouterLink, RouterView } from 'vue-router';
-import { config } from './data/config.js';
-import { Tooltip } from 'bootstrap';
+import { ref, watch, onMounted } from "vue";
+import router from "./router";
+import { RouterLink, RouterView } from "vue-router";
+import { Tooltip } from "bootstrap";
 new Tooltip(document.body, {
   selector: "[data-bs-toggle='tooltip']",
-  trigger: 'hover',
+  trigger: "hover",
 });
 
-let goID = ref('');
+let goID = ref("");
 const go = () => {
   if (goID.value) {
-    document.getElementById('inputGo').classList.remove('is-invalid');
-    if (goID.value.charAt(0) == 'i') {
-      router.push('/interaction/' + goID.value.trim());
+    document.getElementById("inputGo").classList.remove("is-invalid");
+    if (goID.value.charAt(0) == "i") {
+      router.push("/interaction/" + goID.value.trim());
     } else {
-      router.push('/feedback/' + goID.value.trim());
+      router.push("/feedback/" + goID.value.trim());
     }
   } else {
-    document.getElementById('inputGo').classList.add('is-invalid');
+    document.getElementById("inputGo").classList.add("is-invalid");
   }
-  goID.value = '';
+  goID.value = "";
 };
 
 let showGo = ref(true);
 router.afterEach((to, from) => {
-  if (to.name == 'home') {
+  if (to.name == "home") {
     showGo.value = true;
   } else {
     showGo.value = false;
   }
 });
+
+import { inject } from "vue";
+const config = inject("config");
+
+//manage loading state while config data fetched
+import Loading from "vue-loading-overlay";
+import "vue-loading-overlay/dist/css/index.css";
+let load = ref({
+  pending: true,
+  failed: "",
+});
+
+//fetching the config data
+import { fetchConfig } from "./data/fetchConfig";
+const loadConfigData = () => {
+  //show the loading spinner
+  load.value.pending = true;
+
+  //clear the failed message in case of retry
+  load.value.failed = "";
+
+  fetchConfig()
+    .then((config) => {
+      if (config.api.showConsole) {
+        console.log("Config fetched successfully:", config);
+      }
+      load.value.pending = false;
+    })
+    .catch((error) => {
+      console.error("Failed to fetch config:", error);
+      load.value.failed =
+        error.toString() || "Failed to load configuration data";
+      load.value.pending = false;
+    });
+};
+
+onMounted(() => {
+  loadConfigData();
+});
 </script>
 
 <template>
-  <div class="d-flex flex-column vh-100">
+  <div v-if="load.failed" class="container-fluid m-3">
+    <h4>Sorry, something went wrong...</h4>
+    <p>
+      If this keeps happening please contact
+      <a href="mailto:mail@learnloop.co.uk">mail@learnloop.co.uk</a>
+      including the error message show below:<br />
+      <code>{{ load.failed }}</code>
+    </p>
+    <button type="button" @click="loadConfigData" class="btn btn-primary mb-4">
+      Retry
+    </button>
+  </div>
+
+  <loading v-else-if="load.pending" v-model:active="load.pending" />
+  <div v-else class="d-flex flex-column vh-100">
     <nav
       id="header"
       v-if="!config.client.isFocusView"
