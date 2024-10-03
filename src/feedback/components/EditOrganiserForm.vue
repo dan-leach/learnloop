@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
-import { config } from "../../data/config.js";
 import Swal from "sweetalert2";
 import { api } from "../../data/api.js";
+import { inject } from "vue";
+const config = inject("config");
 
 const props = defineProps(["index"]);
 const emit = defineEmits(["hideEditOrganiserModal"]);
@@ -19,6 +20,19 @@ if (props.index > -1) {
   email.value = organiser.email;
   isLead.value = organiser.isLead;
   canEdit.value = organiser.canEdit;
+}
+
+/**
+ * Validates an email address.
+ *
+ * This function checks if the provided email follows the standard email format.
+ *
+ * @param {string} email - The email address to validate.
+ * @returns {boolean} - Returns true if the email is valid, otherwise false.
+ */
+function emailIsValid(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
 }
 
 let btnSubmit = ref({
@@ -55,27 +69,18 @@ let submit = () => {
   }
   btnSubmit.text = "Please wait";
   btnSubmit.wait = true;
-  api(
-    "feedback",
-    "checkEmailIsValid",
-    null,
-    null,
-    JSON.stringify(email.value)
-  ).then(
-    function () {
-      addOrganiser();
-    },
-    function (error) {
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      btnSubmit.text = "Retry add organiser?";
-      btnSubmit.wait = false;
-    }
-  );
+  if (emailIsValid(email.value)) {
+    addOrganiser();
+  } else {
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: "Email address is not valid",
+      confirmButtonColor: "#17a2b8",
+    });
+    btnSubmit.text = "Retry add organiser?";
+    btnSubmit.wait = false;
+  }
 };
 
 const addOrganiser = () => {

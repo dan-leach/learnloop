@@ -4,13 +4,14 @@ import router from "../router";
 import { useRouter } from "vue-router";
 import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
-import { config } from "../data/config.js";
 import Modal from "bootstrap/js/dist/modal";
 import EditSubsessionForm from "./components/EditSubsessionForm.vue";
 import EditOrganiserForm from "./components/EditOrganiserForm.vue";
 import EditQuestionForm from "./components/EditQuestionForm.vue";
 import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
+import { inject } from "vue";
+const config = inject("config");
 
 let isSeries = ref(false);
 const toggleSingleSeries = () => {
@@ -359,13 +360,7 @@ const submit = () => {
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
   if (isEdit) {
-    api(
-      "feedback",
-      "updateDetails",
-      feedbackSession.id,
-      feedbackSession.pin,
-      feedbackSession
-    ).then(
+    api("feedback/updateDetails", feedbackSession).then(
       function (res) {
         btnSubmit.value.text = "Update feedback session";
         btnSubmit.value.wait = false;
@@ -390,7 +385,7 @@ const submit = () => {
       }
     );
   } else {
-    api("feedback", "insertSession", null, null, feedbackSession).then(
+    api("feedback/insertSession", feedbackSession).then(
       function (res) {
         btnSubmit.value.text = "Create feedback session";
         btnSubmit.value.wait = false;

@@ -1,9 +1,10 @@
 <script setup>
 import { ref, watch } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
-import { config } from "../../data/config.js";
 import Swal from "sweetalert2";
 import { api } from "../../data/api.js";
+import { inject } from "vue";
+const config = inject("config");
 
 const props = defineProps(["index"]);
 const emit = defineEmits(["hideEditSubsessionModal"]);
@@ -24,14 +25,27 @@ let btnSubmit = ref({
   wait: false,
 });
 
+/**
+ * Validates an email address.
+ *
+ * This function checks if the provided email follows the standard email format.
+ *
+ * @param {string} email - The email address to validate.
+ * @returns {boolean} - Returns true if the email is valid, otherwise false.
+ */
+function emailIsValid(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 let submit = () => {
   document
     .getElementById("editSubsessionModal" + props.index)
     .classList.add("was-validated");
   if (!title.value || !name.value) return false;
   if (email.value == "") {
-    if (config.client.subsessionEmailPrompt) {
-      config.client.subsessionEmailPrompt = false;
+    if (config.value.client.subsessionEmailPrompt) {
+      config.value.client.subsessionEmailPrompt = false;
       Swal.fire({
         title: "Are you sure you don't want to provide a facilitator email?",
         text: "If you don't provide an email for the facilitator of this session they won't be able to view their feedback directly. As the organiser, you will still be able to view feedback for their session and share it with them manually if you wish. Click 'Cancel' if you want to return and enter a faciltator email.",
@@ -50,27 +64,18 @@ let submit = () => {
   } else {
     btnSubmit.text = "Please wait";
     btnSubmit.wait = true;
-    api(
-      "feedback",
-      "checkEmailIsValid",
-      null,
-      null,
-      JSON.stringify(email.value)
-    ).then(
-      function () {
-        createSubsession();
-      },
-      function (error) {
-        Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          text: error,
-          confirmButtonColor: "#17a2b8",
-        });
-        btnSubmit.text = "Retry add to series?";
-        btnSubmit.wait = false;
-      }
-    );
+    if (emailIsValid(email.value)) {
+      createSubsession();
+    } else {
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        text: "Email is not valid",
+        confirmButtonColor: "#17a2b8",
+      });
+      btnSubmit.text = "Retry add to series?";
+      btnSubmit.wait = false;
+    }
   }
 };
 

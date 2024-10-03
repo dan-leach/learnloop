@@ -1,8 +1,9 @@
 <script setup>
 import { ref, watch } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
-import { config } from "../../data/config.js";
 import Swal from "sweetalert2";
+import { inject } from "vue";
+const config = inject("config");
 
 const props = defineProps(["index"]);
 const emit = defineEmits(["hideEditQuestionModal"]);
@@ -25,7 +26,7 @@ watch(feedbackSession, (a, b) => {
 watch(type, (newType, oldType) => {
   if (type.value) {
     settings.value =
-      config.feedback.create.questions.types[type.value].settings;
+      config.value.feedback.create.questions.types[type.value].settings;
   }
   if (settings.value.selectedLimit) {
     settings.value.selectedLimit.max = options.value.length;
@@ -52,7 +53,7 @@ const questionTypeInfo = () => {
             <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
                 <img src="` +
-      config.client.url +
+      config.value.client.url +
       `/img/question-type-example-text.png" class="img-fluid mx-auto d-block">
                 <p>Text questions will show your prompt above a free-text input area. You can set the question to be compulsory (default) or optional, and set a character limit (default: 500 characters).</p>
               </div>
@@ -67,7 +68,7 @@ const questionTypeInfo = () => {
             <div id="collapseTwo" class="accordion-collapse collapse" aria-labelledby="headingTwo" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
                 <img src="` +
-      config.client.url +
+      config.value.client.url +
       `/img/question-type-example-select.png" class="img-fluid mx-auto d-block">
                 <p>Drop-down select will show a drop-down menu listing your defined options. Users can only select one of the options. You can define up to 20 options and set the question to be compulsory (default) or optional.</p>
               </div>
@@ -82,7 +83,7 @@ const questionTypeInfo = () => {
             <div id="collapseThree" class="accordion-collapse collapse" aria-labelledby="headingThree" data-bs-parent="#accordionTypes">
               <div class="accordion-body">
                 <img src="` +
-      config.client.url +
+      config.value.client.url +
       `/img/question-type-example-checkbox.png" class="img-fluid mx-auto d-block">
                 <p>Checkbox questions will show a list of your defined options. Users can select multiple questions. By default they must select between 1 and all the options, but you can set a minimum and maximum number, as well as setting the question to be compulsory (default) or optional. </p>
               </div>
@@ -142,7 +143,7 @@ let submit = () => {
   if (settings.value.optionsLimit == 0) {
     options.value = [];
   } else if (
-    options.value.length < config.feedback.create.questions.minimumOptions
+    options.value.length < config.value.feedback.create.questions.minimumOptions
   ) {
     Swal.fire({
       icon: "error",
@@ -150,7 +151,7 @@ let submit = () => {
       title: "Too few options added",
       text:
         "You need to add at least " +
-        config.feedback.create.questions.minimumOptions +
+        config.value.feedback.create.questions.minimumOptions +
         " options.",
       confirmButtonColor: "#17a2b8",
     });
