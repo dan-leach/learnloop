@@ -950,7 +950,7 @@ onMounted(() => {
 </template>
 
 <style>
-@media only screen and (min-width: 992px) {
+@media only screen and (min-width: 1200px) {
   .details-card {
     min-width: 400px;
   }
@@ -959,7 +959,7 @@ onMounted(() => {
     margin-left: 15px;
   }
 }
-@media only screen and (max-width: 991px) {
+@media only screen and (max-width: 1199px) {
   .settings-card {
     width: 100%;
   }
