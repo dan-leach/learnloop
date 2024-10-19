@@ -17,8 +17,6 @@ if (feedbackSession.organisers.length > 1) {
   );
 }
 
-console.log(leadOrganiserIndex.value);
-
 const link = ref({});
 link.value.give = config.value.client.url + "/" + feedbackSession.id;
 link.value.view =

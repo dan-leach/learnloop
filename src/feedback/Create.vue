@@ -196,16 +196,6 @@ const certificateInfo = () => {
     confirmButtonColor: "#17a2b8",
   });
 };
-const notificationsInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Email notifications when feedback submitted (Optional)",
-    html: '<div class="text-start">By default you will receive an email when feedback for your session is submitted. To avoid overloading your inbox, no further notifications are sent within 2 hours.<br><br>If you disable this you can still manually check using your session ID and PIN which are emailed to you once your session is created. You can also disable further notifications later, using a link in the notification email itself.<br><br>If you provide an email for them, facilitators of each session in this series will receive an email notifying them that the feedback request has been set up. They will also receive email notifications when feedback for their session is submitted, but they can disable these if preferred using a link in the notification email itself.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
-};
 const toggleAttendance = () => {
   if (!feedbackSession.attendance && !feedbackSession.certificate) {
     Swal.fire({
@@ -247,13 +237,10 @@ let btnSubmit = ref({
   wait: false,
 });
 const loadUpdateDetails = () => {
-  api(
-    "feedback",
-    "loadUpdateDetails",
-    feedbackSession.id,
-    feedbackSession.pin,
-    null
-  ).then(
+  api("feedback/loadUpdateSession", {
+    id: feedbackSession.id,
+    pin: feedbackSession.pin,
+  }).then(
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
@@ -265,8 +252,12 @@ const loadUpdateDetails = () => {
       }
       feedbackSession.title = res.title;
       feedbackSession.date = res.date;
+      feedbackSession.multipleDates = res.multipleDates;
       feedbackSession.name = res.name;
-      feedbackSession.email = res.email;
+
+      feedbackSession.certificate = res.certificate;
+      feedbackSession.attendance = res.attendance;
+
       if (res.subsessions.length) {
         feedbackSession.subsessions = res.subsessions;
         isSeries.value = true;
@@ -293,17 +284,16 @@ const loadUpdateDetails = () => {
         }
       }
 
-      feedbackSession.certificate = res.certificate;
-      feedbackSession.notifications = res.notifications;
-      feedbackSession.attendance = res.attendance;
+      feedbackSession.organisers = res.organisers;
       loading.value = false;
     },
 
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",
-        title: "Unable to load feedback report",
+        title: "Unable to load feedback session",
         text: error,
         confirmButtonColor: "#17a2b8",
       });
@@ -372,6 +362,7 @@ const submit = () => {
       function (error) {
         btnSubmit.value.text = "Retry updating feedback session?";
         btnSubmit.value.wait = false;
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
         Swal.fire({
           title: "Error updating feedback session",
           text: error,
@@ -393,6 +384,7 @@ const submit = () => {
       function (error) {
         btnSubmit.value.text = "Retry creating feedback session?";
         btnSubmit.value.wait = false;
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
         Swal.fire({
           title: "Error creating feedback session",
           text: error,
@@ -568,46 +560,6 @@ onMounted(() => {
               </span>
             </div>
           </div>
-          <!--Notifications-->
-          <div class="d-flex align-items-center justify-content-start">
-            <div class="d-flex align-items-center justify-content-start mb-3">
-              <button
-                class="btn btn-settings btn-teal btn-sm"
-                id="toggleNotifications"
-                @click="
-                  feedbackSession.notifications = !feedbackSession.notifications
-                "
-              >
-                {{ feedbackSession.notifications ? "Disable" : "Enable" }}
-                notifications
-              </button>
-              <font-awesome-icon
-                :icon="['fas', 'question-circle']"
-                size="xl"
-                class="mx-2"
-                style="color: black"
-                @click="notificationsInfo"
-              />
-            </div>
-            <div class="mb-3">
-              <span v-if="feedbackSession.notifications">
-                Receive an email when feedback is submitted
-                <font-awesome-icon
-                  :icon="['fas', 'check']"
-                  size="2xl"
-                  style="color: green"
-                />
-              </span>
-              <span v-if="!feedbackSession.notifications">
-                Don't receive an email when feedback is submitted
-                <font-awesome-icon
-                  :icon="['fas', 'times']"
-                  size="2xl"
-                  style="color: red"
-                />
-              </span>
-            </div>
-          </div>
           <!--Attendance-->
           <div class="d-flex align-items-center justify-content-start">
             <div class="d-flex align-items-center justify-content-start mb-3">
@@ -616,7 +568,7 @@ onMounted(() => {
                 id="toggleAttendance"
                 @click="toggleAttendance"
               >
-                {{ feedbackSession.notifications ? "Disable" : "Enable" }}
+                {{ feedbackSession.attendance ? "Disable" : "Enable" }}
                 register
               </button>
               <font-awesome-icon
