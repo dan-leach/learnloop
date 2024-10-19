@@ -1,18 +1,29 @@
 <script setup>
-import { ref, onBeforeUnmount } from "vue";
+import { ref } from "vue";
 import router from "../router";
 import { feedbackSession } from "../data/feedbackSession.js";
-import { config } from "../data/config.js";
 import Toast from "../assets/Toast.js";
-import Swal from "sweetalert2";
+import { inject } from "vue";
+const config = inject("config");
 
-if (!feedbackSession.id || !feedbackSession.pin)
+if (!feedbackSession.id || !feedbackSession.pin) {
   router.push("/feedback/create");
+}
+
+const leadOrganiserIndex = ref(0);
+if (feedbackSession.organisers.length > 1) {
+  leadOrganiserIndex.value = feedbackSession.organisers.findIndex(
+    (organiser) => organiser.isLead
+  );
+}
+
+console.log(leadOrganiserIndex.value);
 
 const link = ref({});
-link.value.give = config.client.url + "/" + feedbackSession.id;
-link.value.view = config.client.url + "/feedback/view/" + feedbackSession.id;
-link.value.qr = config.api.url + "shared/QRcode/?id=" + feedbackSession.id;
+link.value.give = config.value.client.url + "/" + feedbackSession.id;
+link.value.view =
+  config.value.client.url + "/feedback/view/" + feedbackSession.id;
+link.value.qr = config.value.api.url + "qrcode/?id=" + feedbackSession.id;
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
 const copyText = (string) => {
@@ -78,13 +89,18 @@ const copyImg = async (src) => {
       </button>
     </p>
   </div>
+  <p v-if="feedbackSession.organisers.length > 1">
+    The PIN shown above is for
+    {{ feedbackSession.organisers[leadOrganiserIndex].name }}, the lead
+    organiser. The PIN for other organisers will be sent to them by email.
+  </p>
   <p>
     <strong
       >All details on this page are included in your confirmation email.</strong
     ><br />
     Please check your inbox (or your junk mail) to ensure you received it. If it
     didn't arrive be sure to make a note of these details. Add
-    {{ config.email }} your safe senders list for next time.
+    {{ config.noreplyemail }} your safe senders list for next time.
   </p>
   <div class="accordion" id="accordionCreated">
     <div class="accordion-item">
@@ -143,8 +159,8 @@ const copyImg = async (src) => {
               config.client.url.replace("https://", "")
             }}</a>
             and enter the session ID:
-            <strong>{{ feedbackSession.id }}</strong> in the feedback panel, or
-            you can use the QR code above and embed this in a presentation.
+            <strong>{{ feedbackSession.id }}</strong> in the "Enter a code" box,
+            or you can use the QR code above and embed this in a presentation.
           </p>
         </div>
       </div>
@@ -193,5 +209,8 @@ const copyImg = async (src) => {
   .display-6 {
     font-size: 1.4rem;
   }
+}
+.pin-info {
+  font-size: medium;
 }
 </style>

@@ -228,9 +228,6 @@ const attendanceInfo = () => {
     confirmButtonColor: "#17a2b8",
   });
 };
-const toggleMultipleDates = () => {
-  feedbackSession.multipleDates = !feedbackSession.multipleDates;
-};
 const multipleDatesInfo = () => {
   Swal.fire({
     icon: "info",
@@ -390,7 +387,7 @@ const submit = () => {
         btnSubmit.value.text = "Create feedback session";
         btnSubmit.value.wait = false;
         feedbackSession.id = res.id;
-        feedbackSession.pin = res.pin;
+        feedbackSession.pin = res.leadPin;
         router.push("/feedback/created");
       },
       function (error) {
@@ -476,34 +473,43 @@ onMounted(() => {
             <div class="invalid-feedback">Please fill out this field.</div>
           </div>
           <!--Date-->
-          <div class="form-floating mb-3" v-if="!feedbackSession.multipleDates">
-            <input
-              type="date"
-              placeholder=""
-              v-model="feedbackSession.date"
-              class="form-control"
-              id="date"
-              name="Date"
-              autocomplete="off"
-              required
-              :disabled="feedbackSession.multipleDates"
-            />
-            <label for="name">Date</label>
-            <div class="invalid-feedback">Please fill out this field.</div>
+          <div class="d-flex flex-wrap">
+            <div class="form-floating mb-3 flex-grow-1">
+              <input
+                type="date"
+                placeholder=""
+                v-model="feedbackSession.date"
+                class="form-control"
+                id="date"
+                name="Date"
+                autocomplete="off"
+                required
+                :disabled="feedbackSession.multipleDates"
+              />
+              <label for="name">Date</label>
+              <div class="invalid-feedback">Please fill out this field.</div>
+            </div>
+            <div class="d-flex align-items-center justify-content-start mb-3">
+              <div class="mx-2">or deliver on multiple dates</div>
+              <div class="form-check form-switch">
+                <input
+                  class="form-check-input"
+                  type="checkbox"
+                  id="toggleMultipleDates"
+                  v-model="feedbackSession.multipleDates"
+                  @click="feedbackSession.date = ''"
+                />
+              </div>
+              <font-awesome-icon
+                :icon="['fas', 'question-circle']"
+                size="xl"
+                class="mx-2"
+                style="color: black"
+                @click="multipleDatesInfo"
+              />
+            </div>
           </div>
-          <div class="form-floating mb-3" v-else>
-            <input
-              type="text"
-              placeholder=""
-              value="Multiple dates"
-              class="form-control"
-              id="multipleDatesMsg"
-              name="multipleDatesMsg"
-              autocomplete="off"
-              disabled
-            />
-            <label for="name">Date</label>
-          </div>
+          <!--Name-->
           <div class="form-floating mb-3">
             <input
               type="text"
@@ -524,6 +530,7 @@ onMounted(() => {
         <!--Options-->
         <div class="card bg-transparent shadow p-2 mb-3 settings-card">
           <label for="furtherOptions" class="form-label">Options</label>
+          <!--Certificate-->
           <div class="d-flex align-items-center justify-content-start">
             <div class="d-flex align-items-center justify-content-start mb-3">
               <button
@@ -561,6 +568,7 @@ onMounted(() => {
               </span>
             </div>
           </div>
+          <!--Notifications-->
           <div class="d-flex align-items-center justify-content-start">
             <div class="d-flex align-items-center justify-content-start mb-3">
               <button
@@ -600,6 +608,7 @@ onMounted(() => {
               </span>
             </div>
           </div>
+          <!--Attendance-->
           <div class="d-flex align-items-center justify-content-start">
             <div class="d-flex align-items-center justify-content-start mb-3">
               <button
@@ -634,36 +643,6 @@ onMounted(() => {
                   size="2xl"
                   style="color: red"
                 />
-              </span>
-            </div>
-          </div>
-          <div class="d-flex align-items-center justify-content-start">
-            <div class="d-flex align-items-center justify-content-start mb-3">
-              <button
-                class="btn btn-settings btn-teal btn-sm"
-                id="toggleMultipleDates"
-                @click="toggleMultipleDates"
-              >
-                {{
-                  feedbackSession.multipleDates
-                    ? "Deliver once only"
-                    : "Deliver on multiple dates"
-                }}
-              </button>
-              <font-awesome-icon
-                :icon="['fas', 'question-circle']"
-                size="xl"
-                class="mx-2"
-                style="color: black"
-                @click="multipleDatesInfo"
-              />
-            </div>
-            <div class="mb-3">
-              <span v-if="feedbackSession.multipleDates">
-                Feedback will be organised by date submitted
-              </span>
-              <span v-if="!feedbackSession.multipleDates">
-                Certificate will show date provided in session details
               </span>
             </div>
           </div>
