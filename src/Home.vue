@@ -320,7 +320,7 @@ onMounted(() => {
             View feedback
           </button>
         </div>
-        <ul class="nav nav-pills justify-content-between m-2 d-flex">
+        <ul class="nav nav-pills justify-content-between m-2 d-flex gap-2">
           <li class="nav-item mb-2 flex-grow-1 d-flex">
             <button
               class="nav-link active flex-grow-1"
@@ -396,7 +396,7 @@ onMounted(() => {
             Host session
           </button>
         </div>
-        <ul class="nav nav-pills justify-content-between m-2 d-flex">
+        <ul class="nav nav-pills justify-content-between m-2 d-flex gap-2">
           <li class="nav-item mb-2 flex-grow-1 d-flex">
             <button
               class="nav-link active flex-grow-1"
