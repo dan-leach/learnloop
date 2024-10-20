@@ -1,18 +1,18 @@
 <script setup>
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
 import Swal from "sweetalert2";
-import { api } from "../../data/api.js";
-import { inject } from "vue";
-const config = inject("config");
 
-const props = defineProps(["index"]);
+const props = defineProps(["index", "isEdit"]);
 const emit = defineEmits(["hideEditOrganiserModal"]);
 
 let name = ref("");
 let email = ref("");
 let isLead = ref(true);
 let canEdit = ref(true);
+let existing = ref(false);
+
+if (props.isEdit) isLead.value = false;
 
 if (props.index > -1) {
   const organiser = feedbackSession.organisers[props.index];
@@ -20,6 +20,7 @@ if (props.index > -1) {
   email.value = organiser.email;
   isLead.value = organiser.isLead;
   canEdit.value = organiser.canEdit;
+  existing.value = organiser.existing;
 }
 
 /**
@@ -67,6 +68,17 @@ let submit = () => {
     });
     return false;
   }
+  if (organiserEmailDuplicate()) {
+    Swal.fire({
+      icon: "info",
+      iconColor: "#17a2b8",
+      title: "Organiser email already used",
+      html: '<div class="text-start">Another organiser already has this email address.</div>',
+      width: "60%",
+      confirmButtonColor: "#17a2b8",
+    });
+    return false;
+  }
   btnSubmit.text = "Please wait";
   btnSubmit.wait = true;
   if (emailIsValid(email.value)) {
@@ -103,6 +115,15 @@ const addOrganiser = () => {
   document
     .getElementById("editOrganiserModal" + props.index)
     .classList.remove("was-validated");
+};
+
+const organiserEmailDuplicate = () => {
+  for (let i in feedbackSession.organisers) {
+    //return true another organiser already has this email
+    if (feedbackSession.organisers[i].email === email.value && i != props.index)
+      return true;
+  }
+  return false;
 };
 
 const otherOrganiserIsLead = () => {
@@ -220,6 +241,7 @@ const canEditInfo = () => {
                       name="email"
                       autocomplete="off"
                       required
+                      :disabled="existing"
                     />
                     <label for="Email">Organiser email</label>
                   </div>
@@ -238,6 +260,7 @@ const canEditInfo = () => {
                       id="toggleIsLead"
                       v-model="isLead"
                       @change="toggleIsLead"
+                      :disabled="isEdit"
                     />
                   </div>
                   <font-awesome-icon

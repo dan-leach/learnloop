@@ -65,7 +65,8 @@ const hideEditSubsessionModal = (index, subsession) => {
   } else if (index == -1) {
     feedbackSession.subsessions.push(JSON.parse(subsession));
   } else {
-    feedbackSession.subsessions[index] = JSON.parse(subsession);
+    const { name, title, email } = JSON.parse(subsession);
+    Object.assign(feedbackSession.subsessions[index], { name, title, email });
   }
   editSubsessionModal.hide();
 };
@@ -114,7 +115,13 @@ const hideEditQuestionModal = (index, question) => {
   } else if (index == -1) {
     feedbackSession.questions.push(JSON.parse(question));
   } else {
-    feedbackSession.questions[index] = JSON.parse(question);
+    const { title, type, options, settings } = JSON.parse(question);
+    Object.assign(feedbackSession.questions[index], {
+      title,
+      type,
+      options,
+      settings,
+    });
   }
   editQuestionModal.hide();
 };
@@ -162,7 +169,13 @@ const hideEditOrganiserModal = (index, organiser) => {
   } else if (index == -1) {
     feedbackSession.organisers.push(JSON.parse(organiser));
   } else {
-    feedbackSession.organisers[index] = JSON.parse(organiser);
+    const { name, email, isLead, canEdit } = JSON.parse(organiser);
+    Object.assign(feedbackSession.organisers[index], {
+      name,
+      email,
+      isLead,
+      canEdit,
+    });
   }
   editOrganiserModal.hide();
 };
@@ -285,6 +298,8 @@ const loadUpdateDetails = () => {
       }
 
       feedbackSession.organisers = res.organisers;
+      for (let organiser of feedbackSession.organisers)
+        organiser.existing = true;
       loading.value = false;
     },
 
@@ -347,7 +362,7 @@ const submit = () => {
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
   if (isEdit) {
-    api("feedback/updateDetails", feedbackSession).then(
+    api("feedback/updateSession", feedbackSession).then(
       function (res) {
         btnSubmit.value.text = "Update feedback session";
         btnSubmit.value.wait = false;
@@ -693,11 +708,13 @@ onMounted(() => {
         <template v-for="(subsession, index) in feedbackSession.subsessions">
           <EditSubsessionForm
             :index="index"
+            :isEdit="isEdit"
             @hideEditSubsessionModal="hideEditSubsessionModal"
           />
         </template>
         <EditSubsessionForm
           index="-1"
+          :isEdit="isEdit"
           @hideEditSubsessionModal="hideEditSubsessionModal"
         />
       </div>
@@ -902,6 +919,7 @@ onMounted(() => {
                 <td class="bg-transparent">
                   <button
                     class="btn btn-danger btn-sm btn-right ms-4"
+                    v-if="!isEdit || !organiser.isLead"
                     id="btnRemoveOrganiser"
                     @click="removeOrganiser(index)"
                   >
@@ -909,6 +927,7 @@ onMounted(() => {
                   </button>
                   <button
                     class="btn btn-teal btn-sm btn-right"
+                    v-if="!isEdit || !organiser.isLead"
                     id="btnEditOrganiser"
                     @click="showEditOrganiserForm(index)"
                   >
@@ -922,11 +941,13 @@ onMounted(() => {
         <template v-for="(organisers, index) in feedbackSession.organisers">
           <EditOrganiserForm
             :index="index"
+            :isEdit="isEdit"
             @hideEditOrganiserModal="hideEditOrganiserModal"
           />
         </template>
         <EditOrganiserForm
           index="-1"
+          :isEdit="isEdit"
           @hideEditOrganiserModal="hideEditOrganiserModal"
         />
       </div>

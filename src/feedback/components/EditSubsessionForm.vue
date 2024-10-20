@@ -6,18 +6,21 @@ import { api } from "../../data/api.js";
 import { inject } from "vue";
 const config = inject("config");
 
-const props = defineProps(["index"]);
+const props = defineProps(["index", "isEdit"]);
 const emit = defineEmits(["hideEditSubsessionModal"]);
 
 let title = ref("");
 let name = ref("");
 let email = ref("");
+let emailLocked = ref(false);
 
 if (props.index > -1) {
   const subsession = feedbackSession.subsessions[props.index];
   title.value = subsession.title;
   name.value = subsession.name;
-  email.value = subsession.email;
+  email.value = subsession.email || "";
+  if (props.isEdit && email.value.length && subsession.id)
+    emailLocked.value = true;
 }
 
 let btnSubmit = ref({
@@ -178,6 +181,7 @@ const subsessionFacilitatorEmailInfo = () => {
                       placeholder=""
                       name="email"
                       autocomplete="off"
+                      :disabled="emailLocked"
                     />
                     <label for="Email">Facilitator email</label>
                   </div>
