@@ -39,14 +39,14 @@ export const feedbackSession = reactive({
     this.id = "";
     this.pin = "";
     this.title = "";
-    this.name = "";
     this.date = "";
-    this.email = "";
+    this.multipleDates = false;
+    this.name = "";
+    this.certificate = true;
+    this.attendance = true;
     this.subsessions = [];
     this.questions = [];
-    this.certificate = true;
-    this.notifications = true;
-    this.attendance = true;
+    this.organisers = [];
     this.attendee = {
       name: "",
       region: "",

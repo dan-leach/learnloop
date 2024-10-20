@@ -145,8 +145,8 @@ const organisersInfo = () => {
   Swal.fire({
     icon: "info",
     iconColor: "#17a2b8",
-    title: "Facilitators",
-    html: '<div class="text-start">Adding an organiser allows them to view the feedback for this session. You can optionally allow them to edit this feedback session. There must be at least 1 organiser who is allowed to edit.<br><br>For a session series, adding an organiser here will allow them to view the feedback for all sessions. To allow facilitators to view the feedback for just their session, add their email to the session above.</div>',
+    title: "Organisers",
+    html: '<div class="text-start">Adding an organiser allows them to view the feedback for this session and, optionally, edit the feedback request. You should add your own details as the lead organsier. The lead organiser cannot be changed once the session is created and will receive an email notification if any other organisers with editing rights make changes to the feedback request.<br><br>For a session series, adding an organiser here will allow them to view the feedback for all sessions. To allow facilitators to view the feedback for just their session, add their email to the session table above.</div>',
     width: "60%",
     confirmButtonColor: "#17a2b8",
   });
@@ -187,7 +187,7 @@ const sortOrganiser = (index, x) =>
   );
 const removeOrganiser = (index) => {
   Swal.fire({
-    title: "Remove this facilitator?",
+    title: "Remove this organiser?",
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
   }).then((result) => {
@@ -617,23 +617,23 @@ onMounted(() => {
       </div>
       <!--subsessions-->
       <div class="card bg-transparent shadow p-2 mb-3">
-        <label for="subsessionsTable" class="form-label">Sessions</label>
+        <label for="subsessionsTable" class="form-label"
+          >Sessions
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            class="mx-2"
+            style="color: black"
+            @click="seriesInfo"
+        /></label>
         <div class="d-flex flex-wrap align-items-center justify-content-start">
           <div class="d-flex align-items-center justify-content-start">
             <button
-              class="btn btn-sm btn-sessions btn-teal"
+              class="btn btn-sm btn-sessions btn-teal me-2"
               id="enableSubsessions"
               @click="toggleSingleSeries"
             >
               Switch {{ isSeries ? "to single session" : "to session series" }}
             </button>
-            <font-awesome-icon
-              :icon="['fas', 'question-circle']"
-              size="xl"
-              class="mx-2"
-              style="color: black"
-              @click="seriesInfo"
-            />
           </div>
           <div>
             You are currently requesting feedback for a
@@ -720,26 +720,26 @@ onMounted(() => {
       </div>
       <!--custom questions-->
       <div class="card bg-transparent shadow p-2 mb-3">
-        <label for="questionsTable" class="form-label">Custom questions</label>
+        <label for="questionsTable" class="form-label"
+          >Custom questions
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            class="mx-2"
+            style="color: black"
+            @click="questionsInfo"
+        /></label>
         <div
           class="d-flex flex-wrap align-items-center justify-content-start"
           v-if="!hasQuestions"
         >
           <div class="d-flex align-items-center justify-content-start">
             <button
-              class="btn btn-teal btn-sm btn-questions"
+              class="btn btn-teal btn-sm btn-questions me-2"
               id="enableQuestions"
               v-on:click="hasQuestions = true"
             >
               Enable custom questions
             </button>
-            <font-awesome-icon
-              :icon="['fas', 'question-circle']"
-              size="xl"
-              class="mx-2"
-              style="color: black"
-              @click="questionsInfo"
-            />
           </div>
           <div>
             Attendees will only be asked to complete the default feedback
@@ -830,18 +830,21 @@ onMounted(() => {
       </div>
       <!--organisers-->
       <div class="card bg-transparent shadow p-2 mb-3">
-        <label for="organisersTable" class="form-label">Organisers</label>
-        <div>
-          Add emails below to grant access to view feedback. You must add at
-          least one organiser with edit access (this will normally be your
-          email).
+        <label for="organisersTable" class="form-label"
+          >Organisers
           <font-awesome-icon
             :icon="['fas', 'question-circle']"
-            size="xl"
             class="mx-2"
             style="color: black"
             @click="organisersInfo"
-          />
+        /></label>
+        <div>
+          <span v-if="isSeries"
+            >Only add organisers who should be able to view the feedback for all
+            sessions. Subsession facilitators will be able to view the feedback
+            for their session providing you add their email in the sessions
+            table above.</span
+          >
         </div>
         <table class="table" id="organisersTable">
           <thead>

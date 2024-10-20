@@ -152,7 +152,7 @@ const isLeadInfo = () => {
     icon: "info",
     iconColor: "#17a2b8",
     title: "Lead organiser",
-    html: '<div class="text-start">The email address for the lead organiser cannot be changed later and will always have edit access. The login details provided on the next page are for the lead organiser.</div>',
+    html: '<div class="text-start">The email address for the lead organiser cannot be changed later and will always have edit access. They will receive an email notification if the session is updated by any of the other organsiers with editing rights. The login details provided on the next page are for the lead organiser.</div>',
     width: "60%",
     confirmButtonColor: "#17a2b8",
   });

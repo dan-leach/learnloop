@@ -282,8 +282,8 @@ onMounted(() => {
 <template>
   <main>
     <p class="text-center fs-6 mt-2">
-      Welcome to LearnLoop v5.0. This version is under active development so it
-      might behave in unpredictable ways. Please
+      Welcome to LearnLoop v{{ config.version }}. This version is under active
+      development so it might behave in unpredictable ways. Please
       <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
         >let me know</a
       >
