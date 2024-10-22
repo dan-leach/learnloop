@@ -70,6 +70,11 @@ const copyImg = async (src) => {
 <template v-once>
   <h1 class="text-center display-4">Feedback</h1>
   <p>Your session was created successfully.</p>
+  <p v-if="feedbackSession.sendMailFails.length" class="text-danger">Session creation emails to the following recepients failed:
+    <ul>
+      <li v-for="fail in feedbackSession.sendMailFails">{{ fail.name }} ({{ fail.email }}): <i>{{ fail.error }}</i></li>
+    </ul>
+  </p>
   <div class="d-flex flex-wrap flex-fill justify-content-around">
     <p
       @click="copyText(feedbackSession.id)"

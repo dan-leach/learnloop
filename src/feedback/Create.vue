@@ -366,10 +366,18 @@ const submit = () => {
       function (res) {
         btnSubmit.value.text = "Update feedback session";
         btnSubmit.value.wait = false;
+        let text = res.message;
+        if (res.sendMailFails.length) {
+          text +=
+            "<br><br>Session update emails to the following recepients failed:<br>";
+          for (let fail of res.sendMailFails)
+            text += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+        }
+
         Swal.fire({
           icon: "success",
           iconColor: "#17a2b8",
-          text: res,
+          html: text,
           confirmButtonColor: "#17a2b8",
         });
         router.push("/");
@@ -394,6 +402,7 @@ const submit = () => {
         btnSubmit.value.wait = false;
         feedbackSession.id = res.id;
         feedbackSession.pin = res.leadPin;
+        feedbackSession.sendMailFails = res.sendMailFails;
         router.push("/feedback/created");
       },
       function (error) {
