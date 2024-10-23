@@ -20,7 +20,7 @@ if (props.index > -1) {
   email.value = organiser.email;
   isLead.value = organiser.isLead;
   canEdit.value = organiser.canEdit;
-  existing.value = organiser.existing;
+  if (props.isEdit) existing.value = organiser.existing;
 }
 
 /**

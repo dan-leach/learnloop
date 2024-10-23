@@ -69,5 +69,6 @@ export const feedbackSession = reactive({
         scoreText: "Please use the slider to indicate an overall score",
       },
     };
+    this.templateId = "";
   },
 });

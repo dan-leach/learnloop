@@ -249,7 +249,7 @@ let btnSubmit = ref({
   text: isEdit ? "Update feedback session" : "Create feedback session",
   wait: false,
 });
-const loadUpdateDetails = () => {
+const loadUpdateDetails = (isTemplate = false) => {
   api("feedback/loadUpdateSession", {
     id: feedbackSession.id,
     pin: feedbackSession.pin,
@@ -300,6 +300,20 @@ const loadUpdateDetails = () => {
       feedbackSession.organisers = res.organisers;
       for (let organiser of feedbackSession.organisers)
         organiser.existing = true;
+
+      if (isTemplate) {
+        //remove the id and pin so that a new session is created rather than overwriting the template
+        //save id in templateId to show template message at top
+        feedbackSession.templateId = feedbackSession.id;
+        feedbackSession.id = "";
+        feedbackSession.pin = "";
+
+        //remove the ids from subsessions so new subsessions are created for a template based create
+        for (let subsession of feedbackSession.subsessions) {
+          subsession.id = "";
+        }
+      }
+
       loading.value = false;
     },
 
@@ -315,6 +329,31 @@ const loadUpdateDetails = () => {
       router.push("/");
     }
   );
+};
+const loadTemplate = () => {
+  Swal.fire({
+    title: "Enter ID and PIN for the session you want to use as a template",
+    html:
+      "You will need your session ID and PIN which you can find in the email you received when the session you want to use as a template was created. <br>" +
+      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+      feedbackSession.id +
+      '">' +
+      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+    showCancelButton: true,
+    confirmButtonColor: "#17a2b8",
+    preConfirm: () => {
+      feedbackSession.id = document.getElementById("swalFormId").value;
+      feedbackSession.pin = document.getElementById("swalFormPin").value;
+      if (feedbackSession.pin == "")
+        Swal.showValidationMessage("Please enter your PIN");
+      if (feedbackSession.id == "")
+        Swal.showValidationMessage("Please enter a session ID");
+    },
+  }).then((result) => {
+    if (result.isConfirmed) {
+      loadUpdateDetails(true);
+    }
+  });
 };
 
 const formIsValid = () => {
@@ -461,13 +500,38 @@ onMounted(() => {
     </div>
     <div v-else>
       <h1 class="text-center display-4">Feedback</h1>
+      <p v-if="feedbackSession.templateId">
+        Using session
+        <span class="id-box">{{ feedbackSession.templateId }}</span> as template
+        for new session. The original session will not be altered.
+        <button
+          class="btn btn-sm btn-sessions btn-teal me-2"
+          id="btnLoadTemplate"
+          @click="feedbackSession.reset()"
+        >
+          Create session from scratch instead
+        </button>
+      </p>
+      <p v-else-if="isEdit" class="form-label ms-2">
+        Editing feedback session
+        <span class="id-box">{{ feedbackSession.id }}</span>
+      </p>
+      <div class="d-flex align-items-center justify-content-start mb-2" v-else>
+        <button
+          class="btn btn-sm btn-sessions btn-teal me-2"
+          id="btnLoadTemplate"
+          @click="loadTemplate"
+        >
+          Use a previous session as a template
+        </button>
+      </div>
       <div class="d-flex align-items-stretch justify-content-between flex-wrap">
+        <!--Session details-->
         <form
           id="createSessionForm"
           class="card bg-transparent shadow p-2 mb-3 flex-grow-1 needs-validation details-card"
           novalidate
         >
-          <!--Session details-->
           <label for="sessionDetails" class="form-label"
             >Session {{ isSeries ? "series " : "" }}details</label
           >
@@ -1022,5 +1086,14 @@ onMounted(() => {
 .table-info {
   font-size: 0.5em;
   font-weight: 100;
+}
+.id-box {
+  padding: 2px;
+  font-family: serif;
+  border: 2px solid #17a2b8;
+  border-radius: 10px;
+  background-color: #17a2b8;
+  color: white;
+  letter-spacing: 3px;
 }
 </style>
