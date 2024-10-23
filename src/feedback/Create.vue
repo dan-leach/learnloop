@@ -453,18 +453,18 @@ const submit = () => {
       function (res) {
         btnSubmit.value.text = "Update feedback session";
         btnSubmit.value.wait = false;
-        let text = res.message;
+        let html = res.message;
         if (res.sendMailFails.length) {
-          text +=
+          html +=
             "<br><br>Session update emails to the following recepients failed:<br>";
           for (let fail of res.sendMailFails)
-            text += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+            html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
         }
 
         Swal.fire({
           icon: "success",
           iconColor: "#17a2b8",
-          html: text,
+          html: html,
           confirmButtonColor: "#17a2b8",
         });
         router.push("/");

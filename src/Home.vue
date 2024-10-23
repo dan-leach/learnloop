@@ -189,7 +189,7 @@ const findMySessions = (module) => {
   });
 };
 
-const closeSession = (module) => {
+const closeFeedbackSession = () => {
   let id = "";
   let pin = "";
   Swal.fire({
@@ -211,16 +211,24 @@ const closeSession = (module) => {
         Swal.showValidationMessage("Please enter a session ID");
         return false;
       }
-      await api(module, "closeSession", id, pin, null).then(
+      await api("feedback/closeSession", { id, pin }).then(
         function (res) {
+          let html = res.message;
+          if (res.sendMailFails.length) {
+            html +=
+              "<br><br>Session closure emails to the following recepients failed:<br>";
+            for (let fail of res.sendMailFails)
+              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+          }
           Swal.fire({
             icon: "success",
             iconColor: "#17a2b8",
-            text: res,
+            html: html,
             confirmButtonColor: "#17a2b8",
           });
         },
         function (error) {
+          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
           Swal.fire({
             icon: "error",
             iconColor: "#17a2b8",
@@ -351,7 +359,7 @@ onMounted(() => {
                 >
               </li>
               <li>
-                <a class="dropdown-item" @click="closeSession('feedback')"
+                <a class="dropdown-item" @click="closeFeedbackSession()"
                   >Close session</a
                 >
               </li>
