@@ -59,16 +59,64 @@ const showEditSubsessionForm = (index) => {
   );
   editSubsessionModal.show();
 };
+
+/**
+ * Validates an email address.
+ *
+ * This function checks if the provided email follows the standard email format.
+ *
+ * @param {string} email - The email address to validate.
+ * @returns {boolean} - Returns true if the email is valid, otherwise false.
+ */
+function emailIsValid(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 const hideEditSubsessionModal = (index, subsession) => {
-  if (index === undefined) {
-    //user did not submit the form, closed using the X. Do nothing except hide the modal
-  } else if (index == -1) {
-    feedbackSession.subsessions.push(JSON.parse(subsession));
+  //hide the subsession form
+  editSubsessionModal.hide();
+
+  if (index === undefined) return; //user did not submit the form, closed using the X. Do nothing except hide the modal
+
+  //get the data from the form output
+  const { name, title, email } = JSON.parse(subsession);
+
+  if (index == -1) {
+    //if index -1, is a new subsession so just push directly
+    feedbackSession.subsessions.push({ name, title, email });
   } else {
-    const { name, title, email } = JSON.parse(subsession);
+    //otherwise use Object assign to avoid row visually jumping around as array mutated
     Object.assign(feedbackSession.subsessions[index], { name, title, email });
   }
-  editSubsessionModal.hide();
+  if (!email && config.value.client.subsessionEmailPrompt) {
+    config.value.client.subsessionEmailPrompt = false; //only prompt once
+    Swal.fire({
+      title: "Are you sure you don't want to provide a facilitator email?",
+      text: "If you don't provide an email for the facilitator of this session they won't be able to view their feedback directly. As the organiser, you will still be able to view feedback for their session and share it with them manually if you wish. Click 'Cancel' if you want to return and enter a faciltator email.",
+      showCancelButton: true,
+      confirmButtonColor: "#17a2b8",
+    }).then((result) => {
+      if (!result.isConfirmed) {
+        //if user opts to return to add an email, show the form again. If the index was -1 the subsession will be at the last index position
+        showEditSubsessionForm(
+          index >= 0 ? index : feedbackSession.subsessions.length - 1
+        );
+      }
+    });
+  } else if (email && !emailIsValid(email)) {
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: "Email is not valid",
+      confirmButtonColor: "#17a2b8",
+    }).then((result) => {
+      //show the form again. If the index was -1 the subsession will be at the last index position
+      showEditSubsessionForm(
+        index >= 0 ? index : feedbackSession.subsessions.length - 1
+      );
+    });
+  }
 };
 const sortSubsession = (index, x) =>
   feedbackSession.subsessions.splice(
