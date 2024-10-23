@@ -13,7 +13,7 @@ import Swal from "sweetalert2";
 import { inject } from "vue";
 const config = inject("config");
 
-let isSeries = ref(false);
+let isSeries = ref(feedbackSession.subsessions.length);
 const toggleSingleSeries = () => {
   if (isSeries.value) {
     if (feedbackSession.subsessions.length) {
@@ -134,7 +134,7 @@ const removeSubsession = (index) => {
   });
 };
 
-let hasQuestions = ref(false);
+let hasQuestions = ref(feedbackSession.questions.length);
 const questionsInfo = () => {
   Swal.fire({
     icon: "info",
@@ -537,6 +537,22 @@ onMounted(() => {
         router.push("/");
       }
     });
+  } else if (feedbackSession.id && feedbackSession.pin) {
+    //probably user has gone back from created view
+
+    //save the id and pin, then reset the local details and load from server to ensure latest values
+    const backId = feedbackSession.id;
+    const backPin = feedbackSession.pin;
+    feedbackSession.reset();
+    feedbackSession.id = backId;
+    feedbackSession.pin = backPin;
+    loadUpdateDetails();
+
+    //change the route to edit
+    isEdit = true;
+    history.replaceState({}, "", "edit/" + feedbackSession.id);
+  } else {
+    feedbackSession.reset();
   }
 });
 </script>
