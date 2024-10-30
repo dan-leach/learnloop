@@ -254,8 +254,8 @@ const skipSubsessionFeedback = (index) => {
   }
 };
 
-const fetchDetails = () => {
-  api("feedback", "fetchDetails", feedbackSession.id, null, null).then(
+const loadGiveFeedback = () => {
+  api("feedback/loadGiveFeedback", { id: feedbackSession.id }).then(
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
@@ -263,17 +263,6 @@ const fetchDetails = () => {
           feedbackSession.id,
           res.id
         );
-        return;
-      }
-      if (res.closed) {
-        Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          title: "Unable to load feedback form",
-          text: "This feedback request has been closed by the facilitator.",
-          confirmButtonColor: "#17a2b8",
-        });
-        router.push("/");
         return;
       }
       feedbackSession.title = res.title;
@@ -337,6 +326,7 @@ const fetchDetails = () => {
       loading.value = false;
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",
@@ -367,13 +357,13 @@ onMounted(() => {
     }).then((result) => {
       if (result.isConfirmed) {
         history.replaceState({}, "", feedbackSession.id);
-        fetchDetails();
+        loadGiveFeedback();
       } else {
         router.push("/");
       }
     });
   } else {
-    fetchDetails();
+    loadGiveFeedback();
   }
 });
 </script>
