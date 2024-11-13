@@ -1,10 +1,11 @@
 <script setup>
 import { ref } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
-import { config } from "../data/config.js";
 import { api } from "../data/api.js";
 import router from "../router";
 import Swal from "sweetalert2";
+import { inject } from "vue";
+const config = inject("config");
 
 if (!feedbackSession.id) router.push("/feedback/");
 

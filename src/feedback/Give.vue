@@ -146,13 +146,12 @@ const submit = () => {
   }
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
-  api(
-    "feedback",
-    "insertFeedback",
-    feedbackSession.id,
-    null,
-    feedbackSession
-  ).then(
+  api("feedback/giveFeedback", {
+    id: feedbackSession.id,
+    feedback: feedbackSession.feedback,
+    subsessions: feedbackSession.subsessions,
+    questions: feedbackSession.questions,
+  }).then(
     function () {
       for (let cookie of cookies) {
         if (cookie.id == feedbackSession.id) {
@@ -166,6 +165,7 @@ const submit = () => {
       router.push("/feedback/complete");
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",

@@ -36,7 +36,7 @@ const resetPin = (module, id) => {
     title: "Reset PIN",
     html:
       "<div class='overflow-hidden'>You will need your session ID which you can find in emails relating to your session.<br>For example: " +
-      config.client.url.replace("https://", "") +
+      config.value.client.url.replace("https://", "") +
       "/<mark>aBc123</mark>.<br>" +
       '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="' +
       id +
@@ -55,16 +55,24 @@ const resetPin = (module, id) => {
         Swal.showValidationMessage("Please enter a session ID");
         return false;
       }
-      await api(module, "resetPin", id, null, JSON.stringify(email)).then(
+      await api(module + "/resetPin", { id, email }).then(
         function (res) {
+          let html = res.message;
+          if (res.sendMailFails.length) {
+            html +=
+              "<br><br>New pin emails to the following recepients failed:<br>";
+            for (let fail of res.sendMailFails)
+              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+          }
           Swal.fire({
             icon: "success",
             iconColor: "#17a2b8",
-            text: res,
+            html: html,
             confirmButtonColor: "#17a2b8",
           });
         },
         function (error) {
+          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
           Swal.fire({
             icon: "error",
             iconColor: "#17a2b8",
