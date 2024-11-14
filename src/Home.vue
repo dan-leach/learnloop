@@ -117,22 +117,28 @@ const setNotificationPreference = (id) => {
         return false;
       }
       notifications = document.getElementById("swalFormNotifications").value;
-      await api(
-        "feedback",
-        "setNotificationPreference",
+      await api("feedback/updateNotificationPreferences", {
         id,
         pin,
-        notifications
-      ).then(
+        notifications: notifications === "true" ? true : false,
+      }).then(
         function (res) {
+          let html = res.message;
+          if (res.sendMailFails.length) {
+            html +=
+              "<br><br>Notification preference emails to the following recepients failed:<br>";
+            for (let fail of res.sendMailFails)
+              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+          }
           Swal.fire({
             icon: "success",
             iconColor: "#17a2b8",
-            text: res,
+            html: html,
             confirmButtonColor: "#17a2b8",
           });
         },
         function (error) {
+          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
           Swal.fire({
             icon: "error",
             iconColor: "#17a2b8",
