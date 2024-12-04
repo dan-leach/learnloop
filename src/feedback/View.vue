@@ -5,22 +5,20 @@ import router from "../router";
 import Modal from "bootstrap/js/dist/modal";
 import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
-import { config } from "../data/config.js";
 import Loading from "../components/Loading.vue";
 import DownloadFeedbackForm from "./components/DownloadFeedbackForm.vue";
 import Swal from "sweetalert2";
+import { inject } from "vue";
+const config = inject("config");
 
 let loading = ref(true);
 let isSeries = ref(false);
 
 const fetchFeedback = () => {
-  api(
-    "feedback",
-    "fetchFeedback",
-    feedbackSession.id,
-    feedbackSession.pin,
-    null
-  ).then(
+  api("feedback/viewFeedback", {
+    id: feedbackSession.id,
+    pin: feedbackSession.pin,
+  }).then(
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
@@ -33,29 +31,31 @@ const fetchFeedback = () => {
       feedbackSession.title = res.title;
       feedbackSession.date = res.date;
       feedbackSession.name = res.name;
-      feedbackSession.feedback.positive = res.positive;
-      feedbackSession.feedback.negative = res.negative;
+      feedbackSession.feedback.positive = res.feedback.positive;
+      feedbackSession.feedback.negative = res.feedback.negative;
       let sum = 0;
-      for (let score of res.score) sum += parseInt(score);
+      for (let score of res.feedback.score) sum += parseInt(score);
       feedbackSession.feedback.score =
-        Math.round((sum / res.score.length) * 10) / 10;
+        Math.round((sum / res.feedback.score.length) * 10) / 10;
       if (Number.isNaN(feedbackSession.feedback.score))
         feedbackSession.feedback.score = "-";
       feedbackSession.questions = res.questions;
       if (res.subsessions) {
-        for (let sub of res.subsessions) {
-          let parsed = JSON.parse(sub);
+        for (let subsession of res.subsessions) {
           let sum = 0;
-          for (let score of parsed.score) sum += parseInt(score);
-          parsed.score = Math.round((sum / parsed.score.length) * 10) / 10;
-          if (Number.isNaN(parsed.score)) parsed.score = "-";
-          feedbackSession.subsessions.push(parsed);
+          for (let score of subsession.feedback.score) sum += parseInt(score);
+          subsession.feedback.score =
+            Math.round((sum / subsession.feedback.score.length) * 10) / 10;
+          if (Number.isNaN(subsession.feedback.score))
+            subsession.feedback.score = "-";
+          feedbackSession.subsessions.push(subsession);
           isSeries = true;
         }
       }
       loading.value = false;
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",
@@ -205,19 +205,25 @@ onMounted(() => {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(sub, index) in feedbackSession.subsessions">
+            <tr v-for="(subsession, index) in feedbackSession.subsessions">
               <td class="bg-transparent p-0 ps-2">
-                <strong>{{ sub.title }}</strong
+                <strong>{{ subsession.title }}</strong
                 ><br />
-                {{ sub.name }}
+                {{ subsession.name }}
               </td>
               <td class="bg-transparent p-0 ps-2">
-                <span v-for="item in sub.positive">{{ item }}<br /></span>
+                <span v-for="item in subsession.feedback.positive"
+                  >{{ item }}<br
+                /></span>
               </td>
               <td class="bg-transparent p-0 ps-2">
-                <span v-for="item in sub.negative">{{ item }}<br /></span>
+                <span v-for="item in subsession.feedback.negative"
+                  >{{ item }}<br
+                /></span>
               </td>
-              <td class="bg-transparent p-0 ps-2">{{ sub.score }}/100</td>
+              <td class="bg-transparent p-0 ps-2">
+                {{ subsession.feedback.score }}/100
+              </td>
             </tr>
           </tbody>
         </table>

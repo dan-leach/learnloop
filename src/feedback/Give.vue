@@ -144,6 +144,9 @@ const submit = () => {
     console.log("form validation failed");
     return;
   }
+  for (let subsession of feedbackSession.subsessions) {
+    if (subsession.status === "Skipped") delete subsession.score; //prevent api validation error
+  }
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
   api("feedback/giveFeedback", {

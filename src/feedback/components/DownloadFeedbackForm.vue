@@ -1,8 +1,10 @@
 <script setup>
 import { onMounted } from "vue";
 import Modal from "bootstrap/js/dist/modal";
-import { config } from "../../data/config.js";
 import { feedbackSession } from "../../data/feedbackSession.js";
+import { inject } from "vue";
+const config = inject("config");
+
 const emit = defineEmits(["hideDownloadFeedbackModal"]);
 </script>
 
