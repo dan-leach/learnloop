@@ -160,7 +160,7 @@ const findMySessions = (module) => {
   Swal.fire({
     title: "Find my sessions",
     html:
-      "<div class='overflow-hidden'>Enter your email below and we'll email you with a list of any sessions you've created previously." +
+      "<div class='overflow-hidden'>Enter your email below and we'll email you with a list of sessions for which you're listed as an organiser or facilitator.<br>" +
       '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
@@ -170,22 +170,26 @@ const findMySessions = (module) => {
         Swal.showValidationMessage("Please enter an email");
         return false;
       }
-      await api(
-        module,
-        "findMySessions",
-        null,
-        null,
-        JSON.stringify(email)
-      ).then(
+      await api(module + "/findMySessions", {
+        email,
+      }).then(
         function (res) {
+          let html = res.message;
+          if (res.sendMailFails.length) {
+            html +=
+              "Session history emails to the following recepients failed:<br>";
+            for (let fail of res.sendMailFails)
+              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+          }
           Swal.fire({
-            icon: "success",
+            icon: res.sendMailFails.length ? "error" : "success",
             iconColor: "#17a2b8",
-            text: res,
+            html: html,
             confirmButtonColor: "#17a2b8",
           });
         },
         function (error) {
+          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
           Swal.fire({
             icon: "error",
             iconColor: "#17a2b8",
