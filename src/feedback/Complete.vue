@@ -24,11 +24,65 @@ const submit = () => {
   document
     .getElementById("fetchCertificateForm")
     .classList.add("was-validated");
-  if (!feedbackSession.attendee.name || !feedbackSession.attendee.organisation)
+  if (
+    !feedbackSession.attendee.name ||
+    !Number.isInteger(feedbackSession.attendee.region) ||
+    !feedbackSession.attendee.organisation
+  )
     return false;
   lockForm.value = true;
-  console.log('TODO: set action of form to "api/"');
-  document.getElementById("fetchCertificateForm").submit();
+  const region =
+    feedbackSession.attendee.region === -1
+      ? "Other"
+      : config.value.client.regions[feedbackSession.attendee.region].name;
+  api(
+    "feedback/fetchCertificate",
+    {
+      id: feedbackSession.id,
+      attendee: {
+        name: feedbackSession.attendee.name,
+        region,
+        organisation: feedbackSession.attendee.organisation,
+      },
+    },
+    "blob"
+  ).then(
+    function (res) {
+      // Create a new HTML page to display the PDF with a custom title
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Certificate of Attendance</title>
+          </head>
+          <body style="margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4;">
+            <embed src="${res}" type="application/pdf" width="100%" height="100%" />
+          </body>
+        </html>
+        `;
+
+      // Open a new window and write the content
+      const newTab = window.open();
+      newTab.document.write(htmlContent);
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Success",
+        text: "Your certificate should now be open in a new tab.",
+        confirmButtonColor: "#17a2b8",
+      });
+    },
+    function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  );
 };
 </script>
 
@@ -39,17 +93,17 @@ const submit = () => {
     facilitator.
   </p>
   <div v-if="feedbackSession.certificate">
-    <p>
-      The facilitator has provided a certificate for this session for you to
-      download. Please fill in the details below to generate your certificate.
-    </p>
     <form
       method="post"
-      :action="config.api.url"
+      :action="config.api.url + 'feedback/fetchCertificate'"
       id="fetchCertificateForm"
       class="needs-validation"
       novalidate
     >
+      <p>
+        The facilitator has provided a certificate for this session for you to
+        download. Please fill in the details below to generate your certificate.
+      </p>
       <div class="mb-4">
         <label for="attendeeName" class="form-label">Name</label>
         <input
@@ -143,14 +197,6 @@ const submit = () => {
         />
         <div class="invalid-feedback">Please enter your organisation....</div>
       </div>
-      <input value="feedback" type="text" name="module" readonly hidden />
-      <input
-        value="fetchCertificate"
-        type="text"
-        name="route"
-        readonly
-        hidden
-      />
       <input
         v-model="feedbackSession.id"
         type="text"
@@ -177,7 +223,7 @@ const submit = () => {
       <div class="text-center mt-4">
         <button
           class="btn btn-lg btn-teal"
-          id="downloadCertificate"
+          id="fetchCertificate"
           @click.prevent="submit"
         >
           Download certificate
@@ -190,5 +236,8 @@ const submit = () => {
 <style scoped>
 .form-label {
   font-size: 1.3rem;
+}
+.pdf-container {
+  height: 95vh;
 }
 </style>

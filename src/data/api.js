@@ -8,7 +8,7 @@ import { config } from "./fetchConfig.js";
  * @param {Object} data - The data to be sent in the request body.
  * @returns {Promise<Object>} - A promise that resolves with the API response as a JSON object.
  */
-async function api(route, data) {
+async function api(route, data, responseType) {
   const url = config.value.api.url + route;
   const timeoutDuration = config.value.api.timeoutDuration;
   const showConsole = config.value.api.showConsole;
@@ -35,19 +35,34 @@ async function api(route, data) {
     // Clear the timeout
     clearTimeout(timeoutId);
 
-    //parse the JSON response
-    const jsonResponse = await response.json();
+    if (responseType === "blob") {
+      // Convert the response to a Blob
+      const blob = await response.blob();
 
-    // Show the response if required
-    if (showConsole && response.ok) {
-      console.log(`${route} -->`, jsonResponse);
-    }
-    if (!response.ok) {
-      throw jsonResponse;
-    }
+      // Create an object URL for the Blob
+      const blobUrl = window.URL.createObjectURL(blob);
 
-    //Return the JSON response
-    return jsonResponse;
+      // Clean up the Blob URL after usage
+      setTimeout(() => {
+        window.URL.revokeObjectURL(blobUrl);
+      }, 500);
+
+      return blobUrl;
+    } else {
+      //parse the JSON response
+      const jsonResponse = await response.json();
+
+      // Show the response if required
+      if (showConsole && response.ok) {
+        console.log(`${route} -->`, jsonResponse);
+      }
+      if (!response.ok) {
+        throw jsonResponse;
+      }
+
+      //Return the JSON response
+      return jsonResponse;
+    }
   } catch (error) {
     // Handle errors (including timeout and network issues)
     if (error.name === "AbortError") {
