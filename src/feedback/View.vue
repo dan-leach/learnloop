@@ -82,6 +82,53 @@ const showDownloadFeedbackForm = (index) => {
 };
 const hideDownloadFeedbackModal = () => downloadFeedbackModal.hide();
 
+const fetchFeedbackPDF = () => {
+  api(
+    "feedback/fetchFeedbackPDF",
+    {
+      id: feedbackSession.id,
+      pin: feedbackSession.pin,
+    },
+    "blob"
+  ).then(
+    function (res) {
+      // Create a new HTML page to display the PDF with a custom title
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Feedback report</title>
+          </head>
+          <body style="margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4;">
+            <embed src="${res}" type="application/pdf" width="100%" height="100%" />
+          </body>
+        </html>
+        `;
+
+      // Open a new window and write the content
+      const newTab = window.open();
+      newTab.document.write(htmlContent);
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Success",
+        text: "Feedback report should now be open in a new tab.",
+        confirmButtonColor: "#17a2b8",
+      });
+    },
+    function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  );
+};
+
 onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
@@ -125,45 +172,18 @@ onMounted(() => {
         <strong>{{ feedbackSession.name }}</strong> on
         <strong>{{ feedbackSession.date }}</strong>
       </p>
-      <form v-if="!isSeries" method="post" :action="config.api.url">
-        <input type="text" name="module" value="feedback" readonly hidden />
-        <input
-          type="text"
-          name="route"
-          value="fetchFeedbackPDF"
-          readonly
-          hidden
-        />
-        <input
-          v-model="feedbackSession.id"
-          type="text"
-          name="id"
-          readonly
-          hidden
-        />
-        <input
-          v-model="feedbackSession.pin"
-          type="text"
-          name="pin"
-          readonly
-          hidden
-        />
-        <button class="btn btn-teal mb-3" id="btnDownloadFeedback">
-          Download feedback as PDF
-        </button>
-      </form>
-      <div v-else>
+      <div>
         <button
           class="btn btn-teal mb-3"
           id="btnDownloadFeedback"
-          @click.prevent="showDownloadFeedbackForm"
+          @click="fetchFeedbackPDF"
         >
-          Download feedback as PDF
+          Download feedback report as PDF
         </button>
+        <DownloadFeedbackForm
+          @hideDownloadFeedbackModal="hideDownloadFeedbackModal"
+        />
       </div>
-      <DownloadFeedbackForm
-        @hideDownloadFeedbackModal="hideDownloadFeedbackModal"
-      />
       <label class="form-label">Positive comments</label><br />
       <span v-for="item in feedbackSession.feedback.positive"
         >{{ item }}<br

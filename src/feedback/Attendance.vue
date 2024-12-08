@@ -45,6 +45,53 @@ const viewAttendance = () => {
   );
 };
 
+const fetchAttendancePDF = () => {
+  api(
+    "feedback/fetchAttendancePDF",
+    {
+      id: feedbackSession.id,
+      pin: feedbackSession.pin,
+    },
+    "blob"
+  ).then(
+    function (res) {
+      // Create a new HTML page to display the PDF with a custom title
+      const htmlContent = `
+        <html>
+          <head>
+            <title>Attendance report</title>
+          </head>
+          <body style="margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4;">
+            <embed src="${res}" type="application/pdf" width="100%" height="100%" />
+          </body>
+        </html>
+        `;
+
+      // Open a new window and write the content
+      const newTab = window.open();
+      newTab.document.write(htmlContent);
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Success",
+        text: "Attendance report should now be open in a new tab.",
+        confirmButtonColor: "#17a2b8",
+      });
+    },
+    function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Error",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  );
+};
+
 onMounted(() => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
   Swal.fire({
@@ -90,84 +137,13 @@ onMounted(() => {
         <strong>{{ feedbackSession.date }}</strong
         >.
       </p>
-      <form method="post" :action="config.api.url">
-        <input type="text" name="module" value="feedback" readonly hidden />
-        <input
-          type="text"
-          name="route"
-          value="fetchAttendancePDF"
-          readonly
-          hidden
-        />
-        <input
-          v-model="feedbackSession.id"
-          type="text"
-          name="id"
-          readonly
-          hidden
-        />
-        <input
-          v-model="feedbackSession.pin"
-          type="text"
-          name="pin"
-          readonly
-          hidden
-        />
-
-        <div class="text-center">
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text"
-                >Download attendance report as PDF</span
-              >
-            </div>
-            <div class="input-group-append">
-              <button class="btn btn-primary" id="btnFetchAttendancePDF">
-                Go
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
-      <form method="post" :action="config.api.url">
-        <input type="text" name="module" value="feedback" readonly hidden />
-        <input
-          type="text"
-          name="route"
-          value="fetchAttendanceCSV"
-          readonly
-          hidden
-        />
-        <input
-          v-model="feedbackSession.id"
-          type="text"
-          name="id"
-          readonly
-          hidden
-        />
-        <input
-          v-model="feedbackSession.pin"
-          type="text"
-          name="pin"
-          readonly
-          hidden
-        />
-
-        <div class="text-center">
-          <div class="input-group mb-3">
-            <div class="input-group-prepend">
-              <span class="input-group-text"
-                >Download attendance report as CSV</span
-              >
-            </div>
-            <div class="input-group-append">
-              <button class="btn btn-primary" id="btnFetchAttendanceCSV">
-                Go
-              </button>
-            </div>
-          </div>
-        </div>
-      </form>
+      <button
+        class="btn btn-teal mb-3"
+        id="btnDownloadPDF"
+        @click="fetchAttendancePDF"
+      >
+        Download attendance report as PDF
+      </button>
       <br />
       <h4>
         Total attendees
