@@ -30,6 +30,7 @@ import {
   faLock,
   faLockOpen,
   faArrowRightArrowLeft,
+  faUsers,
 } from "@fortawesome/free-solid-svg-icons";
 /* add icons to the library */
 library.add(
@@ -50,7 +51,8 @@ library.add(
   faAsterisk,
   faLock,
   faLockOpen,
-  faArrowRightArrowLeft
+  faArrowRightArrowLeft,
+  faUsers
 );
 
 import { cookies } from "./data/cookies.js";

@@ -6,17 +6,16 @@ import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
 import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
+import { inject } from "vue";
+const config = inject("config");
 
 let loading = ref(true);
 
-const fetchAttendance = () => {
-  api(
-    "feedback",
-    "fetchAttendance",
-    feedbackSession.id,
-    feedbackSession.pin,
-    null
-  ).then(
+const viewAttendance = () => {
+  api("feedback/viewAttendance", {
+    id: feedbackSession.id,
+    pin: feedbackSession.pin,
+  }).then(
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
@@ -29,11 +28,11 @@ const fetchAttendance = () => {
       feedbackSession.title = res.title;
       feedbackSession.date = res.date;
       feedbackSession.name = res.name;
-      feedbackSession.attendees = res.attendees;
-      feedbackSession.attendeeCount = res.attendeeCount;
+      feedbackSession.attendance = res.attendance;
       loading.value = false;
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",
@@ -69,7 +68,7 @@ onMounted(() => {
   }).then((result) => {
     if (result.isConfirmed) {
       history.replaceState({}, "", feedbackSession.id);
-      fetchAttendance();
+      viewAttendance();
     } else {
       router.push("/");
     }
@@ -170,19 +169,40 @@ onMounted(() => {
         </div>
       </form>
       <br />
-      <h4>Total attendees: {{ feedbackSession.attendeeCount }}</h4>
+      <h4>
+        Total attendees
+        <span class="badge rounded-pill bg-teal">{{
+          feedbackSession.attendance.count
+        }}</span>
+      </h4>
       <br />
-      <div v-for="org in feedbackSession.attendees">
-        <h5>
-          {{ org.name }}: {{ org.count }} attendee<span v-if="org.count > 1"
-            >s</span
-          >
-        </h5>
-        <span v-for="(attendee, index) in org.attendees"
-          >{{ attendee
-          }}<span v-if="index != org.attendees.length - 1">, </span></span
+      <div v-for="region in feedbackSession.attendance.regions" class="mb-4">
+        <button
+          type="button"
+          class="btn ps-0 position-relative"
+          v-if="feedbackSession.attendance.regions.length > 1"
         >
-        <br /><br />
+          <h5 class="mb-0">
+            {{ region.name }}
+            <span class="badge rounded-pill bg-teal">
+              {{ region.count }}
+            </span>
+          </h5>
+        </button>
+        <div v-for="organisation in region.organisations" class="mb-3">
+          <h6 class="mb-0">
+            {{ organisation.name }}
+            <span class="badge rounded-pill bg-teal">{{
+              organisation.count
+            }}</span>
+          </h6>
+          <span v-for="(name, index) in organisation.attendees"
+            >{{ name
+            }}<span v-if="index != organisation.attendees.length - 1"
+              >,
+            </span></span
+          >
+        </div>
       </div>
     </div>
   </Transition>
