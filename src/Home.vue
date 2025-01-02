@@ -402,7 +402,7 @@ onMounted(() => {
       </div>
       <div class="card bg-transparent shadow p-2 m-2">
         <h1 class="text-center">Interaction</h1>
-        <p class="text-center">Engage with your audience interactively</p>
+        <p class="text-center">Engage with your audience during teaching</p>
         <div class="input-group m-2">
           <input
             id="interactionID"

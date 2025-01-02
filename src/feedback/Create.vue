@@ -313,7 +313,7 @@ const loadUpdateDetails = (isTemplate = false) => {
       }
       feedbackSession.title = res.title;
       feedbackSession.date = res.date;
-      feedbackSession.multipleDates = res.multipleDates;
+      feedbackSession.multipleDates = res.multipleDates ? true : false;
       feedbackSession.name = res.name;
 
       feedbackSession.certificate = res.certificate;
