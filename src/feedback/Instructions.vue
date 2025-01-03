@@ -4,10 +4,11 @@ import router from "../router";
 import { useRouter } from "vue-router";
 import { api } from "../data/api.js";
 import { feedbackSession } from "../data/feedbackSession.js";
-import { config } from "../data/config.js";
 import Swal from "sweetalert2";
 import Toast from "../assets/Toast.js";
 import Loading from "../components/Loading.vue";
+import { inject } from "vue";
+const config = inject("config");
 
 const link = ref({});
 const loading = ref(true);
@@ -36,7 +37,7 @@ const copyText = (string) => {
 };
 
 const fetchDetails = () => {
-  api("feedback", "fetchDetails", feedbackSession.id, null, null).then(
+  api("feedback/loadGiveFeedback", { id: feedbackSession.id }).then(
     function (res) {
       if (feedbackSession.id != res.id) {
         console.error(
@@ -48,16 +49,16 @@ const fetchDetails = () => {
       }
       feedbackSession.title = res.title;
       feedbackSession.name = res.name;
-      link.value.give = config.client.url + "/" + feedbackSession.id;
-      link.value.qr =
-        config.api.url + "shared/QRcode/?id=" + feedbackSession.id;
+      link.value.give = config.value.client.url + "/" + feedbackSession.id;
+      link.value.qr = config.value.api.url + "qrcode/?id=" + feedbackSession.id;
       loading.value = false;
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",
-        title: "Unable to fetch feedback session details",
+        title: "Unable to load instructions page",
         text: error,
         confirmButtonColor: "#17a2b8",
       });
@@ -109,7 +110,12 @@ onMounted(() => {
       </p>
       <div class="give-panel text-center m-2 p-2 d-flex justify-content-around">
         <div class="align-self-center me-4">
-          <img :src="link.qr" />
+          <img
+            :src="link.qr"
+            class="me-2"
+            alt="QR code to the feedback form"
+            height="250"
+          />
         </div>
         <div class="align-self-center">
           <p class="give-instructions">
