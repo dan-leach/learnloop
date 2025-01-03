@@ -301,6 +301,7 @@ const loadUpdateDetails = (isTemplate = false) => {
   api("feedback/loadUpdateSession", {
     id: feedbackSession.id,
     pin: feedbackSession.pin,
+    isTemplate,
   }).then(
     function (res) {
       if (feedbackSession.id != res.id) {

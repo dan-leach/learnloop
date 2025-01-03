@@ -13,15 +13,13 @@ let type = ref("");
 let options = ref([]);
 let settings = ref({});
 
-watch(feedbackSession, (a, b) => {
-  if (props.index > -1) {
-    const question = feedbackSession.questions[props.index];
-    title.value = question.title;
-    type.value = question.type;
-    options.value = question.options;
-    settings.value = question.settings;
-  }
-});
+if (props.index > -1) {
+  const question = feedbackSession.questions[props.index];
+  title.value = question.title;
+  type.value = question.type;
+  options.value = question.options;
+  settings.value = question.settings;
+}
 
 watch(type, (newType, oldType) => {
   if (type.value) {

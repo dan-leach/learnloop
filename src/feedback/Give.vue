@@ -81,9 +81,9 @@ const scoreChange = () => {
 };
 
 const validNumberOfOptionsSelected = (question) => {
-  if (!question.settings.required) return true;
   let count = 0;
   for (let option of question.options) if (option.selected) count++;
+  if (!question.settings.required && count < 1) return true;
   if (
     count > question.settings.selectedLimit.max ||
     count < question.settings.selectedLimit.min
@@ -131,9 +131,10 @@ const formIsValid = () => {
           question.response == ""
         )
           return false;
-      } else if (question.type == "checkbox") {
-        if (!validNumberOfOptionsSelected(question)) return false;
       }
+    }
+    if (question.type == "checkbox") {
+      if (!validNumberOfOptionsSelected(question)) return false;
     }
   }
   return true;
@@ -614,12 +615,16 @@ onMounted(() => {
                   question.settings.selectedLimit.max
                     ? "Please select exactly " +
                       question.settings.selectedLimit.min +
-                      " options."
+                      " options"
                     : "Please select between " +
                       question.settings.selectedLimit.min +
                       " and " +
                       question.settings.selectedLimit.max +
-                      " options."
+                      " options"
+                }}{{
+                  question.settings.required
+                    ? "."
+                    : " (or none at all for this optional question)."
                 }}
               </div>
               <br />
