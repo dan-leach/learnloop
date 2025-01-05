@@ -1,5 +1,6 @@
 <script setup>
-import { config } from "./data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 </script>
 <template>
   <h1 class="text-center display-4">Privacy Policy</h1>

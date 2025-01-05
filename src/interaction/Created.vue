@@ -2,7 +2,8 @@
 import { ref, onBeforeUnmount } from "vue";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
-import { config } from "../data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 import Toast from "../assets/Toast.js";
 
 if (!interactionSession.id || !interactionSession.pin)

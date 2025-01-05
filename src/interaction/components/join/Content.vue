@@ -1,5 +1,6 @@
 <script setup>
-import { config } from "../../../data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 const props = defineProps(["slide"]);
 </script>
 

@@ -1,6 +1,7 @@
 <script setup>
 import { onMounted, onUpdated } from "vue";
-import { config } from "../../../data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 const props = defineProps(["slide"]);
 const emit = defineEmits(["toggleContent"]);
 

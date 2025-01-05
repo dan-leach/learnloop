@@ -1,7 +1,8 @@
 <script setup>
 import { interactionSession } from "../../../data/interactionSession.js";
 import { api } from "../../../data/api.js";
-import { config } from "../../../data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 import Swal from "sweetalert2";
 import Toast from "../../../assets/Toast.js";
 

@@ -1,6 +1,7 @@
 <script setup>
 const props = defineProps(["feedbackID"]);
-import { config } from "../../../data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 </script>
 
 <template>

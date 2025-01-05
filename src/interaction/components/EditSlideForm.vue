@@ -1,7 +1,8 @@
 <script setup>
 import { ref, watch } from "vue";
 import { interactionSession } from "../../data/interactionSession.js";
-import { config } from "../../data/config.js";
+import { inject } from "vue";
+const config = inject("config");
 import Swal from "sweetalert2";
 import Uploader from "./Uploader.vue";
 

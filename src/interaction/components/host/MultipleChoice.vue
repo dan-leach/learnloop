@@ -1,6 +1,5 @@
 <script setup>
 import { onMounted, watch } from "vue";
-import { config } from "../../../data/config.js";
 import Chart from "chart.js/auto";
 
 const props = defineProps(["slide"]);
