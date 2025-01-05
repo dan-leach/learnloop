@@ -584,9 +584,6 @@ onMounted(() => {
 .update-info-card {
   width: 1070px;
 }
-.interaction-card {
-  min-width: 450px;
-}
 .nav-link.active {
   background-color: #17a2b8;
   color: black;
@@ -602,6 +599,9 @@ onMounted(() => {
 @media only screen and (min-width: 1200px) {
   .more-options {
     margin-left: 15px;
+  }
+  .interaction-card {
+    min-width: 450px;
   }
 }
 </style>
