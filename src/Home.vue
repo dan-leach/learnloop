@@ -1,5 +1,5 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import { api } from "./data/api.js";
 import router from "./router";
@@ -10,6 +10,31 @@ import { interactionSession } from "./data/interactionSession.js";
 
 import { inject } from "vue";
 const config = inject("config");
+
+const deployVersion = true;
+const interactionInterestEmail = ref("");
+const interactionInterest = () => {
+  api("interaction/interest", { email: interactionInterestEmail.value }).then(
+    function (res) {
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        text: res.message,
+        confirmButtonColor: "#17a2b8",
+      });
+      interactionInterestEmail.value = "";
+    },
+    function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  );
+};
 
 const viewFeedback = () => {
   if (feedbackSession.id) {
@@ -307,7 +332,7 @@ onMounted(() => {
 
 <template>
   <main>
-    <p class="text-center fs-6 mt-2">
+    <p class="text-center fs-6 mt-2" v-if="!deployVersion">
       Welcome to LearnLoop v{{ config.version }}. This version is under active
       development so it might behave in unpredictable ways. Please
       <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
@@ -323,6 +348,7 @@ onMounted(() => {
       <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
       instead.
     </p>
+    <div v-else class="mt-3"></div>
     <div class="d-flex justify-content-around flex-wrap mt-2">
       <div class="card bg-transparent shadow p-2 m-2">
         <h1 class="text-center">Feedback</h1>
@@ -399,70 +425,101 @@ onMounted(() => {
             </ul>
           </li>
         </ul>
+        <small class="text-center">
+          {{ config.feedback.count }} responses
+        </small>
       </div>
       <div class="card bg-transparent shadow p-2 m-2">
         <h1 class="text-center">Interaction</h1>
         <p class="text-center">Engage with your audience during teaching</p>
-        <div class="input-group m-2">
-          <input
-            id="interactionID"
-            type="text"
-            placeholder="Session ID"
-            autocomplete="off"
-            class="form-control"
-            v-model="interactionSession.id"
-            @keyup.enter="hostInteraction"
-          />
-          <button
-            type="button"
-            id="hostInteraction"
-            class="btn btn-teal me-3"
-            @click="hostInteraction"
-          >
-            Host session
-          </button>
+        <div v-if="deployVersion">
+          <h4 class="text-center">Coming soon</h4>
+          <div class="input-group m-2">
+            <input
+              id="interactionInterestEmail"
+              type="email"
+              placeholder="Email"
+              autocomplete="off"
+              class="form-control"
+              v-model="interactionInterestEmail"
+            />
+            <button
+              type="button"
+              id="btnInteractionInterest"
+              class="btn btn-teal me-3"
+              @click="interactionInterest"
+            >
+              Register interest
+            </button>
+          </div>
         </div>
-        <ul class="nav nav-pills justify-content-between m-2 d-flex gap-2">
-          <li class="nav-item mb-2 flex-grow-1 d-flex">
+        <div v-else>
+          <div class="input-group m-2">
+            <input
+              id="interactionID"
+              type="text"
+              placeholder="Session ID"
+              autocomplete="off"
+              class="form-control"
+              v-model="interactionSession.id"
+              @keyup.enter="hostInteraction"
+            />
             <button
-              class="nav-link active flex-grow-1"
-              @click="router.push('/interaction/create')"
+              type="button"
+              id="hostInteraction"
+              class="btn btn-teal me-3"
+              @click="hostInteraction"
             >
-              Create a new interaction session
+              Host session
             </button>
-          </li>
-          <li class="nav-item dropdown flex-grow-1 d-flex more-options">
-            <button
-              class="nav-link active dropdown-toggle flex-grow-1"
-              data-bs-toggle="dropdown"
-              href="#"
-            >
-              More options
-            </button>
-            <ul class="dropdown-menu">
-              <li>
-                <a
-                  class="dropdown-item"
-                  @click="router.push('/interaction/edit/')"
-                  >Edit existing session</a
-                >
-              </li>
-              <li>
-                <a class="dropdown-item" @click="resetPin('interaction')"
-                  >Reset PIN</a
-                >
-              </li>
-              <li>
-                <a class="dropdown-item" @click="findMySessions('interaction')"
-                  >Find my sessions</a
-                >
-              </li>
-            </ul>
-          </li>
-        </ul>
-        <p class="text-center text-danger bg-dark p-1 mt-3">
-          <strong>Interaction is in private beta by invitation only</strong>
-        </p>
+          </div>
+          <ul class="nav nav-pills justify-content-between m-2 d-flex gap-2">
+            <li class="nav-item mb-2 flex-grow-1 d-flex">
+              <button
+                class="nav-link active flex-grow-1"
+                @click="router.push('/interaction/create')"
+              >
+                Create a new interaction session
+              </button>
+            </li>
+            <li class="nav-item dropdown flex-grow-1 d-flex more-options">
+              <button
+                class="nav-link active dropdown-toggle flex-grow-1"
+                data-bs-toggle="dropdown"
+                href="#"
+              >
+                More options
+              </button>
+              <ul class="dropdown-menu">
+                <li>
+                  <a
+                    class="dropdown-item"
+                    @click="router.push('/interaction/edit/')"
+                    >Edit existing session</a
+                  >
+                </li>
+                <li>
+                  <a class="dropdown-item" @click="resetPin('interaction')"
+                    >Reset PIN</a
+                  >
+                </li>
+                <li>
+                  <a
+                    class="dropdown-item"
+                    @click="findMySessions('interaction')"
+                    >Find my sessions</a
+                  >
+                </li>
+              </ul>
+            </li>
+          </ul>
+          <small class="text-center">
+            {{ config.interaction.count }} interactions
+          </small>
+          <p class="text-center text-danger bg-dark p-1 mt-3">
+            <strong>Interaction is in private beta by invitation only</strong>
+          </p>
+        </div>
       </div>
     </div>
     <Quote />

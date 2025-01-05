@@ -2,6 +2,12 @@
 
 All notable changes to the LearnLoop codebase will be documented in this file.
 
+## [v5.3] - 2025-01-06
+
+### Changed
+
+- Moved API to separate repo as ExpressJS application
+
 ## [v5.2] - 2024-06-20
 
 ### Added
