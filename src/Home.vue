@@ -14,26 +14,35 @@ const config = inject("config");
 const deployVersion = true;
 const interactionInterestEmail = ref("");
 const interactionInterest = () => {
-  api("interaction/interest", { email: interactionInterestEmail.value }).then(
-    function (res) {
-      Swal.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        text: res.message,
-        confirmButtonColor: "#17a2b8",
-      });
-      interactionInterestEmail.value = "";
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-    }
-  );
+  if (interactionInterestEmail.value) {
+    document
+      .getElementById("interactionInterestEmail")
+      .classList.remove("is-invalid");
+    api("interaction/interest", { email: interactionInterestEmail.value }).then(
+      function (res) {
+        Swal.fire({
+          icon: "success",
+          iconColor: "#17a2b8",
+          text: res.message,
+          confirmButtonColor: "#17a2b8",
+        });
+        interactionInterestEmail.value = "";
+      },
+      function (error) {
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+        Swal.fire({
+          icon: "error",
+          iconColor: "#17a2b8",
+          text: error,
+          confirmButtonColor: "#17a2b8",
+        });
+      }
+    );
+  } else {
+    document
+      .getElementById("interactionInterestEmail")
+      .classList.add("is-invalid");
+  }
 };
 
 const viewFeedback = () => {
