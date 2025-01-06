@@ -66,6 +66,7 @@ const hostInteraction = () => {
 const resetPin = (module, id) => {
   if (!id) id = "";
   let email = "";
+  router.push("/");
   Swal.fire({
     title: "Reset PIN",
     html:
@@ -127,6 +128,7 @@ const resetPin = (module, id) => {
 const setNotificationPreference = (id) => {
   if (!id) id = "";
   let pin = "";
+  router.push("/");
   let notifications = true;
   Swal.fire({
     title: "Set notification preferences",
