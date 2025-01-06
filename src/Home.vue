@@ -365,8 +365,8 @@ onMounted(() => {
         <div class="card-body">
           <h5 class="card-title">What's new in the January update?</h5>
           <p class="card-text">
-            Create feedback sessions from existing templates, add additional
-            organsers, easier custom questions and more.
+            Create feedback requests using existing sessions as a template, add
+            additional organisers, easier custom questions and more.
             <a href="#" data-bs-toggle="collapse" data-bs-target="#changes"
               >Read more...</a
             >
@@ -402,7 +402,7 @@ onMounted(() => {
               <li>
                 <strong>Coming soon:</strong> Interaction will allow you to
                 share questions and polls with your audience via their
-                smartphone or other device during teaching sessions. Register
+                smartphone or other devices during teaching sessions. Register
                 your interest below to be the first to know when it's available.
               </li>
             </ul>
