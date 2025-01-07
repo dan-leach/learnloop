@@ -1,6 +1,6 @@
 <script setup>
-import { inject } from "vue";
-const config = inject("config");
+//import { inject } from "vue";
+//const config = inject("config");
 //
 </script>
 
@@ -124,10 +124,6 @@ import Swal from "sweetalert2";
 
 export default {
   props: {
-    server: {
-      type: String,
-      default: config.api.imageUrl,
-    },
     isInvalid: {
       type: Boolean,
       default: false,

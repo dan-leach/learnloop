@@ -67,16 +67,70 @@ const feedbackIdInfo = () => {
   });
 };
 
+let btnInsertSession = ref({
+  text: "Create interaction session",
+  wait: false,
+});
+const sessionFormIsValid = () => {
+  document
+    .getElementById("createSessionSeriesForm")
+    .classList.add("was-validated");
+  if (
+    !interactionSession.title ||
+    !interactionSession.name ||
+    !interactionSession.email
+  )
+    return false;
+  return true;
+};
+const insertSession = () => {
+  if (!sessionFormIsValid()) return false;
+  btnInsertSession.value.text = "Please wait...";
+  btnInsertSession.value.wait = true;
+  api("interaction/insertSession", {
+    title: interactionSession.title,
+    feedbackId: interactionSession.feedbackID,
+    name: interactionSession.name,
+    email: interactionSession.email,
+  }).then(
+    function (res) {
+      btnInsertSession.value.text = "Create interaction session";
+      btnInsertSession.value.wait = false;
+      interactionSession.id = res.id;
+      interactionSession.pin = res.pin;
+      if (!res.emailOutcome.sendSuccess) {
+        Swal.fire({
+          icon: "error",
+          iconColor: "#17a2b8",
+          title: "Email with session details failed",
+          html: `Please ensure you save your session ID and PIN as the session creation email could not be sent. <br><br>Error: ${res.emailOutcome.error}<br><br>Session ID: ${interactionSession.id}<br>Session PIN: ${interactionSession.pin}`,
+          confirmButtonColor: "#17a2b8",
+        });
+      }
+    },
+    function (error) {
+      btnInsertSession.value.text = "Retry creating interaction session?";
+      btnInsertSession.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to create interaction session",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  );
+};
+
 interactionSession.editMode =
   useRouter().currentRoute.value.name == "interaction-edit" ? true : false;
 let loading = ref(interactionSession.editMode ? true : false);
-let btnSubmit = ref({
-  text: interactionSession.editMode
-    ? "Update interaction session"
-    : "Create interaction session",
+let btnUpdateSession = ref({
+  text: "Finish editing",
   wait: false,
 });
-const formIsValid = () => {
+const slidesFormIsValid = () => {
   document
     .getElementById("createSessionSeriesForm")
     .classList.add("was-validated");
@@ -98,63 +152,35 @@ const formIsValid = () => {
     return false;
   return true;
 };
-const submit = () => {
-  if (!formIsValid()) return false;
-  btnSubmit.value.text = "Please wait...";
-  btnSubmit.value.wait = true;
-  if (interactionSession.editMode) {
-    api(
-      "interaction",
-      "updateSession",
-      interactionSession.id,
-      interactionSession.pin,
-      interactionSession
-    ).then(
-      function (res) {
-        btnSubmit.value.text = "Update interaction session";
-        btnSubmit.value.wait = false;
-        Swal.fire({
-          title: "Interaction session updated",
-          icon: "success",
-          iconColor: "#17a2b8",
-          confirmButtonColor: "#17a2b8",
-        });
-        router.push("/");
-      },
-      function (error) {
-        btnSubmit.value.text = "Retry updating interaction session?";
-        btnSubmit.value.wait = false;
-        Swal.fire({
-          title: "Error updating interaction session",
-          text: error,
-          icon: "error",
-          iconColor: "#17a2b8",
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    );
-  } else {
-    api("interaction", "insertSession", null, null, interactionSession).then(
-      function (res) {
-        btnSubmit.value.text = "Create interaction session";
-        btnSubmit.value.wait = false;
-        interactionSession.id = res.id;
-        interactionSession.pin = res.pin;
-        router.push("/interaction/created");
-      },
-      function (error) {
-        btnSubmit.value.text = "Retry creating interaction session?";
-        btnSubmit.value.wait = false;
-        Swal.fire({
-          title: "Error creating interaction session",
-          text: error,
-          icon: "error",
-          iconColor: "#17a2b8",
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    );
-  }
+const updateSession = () => {
+  if (!slidesFormIsValid()) return false;
+  btnUpdateSession.value.text = "Please wait...";
+  btnUpdateSession.value.wait = true;
+  api("interaction/updateSession", interactionSession).then(
+    function (res) {
+      btnUpdateSession.value.text = "Finish editing";
+      btnUpdateSession.value.wait = false;
+      Swal.fire({
+        title: "Interaction session updated",
+        icon: "success",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+      router.push("/");
+    },
+    function (error) {
+      btnUpdateSession.value.text = "Retry updating interaction session?";
+      btnUpdateSession.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error updating interaction session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  );
 };
 
 const previewSession = () => {
@@ -345,111 +371,131 @@ onMounted(() => {
           </div>
         </div>
       </form>
-      <div class="card bg-transparent shadow p-2 mb-3">
-        <label for="slidesTable" class="form-label">Slides</label>
-        <table class="table" id="slidesTable">
-          <thead>
-            <tr>
-              <th class="bg-transparent p-0 ps-2"></th>
-              <th class="bg-transparent p-0 ps-2">Question/heading</th>
-              <th class="bg-transparent p-0 ps-2">Slide type</th>
-              <th class="bg-transparent p-0 ps-2">
-                <button
-                  class="btn btn-teal btn-sm btn-right"
-                  id="btnAddSlide"
-                  @click.prevent="showEditSlideForm(-1)"
-                >
-                  Add <i class="fas fa-plus"></i>
-                </button>
-              </th>
-            </tr>
-          </thead>
-          <TransitionGroup name="list" tag="tbody">
-            <template
-              v-for="(slide, index) in interactionSession.slides"
-              :key="slide"
-            >
-              <tr>
-                <td
-                  class="bg-transparent p-0 ps-2"
-                  v-if="slide.type != 'waitingRoom'"
-                >
-                  <button
-                    v-if="index != 0"
-                    class="btn btn-default btn-sm p-0"
-                    id="btnSortUp"
-                    @click="sortSlide(index, -1)"
-                  >
-                    <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
-                  ><br />
-                  <button
-                    v-if="index != interactionSession.slides.length - 1"
-                    class="btn btn-default btn-sm p-0"
-                    id="btnSortDown"
-                    @click="sortSlide(index, 1)"
-                  >
-                    <font-awesome-icon :icon="['fas', 'chevron-down']" />
-                  </button>
-                </td>
-                <td
-                  class="bg-transparent prompt-cell"
-                  v-if="slide.type != 'waitingRoom'"
-                >
-                  {{ slide.prompt }}
-                </td>
-                <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
-                  {{ config.interaction.create.slides.types[slide.type].name }}
-                </td>
-                <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
-                  <button
-                    class="btn btn-danger btn-sm btn-right ms-4 mb-2"
-                    id="btnRemoveSlide"
-                    @click="removeSlide(index)"
-                  >
-                    <font-awesome-icon :icon="['fas', 'trash-can']" />
-                  </button>
-                  <button
-                    class="btn btn-teal btn-sm btn-right"
-                    id="btnEditSlide"
-                    @click="showEditSlideForm(index)"
-                  >
-                    <font-awesome-icon :icon="['fas', 'edit']" />
-                  </button>
-                </td>
-              </tr>
-            </template>
-          </TransitionGroup>
-        </table>
-        <template v-for="(slide, index) in interactionSession.slides">
-          <EditSlideForm
-            :index="index"
-            @hideEditSlideModal="hideEditSlideModal"
-          />
-        </template>
-        <EditSlideForm index="-1" @hideEditSlideModal="hideEditSlideModal" />
-      </div>
-      <div class="text-center mb-3">
-        <button
-          class="btn btn-teal"
-          id="previewSession"
-          @click="previewSession"
-        >
-          Preview interaction session
-        </button>
-      </div>
-      <div class="text-center mb-3">
+      <div class="text-center mb-3" v-if="!interactionSession.id">
         <button
           class="btn btn-lg btn-teal"
-          id="submitCreateSession"
-          @click="submit"
-          :disabled="btnSubmit.wait"
+          id="btnInsertSession"
+          @click="insertSession"
+          :disabled="btnInsertSession.wait"
         >
           <span
-            v-if="btnSubmit.wait"
+            v-if="btnInsertSession.wait"
             class="spinner-border spinner-border-sm me-2"
           ></span
-          >{{ btnSubmit.text }}
+          >{{ btnInsertSession.text }}
         </button>
+      </div>
+      <div v-else>
+        <div class="card bg-transparent shadow p-2 mb-3">
+          <label for="slidesTable" class="form-label">Slides</label>
+          <table class="table" id="slidesTable">
+            <thead>
+              <tr>
+                <th class="bg-transparent p-0 ps-2"></th>
+                <th class="bg-transparent p-0 ps-2">Question/heading</th>
+                <th class="bg-transparent p-0 ps-2">Slide type</th>
+                <th class="bg-transparent p-0 ps-2">
+                  <button
+                    class="btn btn-teal btn-sm btn-right"
+                    id="btnAddSlide"
+                    @click.prevent="showEditSlideForm(-1)"
+                  >
+                    Add <i class="fas fa-plus"></i>
+                  </button>
+                </th>
+              </tr>
+            </thead>
+            <TransitionGroup name="list" tag="tbody">
+              <template
+                v-for="(slide, index) in interactionSession.slides"
+                :key="slide"
+              >
+                <tr>
+                  <td
+                    class="bg-transparent p-0 ps-2"
+                    v-if="slide.type != 'waitingRoom'"
+                  >
+                    <button
+                      v-if="index != 0"
+                      class="btn btn-default btn-sm p-0"
+                      id="btnSortUp"
+                      @click="sortSlide(index, -1)"
+                    >
+                      <font-awesome-icon
+                        :icon="['fas', 'chevron-up']"
+                      /></button
+                    ><br />
+                    <button
+                      v-if="index != interactionSession.slides.length - 1"
+                      class="btn btn-default btn-sm p-0"
+                      id="btnSortDown"
+                      @click="sortSlide(index, 1)"
+                    >
+                      <font-awesome-icon :icon="['fas', 'chevron-down']" />
+                    </button>
+                  </td>
+                  <td
+                    class="bg-transparent prompt-cell"
+                    v-if="slide.type != 'waitingRoom'"
+                  >
+                    {{ slide.prompt }}
+                  </td>
+                  <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
+                    {{
+                      config.interaction.create.slides.types[slide.type].name
+                    }}
+                  </td>
+                  <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
+                    <button
+                      class="btn btn-danger btn-sm btn-right ms-4 mb-2"
+                      id="btnRemoveSlide"
+                      @click="removeSlide(index)"
+                    >
+                      <font-awesome-icon :icon="['fas', 'trash-can']" />
+                    </button>
+                    <button
+                      class="btn btn-teal btn-sm btn-right"
+                      id="btnEditSlide"
+                      @click="showEditSlideForm(index)"
+                    >
+                      <font-awesome-icon :icon="['fas', 'edit']" />
+                    </button>
+                  </td>
+                </tr>
+              </template>
+            </TransitionGroup>
+          </table>
+          <template v-for="(slide, index) in interactionSession.slides">
+            <EditSlideForm
+              :index="index"
+              @hideEditSlideModal="hideEditSlideModal"
+            />
+          </template>
+          <EditSlideForm index="-1" @hideEditSlideModal="hideEditSlideModal" />
+        </div>
+        <div class="text-center mb-3">
+          <button
+            class="btn btn-teal"
+            id="previewSession"
+            @click="previewSession"
+          >
+            Preview
+          </button>
+        </div>
+        <div class="text-center mb-3">
+          <button
+            class="btn btn-lg btn-teal"
+            id="btnUpdateSession"
+            @click="updateSession"
+            :disabled="btnUpdateSession.wait"
+          >
+            <span
+              v-if="btnUpdateSession.wait"
+              class="spinner-border spinner-border-sm me-2"
+            ></span
+            >{{ btnUpdateSession.text }}
+          </button>
+        </div>
       </div>
     </div>
   </Transition>
