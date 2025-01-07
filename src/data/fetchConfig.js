@@ -3,7 +3,7 @@ import { ref } from "vue";
 let config = ref({});
 
 async function fetchConfig() {
-  const url = "https://api.learnloop.co.uk/config";
+  const url = "https://dev.api.learnloop.co.uk/config";
   const timeoutDuration = 15000;
 
   const controller = new AbortController();

@@ -11,7 +11,7 @@ import { interactionSession } from "./data/interactionSession.js";
 import { inject } from "vue";
 const config = inject("config");
 
-const deployVersion = true;
+const deployVersion = false;
 const interactionInterestEmail = ref("");
 const interactionInterest = () => {
   if (interactionInterestEmail.value) {
@@ -361,7 +361,8 @@ onMounted(() => {
     </p>
     <div v-else class="mt-3"></div>
     <div class="d-flex justify-content-around">
-      <div class="card bg-transparent shadow mb-3 update-info-card">
+      <!--remove hidden attribute to restore update info card-->
+      <div class="card bg-transparent shadow mb-3 update-info-card" hidden>
         <div class="card-body">
           <h5 class="card-title">What's new in the January update?</h5>
           <p class="card-text">
