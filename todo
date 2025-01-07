@@ -1,10 +1,5 @@
-Current:
-Working on organisers feature for feedback
-
-- Prevent isLead organiser from being edited after submission
-- Update database structure
-- Update API
-- Consider backward compatibility
+Stop find my sessions email from changing the email on interact expression of interest
+Check able to download subsession feedback report separately from full report for organisers
 
 Later:
 Test if escapeProblemCharacters is still required for express
