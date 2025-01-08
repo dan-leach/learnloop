@@ -14,30 +14,25 @@ import Toast from "../assets/Toast.js";
 const loading = ref(true);
 const currentIndex = ref(0);
 
-const updateHostStatus = () => {
-  interactionSession.hostStatus.facilitatorIndex = currentIndex.value;
-  api(
-    "interaction",
-    "updateHostStatus",
-    interactionSession.id,
-    interactionSession.pin,
-    interactionSession.hostStatus
-  ).then(
+const updateStatus = () => {
+  interactionSession.status.facilitatorIndex = currentIndex.value;
+  api("interaction/updateStatus", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+    status: interactionSession.status,
+  }).then(
     function () {},
     function (error) {
-      console.log("updateHostStatus failed", error);
+      console.log("updateStatus failed", error);
     }
   );
 };
 
 const fetchSubmissionCount = () => {
-  api(
-    "interaction",
-    "fetchSubmissionCount",
-    interactionSession.id,
-    interactionSession.pin,
-    null
-  ).then(
+  api("interaction/fetchSubmissionCount", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+  }).then(
     function (res) {
       interactionSession.submissionCount = res;
     },
@@ -48,7 +43,7 @@ const fetchSubmissionCount = () => {
 };
 
 const goToSlide = (index) => {
-  config.client.isFocusView =
+  config.value.client.isFocusView =
     index == 0 || index == interactionSession.slides.length - 1 ? false : true;
   if (
     (index == 1 && currentIndex.value == 0) ||
@@ -62,16 +57,16 @@ const goToSlide = (index) => {
     });
   }
   currentIndex.value = index;
-  if (!isPreview.value) updateHostStatus();
+  if (!isPreview.value) updateStatus();
   if (index == 0 && !isPreview.value) fetchSubmissionCount();
   if (interactionSession.slides[currentIndex.value].interaction)
     interactionSession.slides[currentIndex.value].interaction.submissions = [];
   console.log(interactionSession.slides[currentIndex.value]);
 };
 const toggleLockSlide = () => {
-  interactionSession.hostStatus.lockedSlides[currentIndex.value] =
-    !interactionSession.hostStatus.lockedSlides[currentIndex.value];
-  if (!isPreview.value) updateHostStatus();
+  interactionSession.status.lockedSlides[currentIndex.value] =
+    !interactionSession.status.lockedSlides[currentIndex.value];
+  if (!isPreview.value) updateStatus();
 };
 
 let fetchNewSubmissionsFailCount = 0;
@@ -82,16 +77,12 @@ const fetchNewSubmissions = () => {
   const lastSubmissionId = submissions.length
     ? submissions[submissions.length - 1].id
     : 0;
-  api(
-    "interaction",
-    "fetchNewSubmissions",
-    interactionSession.id,
-    interactionSession.pin,
-    {
-      slideIndex: currentIndex.value,
-      lastSubmissionId: lastSubmissionId,
-    }
-  ).then(
+  api("interaction/fetchNewSubmissions", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+    slideIndex: currentIndex.value,
+    lastSubmissionId: lastSubmissionId,
+  }).then(
     function (res) {
       for (let submission of res) submissions.push(submission);
       fetchNewSubmissionsFailCount = 0;
@@ -121,14 +112,11 @@ const fetchNewSubmissions = () => {
 
 let myInterval; //declared here to be accessible by onMounted and onBeforeUnmount
 
-const fetchDetailsHost = () => {
-  api(
-    "interaction",
-    "fetchDetailsHost",
-    interactionSession.id,
-    interactionSession.pin,
-    null
-  ).then(
+const loadDetailsHost = () => {
+  api("interaction/loadDetailsHost", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+  }).then(
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
@@ -141,6 +129,7 @@ const fetchDetailsHost = () => {
       interactionSession.title = res.title;
       interactionSession.name = res.name;
       interactionSession.feedbackID = res.feedbackID;
+      interactionSession.status = res.status;
       res.slides.unshift({ type: "waitingRoom" });
       res.slides.push({ type: "end" });
       interactionSession.slides = res.slides;
@@ -153,11 +142,11 @@ const fetchDetailsHost = () => {
       }
       loading.value = false;
       fetchSubmissionCount();
-      updateHostStatus();
+      updateStatus();
       fetchNewSubmissions();
       myInterval = setInterval(
         fetchNewSubmissions,
-        config.interaction.host.newSubmissionsPollInterval
+        config.value.interaction.host.newSubmissionsPollInterval
       );
     },
     function (error) {
@@ -180,7 +169,7 @@ if (isPreview.value) {
 }
 const exitPreviewSession = () => {
   loading.value = true;
-  config.client.isFocusView = false;
+  config.value.client.isFocusView = false;
   currentIndex.value = 0;
   interactionSession.slides.shift();
   interactionSession.slides.pop();
@@ -235,7 +224,7 @@ onMounted(() => {
     }).then((result) => {
       if (result.isConfirmed) {
         history.replaceState({}, "", interactionSession.id);
-        fetchDetailsHost();
+        loadDetailsHost();
       } else {
         router.push("/");
       }
@@ -245,17 +234,15 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
   if (!isPreview.value) {
-    let hostStatus = { facilitatorIndex: 0 };
-    api(
-      "interaction",
-      "updateHostStatus",
-      interactionSession.id,
-      interactionSession.pin,
-      hostStatus
-    ).then(
+    interactionSession.status.facilitatorIndex = 0;
+    api("interaction/updateStatus", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      status: interactionSession.status,
+    }).then(
       function () {},
       function (error) {
-        console.log("updateHostStatus failed", error);
+        console.log("updateStatus failed", error);
       }
     );
     clearInterval(myInterval);
