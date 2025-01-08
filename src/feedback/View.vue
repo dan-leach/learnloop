@@ -186,7 +186,7 @@ onMounted(() => {
           v-else
           class="btn btn-teal mb-3"
           id="btnDownloadFeedback"
-          @click="fetchFeedbackPDF"
+          @click="fetchFeedbackPDF(feedbackSession.id)"
         >
           Download feedback report as PDF
         </button>
