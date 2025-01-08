@@ -178,7 +178,7 @@ const updateSession = async () => {
   return api("interaction/updateSession", interactionSession).then(
     function (res) {
       saveStatus.value.saved = true;
-      return true;
+      return res.message;
     },
     function (error) {
       if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
@@ -193,12 +193,16 @@ const updateSession = async () => {
 };
 const finishEditing = async () => {
   if (!slidesFormIsValid()) return false;
-  const updateSuccess = await updateSession();
-  if (updateSuccess) {
+  const updateMessage = await updateSession();
+  if (updateMessage) {
     if (!interactionSession.editMode) {
       router.push("/interaction/created");
     } else {
       router.push("/");
+      Toast.fire({
+        icon: "success",
+        title: updateMessage,
+      });
     }
   }
 };
@@ -208,7 +212,7 @@ const previewSession = () => {
 };
 
 const fetchDetailsHost = () => {
-  api("interaction/fetchDetailsHost", {
+  api("interaction/loadDetailsHost", {
     id: interactionSession.id,
     pin: interactionSession.pin,
   }).then(
@@ -217,7 +221,7 @@ const fetchDetailsHost = () => {
         console.error(
           "interactionSession.id != res.id",
           interactionSession.id,
-          response.id
+          res.id
         );
         return;
       }
