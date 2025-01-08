@@ -20,6 +20,12 @@
   background-color: #03cceb;
   color: black;
 }
+.btn-outline-teal {
+  border-color: #17a2b8;
+}
+.btn-outline-teal:hover {
+  border-color: #17a2b8;
+}
 
 body {
   background-color: #17a3b813;

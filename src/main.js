@@ -31,6 +31,7 @@ import {
   faLockOpen,
   faArrowRightArrowLeft,
   faUsers,
+  faTriangleExclamation,
 } from "@fortawesome/free-solid-svg-icons";
 /* add icons to the library */
 library.add(
@@ -52,7 +53,8 @@ library.add(
   faLock,
   faLockOpen,
   faArrowRightArrowLeft,
-  faUsers
+  faUsers,
+  faTriangleExclamation
 );
 
 import { cookies } from "./data/cookies.js";

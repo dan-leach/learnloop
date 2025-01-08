@@ -576,9 +576,9 @@ onMounted(() => {
               </ul>
             </li>
           </ul>
-          <small class="text-center">
-            {{ config.interaction.count }} interactions
-          </small>
+          <div class="text-center">
+            <small>{{ config.interaction.count }} interactions</small>
+          </div>
           <p class="text-center text-danger bg-dark p-1 mt-3">
             <strong>Interaction is in private beta by invitation only</strong>
           </p>

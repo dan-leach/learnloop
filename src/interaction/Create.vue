@@ -4,12 +4,28 @@ import { useRouter } from "vue-router";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
 import { api } from "../data/api.js";
+import Toast from "../assets/toast.js";
 import { inject } from "vue";
 const config = inject("config");
 import Loading from "../components/Loading.vue";
 import Modal from "bootstrap/js/dist/modal";
 import EditSlideForm from "./components/EditSlideForm.vue";
 import Swal from "sweetalert2";
+
+const sessionDetailsChangeEvent = () => {
+  if (interactionSession.id) updateSession();
+};
+const saveStatus = ref({
+  saved: true,
+  error: false,
+});
+
+console.log("TEMP SET ACTIVE");
+//interactionSession.id = "faW5Vk";
+//interactionSession.pin = "554107";
+interactionSession.title = "Demo";
+interactionSession.name = "Dan";
+interactionSession.email = "web@danleach.uk";
 
 let editSlideModal;
 const showEditSlideForm = (index) => {
@@ -24,29 +40,36 @@ const showEditSlideForm = (index) => {
   editSlideModal.show();
 };
 const hideEditSlideModal = (index, slide) => {
-  if (index === undefined) {
-    //user did not submit the form, closed using the X. Do nothing except hide the modal
-  } else if (index == -1) {
+  editSlideModal.hide();
+  if (index === undefined) return; //user did not submit the form, closed using the X. Do nothing except hide the modal
+
+  if (index == -1) {
     interactionSession.slides.push(JSON.parse(slide));
   } else {
     interactionSession.slides[index] = JSON.parse(slide);
   }
-  editSlideModal.hide();
+
+  updateSession();
 };
 
-const sortSlide = (index, x) =>
+const sortSlide = (index, x) => {
   interactionSession.slides.splice(
     index + x,
     0,
     interactionSession.slides.splice(index, 1)[0]
   );
+  updateSession();
+};
 const removeSlide = (index) => {
   Swal.fire({
     title: "Remove this slide?",
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
   }).then((result) => {
-    if (result.isConfirmed) interactionSession.slides.splice(index, 1);
+    if (result.isConfirmed) {
+      interactionSession.slides.splice(index, 1);
+      updateSession();
+    }
   });
 };
 
@@ -98,12 +121,13 @@ const insertSession = () => {
       btnInsertSession.value.wait = false;
       interactionSession.id = res.id;
       interactionSession.pin = res.pin;
-      if (!res.emailOutcome.sendSuccess) {
+      interactionSession.emailOutcome = res.emailOutcome;
+      if (!interactionSession.emailOutcome.sendSuccess) {
         Swal.fire({
           icon: "error",
           iconColor: "#17a2b8",
-          title: "Email with session details failed",
-          html: `Please ensure you save your session ID and PIN as the session creation email could not be sent. <br><br>Error: ${res.emailOutcome.error}<br><br>Session ID: ${interactionSession.id}<br>Session PIN: ${interactionSession.pin}`,
+          title: "Confirmation email failed",
+          html: `Please ensure you save your session ID and PIN shown on the next page as the confirmation email could not be sent. <br><br><span class="text-danger">Error: ${res.emailOutcome.error}</span>`,
           confirmButtonColor: "#17a2b8",
         });
       }
@@ -126,10 +150,6 @@ const insertSession = () => {
 interactionSession.editMode =
   useRouter().currentRoute.value.name == "interaction-edit" ? true : false;
 let loading = ref(interactionSession.editMode ? true : false);
-let btnUpdateSession = ref({
-  text: "Finish editing",
-  wait: false,
-});
 const slidesFormIsValid = () => {
   document
     .getElementById("createSessionSeriesForm")
@@ -152,35 +172,35 @@ const slidesFormIsValid = () => {
     return false;
   return true;
 };
-const updateSession = () => {
-  if (!slidesFormIsValid()) return false;
-  btnUpdateSession.value.text = "Please wait...";
-  btnUpdateSession.value.wait = true;
-  api("interaction/updateSession", interactionSession).then(
+const updateSession = async () => {
+  saveStatus.value.saved = false;
+  saveStatus.value.error = false;
+  return api("interaction/updateSession", interactionSession).then(
     function (res) {
-      btnUpdateSession.value.text = "Finish editing";
-      btnUpdateSession.value.wait = false;
-      Swal.fire({
-        title: "Interaction session updated",
-        icon: "success",
-        iconColor: "#17a2b8",
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
+      saveStatus.value.saved = true;
+      return true;
     },
     function (error) {
-      btnUpdateSession.value.text = "Retry updating interaction session?";
-      btnUpdateSession.value.wait = false;
       if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        title: "Error updating interaction session",
-        text: error,
+      Toast.fire({
         icon: "error",
-        iconColor: "#17a2b8",
-        confirmButtonColor: "#17a2b8",
+        title: `Error saving session: ${error}`,
       });
+      saveStatus.value.error = true;
+      return false;
     }
   );
+};
+const finishEditing = async () => {
+  if (!slidesFormIsValid()) return false;
+  const updateSuccess = await updateSession();
+  if (updateSuccess) {
+    if (!interactionSession.editMode) {
+      router.push("/interaction/created");
+    } else {
+      router.push("/");
+    }
+  }
 };
 
 const previewSession = () => {
@@ -188,13 +208,10 @@ const previewSession = () => {
 };
 
 const fetchDetailsHost = () => {
-  api(
-    "interaction",
-    "fetchDetailsHost",
-    interactionSession.id,
-    interactionSession.pin,
-    null
-  ).then(
+  api("interaction/fetchDetailsHost", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+  }).then(
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
@@ -306,6 +323,7 @@ onMounted(() => {
                 placeholder=""
                 name="title"
                 autocomplete="off"
+                @change="sessionDetailsChangeEvent"
                 required
               />
               <label for="title">Session title</label>
@@ -323,6 +341,7 @@ onMounted(() => {
                   id="feedbackID"
                   name="title"
                   autocomplete="off"
+                  @change="sessionDetailsChangeEvent"
                 />
                 <label for="feedbackID">Feedback session ID (optional) </label>
               </div>
@@ -347,6 +366,7 @@ onMounted(() => {
                 placeholder=""
                 name="name"
                 autocomplete="off"
+                @change="sessionDetailsChangeEvent"
                 required
               />
               <label for="name">Facilitator name</label>
@@ -363,6 +383,7 @@ onMounted(() => {
                 placeholder=""
                 name="email"
                 autocomplete="off"
+                @change="sessionDetailsChangeEvent"
                 required
               />
               <label for="email">Facilitator email</label>
@@ -473,27 +494,42 @@ onMounted(() => {
           </template>
           <EditSlideForm index="-1" @hideEditSlideModal="hideEditSlideModal" />
         </div>
-        <div class="text-center mb-3">
+        <div class="d-flex flex-wrap justify-content-center mb-3">
           <button
-            class="btn btn-teal"
+            class="btn btn-lg btn btn-outline-success m-2"
+            id="saved"
+            v-if="saveStatus.saved"
+          >
+            Saved <font-awesome-icon :icon="['fas', 'check']" />
+          </button>
+          <button
+            class="btn btn-lg btn btn-outline-danger m-2"
+            id="saveError"
+            v-else-if="saveStatus.error"
+          >
+            Not saved
+            <font-awesome-icon :icon="['fas', 'triangle-exclamation']" />
+          </button>
+          <button
+            class="btn btn-lg btn btn-outline-teal m-2"
+            id="saving"
+            v-else
+          >
+            Saving <span class="spinner-border spinner-border-sm me-2"></span>
+          </button>
+          <button
+            class="btn btn-lg btn-teal m-2"
             id="previewSession"
             @click="previewSession"
           >
             Preview
           </button>
-        </div>
-        <div class="text-center mb-3">
           <button
-            class="btn btn-lg btn-teal"
-            id="btnUpdateSession"
-            @click="updateSession"
-            :disabled="btnUpdateSession.wait"
+            class="btn btn-lg btn-teal m-2"
+            id="btnFinishEditing"
+            @click="finishEditing"
           >
-            <span
-              v-if="btnUpdateSession.wait"
-              class="spinner-border spinner-border-sm me-2"
-            ></span
-            >{{ btnUpdateSession.text }}
+            Finish
           </button>
         </div>
       </div>

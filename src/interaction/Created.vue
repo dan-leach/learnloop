@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onBeforeUnmount } from "vue";
+import { ref } from "vue";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
 import { inject } from "vue";
@@ -10,10 +10,10 @@ if (!interactionSession.id || !interactionSession.pin)
   router.push("/interaction/create");
 
 const link = ref({});
-link.value.join = config.client.url + "/" + interactionSession.id;
+link.value.join = config.value.client.url + "/" + interactionSession.id;
 link.value.host =
-  config.client.url + "/interaction/host/" + interactionSession.id;
-link.value.qr = config.api.url + "shared/QRcode/?id=" + interactionSession.id;
+  config.value.client.url + "/interaction/host/" + interactionSession.id;
+link.value.qr = config.value.api.url + "qrcode/?id=" + interactionSession.id;
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
 const copyText = (string) => {
@@ -22,14 +22,12 @@ const copyText = (string) => {
     function () {
       Toast.fire({
         icon: "success",
-        iconColor: "#17a2b8",
         title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
         icon: "error",
-        iconColor: "#17a2b8",
         title: "Error copying to clipboard: " + error,
       });
     }
@@ -43,14 +41,12 @@ const copyImg = async (src) => {
     function () {
       Toast.fire({
         icon: "success",
-        iconColor: "#17a2b8",
         title: "Copied",
       });
     },
     function (error) {
       Toast.fire({
         icon: "error",
-        iconColor: "#17a2b8",
         title: "Error copying to clipboard: " + error,
       });
     }
@@ -81,13 +77,19 @@ const copyImg = async (src) => {
       </button>
     </p>
   </div>
-  <p>
+  <p v-if="interactionSession.emailOutcome.sendSuccess">
     <strong
       >All details on this page are included in your confirmation email.</strong
     ><br />
     Please check your inbox (or your junk mail) to ensure you received it. If it
     didn't arrive be sure to make a note of these details. Add
     {{ config.email }} your safe senders list for next time.
+  </p>
+  <p v-else>
+    <strong
+      >Please ensure you save your ID and PIN in a safe place as the
+      confirmation email failed to send.</strong
+    >
   </p>
   <div class="accordion" id="accordionCreated">
     <div class="accordion-item">
