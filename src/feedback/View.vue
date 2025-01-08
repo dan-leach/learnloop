@@ -82,11 +82,11 @@ const showDownloadFeedbackForm = (index) => {
 };
 const hideDownloadFeedbackModal = () => downloadFeedbackModal.hide();
 
-const fetchFeedbackPDF = () => {
+const fetchFeedbackPDF = (downloadId) => {
   api(
     "feedback/fetchFeedbackPDF",
     {
-      id: feedbackSession.id,
+      id: downloadId ? downloadId : feedbackSession.id,
       pin: feedbackSession.pin,
     },
     "blob"
@@ -174,14 +174,26 @@ onMounted(() => {
       </p>
       <div>
         <button
+          v-if="feedbackSession.subsessions.length"
+          class="btn btn-teal mb-3"
+          id="btnShowDownloadFeedbackForm"
+          @click="showDownloadFeedbackForm"
+        >
+          Download feedback report as PDF
+        </button>
+
+        <button
+          v-else
           class="btn btn-teal mb-3"
           id="btnDownloadFeedback"
           @click="fetchFeedbackPDF"
         >
           Download feedback report as PDF
         </button>
+
         <DownloadFeedbackForm
           @hideDownloadFeedbackModal="hideDownloadFeedbackModal"
+          @fetchFeedbackPDF="fetchFeedbackPDF"
         />
       </div>
       <label class="form-label">Positive comments</label><br />
