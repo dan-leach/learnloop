@@ -42,11 +42,6 @@ async function api(route, data, responseType) {
       // Create an object URL for the Blob
       const blobUrl = window.URL.createObjectURL(blob);
 
-      // Clean up the Blob URL after usage
-      setTimeout(() => {
-        window.URL.revokeObjectURL(blobUrl);
-      }, 500);
-
       return blobUrl;
     } else {
       //parse the JSON response

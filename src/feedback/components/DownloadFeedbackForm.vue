@@ -1,11 +1,8 @@
 <script setup>
-import { onMounted } from "vue";
-import Modal from "bootstrap/js/dist/modal";
+import { ref } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
-import { inject } from "vue";
-const config = inject("config");
-
-const emit = defineEmits(["hideDownloadFeedbackModal"]);
+const emit = defineEmits(["hideDownloadFeedbackModal", "fetchFeedbackPDF"]);
+const downloadId = ref("");
 </script>
 
 <template>
@@ -25,44 +22,19 @@ const emit = defineEmits(["hideDownloadFeedbackModal"]);
             You can download a feedback report for each session individually, or
             all together with the overall feedback.
           </p>
-          <form
-            id="downloadFeedbackPostForm"
-            method="post"
-            :action="config.api.url"
-          >
-            <input type="text" name="module" value="feedback" readonly hidden />
-            <input
-              type="text"
-              name="route"
-              value="fetchFeedbackPDF"
-              readonly
-              hidden
-            />
-            <input
-              v-model="feedbackSession.id"
-              type="text"
-              name="id"
-              readonly
-              hidden
-            />
-            <input
-              v-model="feedbackSession.pin"
-              type="text"
-              name="pin"
-              readonly
-              hidden
-            />
+          <form id="downloadFeedbackForm">
             <select
-              id="selectSubID"
-              name="subID"
+              id="selectDownloadId"
+              name="selectDownloadId"
               class="form-select mb-3"
               v-if="feedbackSession.subsessions.length"
+              v-model="downloadId"
             >
               <option value="">Overall feedback and all sessions</option>
               <option
                 v-for="subsession in feedbackSession.subsessions"
                 :value="subsession.id"
-                name="subID"
+                name="downloadId"
               >
                 Just '{{ subsession.title }}'
               </option>
@@ -70,7 +42,8 @@ const emit = defineEmits(["hideDownloadFeedbackModal"]);
             <div class="text-center">
               <button
                 class="btn btn-teal text-center"
-                id="submitSubsessionFeedbackForm"
+                id="submitDownloadFeedbackForm"
+                @click.prevent="emit('fetchFeedbackPDF', downloadId)"
               >
                 Download
               </button>
