@@ -1,35 +1,35 @@
 <script setup>
-import { ref } from 'vue';
-import { api } from '../../data/api.js';
-import { interactionSession } from '../../data/interactionSession.js';
-import WaitingRoom from './join/WaitingRoom.vue';
-import End from './join/End.vue';
-import SingleChoice from './join/SingleChoice.vue';
-import MultipleChoice from './join/MultipleChoice.vue';
-import FreeText from './join/FreeText.vue';
-import Content from './join/Content.vue';
-import Swal from 'sweetalert2';
-import Toast from '../../assets/Toast.js';
-const props = defineProps(['currentIndex']);
+import { ref } from "vue";
+import { api } from "../../data/api.js";
+import { interactionSession } from "../../data/interactionSession.js";
+import WaitingRoom from "./join/WaitingRoom.vue";
+import End from "./join/End.vue";
+import SingleChoice from "./join/SingleChoice.vue";
+import MultipleChoice from "./join/MultipleChoice.vue";
+import FreeText from "./join/FreeText.vue";
+import Content from "./join/Content.vue";
+import Swal from "sweetalert2";
+import Toast from "../../assets/Toast.js";
+const props = defineProps(["currentIndex"]);
 
 let spinner = ref(false);
-let btnSubmitText = ref('Submit');
-let btnSubmitBelowText = ref('');
+let btnSubmitText = ref("Submit");
+let btnSubmitBelowText = ref("");
 
 const submit = () => {
   let slide = interactionSession.slides[props.currentIndex];
   slide.interaction.closed = true;
   spinner.value = true;
-  btnSubmitText.value = 'Please wait';
-  api('interaction', 'insertSubmission', interactionSession.id, null, {
+  btnSubmitText.value = "Please wait";
+  api("interaction/insertSubmission", {
+    id: interactionSession.id,
     slideIndex: props.currentIndex,
     response: slide.interaction.response,
   }).then(
     function (res) {
       Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        title: 'Your response was submitted',
+        icon: "success",
+        title: "Your response was submitted",
       });
       spinner.value = false;
       slide.interaction.submissionCount++;
@@ -42,29 +42,30 @@ const submit = () => {
         slide.interaction.settings.submissionLimit
       ) {
         slide.interaction.closed = false;
-        btnSubmitText.value = 'Submit';
-        btnSubmitBelowText.value = 'You may submit multiple responses';
-        slide.interaction.response = '';
+        btnSubmitText.value = "Submit";
+        btnSubmitBelowText.value = "You may submit multiple responses";
+        slide.interaction.response = "";
       } else {
-        btnSubmitText.value = 'Done';
+        btnSubmitText.value = "Done";
         btnSubmitBelowText.value =
           slide.interaction.submissionCount ==
           slide.interaction.settings.submissionLimit
-            ? 'You have reached the submission limit'
-            : '';
+            ? "You have reached the submission limit"
+            : "";
       }
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Unable to submit your response',
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to submit your response",
         text: error,
-        confirmButtonColor: '#17a2b8',
+        confirmButtonColor: "#17a2b8",
       });
       slide.interaction.closed = false;
       spinner.value = false;
-      btnSubmitText.value = 'Try again?';
+      btnSubmitText.value = "Try again?";
     }
   );
 };
