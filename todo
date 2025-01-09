@@ -1,6 +1,8 @@
 Current:
-Check what happens with static slide with no content
+Add delay to saving spinner
 Check if (Array.isArray(error)) error = error.map((e) => e.msg).join(" "); added to all where relevant
+Search for api calls not updated to new format
+Compare with old PHP files to check for missed features/protections
 
 Later:
 Add host view images to slide type help

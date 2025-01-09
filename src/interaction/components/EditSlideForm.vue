@@ -352,6 +352,17 @@ let submit = () => {
     slide.value.content.images.length || slide.value.content.textStrings.length || slide.value.content.video.youtubeIDs.length
       ? true
       : false;
+  if (slide.value.type === "static" && !slide.value.hasContent) {
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "No content added",
+      text:
+        "You must add some content for the slide type selected.",
+      confirmButtonColor: "#17a2b8",
+    });
+    return
+  }
   newTextString.value = "";
   newOption.value = "";
   document
