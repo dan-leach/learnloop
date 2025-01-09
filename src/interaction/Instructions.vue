@@ -37,7 +37,9 @@ const copyText = (string) => {
 };
 
 const fetchDetails = () => {
-  api("interaction", "fetchDetails", interactionSession.id, null, null).then(
+  api("interaction/fetchDetailsJoin", {
+    id: interactionSession.id,
+  }).then(
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
@@ -57,6 +59,7 @@ const fetchDetails = () => {
       loading.value = false;
     },
     function (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
       Swal.fire({
         icon: "error",
         iconColor: "#17a2b8",

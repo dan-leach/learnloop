@@ -17,13 +17,10 @@ const deleteSubmissions = () => {
     confirmButtonText: "Delete",
   }).then((result) => {
     if (result.isConfirmed)
-      api(
-        "interaction",
-        "deleteSubmissions",
-        interactionSession.id,
-        interactionSession.pin,
-        null
-      ).then(
+      api("interaction/deactivateSubmissions", {
+        id: interactionSession.id,
+        pin: interactionSession.pin,
+      }).then(
         function () {
           Toast.fire({
             icon: "success",
@@ -33,6 +30,7 @@ const deleteSubmissions = () => {
           interactionSession.submissionCount = 0;
         },
         function (error) {
+          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
           Swal.fire({
             icon: "error",
             iconColor: "#17a2b8",
