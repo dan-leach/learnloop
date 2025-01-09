@@ -68,7 +68,13 @@ onUpdated(() => {
                 class="modal-body d-flex justify-content-center align-items-center"
               >
                 <img
-                  :src="config.api.imagesUrl + image.src"
+                  :src="
+                    config.api.fetchImageUrl +
+                    '?folder=' +
+                    image.folder +
+                    '&filename=' +
+                    image.filename
+                  "
                   class="img-fluid modal-img"
                   :id="image.src + '-onModal'"
                   data-bs-dismiss="modal"
@@ -78,7 +84,13 @@ onUpdated(() => {
           </div>
         </div>
         <img
-          :src="config.api.imagesUrl + image.src"
+          :src="
+            config.api.fetchImageUrl +
+            '?folder=' +
+            image.folder +
+            '&filename=' +
+            image.filename
+          "
           class="slide-img img-fluid img-bg"
           :id="image.src"
           data-bs-toggle="modal"

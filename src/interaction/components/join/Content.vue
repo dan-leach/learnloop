@@ -35,7 +35,13 @@ const props = defineProps(["slide"]);
               class="modal-body d-flex justify-content-center align-items-center"
             >
               <img
-                :src="config.api.imagesUrl + image.src"
+                :src="
+                  config.api.fetchImageUrl +
+                  '?folder=' +
+                  image.folder +
+                  '&filename=' +
+                  image.filename
+                "
                 class="img-fluid modal-img"
                 :id="image.src + '-onModal'"
                 data-bs-dismiss="modal"
@@ -45,7 +51,13 @@ const props = defineProps(["slide"]);
         </div>
       </div>
       <img
-        :src="config.api.imagesUrl + image.src"
+        :src="
+          config.api.fetchImageUrl +
+          '?folder=' +
+          image.folder +
+          '&filename=' +
+          image.filename
+        "
         class="img-fluid"
         data-bs-toggle="modal"
         :data-bs-target="'#imgModal' + index"

@@ -1,9 +1,3 @@
-<script setup>
-//import { inject } from "vue";
-//const config = inject("config");
-//
-</script>
-
 <template>
   <div>
     <div class="mu-container" :class="isInvalid ? 'mu-red-border' : ''">
@@ -32,7 +26,13 @@
             <td class="bg-transparent">
               <div class="mu-image-container">
                 <img
-                  :src="config.api.imagesUrl + image.src"
+                  :src="
+                    api.fetchImageUrl +
+                    '?folder=' +
+                    image.folder +
+                    '&filename=' +
+                    image.filename
+                  "
                   alt=""
                   class="mu-images-preview"
                 />
@@ -124,6 +124,10 @@ import Swal from "sweetalert2";
 
 export default {
   props: {
+    config: {
+      type: Object,
+      default: {},
+    },
     isInvalid: {
       type: Boolean,
       default: false,
@@ -159,17 +163,20 @@ export default {
   data() {
     return {
       images: [],
-      config: {
+      uploaderConfig: {
         headers: null,
       },
-
+      api: {
+        uploadImageUrl: this.config.api.uploadImageUrl,
+        fetchImageUrl: this.config.api.fetchImageUrl,
+      },
       isLoading: true,
     };
   },
   methods: {
     init() {
       this.images = this.media;
-      this.config.headers = this.headers;
+      this.uploaderConfig.headers = this.headers;
       setTimeout(() => (this.isLoading = false), 1000);
     },
     async fileChange(event) {
@@ -183,9 +190,9 @@ export default {
             let url = URL.createObjectURL(files[i]);
             formData.set("image", files[i]);
             const { data } = await axios.post(
-              config.api.url + "/interaction/uploads/index.php",
+              this.api.uploadImageUrl,
               formData,
-              this.config
+              this.uploaderConfig
             );
             if (data.error) {
               this.isLoading = false;
@@ -200,7 +207,8 @@ export default {
             }
             let addedImage = {
               url: url,
-              src: data.src,
+              folder: data.folder,
+              filename: data.filename,
               size: files[i].size,
               type: files[i].type,
             };
