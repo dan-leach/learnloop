@@ -1,8 +1,23 @@
 Current:
-Add delay to saving spinner
-Check if (Array.isArray(error)) error = error.map((e) => e.msg).join(" "); added to all where relevant
-Search for api calls not updated to new format
 Compare with old PHP files to check for missed features/protections
+Build upload image route
+
+Andy Mullet:
+Presenter to be able to view next slide - open new tab synced to facilitatorIndex+1 and with usual host screen controls removed
+People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit?
+Other times people have tried to submit separate words which belong together. Which option is best?
+Change single choice to true/false, multiple choice to default max options 1
+Auto save during session creation - done
+Preview can be joined by mobile device - clear submissions on exiting preview
+Reuse images uploaded for a session on another slide
+Show options (but not responses) on content view
+Toggle content/responses to have response counter
+Make lock slide instant on join page load
+Correct answer option for true/false and multiple choice
+Allow editing multiple choice answers on create
+Indicate the default questions on feedback create
+Reuse of presentation - create from template
+Static slide content overlapping ediges on mobile (see screenshot on AM teams convo)
 
 Later:
 Add host view images to slide type help

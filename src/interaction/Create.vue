@@ -177,7 +177,7 @@ const updateSession = async () => {
   saveStatus.value.error = false;
   return api("interaction/updateSession", interactionSession).then(
     function (res) {
-      saveStatus.value.saved = true;
+      setTimeout(() => (saveStatus.value.saved = true), 500);
       return res.message;
     },
     function (error) {
