@@ -13,7 +13,6 @@ import JoinSlide from "./components/JoinSlide.vue";
 const loading = ref(true);
 const showSlide = ref(true);
 const currentIndex = ref(0);
-const facilitatorIndex = ref(0);
 
 const goToSlide = (index) => {
   showSlide.value = false;
@@ -23,12 +22,14 @@ const goToSlide = (index) => {
   }, 250);
 };
 
-let fetchHostStatusFailCount = 0;
-const fetchHostStatus = () => {
-  api("interaction", "fetchHostStatus", interactionSession.id, null, null).then(
+let fetchStatusFailCount = 0;
+const fetchStatus = () => {
+  api("interaction/fetchStatus", {
+    id: interactionSession.id,
+  }).then(
     function (res) {
-      facilitatorIndex.value = res.facilitatorIndex;
-      interactionSession.hostStatus.lockedSlides = res.lockedSlides;
+      interactionSession.status = res;
+
       let awaitUser = false;
       if (interactionSession.slides[currentIndex.value].interaction) {
         if (interactionSession.slides[currentIndex.value].interaction.response)
@@ -39,18 +40,23 @@ const fetchHostStatus = () => {
         )
           awaitUser = false;
       }
-      if (currentIndex.value != facilitatorIndex.value && !awaitUser)
-        goToSlide(facilitatorIndex.value);
-      fetchHostStatusFailCount = 0;
+
+      if (
+        currentIndex.value != interactionSession.status.facilitatorIndex &&
+        !awaitUser
+      )
+        goToSlide(interactionSession.status.facilitatorIndex);
+
+      fetchStatusFailCount = 0;
       Swal.close();
     },
     function (error) {
-      fetchHostStatusFailCount++;
+      fetchStatusFailCount++;
       console.log(
-        "fetchHostStatus failed - failCount: " + fetchHostStatusFailCount,
+        "fetchStatus failed - failCount: " + fetchStatusFailCount,
         error
       );
-      if (fetchHostStatusFailCount > 5 && !Swal.isVisible())
+      if (fetchStatusFailCount > 5 && !Swal.isVisible())
         Swal.fire({
           toast: true,
           showConfirmButton: false,
@@ -66,7 +72,9 @@ const fetchHostStatus = () => {
 };
 
 const fetchDetails = () => {
-  api("interaction", "fetchDetails", interactionSession.id, null, null).then(
+  api("interaction/fetchDetailsJoin", {
+    id: interactionSession.id,
+  }).then(
     function (res) {
       if (interactionSession.id != res.id) {
         console.error(
@@ -85,12 +93,12 @@ const fetchDetails = () => {
       for (let slide of interactionSession.slides) {
         if (slide.interaction) slide.interaction.submissionCount = 0;
       }
-      facilitatorIndex.value = res.hostStatus.facilitatorIndex;
-      currentIndex.value = facilitatorIndex.value;
+      interactionSession.status = res.status;
+      currentIndex.value = interactionSession.status.facilitatorIndex;
       loading.value = false;
       setInterval(
-        fetchHostStatus,
-        config.interaction.join.currentIndexPollInterval
+        fetchStatus,
+        config.value.interaction.join.currentIndexPollInterval
       );
     },
     function (error) {
@@ -156,8 +164,10 @@ onMounted(() => {
             <Transition name="fade" appear>
               <div
                 class="card bg-teal text-center p-2"
-                v-show="currentIndex != facilitatorIndex"
-                @click="goToSlide(facilitatorIndex)"
+                v-show="
+                  currentIndex != interactionSession.status.facilitatorIndex
+                "
+                @click="goToSlide(interactionSession.status.facilitatorIndex)"
               >
                 <font-awesome-icon
                   :icon="['fas', 'circle-chevron-right']"

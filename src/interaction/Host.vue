@@ -112,8 +112,8 @@ const fetchNewSubmissions = () => {
 
 let myInterval; //declared here to be accessible by onMounted and onBeforeUnmount
 
-const loadDetailsHost = () => {
-  api("interaction/loadDetailsHost", {
+const fetchDetailsHost = () => {
+  api("interaction/fetchDetailsHost", {
     id: interactionSession.id,
     pin: interactionSession.pin,
   }).then(
@@ -224,7 +224,7 @@ onMounted(() => {
     }).then((result) => {
       if (result.isConfirmed) {
         history.replaceState({}, "", interactionSession.id);
-        loadDetailsHost();
+        fetchDetailsHost();
       } else {
         router.push("/");
       }
