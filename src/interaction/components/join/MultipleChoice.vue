@@ -69,7 +69,7 @@ let submit = () => {
       :value="index"
       v-model="selection"
       :disabled="slide.interaction.closed"
-    />{{ option }}
+    />{{ option.text }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
   <div class="text-center">

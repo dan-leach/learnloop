@@ -8,6 +8,17 @@ const optionCounts = [];
 for (let i = 0; i < props.slide.interaction.options.length; i++)
   optionCounts.push(0);
 
+const borderColor = props.slide.interaction.options.map((option) => {
+  if (option.correct) return "rgba(0, 255, 0, 1)";
+  if (option.incorrect) return "rgba(255, 0, 0, 1)";
+  return "rgba(0, 0, 0, 0)";
+});
+
+const borderWidth = props.slide.interaction.options.map((option) => {
+  if (option.correct || option.incorrect) return 5;
+  return 0;
+});
+
 const chartConfig = {
   bar: {
     type: "bar",
@@ -28,6 +39,8 @@ const chartConfig = {
             "rgba(161, 163, 167, 0.5)",
             "rgba(176, 245, 66, 0.5)",
           ],
+          borderColor: borderColor,
+          borderWidth: borderWidth,
         },
       ],
     },
@@ -68,7 +81,7 @@ const chartConfig = {
   doughnut: {
     type: "doughnut",
     data: {
-      labels: props.slide.interaction.options,
+      labels: props.slide.interaction.options.map((option) => option.text),
       datasets: [
         {
           data: optionCounts,

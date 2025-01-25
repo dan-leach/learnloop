@@ -18,7 +18,6 @@ const goToSlide = (index) => {
   currentIndex.value = index;
   if (interactionSession.slides[currentIndex.value].interaction)
     interactionSession.slides[currentIndex.value].interaction.submissions = [];
-  console.log(interactionSession.slides[currentIndex.value]);
 };
 const toggleLockSlide = () => {
   interactionSession.status.lockedSlides[currentIndex.value] =
@@ -28,7 +27,6 @@ const toggleLockSlide = () => {
 
 let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = () => {
-  console.log(currentIndex.value);
   if (!interactionSession.slides[currentIndex.value].interaction) return;
   const submissions =
     interactionSession.slides[currentIndex.value].interaction.submissions;

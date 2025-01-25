@@ -84,7 +84,7 @@ const toggleContent = () => {
         class="btn btn-teal btn-sm m-4"
         @click="toggleContent"
         v-if="
-          interactionSession.slides[currentIndex].content &&
+          interactionSession.slides[currentIndex].hasContent &&
           !interactionSession.slides[currentIndex].content.show
         "
       >

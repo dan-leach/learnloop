@@ -12,7 +12,7 @@ const chartConfig = {
   bar: {
     type: "bar",
     data: {
-      labels: props.slide.interaction.options,
+      labels: props.slide.interaction.options.map((option) => option.text),
       datasets: [
         {
           data: optionCounts,
@@ -68,7 +68,7 @@ const chartConfig = {
   doughnut: {
     type: "doughnut",
     data: {
-      labels: props.slide.interaction.options,
+      labels: props.slide.interaction.options.map((option) => option.text),
       datasets: [
         {
           data: optionCounts,
