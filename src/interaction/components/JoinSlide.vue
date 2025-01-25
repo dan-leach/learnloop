@@ -4,7 +4,7 @@ import { api } from "../../data/api.js";
 import { interactionSession } from "../../data/interactionSession.js";
 import WaitingRoom from "./join/WaitingRoom.vue";
 import End from "./join/End.vue";
-import SingleChoice from "./join/SingleChoice.vue";
+import TrueFalse from "./join/TrueFalse.vue";
 import MultipleChoice from "./join/MultipleChoice.vue";
 import FreeText from "./join/FreeText.vue";
 import Content from "./join/Content.vue";
@@ -86,9 +86,9 @@ const submit = () => {
           v-else-if="interactionSession.slides[currentIndex].type == 'end'"
           :feedbackID="interactionSession.feedbackID"
         />
-        <SingleChoice
+        <TrueFalse
           v-else-if="
-            interactionSession.slides[currentIndex].type == 'singleChoice'
+            interactionSession.slides[currentIndex].type == 'trueFalse'
           "
           :slide="interactionSession.slides[currentIndex]"
           :spinner="spinner"

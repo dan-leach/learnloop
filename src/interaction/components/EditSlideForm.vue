@@ -55,8 +55,12 @@ watch(type, (newType, oldType) => {
     slide.value.isInteractive =
       config.value.interaction.create.slides.types[slide.value.type].isInteractive;
     if (slide.value.isInteractive) {
+      
       slide.value.interaction.settings =
         config.value.interaction.create.slides.types[slide.value.type].settings;
+        
+        slide.value.interaction.options = config.value.interaction.create.slides.types[slide.value.type].defaultOptions ?? []
+
       if (slide.value.interaction.settings.selectedLimit) {
         slide.value.interaction.settings.selectedLimit.max =
           slide.value.interaction.options.length;
@@ -227,7 +231,11 @@ const hideResponsesInfo = () => {
 let newOption = ref("");
 const addOption = () => {
   if (newOption.value) {
-    slide.value.interaction.options.push(newOption.value);
+    slide.value.interaction.options.push({
+      text: newOption.value,
+      correct: false,
+      incorrect: false
+    });
     newOption.value = "";
     if (slide.value.interaction.settings.selectedLimit)
       if (
@@ -874,7 +882,7 @@ let submit = () => {
                       >
                         <p class="ms-1 mb-0 small">
                           Add different response options for your attendees to
-                          choose.
+                          choose. Optionally, you can indicate if each option is correct or incorrect to have this highlighted on the responses page.
                           <span v-if="slide.type == 'multipleChoice'">
                             <br />
                             Control how many options must be selected in the
@@ -882,6 +890,13 @@ let submit = () => {
                           >
                         </p>
                         <table class="table" id="optionsTable">
+                          <thead v-if="slide.interaction.options.length">
+                            <td></td>
+                            <td></td>
+                            <td><font-awesome-icon :icon="['fas', 'check']" class="text-success" /></td>
+                            <td><font-awesome-icon :icon="['fas', 'xmark']" class="text-danger" /></td>
+                            <td></td>
+                          </thead>
                           <TransitionGroup name="list" tag="tbody">
                             <tr
                               v-for="(option, index) in slide.interaction
@@ -913,11 +928,21 @@ let submit = () => {
                                   />
                                 </button>
                               </td>
-                              <td>{{ option }}</td>
+                              <td>
+                                <input 
+                                  type="text"
+                                  class="form-control"
+                                  v-model="option.text"
+                                  placeholder=""
+                                  autocomplete="off"
+                                />
+                              </td>
+                              <td><input v-model="option.correct" class="form-check-input" type="checkbox" value="true" id="optionTrue" :disabled="option.incorrect"></td>
+                              <td><input v-model="option.incorrect" class="form-check-input" type="checkbox" value="false" id="optionFalse" :disabled="option.correct"></td>
                               <td class="delete-control">
                                 <button
                                   style="float: right"
-                                  class="btn btn-danger btn-sm"
+                                  class="btn btn-danger btn-sm ms-4"
                                   id="btnRemoveOption"
                                   @click.prevent="removeOption(index)"
                                 >

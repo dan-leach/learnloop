@@ -3,7 +3,7 @@ import { interactionSession } from "../../data/interactionSession.js";
 import WaitingRoom from "./host/WaitingRoom.vue";
 import End from "./host/End.vue";
 import HideResponses from "./host/HideResponses.vue";
-import SingleChoice from "./host/SingleChoice.vue";
+import TrueFalse from "./host/TrueFalse.vue";
 import MultipleChoice from "./host/MultipleChoice.vue";
 import FreeText from "./host/FreeText.vue";
 import WordCloud from "./host/WordCloud.vue";
@@ -84,11 +84,11 @@ const toggleContent = () => {
         class="btn btn-teal btn-sm m-4"
         @click="toggleContent"
         v-if="
-          interactionSession.slides[currentIndex].hasContent &&
-          interactionSession.slides[currentIndex].isInteractive
+          interactionSession.slides[currentIndex].content &&
+          !interactionSession.slides[currentIndex].content.show
         "
       >
-        Toggle content / responses
+        Show content
       </button>
     </p>
     <div
@@ -128,6 +128,7 @@ const toggleContent = () => {
         interactionSession.slides[currentIndex].hasContent &&
         interactionSession.slides[currentIndex].content.show
       "
+      @toggleContent="toggleContent"
     />
     <Transition mode="out-in" v-else>
       <div
@@ -152,9 +153,9 @@ const toggleContent = () => {
           @showResponses="showResponses"
           :slide="interactionSession.slides[currentIndex]"
         />
-        <SingleChoice
+        <TrueFalse
           v-else-if="
-            interactionSession.slides[currentIndex].type == 'singleChoice'
+            interactionSession.slides[currentIndex].type == 'trueFalse'
           "
           :slide="interactionSession.slides[currentIndex]"
         />
