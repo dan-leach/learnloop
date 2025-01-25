@@ -46,7 +46,8 @@ const hideEditSlideModal = (index, slide) => {
   if (index == -1) {
     interactionSession.slides.push(JSON.parse(slide));
   } else {
-    interactionSession.slides[index] = JSON.parse(slide);
+    //otherwise use Object assign to avoid row visually jumping around as array mutated
+    Object.assign(interactionSession.slides[index], slide);
   }
 
   updateSession();

@@ -87,6 +87,11 @@ const router = createRouter({
           component: () => import("../interaction/Host.vue"),
         },
         {
+          path: "presenter-view/:id?", //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
+          name: "interaction-presenter-view",
+          component: () => import("../interaction/PresenterView.vue"),
+        },
+        {
           path: "edit/:id?", //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
           name: "interaction-edit",
           component: () => import("../interaction/Create.vue"),

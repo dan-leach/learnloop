@@ -6,6 +6,8 @@ const config = inject("config");
 import Swal from "sweetalert2";
 import Toast from "../../../assets/Toast.js";
 
+const props = defineProps(["isPresenterView"]);
+
 const deleteSubmissions = () => {
   Swal.fire({
     title: "Delete submissions?",
@@ -78,7 +80,11 @@ const deleteSubmissions = () => {
           interactionSession.submissionCount == 1 ? "" : "s"
         }}.
       </p>
-      <button class="btn btn-teal" @click="deleteSubmissions">
+      <button
+        class="btn btn-teal"
+        @click="deleteSubmissions"
+        v-if="!isPresenterView"
+      >
         Clear submissions
       </button>
     </div>

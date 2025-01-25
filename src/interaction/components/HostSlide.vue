@@ -11,7 +11,7 @@ import Content from "./host/Content.vue";
 import { inject } from "vue";
 const config = inject("config");
 
-const props = defineProps(["currentIndex", "isPreview"]);
+const props = defineProps(["currentIndex", "isPresenterView"]);
 const emit = defineEmits(["goForward", "goBack", "goStart", "toggleLockSlide"]);
 
 const showResponses = () => {
@@ -45,9 +45,7 @@ const toggleContent = () => {
         <p class="text-center m-1">
           To join go to {{ config.client.url.replace("https://", "") }}
           and use the code
-          <span class="join-id-top p-1">{{
-            isPreview ? "preview" : interactionSession.id
-          }}</span>
+          <span class="join-id-top p-1">{{ interactionSession.id }}</span>
         </p>
       </li>
       <li class="nav-item">
@@ -63,7 +61,10 @@ const toggleContent = () => {
     <p class="display-6 text-center m-1">
       {{ interactionSession.slides[currentIndex].prompt }}
       <button
-        v-if="interactionSession.slides[currentIndex].isInteractive"
+        v-if="
+          interactionSession.slides[currentIndex].isInteractive &&
+          !isPresenterView
+        "
         class="btn btn-lg"
         @click="emit('toggleLockSlide')"
         data-bs-toggle="tooltip"
@@ -96,17 +97,25 @@ const toggleContent = () => {
     >
       <p class="display-6">The slides for this session have finished</p>
       <div>
-        <button class="btn btn-lg btn-teal mx-2 mb-2" @click="emit('goBack')">
+        <button
+          class="btn btn-lg btn-teal mx-2 mb-2"
+          @click="emit('goBack')"
+          v-if="!isPresenterView"
+        >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" /> Back
         </button>
-        <button class="btn btn-lg btn-teal mx-2 mb-2" @click="emit('goStart')">
+        <button
+          class="btn btn-lg btn-teal mx-2 mb-2"
+          @click="emit('goStart')"
+          v-if="!isPresenterView"
+        >
           Restart
         </button>
       </div>
     </div>
     <div class="text-center">
       <button
-        v-if="currentIndex == 0"
+        v-if="currentIndex == 0 && !isPresenterView"
         class="btn btn-lg btn-teal mb-2"
         @click="emit('goForward')"
       >
@@ -129,6 +138,7 @@ const toggleContent = () => {
       >
         <WaitingRoom
           v-if="interactionSession.slides[currentIndex].type == 'waitingRoom'"
+          :isPresenterView="isPresenterView"
         />
         <End
           v-else-if="interactionSession.slides[currentIndex].type == 'end'"

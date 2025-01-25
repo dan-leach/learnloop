@@ -14,6 +14,7 @@ const type = ref("");
 const slide = ref({
   prompt: "",
   type: "",
+  notes: "",
   hasContent: false,
   isInteractive: false,
   content: {
@@ -420,6 +421,7 @@ let submit = () => {
     slide.value = {
       prompt: "",
       type: "",
+      notes: "",
       hasContent: false,
       isInteractive: false,
       content: {
@@ -518,6 +520,18 @@ let submit = () => {
                     ? "Question or instruction to attendees"
                     : "Slide heading"
                 }}</label>
+              </div>
+              <!--notes-->
+              <div class="form-floating mb-3">
+                <textarea
+                  v-model="slide.notes"
+                  class="form-control"
+                  id="notes"
+                  placeholder=""
+                  name="notes"
+                  autocomplete="off"
+                ></textarea>
+                <label for="notes">Presenter notes</label>
               </div>
               <!--content-->
               <div class="card mb-3">
@@ -1166,5 +1180,8 @@ td {
 .sort-controls,
 .delete-control {
   width: 50px;
+}
+#notes {
+  height: 100px
 }
 </style>
