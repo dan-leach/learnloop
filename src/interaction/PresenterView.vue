@@ -9,39 +9,52 @@ const config = inject("config");
 import Swal from "sweetalert2";
 import Loading from "../components/Loading.vue";
 import HostSlide from "./components/HostSlide.vue";
-import Toast from "../assets/Toast.js";
 
 const loading = ref(true);
 const currentIndex = ref(0);
+const nextIndex = ref(1);
 
 const goToSlide = (index) => {
   currentIndex.value = index;
-  if (interactionSession.slides[currentIndex.value].interaction)
-    interactionSession.slides[currentIndex.value].interaction.submissions = [];
+  nextIndex.value = index + 1;
+  if (interactionSession.slides[nextIndex.value].interaction)
+    interactionSession.slides[nextIndex.value].interaction.submissions = [];
+};
+
+const refreshSubmissions = () => {
+  if (interactionSession.slides[nextIndex.value].interaction)
+    interactionSession.slides[nextIndex.value].interaction.submissions = [];
+  fetchNewSubmissions();
 };
 
 let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = () => {
-  if (!interactionSession.slides[currentIndex.value].interaction) return;
-  const submissions =
-    interactionSession.slides[currentIndex.value].interaction.submissions;
-  const lastSubmissionId = submissions.length
-    ? submissions[submissions.length - 1].id
+  if (!interactionSession.slides[nextIndex.value].interaction) return;
+  const lastSubmissionId = interactionSession.slides[nextIndex.value]
+    .interaction.submissions.length
+    ? interactionSession.slides[nextIndex.value].interaction.submissions[
+        interactionSession.slides[nextIndex.value].interaction.submissions
+          .length - 1
+      ].id
     : 0;
   api("interaction/fetchNewSubmissions", {
     id: interactionSession.id,
     pin: interactionSession.pin,
-    slideIndex: currentIndex.value,
+    slideIndex: nextIndex.value,
     lastSubmissionId: lastSubmissionId,
   }).then(
     function (res) {
-      for (let submission of res) submissions.push(submission);
+      for (let submission of res) {
+        interactionSession.slides[nextIndex.value].interaction.submissions.push(
+          submission
+        );
+      }
       fetchNewSubmissionsFailCount = 0;
       Swal.close();
     },
     function (error) {
       fetchNewSubmissionsFailCount++;
-      console.log(
+      console.error(
         "fetchNewSubmissions failed - failCount: " +
           fetchNewSubmissionsFailCount,
         error
@@ -62,8 +75,9 @@ const fetchNewSubmissions = () => {
 };
 
 const fetchNewSubmissionsAndStatus = () => {
-  fetchNewSubmissions();
   fetchStatus();
+  //add a delay to allow fetchStatus to complete before fetchNewSubmissions
+  setTimeout(fetchNewSubmissions, 1000);
 };
 
 let myInterval; //declared here to be accessible by onMounted and onBeforeUnmount
@@ -96,8 +110,8 @@ const fetchDetailsHost = () => {
           slide.interaction.submissionsCount = 0;
         }
       }
+      fetchNewSubmissionsAndStatus();
       loading.value = false;
-      fetchNewSubmissions();
       myInterval = setInterval(
         fetchNewSubmissionsAndStatus,
         config.value.interaction.host.newSubmissionsPollInterval
@@ -125,14 +139,15 @@ const fetchStatus = () => {
     function (res) {
       interactionSession.status = res;
 
-      goToSlide(interactionSession.status.facilitatorIndex);
+      if (currentIndex.value != interactionSession.status.facilitatorIndex)
+        goToSlide(interactionSession.status.facilitatorIndex);
 
       fetchStatusFailCount = 0;
       Swal.close();
     },
     function (error) {
       fetchStatusFailCount++;
-      console.log(
+      console.error(
         "fetchStatus failed - failCount: " + fetchStatusFailCount,
         error
       );
@@ -197,6 +212,8 @@ onMounted(() => {
     }
   });
 });
+
+onBeforeUnmount(() => clearInterval(myInterval));
 </script>
 
 <template>
@@ -231,10 +248,11 @@ onMounted(() => {
       <div class="card bg-transparent shadow p-2 m-2">
         <h4>Next slide</h4>
         <HostSlide
-          :currentIndex="currentIndex + 1"
+          :currentIndex="nextIndex"
           :isPresenterView="true"
           class="m-2"
           :class="{ container: true }"
+          @refreshSubmissions="refreshSubmissions"
         />
       </div>
     </div>

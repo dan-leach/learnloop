@@ -12,7 +12,13 @@ import { inject, ref } from "vue";
 const config = inject("config");
 
 const props = defineProps(["currentIndex", "isPresenterView"]);
-const emit = defineEmits(["goForward", "goBack", "goStart", "toggleLockSlide"]);
+const emit = defineEmits([
+  "goForward",
+  "goBack",
+  "goStart",
+  "toggleLockSlide",
+  "refreshSubmissions",
+]);
 
 const showResponses = () => {
   interactionSession.slides[
@@ -100,7 +106,6 @@ const openPresenterView = () => {
       <button
         v-if="
           interactionSession.slides[currentIndex].isInteractive &&
-          !isPresenterView &&
           !interactionSession.slides[currentIndex].content.show
         "
         class="btn btn-lg"
@@ -113,6 +118,19 @@ const openPresenterView = () => {
           :icon="['fas', 'circle-check']"
           :class="{ 'text-success': showValidIndicators }"
         />
+      </button>
+      <button
+        v-if="
+          interactionSession.slides[currentIndex].isInteractive &&
+          !interactionSession.slides[currentIndex].content.show
+        "
+        class="btn btn-lg"
+        @click="emit('refreshSubmissions')"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Refresh responses"
+      >
+        <font-awesome-icon :icon="['fas', 'arrows-rotate']" />
       </button>
       <button
         class="btn btn-teal btn-sm m-4"

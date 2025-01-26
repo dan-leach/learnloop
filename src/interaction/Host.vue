@@ -23,7 +23,7 @@ const updateStatus = () => {
   }).then(
     function () {},
     function (error) {
-      console.log("updateStatus failed", error);
+      console.error("updateStatus failed", error);
     }
   );
 };
@@ -37,9 +37,15 @@ const fetchSubmissionCount = () => {
       interactionSession.submissionCount = res;
     },
     function (error) {
-      console.log("fetchSubmissionCount failed", error);
+      console.error("fetchSubmissionCount failed", error);
     }
   );
+};
+
+const refreshSubmissions = () => {
+  if (interactionSession.slides[currentIndex.value].interaction)
+    interactionSession.slides[currentIndex.value].interaction.submissions = [];
+  fetchNewSubmissions();
 };
 
 const goToSlide = (index) => {
@@ -89,7 +95,7 @@ const fetchNewSubmissions = () => {
     },
     function (error) {
       fetchNewSubmissionsFailCount++;
-      console.log(
+      console.error(
         "fetchNewSubmissions failed - failCount: " +
           fetchNewSubmissionsFailCount,
         error
@@ -182,7 +188,6 @@ const exitPreviewSession = () => {
 
 onMounted(() => {
   if (isPreview.value) {
-    console.log("preview", interactionSession);
     if (!interactionSession.slides.length) {
       Swal.fire({
         title: "Unable to preview session",
@@ -242,7 +247,7 @@ onBeforeUnmount(() => {
     }).then(
       function () {},
       function (error) {
-        console.log("updateStatus failed", error);
+        console.error("updateStatus failed", error);
       }
     );
     clearInterval(myInterval);
@@ -290,6 +295,7 @@ onBeforeUnmount(() => {
         @goBack="goToSlide(currentIndex - 1)"
         @goStart="goToSlide(0)"
         @toggleLockSlide="toggleLockSlide"
+        @refreshSubmissions="refreshSubmissions"
       />
     </div>
   </Transition>

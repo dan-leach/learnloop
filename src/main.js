@@ -35,6 +35,7 @@ import {
   faXmark,
   faArrowUpRightFromSquare,
   faCircleCheck,
+  faArrowsRotate,
 } from "@fortawesome/free-solid-svg-icons";
 /* add icons to the library */
 library.add(
@@ -60,7 +61,8 @@ library.add(
   faTriangleExclamation,
   faXmark,
   faArrowUpRightFromSquare,
-  faCircleCheck
+  faCircleCheck,
+  faArrowsRotate
 );
 
 import { cookies } from "./data/cookies.js";
