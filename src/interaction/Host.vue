@@ -28,6 +28,39 @@ const updateStatus = () => {
   );
 };
 
+let fetchStatusFailCount = 0;
+const fetchStatus = () => {
+  api("interaction/fetchStatus", {
+    id: interactionSession.id,
+  }).then(
+    function (res) {
+      interactionSession.status = res;
+
+      fetchStatusFailCount = 0;
+      Swal.close();
+    },
+    function (error) {
+      fetchStatusFailCount++;
+      console.log(
+        "fetchStatus failed - failCount: " + fetchStatusFailCount,
+        error
+      );
+      if (fetchStatusFailCount > 5 && !Swal.isVisible())
+        Swal.fire({
+          toast: true,
+          showConfirmButton: false,
+          icon: "error",
+          iconColor: "#17a2b8",
+          title: "Connection to LearnLoop failed",
+          text: "Please check your internet connection",
+          position: "bottom",
+          width: "450px",
+        });
+    }
+  );
+};
+fetchStatus();
+
 const fetchSubmissionCount = () => {
   api("interaction/fetchSubmissionCount", {
     id: interactionSession.id,
@@ -63,15 +96,15 @@ const goToSlide = (index) => {
     });
   }
   currentIndex.value = index;
-  if (!isPreview.value) updateStatus();
-  if (index == 0 && !isPreview.value) fetchSubmissionCount();
+  updateStatus();
+  if (index == 0) fetchSubmissionCount();
   if (interactionSession.slides[currentIndex.value].interaction)
     interactionSession.slides[currentIndex.value].interaction.submissions = [];
 };
 const toggleLockSlide = () => {
   interactionSession.status.lockedSlides[currentIndex.value] =
     !interactionSession.status.lockedSlides[currentIndex.value];
-  if (!isPreview.value) updateStatus();
+  updateStatus();
 };
 
 let fetchNewSubmissionsFailCount = 0;
@@ -188,24 +221,14 @@ const exitPreviewSession = () => {
 
 onMounted(() => {
   if (isPreview.value) {
-    if (!interactionSession.slides.length) {
-      Swal.fire({
-        title: "Unable to preview session",
-        text: "The session contains no slides to preview. You will now be returned to the session creation page",
-        confirmButtonColor: "#17a2b8",
-      }).then(() => {
-        router.push("/interaction/create");
-      });
-    } else {
-      for (let slide of interactionSession.slides) {
-        if (slide.hasContent) slide.content.show = true;
-        if (slide.interaction) {
-          slide.interaction.submissions = [];
-          slide.interaction.submissionsCount = 0;
-        }
+    for (let slide of interactionSession.slides) {
+      if (slide.hasContent) slide.content.show = true;
+      if (slide.interaction) {
+        slide.interaction.submissions = [];
+        slide.interaction.submissionsCount = 0;
       }
-      loading.value = false;
     }
+    loading.value = false;
   } else {
     interactionSession.id = useRouter().currentRoute.value.params.id;
     Swal.fire({
@@ -238,20 +261,18 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-  if (!isPreview.value) {
-    interactionSession.status.facilitatorIndex = 0;
-    api("interaction/updateStatus", {
-      id: interactionSession.id,
-      pin: interactionSession.pin,
-      status: interactionSession.status,
-    }).then(
-      function () {},
-      function (error) {
-        console.error("updateStatus failed", error);
-      }
-    );
-    clearInterval(myInterval);
-  }
+  interactionSession.status.facilitatorIndex = 0;
+  api("interaction/updateStatus", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+    status: interactionSession.status,
+  }).then(
+    function () {},
+    function (error) {
+      console.error("updateStatus failed", error);
+    }
+  );
+  clearInterval(myInterval);
 });
 </script>
 

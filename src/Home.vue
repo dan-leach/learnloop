@@ -351,7 +351,7 @@ onMounted(() => {
       >
       about any issues you find.
       <a
-        href="https://github.com/dan-leach/learnloop/blob/v5/changelog.md"
+        href="https://github.com/dan-leach/learnloop/blob/v6/changelog.md"
         target="_blank"
         style="color: black"
         >View the changelog here</a

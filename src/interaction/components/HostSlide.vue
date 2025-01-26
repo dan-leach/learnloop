@@ -135,7 +135,10 @@ const openPresenterView = () => {
       <button
         class="btn btn-teal btn-sm m-4"
         @click="toggleContent"
-        v-if="interactionSession.slides[currentIndex].hasContent"
+        v-if="
+          interactionSession.slides[currentIndex].hasContent &&
+          interactionSession.slides[currentIndex].isInteractive
+        "
       >
         {{
           interactionSession.slides[currentIndex].content.show
