@@ -8,7 +8,7 @@ import MultipleChoice from "./host/MultipleChoice.vue";
 import FreeText from "./host/FreeText.vue";
 import WordCloud from "./host/WordCloud.vue";
 import Content from "./host/Content.vue";
-import { inject } from "vue";
+import { inject, ref } from "vue";
 const config = inject("config");
 
 const props = defineProps(["currentIndex", "isPresenterView"]);
@@ -27,6 +27,23 @@ const toggleContent = () => {
   if (!interactionSession.slides[props.currentIndex].content.show)
     showResponses();
 };
+
+const showValidIndicators = ref(false);
+const nav = (emitType) => {
+  showValidIndicators.value = false;
+  emit(emitType);
+};
+
+const openPresenterView = () => {
+  localStorage.setItem(
+    "presenterViewSession",
+    JSON.stringify({
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+    })
+  );
+  window.open(`/interaction/presenter-view/${interactionSession.id}`, "_blank");
+};
 </script>
 
 <template>
@@ -36,7 +53,7 @@ const toggleContent = () => {
         <button
           v-if="currentIndex > 0"
           class="btn btn-lg"
-          @click="emit('goBack')"
+          @click="nav('goBack')"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-left']" />
         </button>
@@ -52,7 +69,7 @@ const toggleContent = () => {
         <button
           v-if="currentIndex < interactionSession.slides.length - 1"
           class="btn btn-lg"
-          @click="emit('goForward')"
+          @click="nav('goForward')"
         >
           <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
         </button>
@@ -81,14 +98,32 @@ const toggleContent = () => {
         />
       </button>
       <button
-        class="btn btn-teal btn-sm m-4"
-        @click="toggleContent"
         v-if="
-          interactionSession.slides[currentIndex].hasContent &&
+          interactionSession.slides[currentIndex].isInteractive &&
+          !isPresenterView &&
           !interactionSession.slides[currentIndex].content.show
         "
+        class="btn btn-lg"
+        @click="showValidIndicators = !showValidIndicators"
+        data-bs-toggle="tooltip"
+        data-bs-placement="top"
+        title="Toggle highlighting of correct and incorrect responses"
       >
-        Show content
+        <font-awesome-icon
+          :icon="['fas', 'circle-check']"
+          :class="{ 'text-success': showValidIndicators }"
+        />
+      </button>
+      <button
+        class="btn btn-teal btn-sm m-4"
+        @click="toggleContent"
+        v-if="interactionSession.slides[currentIndex].hasContent"
+      >
+        {{
+          interactionSession.slides[currentIndex].content.show
+            ? "Show responses"
+            : "Show content"
+        }}
       </button>
     </p>
     <div
@@ -113,12 +148,12 @@ const toggleContent = () => {
         </button>
       </div>
     </div>
-    <div class="text-center">
-      <button
-        v-if="currentIndex == 0 && !isPresenterView"
-        class="btn btn-lg btn-teal mb-2"
-        @click="emit('goForward')"
-      >
+    <div class="text-center" v-if="currentIndex == 0 && !isPresenterView">
+      <button class="btn btn-sm btn-teal mb-2 me-4" @click="openPresenterView">
+        Presenter view
+        <font-awesome-icon :icon="['fas', 'arrow-up-right-from-square']" />
+      </button>
+      <button class="btn btn-lg btn-teal mb-2" @click="emit('goForward')">
         Start <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
       </button>
     </div>
@@ -158,12 +193,14 @@ const toggleContent = () => {
             interactionSession.slides[currentIndex].type == 'trueFalse'
           "
           :slide="interactionSession.slides[currentIndex]"
+          :showValidIndicators="showValidIndicators"
         />
         <MultipleChoice
           v-else-if="
             interactionSession.slides[currentIndex].type == 'multipleChoice'
           "
           :slide="interactionSession.slides[currentIndex]"
+          :showValidIndicators="showValidIndicators"
         />
         <FreeText
           v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"

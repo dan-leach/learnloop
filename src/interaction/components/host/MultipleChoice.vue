@@ -2,11 +2,40 @@
 import { onMounted, watch } from "vue";
 import Chart from "chart.js/auto";
 
-const props = defineProps(["slide"]);
+const props = defineProps(["slide", "showValidIndicators"]);
 
 const optionCounts = [];
 for (let i = 0; i < props.slide.interaction.options.length; i++)
   optionCounts.push(0);
+
+let borderColor;
+let borderWidth;
+let chart;
+
+const updateValidIndicators = () => {
+  if (props.showValidIndicators) {
+    borderColor = props.slide.interaction.options.map((option) => {
+      if (option.correct) return "rgba(0, 255, 0, 1)";
+      if (option.incorrect) return "rgba(255, 0, 0, 1)";
+      return "rgba(0, 0, 0, 0)";
+    });
+    borderWidth = props.slide.interaction.options.map((option) => {
+      if (option.correct || option.incorrect) return 5;
+      return 0;
+    });
+  } else {
+    borderColor = props.slide.interaction.options.map(() => "rgba(0, 0, 0, 0)");
+    borderWidth = props.slide.interaction.options.map(() => 0);
+  }
+
+  if (chart) {
+    chart.data.datasets[0].borderColor = borderColor;
+    chart.data.datasets[0].borderWidth = borderWidth;
+    chart.update();
+  }
+};
+updateValidIndicators();
+watch(() => props.showValidIndicators, updateValidIndicators);
 
 const chartConfig = {
   bar: {
@@ -28,6 +57,8 @@ const chartConfig = {
             "rgba(161, 163, 167, 0.5)",
             "rgba(176, 245, 66, 0.5)",
           ],
+          borderColor: borderColor,
+          borderWidth: borderWidth,
         },
       ],
     },
@@ -73,6 +104,20 @@ const chartConfig = {
         {
           data: optionCounts,
           hoverOffset: 4,
+          backgroundColor: [
+            "rgba(255, 99, 132, 0.5)",
+            "rgba(66, 245, 215, 0.5)",
+            "rgba(255, 159, 64, 0.5)",
+            "rgba(255, 205, 86, 0.5)",
+            "rgba(245, 66, 227, 0.5)",
+            "rgba(75, 192, 192, 0.5)",
+            "rgba(54, 162, 235, 0.5)",
+            "rgba(153, 102, 255, 0.5)",
+            "rgba(161, 163, 167, 0.5)",
+            "rgba(176, 245, 66, 0.5)",
+          ],
+          borderColor: borderColor,
+          borderWidth: borderWidth,
         },
       ],
     },
@@ -90,7 +135,6 @@ const chartConfig = {
   },
 };
 
-let chart;
 watch(props.slide, () => {
   for (let i = 0; i < props.slide.interaction.options.length; i++)
     optionCounts[i] = 0;

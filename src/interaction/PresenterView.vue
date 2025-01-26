@@ -19,11 +19,6 @@ const goToSlide = (index) => {
   if (interactionSession.slides[currentIndex.value].interaction)
     interactionSession.slides[currentIndex.value].interaction.submissions = [];
 };
-const toggleLockSlide = () => {
-  interactionSession.status.lockedSlides[currentIndex.value] =
-    !interactionSession.status.lockedSlides[currentIndex.value];
-  if (!isPreview.value) updateStatus();
-};
 
 let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = () => {
@@ -158,6 +153,23 @@ const fetchStatus = () => {
 
 onMounted(() => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
+
+  //check to see if there is a sessionStorage object with an id and pin
+  const presenterViewSession = JSON.parse(
+    localStorage.getItem("presenterViewSession")
+  );
+  if (
+    presenterViewSession &&
+    presenterViewSession.id == interactionSession.id
+  ) {
+    //if there is, set the interactionSession pin to the pin in the sessionStorage object
+    interactionSession.pin = presenterViewSession.pin;
+    //remove the sessionStorage object
+    localStorage.removeItem("presenterViewSession");
+    fetchDetailsHost();
+    return;
+  }
+
   Swal.fire({
     title: "Enter session ID and PIN",
     html:
@@ -206,6 +218,7 @@ onMounted(() => {
             ? interactionSession.name
             : "[Facilitator name]"
         }}
+        | Presenter view
       </p>
       <div class="mb-3">
         <h4>Current slide notes</h4>

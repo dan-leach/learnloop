@@ -144,24 +144,15 @@ onUpdated(() => {
     class="d-flex flex-wrap align-items-center align-content-stretch justify-content-around"
   >
     <div class="card bg-transparent shadow p-2 m-2 align-items-center">
-      <h4>Interaction</h4>
       <div class="d-flex flex-wrap mx-2">
         <div>
           Options:
           <ul>
             <li v-for="option in slide.interaction.options" :key="option">
-              {{ option }}
+              {{ option.text }}
             </li>
           </ul>
-        </div>
-        <div class="d-flex flex-column align-items-center mx-2">
           Responses: {{ slide.interaction.submissions.length }}
-          <button
-            class="btn btn-teal btn-sm m-4"
-            @click="$emit('toggleContent')"
-          >
-            Show responses
-          </button>
         </div>
       </div>
     </div>
