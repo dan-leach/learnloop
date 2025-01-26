@@ -11,7 +11,8 @@ Change single choice to true/false
 Allow editing multiple choice answers on create
 
 To do
-Correct answer option for true/false and multiple choice - started
+Correct answer option for true/false and multiple choice - done for bar chart on multipleChoice
+
 People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit?
 Other times people have tried to submit separate words which belong together. Which option is best?
 Preview can be joined by mobile device - clear submissions on exiting preview
