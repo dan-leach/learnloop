@@ -83,14 +83,15 @@ const showDownloadFeedbackForm = (index) => {
 const hideDownloadFeedbackModal = () => downloadFeedbackModal.hide();
 
 const fetchFeedbackPDF = (downloadId) => {
-  api(
-    "feedback/fetchFeedbackPDF",
-    {
-      id: downloadId ? downloadId : feedbackSession.id,
-      pin: feedbackSession.pin,
-    },
-    "blob"
-  ).then(
+  const requestObject = {
+    id: feedbackSession.id,
+    pin: feedbackSession.pin,
+  };
+  if (downloadId) {
+    requestObject.id = downloadId;
+    requestObject.parentSessionId = feedbackSession.id;
+  }
+  api("feedback/fetchFeedbackPDF", requestObject, "blob").then(
     function (res) {
       // Create a new HTML page to display the PDF with a custom title
       const htmlContent = `
