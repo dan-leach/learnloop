@@ -205,6 +205,11 @@ const isPreview = ref(useRouter().currentRoute.value.params.id == "preview");
 if (isPreview.value) {
   interactionSession.slides.unshift({ type: "waitingRoom" });
   interactionSession.slides.push({ type: "end" });
+  fetchSubmissionCount();
+  myInterval = setInterval(
+    fetchNewSubmissions,
+    config.value.interaction.host.newSubmissionsPollInterval
+  );
 }
 const exitPreviewSession = () => {
   loading.value = true;
