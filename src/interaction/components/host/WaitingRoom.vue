@@ -22,6 +22,7 @@ const deleteSubmissions = () => {
       api("interaction/deactivateSubmissions", {
         id: interactionSession.id,
         pin: interactionSession.pin,
+        isPreview: interactionSession.status.preview,
       }).then(
         function () {
           Toast.fire({

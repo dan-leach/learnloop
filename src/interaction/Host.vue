@@ -13,6 +13,7 @@ import Toast from "../assets/Toast.js";
 
 const loading = ref(true);
 const currentIndex = ref(0);
+const isPreview = ref(useRouter().currentRoute.value.params.id == "preview");
 
 const updateStatus = () => {
   interactionSession.status.facilitatorIndex = currentIndex.value;
@@ -35,13 +36,16 @@ const fetchStatus = () => {
   }).then(
     function (res) {
       interactionSession.status = res;
-
+      if (isPreview.value) {
+        interactionSession.status.preview = true;
+        updateStatus();
+      }
       fetchStatusFailCount = 0;
       Swal.close();
     },
     function (error) {
       fetchStatusFailCount++;
-      console.log(
+      console.error(
         "fetchStatus failed - failCount: " + fetchStatusFailCount,
         error
       );
@@ -65,6 +69,7 @@ const fetchSubmissionCount = () => {
   api("interaction/fetchSubmissionCount", {
     id: interactionSession.id,
     pin: interactionSession.pin,
+    isPreview: isPreview.value,
   }).then(
     function (res) {
       interactionSession.submissionCount = res;
@@ -120,6 +125,7 @@ const fetchNewSubmissions = () => {
     pin: interactionSession.pin,
     slideIndex: currentIndex.value,
     lastSubmissionId: lastSubmissionId,
+    isPreview: isPreview.value,
   }).then(
     function (res) {
       for (let submission of res) submissions.push(submission);
@@ -201,7 +207,6 @@ const fetchDetailsHost = () => {
   );
 };
 
-const isPreview = ref(useRouter().currentRoute.value.params.id == "preview");
 if (isPreview.value) {
   interactionSession.slides.unshift({ type: "waitingRoom" });
   interactionSession.slides.push({ type: "end" });
@@ -217,6 +222,7 @@ const exitPreviewSession = () => {
   currentIndex.value = 0;
   interactionSession.slides.shift();
   interactionSession.slides.pop();
+  interactionSession.status.preview = false;
   if (interactionSession.editMode) {
     router.push("/interaction/edit/" + interactionSession.id);
   } else {
@@ -249,10 +255,15 @@ onMounted(() => {
       preConfirm: () => {
         interactionSession.id = document.getElementById("swalFormId").value;
         interactionSession.pin = document.getElementById("swalFormPin").value;
-        if (interactionSession.pin == "")
+        if (interactionSession.pin == "") {
           Swal.showValidationMessage("Please enter your PIN");
-        if (interactionSession.id == "")
+          return false;
+        }
+        if (interactionSession.id == "") {
           Swal.showValidationMessage("Please enter a session ID");
+          return false;
+        }
+        return true;
       },
     }).then((result) => {
       if (result.isConfirmed) {
@@ -297,7 +308,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
       <h1 v-if="!config.client.isFocusView" class="text-center display-4">
-        Interaction
+        Interaction {{ isPreview ? "Preview" : "" }}
       </h1>
       <p v-if="!config.client.isFocusView" class="text-center">
         {{

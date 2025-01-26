@@ -25,6 +25,7 @@ const submit = () => {
     id: interactionSession.id,
     slideIndex: props.currentIndex,
     response: slide.interaction.response,
+    isPreview: interactionSession.status.preview,
   }).then(
     function (res) {
       Toast.fire({

@@ -195,6 +195,11 @@ const updateSession = async () => {
 const finishEditing = async () => {
   if (!slidesFormIsValid()) return false;
   const updateMessage = await updateSession();
+  api("interaction/deactivateSubmissions", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+    isPreview: interactionSession.status.preview,
+  });
   if (updateMessage) {
     if (!interactionSession.editMode) {
       router.push("/interaction/created");
