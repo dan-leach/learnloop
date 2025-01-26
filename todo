@@ -1,5 +1,5 @@
 Current:
-Check what causing numbered array of slides in db ?edit
+Add a preview flag to session status. Submissions in preview status to have a preview boolean set true. Only show preview submissions in preview mode. Only show non-preview submissions in non-preview mode. Deactivate preview submissions at finish edit point.
 
 Andy Mullet:
 Done
@@ -14,6 +14,7 @@ Add launcher for presenterView
 Fix show results on the presenter-view
 
 To do
+
 People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit?
 Other times people have tried to submit separate words which belong together. Which option is best?
 Preview can be joined by mobile device - clear submissions on exiting preview
@@ -26,7 +27,7 @@ Reuse of presentation - create from template
 Static slide content overlapping ediges on mobile (see screenshot on AM teams convo)
 
 Later:
-Use sessionStorage to enforce submission limits
+Use sessionStorage to enforce submission limits - make sure there is a work around for preview mode
 Add host view images to slide type help
 Add imageCloud to slide type help
 Add appVersion field to session entries in database
