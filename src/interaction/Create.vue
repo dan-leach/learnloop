@@ -91,6 +91,58 @@ onMounted(async () => {
   }
 });
 
+const createSessionFromTemplate = async () => {
+  // Get the id and pin for the session to be used as template
+  const { isConfirmed } = await Swal.fire({
+    title: "Enter session ID and PIN",
+    html:
+      "<div class='overflow-hidden'>You will need the session ID and PIN for the session you want to use as the template. You can find these details in the email you received when your session was created. <br>" +
+      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">' +
+      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
+    showCancelButton: true,
+    confirmButtonColor: "#17a2b8",
+    preConfirm: () => {
+      interactionSession.id = document.getElementById("swalFormId").value;
+      interactionSession.pin = document.getElementById("swalFormPin").value;
+      if (interactionSession.pin == "") {
+        Swal.showValidationMessage("Please enter your PIN");
+        return false;
+      }
+      if (interactionSession.id == "") {
+        Swal.showValidationMessage("Please enter a session ID");
+        return false;
+      }
+      return true;
+    },
+  });
+
+  // If form not confirmed, cancel the create from template process
+  if (!isConfirmed) {
+    return;
+  }
+  // Fetch the existing details
+  const result = await fetchDetailsHost();
+
+  if (!result) {
+    interactionSession.id = "";
+    interactionSession.pin = "";
+    router.push("/interaction/create");
+    return;
+  }
+
+  // Remove the template session id, pin and feedbackID, and set the title to 'copy of' to prompt user to make an update
+  interactionSession.id = "";
+  interactionSession.pin = "";
+  interactionSession.feedbackID = "";
+  interactionSession.title = "Copy of " + interactionSession.title;
+
+  // Create the new session using the template details
+  await insertSession();
+
+  // Update the session, adding the template slides
+  await updateSession();
+};
+
 // Show info about the feedback ID field
 const feedbackIdInfo = () => {
   Swal.fire({
@@ -148,16 +200,19 @@ const fetchDetailsHost = async () => {
     interactionSession.email = res.email;
     interactionSession.feedbackID = res.feedbackID;
     interactionSession.slides = res.slides;
+
+    return true;
   } catch (error) {
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
     Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
-      title: "Unable to edit interaction session",
+      title: "Unable to fetch interaction session details",
       text: error,
       confirmButtonColor: "#17a2b8",
     });
     router.push("/");
+    return false;
   }
 };
 
@@ -202,6 +257,8 @@ const insertSession = async () => {
         confirmButtonColor: "#17a2b8",
       });
     }
+
+    return true;
   } catch (error) {
     //Indicate to the user insert failed
     btnInsertSession.value.text = "Retry creating interaction session?";
@@ -214,6 +271,7 @@ const insertSession = async () => {
       text: error,
       confirmButtonColor: "#17a2b8",
     });
+    return false;
   }
 };
 
@@ -399,6 +457,15 @@ const slidesFormIsValid = () => {
     </div>
     <div v-else>
       <h1 class="text-center display-4">Interaction</h1>
+      <div class="text-center mb-3" v-if="!interactionSession.id">
+        <button
+          class="btn btn-sm btn-teal"
+          id="btnCreateSessionFromTemplate"
+          @click="createSessionFromTemplate"
+        >
+          Create from template
+        </button>
+      </div>
       <form
         id="createSessionSeriesForm"
         class="card bg-transparent shadow p-2 mb-3 needs-validation"

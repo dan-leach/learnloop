@@ -11,6 +11,7 @@ Add launcher for presenterView
 Fix show results on the presenter-view
 Preview can be joined by mobile device - clear submissions on exiting preview
 Clear submissions on editing interaction session, but only for changed slides - not currently done only for changed slides, would be much more work
+Reuse of presentation - create from template
 
 To do
 People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit?
@@ -18,14 +19,12 @@ Other times people have tried to submit separate words which belong together. Wh
 Reuse images uploaded for a session on another slide - have a add a previously uploaded image button which launches gallery and adds the src to the uploader preview array
 Make lock slide instant on join page load
 Indicate the default questions on feedback create
-Reuse of presentation - create from template
 Static slide content overlapping ediges on mobile (see screenshot on AM teams convo)
 
 Later:
 Use sessionStorage to enforce submission limits - make sure there is a work around for preview mode
 Add host view images to slide type help
 Add imageCloud to slide type help
-Add appVersion field to session entries in database
 Image compression for large uploads
 API for fetching images that checks valid session ID, then make img/ private
 Have arrow keys control slide movements
