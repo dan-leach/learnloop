@@ -52,7 +52,7 @@ const fetchStatus = () => {
     },
     function (error) {
       fetchStatusFailCount++;
-      console.log(
+      console.error(
         "fetchStatus failed - failCount: " + fetchStatusFailCount,
         error
       );
@@ -150,7 +150,9 @@ onMounted(() => {
       <Loading />
     </div>
     <div v-else>
-      <h1 class="text-center display-4">Interaction</h1>
+      <h1 class="text-center display-4">
+        Interaction {{ interactionSession.status.preview ? "Preview" : "" }}
+      </h1>
       <p class="text-center">
         {{ interactionSession.title }} | {{ interactionSession.name }}
       </p>

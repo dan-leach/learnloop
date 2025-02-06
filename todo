@@ -1,6 +1,3 @@
-Current:
-Add a preview flag to session status. Submissions in preview status to have a preview boolean set true. Only show preview submissions in preview mode. Only show non-preview submissions in non-preview mode. Deactivate preview submissions at finish edit point.
-
 Andy Mullet:
 Done
 Presenter to be able to view next slide - open new tab synced to facilitatorIndex+1 and with usual host screen controls removed
@@ -12,17 +9,15 @@ Allow editing multiple choice answers on create
 Correct answer option for true/false and multiple choice
 Add launcher for presenterView
 Fix show results on the presenter-view
+Preview can be joined by mobile device - clear submissions on exiting preview
+Clear submissions on editing interaction session, but only for changed slides - not currently done only for changed slides, would be much more work
 
 To do
-
 People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit?
 Other times people have tried to submit separate words which belong together. Which option is best?
-Preview can be joined by mobile device - clear submissions on exiting preview
 Reuse images uploaded for a session on another slide - have a add a previously uploaded image button which launches gallery and adds the src to the uploader preview array
 Make lock slide instant on join page load
 Indicate the default questions on feedback create
-Clear submissions on editing interaction session, but only for changed slides
-
 Reuse of presentation - create from template
 Static slide content overlapping ediges on mobile (see screenshot on AM teams convo)
 

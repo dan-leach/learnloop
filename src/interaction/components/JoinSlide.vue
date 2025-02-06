@@ -34,10 +34,6 @@ const submit = () => {
       });
       spinner.value = false;
       slide.interaction.submissionCount++;
-      console.log(
-        slide.interaction.submissionCount,
-        slide.interaction.settings.submissionLimit
-      );
       if (
         slide.interaction.submissionCount <
         slide.interaction.settings.submissionLimit

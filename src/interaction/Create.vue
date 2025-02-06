@@ -12,9 +12,7 @@ import Modal from "bootstrap/js/dist/modal";
 import EditSlideForm from "./components/EditSlideForm.vue";
 import Swal from "sweetalert2";
 
-const sessionDetailsChangeEvent = () => {
-  if (interactionSession.id) updateSession();
-};
+let loading = ref(true);
 const saveStatus = ref({
   saved: true,
   error: false,
@@ -27,53 +25,73 @@ interactionSession.title = "Demo";
 interactionSession.name = "Dan";
 interactionSession.email = "web@danleach.uk";
 
-let editSlideModal;
-const showEditSlideForm = (index) => {
-  editSlideModal = new Modal(
-    document.getElementById("editSlideModal" + index),
-    {
-      backdrop: "static",
-      keyboard: false,
-      focus: true,
-    }
-  );
-  editSlideModal.show();
-};
-const hideEditSlideModal = (index, slide) => {
-  editSlideModal.hide();
-  if (index === undefined) return; //user did not submit the form, closed using the X. Do nothing except hide the modal
+// Load the create page, or get the session id and pin if editing then trigger fetch details
+onMounted(async () => {
+  // Check if user is editing an existing session
+  interactionSession.editMode =
+    useRouter().currentRoute.value.name == "interaction-edit" ? true : false;
 
-  if (index == -1) {
-    interactionSession.slides.push(JSON.parse(slide));
+  if (interactionSession.editMode) {
+    // If URL parameter is set, use it as the session ID
+    interactionSession.id = useRouter().currentRoute.value.params.id;
+
+    // If the id and pin is already set user is likely returning to create view from preview so no need to fetch existing details
+    if (interactionSession.id && interactionSession.pin) {
+      loading.value = false;
+      return;
+    }
+
+    // If no pin is set, prompt user to enter it (id prefilled if set in URL parameter)
+    const { isConfirmed } = await Swal.fire({
+      title: "Enter session ID and PIN",
+      html:
+        "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
+        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
+        interactionSession.id +
+        '">' +
+        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
+      showCancelButton: true,
+      confirmButtonColor: "#17a2b8",
+      preConfirm: () => {
+        interactionSession.id = document.getElementById("swalFormId").value;
+        interactionSession.pin = document.getElementById("swalFormPin").value;
+        if (interactionSession.pin == "") {
+          Swal.showValidationMessage("Please enter your PIN");
+          return false;
+        }
+        if (interactionSession.id == "") {
+          Swal.showValidationMessage("Please enter a session ID");
+          return false;
+        }
+        return true;
+      },
+    });
+
+    // If user confirmed the form, fetch the session details, else redirect to home
+    if (isConfirmed) {
+      history.replaceState({}, "", interactionSession.id);
+      loadEditView();
+    } else {
+      router.push("/");
+    }
   } else {
-    //otherwise use Object assign to avoid row visually jumping around as array mutated
-    Object.assign(interactionSession.slides[index], JSON.parse(slide));
-  }
+    // Creating a new session
+    loading.value = false;
+    if (!interactionSession.slides.length && !interactionSession.title) {
+      const { isConfirmed } = await Swal.fire({
+        title: "Private Beta",
+        text: "LearnLoop Interaction is in private beta and can only be used by invitation. Unless you have joined the beta-testing group and had your email approved, you will not be able to create an interaction session.",
+        showCancelButton: true,
+        confirmButtonText: "I'm a beta-tester",
+        confirmButtonColor: "#dc3545",
+      });
 
-  updateSession();
-};
-
-const sortSlide = (index, x) => {
-  interactionSession.slides.splice(
-    index + x,
-    0,
-    interactionSession.slides.splice(index, 1)[0]
-  );
-  updateSession();
-};
-const removeSlide = (index) => {
-  Swal.fire({
-    title: "Remove this slide?",
-    showCancelButton: true,
-    confirmButtonColor: "#dc3545",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      interactionSession.slides.splice(index, 1);
-      updateSession();
+      if (!isConfirmed) router.push("/");
     }
-  });
-};
+  }
+});
 
+// Show info about the feedback ID field
 const feedbackIdInfo = () => {
   Swal.fire({
     icon: "info",
@@ -91,10 +109,115 @@ const feedbackIdInfo = () => {
   });
 };
 
+// Load the edit view including fetching the details of the session to be edited
+const loadEditView = async () => {
+  // Fetch the existing details
+  await fetchDetailsHost();
+
+  // Remove any previous submissions bundled with the slides
+  for (let slide of interactionSession.slides) {
+    slide.submissions = [];
+    slide.submissionsCount = 0;
+  }
+
+  loading.value = false;
+
+  Swal.fire({
+    icon: "warning",
+    iconColor: "#17a2b8",
+    title: "Previous responses will be deleted",
+    text: "If you make changes to your interaction session, any previous responses by attendees will be deleted.",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
+// Fetch the details of the interaction session to be edited
+const fetchDetailsHost = async () => {
+  try {
+    const res = await api("interaction/fetchDetailsHost", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+    });
+
+    if (interactionSession.id != res.id) {
+      throw new error("Response session ID does not match request session ID");
+    }
+
+    interactionSession.title = res.title;
+    interactionSession.name = res.name;
+    interactionSession.email = res.email;
+    interactionSession.feedbackID = res.feedbackID;
+    interactionSession.slides = res.slides;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to edit interaction session",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
+};
+
 let btnInsertSession = ref({
   text: "Create interaction session",
   wait: false,
 });
+// Insert the session on the server and get a session ID and PIN
+const insertSession = async () => {
+  try {
+    // Check the session details are valid
+    if (!sessionFormIsValid()) return false;
+
+    // Indicate to the user insert in progress
+    btnInsertSession.value.text = "Please wait...";
+    btnInsertSession.value.wait = true;
+
+    // Perform the insert
+    const res = await api("interaction/insertSession", {
+      title: interactionSession.title,
+      feedbackId: interactionSession.feedbackID,
+      name: interactionSession.name,
+      email: interactionSession.email,
+    });
+
+    // Indicate to the user insert is complete
+    btnInsertSession.value.text = "Create interaction session";
+    btnInsertSession.value.wait = false;
+
+    // Locally record the response
+    interactionSession.id = res.id;
+    interactionSession.pin = res.pin;
+    interactionSession.emailOutcome = res.emailOutcome;
+
+    // If the email was not sent, inform the user
+    if (!interactionSession.emailOutcome.sendSuccess) {
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Confirmation email failed",
+        html: `Please ensure you save your session ID and PIN shown on the next page as the confirmation email could not be sent. <br><br><span class="text-danger">Error: ${res.emailOutcome.error}</span>`,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  } catch (error) {
+    //Indicate to the user insert failed
+    btnInsertSession.value.text = "Retry creating interaction session?";
+    btnInsertSession.value.wait = false;
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to create interaction session",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+};
+
+// Check the session details are valid
 const sessionFormIsValid = () => {
   document
     .getElementById("createSessionSeriesForm")
@@ -107,50 +230,144 @@ const sessionFormIsValid = () => {
     return false;
   return true;
 };
-const insertSession = () => {
-  if (!sessionFormIsValid()) return false;
-  btnInsertSession.value.text = "Please wait...";
-  btnInsertSession.value.wait = true;
-  api("interaction/insertSession", {
-    title: interactionSession.title,
-    feedbackId: interactionSession.feedbackID,
-    name: interactionSession.name,
-    email: interactionSession.email,
-  }).then(
-    function (res) {
-      btnInsertSession.value.text = "Create interaction session";
-      btnInsertSession.value.wait = false;
-      interactionSession.id = res.id;
-      interactionSession.pin = res.pin;
-      interactionSession.emailOutcome = res.emailOutcome;
-      if (!interactionSession.emailOutcome.sendSuccess) {
-        Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          title: "Confirmation email failed",
-          html: `Please ensure you save your session ID and PIN shown on the next page as the confirmation email could not be sent. <br><br><span class="text-danger">Error: ${res.emailOutcome.error}</span>`,
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    },
-    function (error) {
-      btnInsertSession.value.text = "Retry creating interaction session?";
-      btnInsertSession.value.wait = false;
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to create interaction session",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-    }
-  );
+
+// Update the session when any of the session details fields are changed after the session has been inserted
+const sessionDetailsChangeEvent = () => {
+  if (interactionSession.id) updateSession();
 };
 
-interactionSession.editMode =
-  useRouter().currentRoute.value.name == "interaction-edit" ? true : false;
-let loading = ref(interactionSession.editMode ? true : false);
+// Update the session on the server
+const updateSession = async () => {
+  try {
+    // Indicate to the user save in progress
+    saveStatus.value.saved = false;
+    saveStatus.value.error = false;
+
+    // Perform the update
+    const res = await api("interaction/updateSession", interactionSession);
+
+    // Indicate to the user save is complete, after a short delay so the save process is visible
+    setTimeout(() => (saveStatus.value.saved = true), 500);
+
+    return res.message;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Toast.fire({
+      icon: "error",
+      title: `Error saving session: ${error}`,
+    });
+    saveStatus.value.error = true;
+    return false;
+  }
+};
+
+let editSlideModal;
+// Show the edit slide form
+const showEditSlideForm = (index) => {
+  editSlideModal = new Modal(
+    document.getElementById("editSlideModal" + index),
+    {
+      backdrop: "static",
+      keyboard: false,
+      focus: true,
+    }
+  );
+  editSlideModal.show();
+};
+
+// Hide the edit slide form
+const hideEditSlideModal = (index, slide) => {
+  editSlideModal.hide();
+  if (index === undefined) return; //user did not submit the form, closed using the X. Do nothing except hide the modal
+
+  if (index == -1) {
+    interactionSession.slides.push(JSON.parse(slide));
+  } else {
+    //otherwise use Object assign to avoid row visually jumping around as array mutated
+    Object.assign(interactionSession.slides[index], JSON.parse(slide));
+  }
+
+  // Auto save the change on the server
+  updateSession();
+};
+
+// Sort a given slide up or down
+const sortSlide = (index, x) => {
+  interactionSession.slides.splice(
+    index + x,
+    0,
+    interactionSession.slides.splice(index, 1)[0]
+  );
+  updateSession();
+};
+
+// Remove the slide at the given index
+const removeSlide = (index) => {
+  Swal.fire({
+    title: "Remove this slide?",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+  }).then((result) => {
+    if (result.isConfirmed) {
+      interactionSession.slides.splice(index, 1);
+      updateSession();
+    }
+  });
+};
+
+// Show the host view in preview mode
+const previewSession = async () => {
+  try {
+    const res = await api("interaction/fetchStatus", {
+      id: interactionSession.id,
+    });
+
+    interactionSession.status = res;
+    Swal.close();
+    interactionSession.status.preview = true;
+    router.push("/interaction/host/preview");
+  } catch (error) {
+    console.error("previewSession error:", error);
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to preview interaction session",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+};
+
+// Finish editing the session by performing a final save and deactivating any preview submissions
+const finishEditing = async () => {
+  if (!slidesFormIsValid()) return false;
+
+  // Perform a final save
+  const updateMessage = await updateSession();
+
+  // Deactivate any preview submissions
+  api("interaction/deactivateSubmissions", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+    isPreview: true,
+  });
+
+  if (updateMessage) {
+    // Do nothing if the save failed
+    if (!interactionSession.editMode) {
+      router.push("/interaction/created");
+    } else {
+      router.push("/");
+      Toast.fire({
+        icon: "success",
+        title: updateMessage,
+      });
+    }
+  }
+};
+
+// On finish editing check that the session details are valid, at least 1 slide is added
 const slidesFormIsValid = () => {
   document
     .getElementById("createSessionSeriesForm")
@@ -173,141 +390,6 @@ const slidesFormIsValid = () => {
     return false;
   return true;
 };
-const updateSession = async () => {
-  saveStatus.value.saved = false;
-  saveStatus.value.error = false;
-  return api("interaction/updateSession", interactionSession).then(
-    function (res) {
-      setTimeout(() => (saveStatus.value.saved = true), 500);
-      return res.message;
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Toast.fire({
-        icon: "error",
-        title: `Error saving session: ${error}`,
-      });
-      saveStatus.value.error = true;
-      return false;
-    }
-  );
-};
-const finishEditing = async () => {
-  if (!slidesFormIsValid()) return false;
-  const updateMessage = await updateSession();
-  api("interaction/deactivateSubmissions", {
-    id: interactionSession.id,
-    pin: interactionSession.pin,
-    isPreview: true,
-  });
-  if (updateMessage) {
-    if (!interactionSession.editMode) {
-      router.push("/interaction/created");
-    } else {
-      router.push("/");
-      Toast.fire({
-        icon: "success",
-        title: updateMessage,
-      });
-    }
-  }
-};
-
-const previewSession = () => {
-  router.push("/interaction/host/preview");
-};
-
-const fetchDetailsHost = () => {
-  api("interaction/fetchDetailsHost", {
-    id: interactionSession.id,
-    pin: interactionSession.pin,
-  }).then(
-    function (res) {
-      if (interactionSession.id != res.id) {
-        console.error(
-          "interactionSession.id != res.id",
-          interactionSession.id,
-          res.id
-        );
-        return;
-      }
-      interactionSession.title = res.title;
-      interactionSession.name = res.name;
-      interactionSession.email = res.email;
-      interactionSession.feedbackID = res.feedbackID;
-      interactionSession.slides = res.slides;
-      for (let slide of interactionSession.slides) {
-        slide.submissions = [];
-        slide.submissionsCount = 0;
-      }
-      loading.value = false;
-      Swal.fire({
-        icon: "warning",
-        iconColor: "#17a2b8",
-        title: "Previous responses will be deleted",
-        text: "If you make changes to your interaction session, any previous responses by attendees will be deleted.",
-        confirmButtonColor: "#17a2b8",
-      });
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to edit interaction session",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
-    }
-  );
-};
-
-onMounted(() => {
-  if (interactionSession.editMode) {
-    interactionSession.id = useRouter().currentRoute.value.params.id;
-    if (interactionSession.pin) {
-      loading.value = false;
-    } else {
-      Swal.fire({
-        title: "Enter session ID and PIN",
-        html:
-          "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
-          '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-          interactionSession.id +
-          '">' +
-          '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
-        showCancelButton: true,
-        confirmButtonColor: "#17a2b8",
-        preConfirm: () => {
-          interactionSession.id = document.getElementById("swalFormId").value;
-          interactionSession.pin = document.getElementById("swalFormPin").value;
-          if (interactionSession.pin == "")
-            Swal.showValidationMessage("Please enter your PIN");
-          if (interactionSession.id == "")
-            Swal.showValidationMessage("Please enter a session ID");
-        },
-      }).then((result) => {
-        if (result.isConfirmed) {
-          history.replaceState({}, "", interactionSession.id);
-          fetchDetailsHost();
-        } else {
-          router.push("/");
-        }
-      });
-    }
-  } else if (!interactionSession.slides.length && !interactionSession.title) {
-    Swal.fire({
-      title: "Private Beta",
-      text: "LearnLoop Interaction is in private beta and can only be used by invitation. Unless you have joined the beta-testing group and had your email approved, you will not be able to create an interaction session.",
-      showCancelButton: true,
-      confirmButtonText: "I'm a beta-tester",
-      confirmButtonColor: "#dc3545",
-    }).then((result) => {
-      if (!result.isConfirmed) router.push("/");
-    });
-  }
-});
 </script>
 
 <template>
