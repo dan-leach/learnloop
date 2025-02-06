@@ -61,16 +61,20 @@ const loadHostView = async () => {
     if (!interactionSession.id || !interactionSession.pin)
       throw new Error("Session ID or PIN is empty");
 
-    // If not in preview mode, fetch details and status
-    if (interactionSession.status?.preview) {
-      updateStatus(); // Update status so joiners have preview flag
-    } else {
+    // If not in preview mode, fetch details
+    if (!interactionSession.status?.preview) {
       await fetchDetailsHost();
     }
 
     // Add the waiting room and end slides
     interactionSession.slides.unshift({ type: "waitingRoom" });
     interactionSession.slides.push({ type: "end" });
+
+    // Ensure starts on the waiting room slide
+    if (interactionSession.status.facilitatorIndex != 0) {
+      interactionSession.status.facilitatorIndex = 0;
+      updateStatus();
+    }
 
     // Set the default for each slide to start with content rather than interaction showing, and clear submissions
     for (let slide of interactionSession.slides) {
@@ -245,11 +249,12 @@ const goToSlide = (index) => {
 
 // Toggle the lock on the current slide
 const toggleLockSlide = () => {
+  //Need to -1 from current index as the lockedSlides array does not include the waiting room slide
   interactionSession.status.lockedSlides[
-    interactionSession.status.facilitatorIndex
+    interactionSession.status.facilitatorIndex - 1
   ] =
     !interactionSession.status.lockedSlides[
-      interactionSession.status.facilitatorIndex
+      interactionSession.status.facilitatorIndex - 1
     ];
   updateStatus();
 };

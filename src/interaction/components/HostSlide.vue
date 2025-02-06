@@ -96,11 +96,11 @@ const openPresenterView = () => {
       >
         <font-awesome-icon
           :icon="['fas', 'lock']"
-          v-if="interactionSession.hostStatus.lockedSlides[currentIndex]"
+          v-if="interactionSession.status.lockedSlides[currentIndex - 1]"
         />
         <font-awesome-icon
           :icon="['fas', 'lock-open']"
-          v-if="!interactionSession.hostStatus.lockedSlides[currentIndex]"
+          v-if="!interactionSession.status.lockedSlides[currentIndex - 1]"
         />
       </button>
       <button

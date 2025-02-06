@@ -36,7 +36,7 @@ const fetchStatus = () => {
           awaitUser = true;
         if (
           interactionSession.slides[currentIndex.value].interaction.closed ||
-          interactionSession.hostStatus.lockedSlides[currentIndex.value]
+          interactionSession.status.lockedSlides[currentIndex.value - 1]
         )
           awaitUser = false;
       }

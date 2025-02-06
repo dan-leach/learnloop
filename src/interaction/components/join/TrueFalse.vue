@@ -33,7 +33,10 @@ let submit = () => {
       :name="'option-' + index"
       :value="index"
       v-model="slide.interaction.response"
-      :disabled="slide.interaction.closed"
+      :disabled="
+        slide.interaction.closed ||
+        interactionSession.status.lockedSlides[currentIndex - 1]
+      "
     />{{ option.text }}
     <label class="form-check-label" :for="'option-' + index"></label>
   </div>
@@ -45,13 +48,19 @@ let submit = () => {
       @click="submit"
       :disabled="
         slide.interaction.closed ||
-        interactionSession.hostStatus.lockedSlides[currentIndex]
+        interactionSession.status.lockedSlides[currentIndex - 1]
       "
     >
       <span v-if="spinner" class="spinner-border spinner-border-sm"></span>
       {{ btnSubmitText }}
     </button>
     <p class="btnSubmitBelowText">{{ btnSubmitBelowText }}</p>
+    <p
+      class="btnSubmitBelowText"
+      v-if="interactionSession.status.lockedSlides[currentIndex - 1]"
+    >
+      The facilitator has locked the current slide to further responses
+    </p>
   </div>
 </template>
 
