@@ -198,7 +198,7 @@ const finishEditing = async () => {
   api("interaction/deactivateSubmissions", {
     id: interactionSession.id,
     pin: interactionSession.pin,
-    isPreview: interactionSession.status.preview,
+    isPreview: true,
   });
   if (updateMessage) {
     if (!interactionSession.editMode) {

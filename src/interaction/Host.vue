@@ -63,7 +63,6 @@ const fetchStatus = () => {
     }
   );
 };
-fetchStatus();
 
 const fetchSubmissionCount = () => {
   api("interaction/fetchSubmissionCount", {
@@ -269,6 +268,7 @@ onMounted(() => {
       if (result.isConfirmed) {
         history.replaceState({}, "", interactionSession.id);
         fetchDetailsHost();
+        fetchStatus();
       } else {
         router.push("/");
       }

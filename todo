@@ -1,8 +1,6 @@
 Current:
 Add a preview flag to session status. Submissions in preview status to have a preview boolean set true. Only show preview submissions in preview mode. Only show non-preview submissions in non-preview mode. Deactivate preview submissions at finish edit point.
 
-Fix broken host page due to premature firing router.push("/"); on line 178
-
 Andy Mullet:
 Done
 Presenter to be able to view next slide - open new tab synced to facilitatorIndex+1 and with usual host screen controls removed
