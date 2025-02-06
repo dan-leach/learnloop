@@ -1,3 +1,5 @@
+Ongoing - replace .then with async await in api and Swal calls
+
 Andy Mullet:
 Done
 Presenter to be able to view next slide - open new tab synced to facilitatorIndex+1 and with usual host screen controls removed

@@ -121,9 +121,9 @@ const createSessionFromTemplate = async () => {
     return;
   }
   // Fetch the existing details
-  const result = await fetchDetailsHost();
+  const fetchDetailsHostResult = await fetchDetailsHost();
 
-  if (!result) {
+  if (!fetchDetailsHostResult) {
     interactionSession.id = "";
     interactionSession.pin = "";
     router.push("/interaction/create");
@@ -137,7 +137,8 @@ const createSessionFromTemplate = async () => {
   interactionSession.title = "Copy of " + interactionSession.title;
 
   // Create the new session using the template details
-  await insertSession();
+  const insertSessionResult = await insertSession();
+  if (!insertSessionResult) return;
 
   // Update the session, adding the template slides
   await updateSession();
@@ -164,7 +165,8 @@ const feedbackIdInfo = () => {
 // Load the edit view including fetching the details of the session to be edited
 const loadEditView = async () => {
   // Fetch the existing details
-  await fetchDetailsHost();
+  const fetchDetailsHostResult = await fetchDetailsHost();
+  if (!fetchDetailsHostResult) return;
 
   // Remove any previous submissions bundled with the slides
   for (let slide of interactionSession.slides) {
