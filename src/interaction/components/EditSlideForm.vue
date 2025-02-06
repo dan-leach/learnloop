@@ -198,6 +198,20 @@ const optionsMinMaxInfo = () => {
   });
 };
 
+const preservePhrasesInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Preserve phrases",
+    html: `
+      <div class="text-start">
+        <p>By default each word of a response will be added to the word cloud separately. If you want to preserve the full user response in the word cloud you can select this option.</p>
+      </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
 const submissionLimitInfo = () => {
   Swal.fire({
     icon: "info",
@@ -1078,6 +1092,33 @@ let submit = () => {
                             </div>
                           </div>
                         </div>
+
+                        <div
+                          v-if="type == 'wordCloud'"
+                          class="row align-items-center mb-3"
+                        >
+                          <div class="col-md-3">
+                            Preserve phrases
+                          </div>
+                          <div class="col-md-1">
+                            <font-awesome-icon
+                              :icon="['fas', 'question-circle']"
+                              size="lg"
+                              style="color: black"
+                              @click="preservePhrasesInfo"
+                            />
+                          </div>
+                          <div class="col-md-8 px-5 form-check form-switch">
+                            <input
+                              v-model="slide.interaction.settings.preservePhrases"
+                              class="form-check-input"
+                              type="checkbox"
+                              id="preservePhrases"
+                              name="preservePhrases"
+                            />
+                          </div>
+                        </div>
+
                         <div
                           v-if="slide.interaction.settings.submissionLimit"
                           class="row align-items-center mb-3"

@@ -12,12 +12,11 @@ Fix show results on the presenter-view
 Preview can be joined by mobile device - clear submissions on exiting preview
 Clear submissions on editing interaction session, but only for changed slides - not currently done only for changed slides, would be much more work
 Reuse of presentation - create from template
+People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit? - newline chars will now be replaced by space
+Other times people have tried to submit separate words which belong together. Which option is best? - added preservePhrases option
 
 To do
-People tried to separate word cloud words using return key, but came out as one long word - perhaps disable return key, or format on submit?
-Other times people have tried to submit separate words which belong together. Which option is best?
 Reuse images uploaded for a session on another slide - have a add a previously uploaded image button which launches gallery and adds the src to the uploader preview array
-Make lock slide instant on join page load
 Indicate the default questions on feedback create
 Static slide content overlapping ediges on mobile (see screenshot on AM teams convo)
 
