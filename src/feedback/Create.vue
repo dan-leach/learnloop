@@ -14,22 +14,22 @@ import { inject } from "vue";
 const config = inject("config");
 
 let isSeries = ref(feedbackSession.subsessions.length);
-const toggleSingleSeries = () => {
+const toggleSingleSeries = async () => {
   if (isSeries.value) {
     if (feedbackSession.subsessions.length) {
-      Swal.fire({
+      const { isConfirmed } = await Swal.fire({
         title: "Lose sessions",
         text: "You have added sessions to this feedback request. If you switch back to requesting feedback for a single session you will lose this progress. Continue?",
         showCancelButton: true,
         confirmButtonColor: "#dc3545",
-      }).then((result) => {
-        if (result.isConfirmed) {
-          feedbackSession.subsessions = [];
-          isSeries.value = !isSeries.value;
-        } else {
-          return;
-        }
       });
+
+      if (isConfirmed) {
+        feedbackSession.subsessions = [];
+        isSeries.value = !isSeries.value;
+      } else {
+        return;
+      }
     } else {
       isSeries.value = !isSeries.value;
     }
@@ -73,7 +73,7 @@ function emailIsValid(email) {
   return emailRegex.test(email);
 }
 
-const hideEditSubsessionModal = (index, subsession) => {
+const hideEditSubsessionModal = async (index, subsession) => {
   //hide the subsession form
   editSubsessionModal.hide();
 
@@ -91,31 +91,30 @@ const hideEditSubsessionModal = (index, subsession) => {
   }
   if (!email && config.value.client.subsessionEmailPrompt) {
     config.value.client.subsessionEmailPrompt = false; //only prompt once
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Are you sure you don't want to provide a facilitator email?",
       text: "If you don't provide an email for the facilitator of this session they won't be able to view their feedback directly. As the organiser, you will still be able to view feedback for their session and share it with them manually if you wish. Click 'Cancel' if you want to return and enter a faciltator email.",
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
-    }).then((result) => {
-      if (!result.isConfirmed) {
-        //if user opts to return to add an email, show the form again. If the index was -1 the subsession will be at the last index position
-        showEditSubsessionForm(
-          index >= 0 ? index : feedbackSession.subsessions.length - 1
-        );
-      }
     });
+
+    if (!isConfirmed) {
+      //if user opts to return to add an email, show the form again. If the index was -1 the subsession will be at the last index position
+      showEditSubsessionForm(
+        index >= 0 ? index : feedbackSession.subsessions.length - 1
+      );
+    }
   } else if (email && !emailIsValid(email)) {
-    Swal.fire({
+    await Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
       text: "Email is not valid",
       confirmButtonColor: "#17a2b8",
-    }).then((result) => {
-      //show the form again. If the index was -1 the subsession will be at the last index position
-      showEditSubsessionForm(
-        index >= 0 ? index : feedbackSession.subsessions.length - 1
-      );
     });
+    //show the form again. If the index was -1 the subsession will be at the last index position
+    showEditSubsessionForm(
+      index >= 0 ? index : feedbackSession.subsessions.length - 1
+    );
   }
 };
 const sortSubsession = (index, x) =>
@@ -124,14 +123,14 @@ const sortSubsession = (index, x) =>
     0,
     feedbackSession.subsessions.splice(index, 1)[0]
   );
-const removeSubsession = (index) => {
-  Swal.fire({
+const removeSubsession = async (index) => {
+  const { isConfirmed } = await Swal.fire({
     title: "Remove this subsession?",
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
-  }).then((result) => {
-    if (result.isConfirmed) feedbackSession.subsessions.splice(index, 1);
   });
+
+  if (isConfirmed) feedbackSession.subsessions.splice(index, 1);
 };
 
 let hasQuestions = ref(feedbackSession.questions.length);
@@ -179,14 +178,14 @@ const sortQuestion = (index, x) =>
     0,
     feedbackSession.questions.splice(index, 1)[0]
   );
-const removeQuestion = (index) => {
-  Swal.fire({
+const removeQuestion = async (index) => {
+  const { isConfirmed } = await Swal.fire({
     title: "Remove this question?",
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
-  }).then((result) => {
-    if (result.isConfirmed) feedbackSession.questions.splice(index, 1);
   });
+
+  if (isConfirmed) feedbackSession.questions.splice(index, 1);
 };
 
 const organisersInfo = () => {
@@ -233,14 +232,14 @@ const sortOrganiser = (index, x) =>
     0,
     feedbackSession.organisers.splice(index, 1)[0]
   );
-const removeOrganiser = (index) => {
-  Swal.fire({
+const removeOrganiser = async (index) => {
+  const { isConfirmed } = await Swal.fire({
     title: "Remove this organiser?",
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
-  }).then((result) => {
-    if (result.isConfirmed) feedbackSession.organisers.splice(index, 1);
   });
+
+  if (isConfirmed) feedbackSession.organisers.splice(index, 1);
 };
 
 const toggleCertificate = () => {
@@ -297,90 +296,87 @@ let btnSubmit = ref({
   text: isEdit ? "Update feedback session" : "Create feedback session",
   wait: false,
 });
-const loadUpdateDetails = (isTemplate = false) => {
-  api("feedback/loadUpdateSession", {
-    id: feedbackSession.id,
-    pin: feedbackSession.pin,
-    isTemplate,
-  }).then(
-    function (res) {
-      if (feedbackSession.id != res.id) {
-        console.error(
-          "feedbackSession.id != res.id",
-          feedbackSession.id,
-          res.id
-        );
-        return;
-      }
-      feedbackSession.title = res.title;
-      feedbackSession.date = res.date;
-      feedbackSession.multipleDates = res.multipleDates ? true : false;
-      feedbackSession.name = res.name;
+const loadUpdateDetails = async (isTemplate = false) => {
+  try {
+    const response = await api("feedback/loadUpdateSession", {
+      id: feedbackSession.id,
+      pin: feedbackSession.pin,
+      isTemplate,
+    });
 
-      feedbackSession.certificate = res.certificate;
-      feedbackSession.attendance = res.attendance;
-
-      if (res.subsessions.length) {
-        feedbackSession.subsessions = res.subsessions;
-        isSeries.value = true;
-      }
-      if (res.questions.length) {
-        feedbackSession.questions = res.questions;
-        hasQuestions.value = true;
-        for (let question of feedbackSession.questions) {
-          if (!question.settings) {
-            //for pre-v5 custom questions
-            question.settings = {
-              selectedLimit: {
-                min: 1,
-                max: 100,
-              },
-              characterLimit: 500,
-            };
-          }
-          if (question.settings.required == undefined) {
-            //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
-            if (question.type == "text" || question.type == "select")
-              question.settings.required = true;
-          }
-        }
-      }
-
-      feedbackSession.organisers = res.organisers;
-      for (let organiser of feedbackSession.organisers)
-        organiser.existing = true;
-
-      if (isTemplate) {
-        //remove the id and pin so that a new session is created rather than overwriting the template
-        //save id in templateId to show template message at top
-        feedbackSession.templateId = feedbackSession.id;
-        feedbackSession.id = "";
-        feedbackSession.pin = "";
-
-        //remove the ids from subsessions so new subsessions are created for a template based create
-        for (let subsession of feedbackSession.subsessions) {
-          subsession.id = "";
-        }
-      }
-
-      loading.value = false;
-    },
-
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load feedback session",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
+    if (feedbackSession.id != response.id) {
+      console.error(
+        "feedbackSession.id != response.id",
+        feedbackSession.id,
+        response.id
+      );
+      return;
     }
-  );
+    feedbackSession.title = response.title;
+    feedbackSession.date = response.date;
+    feedbackSession.multipleDates = response.multipleDates ? true : false;
+    feedbackSession.name = response.name;
+
+    feedbackSession.certificate = response.certificate;
+    feedbackSession.attendance = response.attendance;
+
+    if (response.subsessions.length) {
+      feedbackSession.subsessions = response.subsessions;
+      isSeries.value = true;
+    }
+    if (response.questions.length) {
+      feedbackSession.questions = response.questions;
+      hasQuestions.value = true;
+      for (let question of feedbackSession.questions) {
+        if (!question.settings) {
+          //for pre-v5 custom questions
+          question.settings = {
+            selectedLimit: {
+              min: 1,
+              max: 100,
+            },
+            characterLimit: 500,
+          };
+        }
+        if (question.settings.required == undefined) {
+          //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
+          if (question.type == "text" || question.type == "select")
+            question.settings.required = true;
+        }
+      }
+    }
+
+    feedbackSession.organisers = response.organisers;
+    for (let organiser of feedbackSession.organisers) organiser.existing = true;
+
+    if (isTemplate) {
+      //remove the id and pin so that a new session is created rather than overwriting the template
+      //save id in templateId to show template message at top
+      feedbackSession.templateId = feedbackSession.id;
+      feedbackSession.id = "";
+      feedbackSession.pin = "";
+
+      //remove the ids from subsessions so new subsessions are created for a template based create
+      for (let subsession of feedbackSession.subsessions) {
+        subsession.id = "";
+      }
+    }
+
+    loading.value = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to load feedback session",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
-const loadTemplate = () => {
-  Swal.fire({
+const loadTemplate = async () => {
+  const { isConfirmed } = await Swal.fire({
     title: "Enter ID and PIN for the session you want to use as a template",
     html:
       "You will need your session ID and PIN which you can find in the email you received when the session you want to use as a template was created. <br>" +
@@ -391,18 +387,18 @@ const loadTemplate = () => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      feedbackSession.id = document.getElementById("swalFormId").value;
-      feedbackSession.pin = document.getElementById("swalFormPin").value;
+      feedbackSession.id = document.getElementById("swalFormId").value.trim();
+      feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
       if (feedbackSession.pin == "")
         Swal.showValidationMessage("Please enter your PIN");
       if (feedbackSession.id == "")
         Swal.showValidationMessage("Please enter a session ID");
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      loadUpdateDetails(true);
-    }
   });
+
+  if (isConfirmed) {
+    loadUpdateDetails(true);
+  }
 };
 
 const formIsValid = () => {
@@ -445,74 +441,71 @@ const formIsValid = () => {
   }
   return true;
 };
-const submit = () => {
+const submit = async () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
   if (isEdit) {
-    api("feedback/updateSession", feedbackSession).then(
-      function (res) {
-        btnSubmit.value.text = "Update feedback session";
-        btnSubmit.value.wait = false;
-        let html = res.message;
-        if (res.sendMailFails.length) {
-          html +=
-            "<br><br>Session update emails to the following recepients failed:<br>";
-          for (let fail of res.sendMailFails)
-            html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-        }
+    try {
+      const response = await api("feedback/updateSession", feedbackSession);
 
-        Swal.fire({
-          icon: "success",
-          iconColor: "#17a2b8",
-          html: html,
-          confirmButtonColor: "#17a2b8",
-        });
-        router.push("/");
-      },
-      function (error) {
-        btnSubmit.value.text = "Retry updating feedback session?";
-        btnSubmit.value.wait = false;
-        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-        Swal.fire({
-          title: "Error updating feedback session",
-          text: error,
-          icon: "error",
-          iconColor: "#17a2b8",
-          confirmButtonColor: "#17a2b8",
-        });
+      btnSubmit.value.text = "Update feedback session";
+      btnSubmit.value.wait = false;
+      let html = response.message;
+      if (response.sendMailFails.length) {
+        html +=
+          "<br><br>Session update emails to the following recepients failed:<br>";
+        for (let fail of response.sendMailFails)
+          html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
       }
-    );
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        html: html,
+        confirmButtonColor: "#17a2b8",
+      });
+      router.push("/");
+    } catch (error) {
+      btnSubmit.value.text = "Retry updating feedback session?";
+      btnSubmit.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error updating feedback session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
   } else {
-    api("feedback/insertSession", feedbackSession).then(
-      function (res) {
-        btnSubmit.value.text = "Create feedback session";
-        btnSubmit.value.wait = false;
-        feedbackSession.id = res.id;
-        feedbackSession.pin = res.leadPin;
-        feedbackSession.sendMailFails = res.sendMailFails;
-        router.push("/feedback/created");
-      },
-      function (error) {
-        btnSubmit.value.text = "Retry creating feedback session?";
-        btnSubmit.value.wait = false;
-        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-        Swal.fire({
-          title: "Error creating feedback session",
-          text: error,
-          icon: "error",
-          iconColor: "#17a2b8",
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    );
+    try {
+      const response = await api("feedback/insertSession", feedbackSession);
+      btnSubmit.value.text = "Create feedback session";
+      btnSubmit.value.wait = false;
+      feedbackSession.id = response.id;
+      feedbackSession.pin = response.leadPin;
+      feedbackSession.sendMailFails = response.sendMailFails;
+      router.push("/feedback/created");
+    } catch (error) {
+      btnSubmit.value.text = "Retry creating feedback session?";
+      btnSubmit.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error creating feedback session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
   }
 };
 
-onMounted(() => {
+onMounted(async () => {
   if (isEdit) {
     feedbackSession.id = useRouter().currentRoute.value.params.id;
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Enter session ID and PIN",
       html:
         "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
@@ -523,21 +516,23 @@ onMounted(() => {
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        feedbackSession.id = document.getElementById("swalFormId").value;
-        feedbackSession.pin = document.getElementById("swalFormPin").value;
+        feedbackSession.id = document.getElementById("swalFormId").value.trim();
+        feedbackSession.pin = document
+          .getElementById("swalFormPin")
+          .value.trim();
         if (feedbackSession.pin == "")
           Swal.showValidationMessage("Please enter your PIN");
         if (feedbackSession.id == "")
           Swal.showValidationMessage("Please enter a session ID");
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, "", feedbackSession.id);
-        loadUpdateDetails();
-      } else {
-        router.push("/");
-      }
     });
+
+    if (isConfirmed) {
+      history.replaceState({}, "", feedbackSession.id);
+      loadUpdateDetails();
+    } else {
+      router.push("/");
+    }
   } else if (feedbackSession.id && feedbackSession.pin) {
     //probably user has gone back from created view
 
@@ -565,18 +560,23 @@ onMounted(() => {
     </div>
     <div v-else>
       <h1 class="text-center display-4">Feedback</h1>
-      <p v-if="feedbackSession.templateId">
-        Using session
-        <span class="id-box">{{ feedbackSession.templateId }}</span> as template
-        for new session. The original session will not be altered.
+      <div
+        v-if="feedbackSession.templateId"
+        class="d-flex align-items-center flex-wrap"
+      >
+        <span class="me-2">
+          Using session
+          <span class="id-box">{{ feedbackSession.templateId }}</span> as
+          template for new session. The original session will not be altered.
+        </span>
         <button
-          class="btn btn-sm btn-sessions btn-teal me-2"
+          class="btn btn-sm btn-sessions btn-teal me-2 my-2"
           id="btnLoadTemplate"
           @click="feedbackSession.reset()"
         >
           Create session from scratch instead
         </button>
-      </p>
+      </div>
       <p v-else-if="isEdit" class="form-label ms-2">
         Editing feedback session
         <span class="id-box">{{ feedbackSession.id }}</span>

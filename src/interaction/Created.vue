@@ -16,41 +16,37 @@ link.value.host =
 link.value.qr = config.value.api.url + "qrcode/?id=" + interactionSession.id;
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
-const copyText = (string) => {
+const copyText = async (string) => {
   if (!clipboard.value) return;
-  navigator.clipboard.writeText(string).then(
-    function () {
-      Toast.fire({
-        icon: "success",
-        title: "Copied",
-      });
-    },
-    function (error) {
-      Toast.fire({
-        icon: "error",
-        title: "Error copying to clipboard: " + error,
-      });
-    }
-  );
+  try {
+    await navigator.clipboard.writeText(string);
+    Toast.fire({
+      icon: "success",
+      title: "Copied",
+    });
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      title: "Error copying to clipboard: " + error,
+    });
+  }
 };
 const copyImg = async (src) => {
   if (!clipboard.value) return;
   const response = await fetch(src);
   const blob = await response.blob();
-  navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(
-    function () {
-      Toast.fire({
-        icon: "success",
-        title: "Copied",
-      });
-    },
-    function (error) {
-      Toast.fire({
-        icon: "error",
-        title: "Error copying to clipboard: " + error,
-      });
-    }
-  );
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+    Toast.fire({
+      icon: "success",
+      title: "Copied",
+    });
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      title: "Error copying to clipboard: " + error,
+    });
+  }
 };
 </script>
 

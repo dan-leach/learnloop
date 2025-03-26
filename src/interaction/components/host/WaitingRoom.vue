@@ -8,8 +8,8 @@ import Toast from "../../../assets/Toast.js";
 
 const props = defineProps(["isPresenterView"]);
 
-const deleteSubmissions = () => {
-  Swal.fire({
+const deleteSubmissions = async () => {
+  const { isConfirmed } = await Swal.fire({
     title: "Delete submissions?",
     text: "Once previous submissions have been deleted they can't be restored.",
     icon: "warning",
@@ -17,33 +17,32 @@ const deleteSubmissions = () => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     confirmButtonText: "Delete",
-  }).then((result) => {
-    if (result.isConfirmed)
-      api("interaction/deactivateSubmissions", {
+  });
+
+  if (isConfirmed)
+    try {
+      await api("interaction/deactivateSubmissions", {
         id: interactionSession.id,
         pin: interactionSession.pin,
         isPreview: interactionSession.status.preview,
-      }).then(
-        function () {
-          Toast.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            title: "Submissions have been cleared",
-          });
-          interactionSession.submissionCount = 0;
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            title: "Unable to delete previous submissions",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
-        }
-      );
-  });
+      });
+
+      Toast.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        title: "Submissions have been cleared",
+      });
+      interactionSession.submissionCount = 0;
+    } catch (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Unable to delete previous submissions",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
 };
 </script>
 

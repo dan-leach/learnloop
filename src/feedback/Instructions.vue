@@ -15,83 +15,81 @@ const loading = ref(true);
 
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
-const copyText = (string) => {
+const copyText = async (string) => {
   if (!clipboard.value) return;
-  navigator.clipboard.writeText(string).then(
-    function () {
-      Toast.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        iconColor: "#17a2b8",
-        title: "Copied",
-      });
-    },
-    function (error) {
-      Toast.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Error copying to clipboard: " + error,
-      });
-    }
-  );
+  try {
+    await navigator.clipboard.writeText(string);
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      iconColor: "#17a2b8",
+      title: "Copied",
+    });
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error copying to clipboard: " + error,
+    });
+  }
 };
 
-const fetchDetails = () => {
-  api("feedback/loadGiveFeedback", { id: feedbackSession.id }).then(
-    function (res) {
-      if (feedbackSession.id != res.id) {
-        console.error(
-          "feedbackSession.id != res.id",
-          feedbackSession.id,
-          res.id
-        );
-        return;
-      }
-      feedbackSession.title = res.title;
-      feedbackSession.name = res.name;
-      link.value.give = config.value.client.url + "/" + feedbackSession.id;
-      link.value.qr = config.value.api.url + "qrcode/?id=" + feedbackSession.id;
-      loading.value = false;
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load instructions page",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
+const fetchDetails = async () => {
+  try {
+    const response = await api("feedback/loadGiveFeedback", {
+      id: feedbackSession.id,
+    });
+    if (feedbackSession.id != response.id) {
+      console.error(
+        "feedbackSession.id != response.id",
+        feedbackSession.id,
+        response.id
+      );
+      return;
     }
-  );
+    feedbackSession.title = response.title;
+    feedbackSession.name = response.name;
+    link.value.give = config.value.client.url + "/" + feedbackSession.id;
+    link.value.qr = config.value.api.url + "qrcode/?id=" + feedbackSession.id;
+    loading.value = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to load instructions page",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
 
-onMounted(() => {
+onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
   if (!feedbackSession.id) {
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Enter session ID",
       html: '<div class="overflow-hidden"><input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        feedbackSession.id = document.getElementById("swalFormId").value;
+        feedbackSession.id = document.getElementById("swalFormId").value.trim();
         if (feedbackSession.id == "")
           Swal.showValidationMessage("Please enter a session ID");
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState(
-          {},
-          "",
-          "/feedback/instructions/" + feedbackSession.id
-        );
-        fetchDetails();
-      } else {
-        router.push("/");
-      }
     });
+
+    if (isConfirmed) {
+      history.replaceState(
+        {},
+        "",
+        "/feedback/instructions/" + feedbackSession.id
+      );
+      fetchDetails();
+    } else {
+      router.push("/");
+    }
   } else {
     fetchDetails();
   }

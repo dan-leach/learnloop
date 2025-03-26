@@ -8,64 +8,64 @@ import { api } from "../data/api.js";
 import Loading from "../components/Loading.vue";
 import DownloadFeedbackForm from "./components/DownloadFeedbackForm.vue";
 import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
 import { inject } from "vue";
 const config = inject("config");
 
 let loading = ref(true);
 let isSeries = ref(false);
 
-const fetchFeedback = () => {
-  api("feedback/viewFeedback", {
-    id: feedbackSession.id,
-    pin: feedbackSession.pin,
-  }).then(
-    function (res) {
-      if (feedbackSession.id != res.id) {
-        console.error(
-          "feedbackSession.id != res.id",
-          feedbackSession.id,
-          res.id
-        );
-        return;
-      }
-      feedbackSession.title = res.title;
-      feedbackSession.date = res.date;
-      feedbackSession.name = res.name;
-      feedbackSession.feedback.positive = res.feedback.positive;
-      feedbackSession.feedback.negative = res.feedback.negative;
-      let sum = 0;
-      for (let score of res.feedback.score) sum += parseInt(score);
-      feedbackSession.feedback.score =
-        Math.round((sum / res.feedback.score.length) * 10) / 10;
-      if (Number.isNaN(feedbackSession.feedback.score))
-        feedbackSession.feedback.score = "-";
-      feedbackSession.questions = res.questions;
-      if (res.subsessions) {
-        for (let subsession of res.subsessions) {
-          let sum = 0;
-          for (let score of subsession.feedback.score) sum += parseInt(score);
-          subsession.feedback.score =
-            Math.round((sum / subsession.feedback.score.length) * 10) / 10;
-          if (Number.isNaN(subsession.feedback.score))
-            subsession.feedback.score = "-";
-          feedbackSession.subsessions.push(subsession);
-          isSeries = true;
-        }
-      }
-      loading.value = false;
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load feedback report",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
+const fetchFeedback = async () => {
+  try {
+    const response = await api("feedback/viewFeedback", {
+      id: feedbackSession.id,
+      pin: feedbackSession.pin,
+    });
+
+    if (feedbackSession.id != response.id) {
+      console.error(
+        "feedbackSession.id != response.id",
+        feedbackSession.id,
+        response.id
+      );
+      return;
     }
-  );
+    feedbackSession.title = response.title;
+    feedbackSession.date = response.date;
+    feedbackSession.name = response.name;
+    feedbackSession.feedback.positive = response.feedback.positive;
+    feedbackSession.feedback.negative = response.feedback.negative;
+    let sum = 0;
+    for (let score of response.feedback.score) sum += parseInt(score);
+    feedbackSession.feedback.score =
+      Math.round((sum / response.feedback.score.length) * 10) / 10;
+    if (Number.isNaN(feedbackSession.feedback.score))
+      feedbackSession.feedback.score = "-";
+    feedbackSession.questions = response.questions;
+    if (response.subsessions) {
+      for (let subsession of response.subsessions) {
+        let sum = 0;
+        for (let score of subsession.feedback.score) sum += parseInt(score);
+        subsession.feedback.score =
+          Math.round((sum / subsession.feedback.score.length) * 10) / 10;
+        if (Number.isNaN(subsession.feedback.score))
+          subsession.feedback.score = "-";
+        feedbackSession.subsessions.push(subsession);
+        isSeries = true;
+      }
+    }
+    loading.value = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to load feedback report",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
 
 let downloadFeedbackModal;
@@ -82,7 +82,7 @@ const showDownloadFeedbackForm = (index) => {
 };
 const hideDownloadFeedbackModal = () => downloadFeedbackModal.hide();
 
-const fetchFeedbackPDF = (downloadId) => {
+const fetchFeedbackPDF = async (downloadId) => {
   const requestObject = {
     id: feedbackSession.id,
     pin: feedbackSession.pin,
@@ -91,48 +91,52 @@ const fetchFeedbackPDF = (downloadId) => {
     requestObject.id = downloadId;
     requestObject.parentSessionId = feedbackSession.id;
   }
-  api("feedback/fetchFeedbackPDF", requestObject, "blob").then(
-    function (res) {
-      // Create a new HTML page to display the PDF with a custom title
-      const htmlContent = `
-        <html>
-          <head>
-            <title>Feedback report</title>
-          </head>
-          <body style="margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4;">
-            <embed src="${res}" type="application/pdf" width="100%" height="100%" />
-          </body>
-        </html>
-        `;
+  let downloadTitle;
+  if (downloadId) {
+    downloadTitle = feedbackSession.subsessions.find(
+      (subsession) => subsession.id == downloadId
+    ).title;
+  } else {
+    downloadTitle = feedbackSession.title;
+  }
+  try {
+    const response = await api(
+      "feedback/fetchFeedbackPDF",
+      requestObject,
+      "blob"
+    );
+    // Create a temporary anchor element
+    const a = document.createElement("a");
+    a.href = response;
+    a.download = `${downloadTitle} feedback report.pdf`; // Set desired filename
+    document.body.appendChild(a);
+    a.click();
 
-      // Open a new window and write the content
-      const newTab = window.open();
-      newTab.document.write(htmlContent);
+    // Cleanup
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(response);
 
-      Swal.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        title: "Success",
-        text: "Feedback report should now be open in a new tab.",
-        confirmButtonColor: "#17a2b8",
-      });
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Error",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-    }
-  );
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      iconColor: "#17a2b8",
+      title: "Your feedback report should now be downloading.",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
 };
 
-onMounted(() => {
+onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: "Enter session ID and PIN",
     html:
       '<div class="overflow-hidden">You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
@@ -143,21 +147,21 @@ onMounted(() => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      feedbackSession.id = document.getElementById("swalFormId").value;
-      feedbackSession.pin = document.getElementById("swalFormPin").value;
+      feedbackSession.id = document.getElementById("swalFormId").value.trim();
+      feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
       if (feedbackSession.pin == "")
         Swal.showValidationMessage("Please enter your PIN");
       if (feedbackSession.id == "")
         Swal.showValidationMessage("Please enter a session ID");
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      history.replaceState({}, "", feedbackSession.id);
-      fetchFeedback();
-    } else {
-      router.push("/");
-    }
   });
+
+  if (isConfirmed) {
+    history.replaceState({}, "", feedbackSession.id);
+    fetchFeedback();
+  } else {
+    router.push("/");
+  }
 });
 </script>
 

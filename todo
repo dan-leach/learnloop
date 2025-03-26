@@ -1,4 +1,6 @@
-Ongoing - replace .then with async await in api and Swal calls
+Current:
+
+1. fix subsession feedback report using 'various dates' when parent session has a date given
 
 Andy Mullet:
 Done

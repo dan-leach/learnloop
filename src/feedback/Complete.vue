@@ -1,14 +1,14 @@
 <script setup>
-import { ref } from 'vue';
-import { feedbackSession } from '../data/feedbackSession.js';
-import { api } from '../data/api.js';
-import router from '../router';
-import Swal from 'sweetalert2';
-import Toast from '../assets/Toast.js';
-import { inject } from 'vue';
-const config = inject('config');
+import { ref } from "vue";
+import { feedbackSession } from "../data/feedbackSession.js";
+import { api } from "../data/api.js";
+import router from "../router";
+import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
+import { inject } from "vue";
+const config = inject("config");
 
-if (!feedbackSession.id) router.push('/feedback/');
+if (!feedbackSession.id) router.push("/feedback/");
 
 const orgChange = () => {
   if (
@@ -16,15 +16,15 @@ const orgChange = () => {
     feedbackSession.attendee.region == -1
   ) {
     feedbackSession.attendee.region = -1;
-    feedbackSession.attendee.organisation = '';
+    feedbackSession.attendee.organisation = "";
   }
 };
 
 let lockForm = ref(false);
-const submit = () => {
+const submit = async () => {
   document
-    .getElementById('fetchCertificateForm')
-    .classList.add('was-validated');
+    .getElementById("fetchCertificateForm")
+    .classList.add("was-validated");
   if (
     !feedbackSession.attendee.name ||
     !Number.isInteger(feedbackSession.attendee.region) ||
@@ -34,50 +34,50 @@ const submit = () => {
   lockForm.value = true;
   const region =
     feedbackSession.attendee.region === -1
-      ? 'Other'
+      ? "Other"
       : config.value.client.regions[feedbackSession.attendee.region].name;
-  api(
-    'feedback/fetchCertificate',
-    {
-      id: feedbackSession.id,
-      attendee: {
-        name: feedbackSession.attendee.name,
-        region,
-        organisation: feedbackSession.attendee.organisation,
+
+  try {
+    const response = await api(
+      "feedback/fetchCertificate",
+      {
+        id: feedbackSession.id,
+        attendee: {
+          name: feedbackSession.attendee.name,
+          region,
+          organisation: feedbackSession.attendee.organisation,
+        },
       },
-    },
-    'blob'
-  ).then(
-    function (res) {
-      // Create a temporary anchor element
-      const a = document.createElement('a');
-      a.href = res;
-      a.download = `${feedbackSession.title} certificate.pdf`; // Set desired filename
-      document.body.appendChild(a);
-      a.click();
+      "blob"
+    );
 
-      // Cleanup
-      document.body.removeChild(a);
-      window.URL.revokeObjectURL(res);
+    // Create a temporary anchor element
+    const a = document.createElement("a");
+    a.href = response;
+    a.download = `${feedbackSession.title} certificate.pdf`; // Set desired filename
+    document.body.appendChild(a);
+    a.click();
 
-      Toast.fire({
-        icon: 'success',
-        iconColor: '#17a2b8',
-        iconColor: '#17a2b8',
-        title: 'Your certificate should now be downloading.',
-      });
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(' ');
-      Swal.fire({
-        icon: 'error',
-        iconColor: '#17a2b8',
-        title: 'Error',
-        text: error,
-        confirmButtonColor: '#17a2b8',
-      });
-    }
-  );
+    // Cleanup
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(response);
+
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      iconColor: "#17a2b8",
+      title: "Your certificate should now be downloading.",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
 };
 </script>
 

@@ -15,88 +15,87 @@ const loading = ref(true);
 
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
-const copyText = (string) => {
+const copyText = async (string) => {
   if (!clipboard.value) return;
-  navigator.clipboard.writeText(string).then(
-    function () {
-      Toast.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        iconColor: "#17a2b8",
-        title: "Copied",
-      });
-    },
-    function (error) {
-      Toast.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Error copying to clipboard: " + error,
-      });
-    }
-  );
+  try {
+    await navigator.clipboard.writeText(string);
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      iconColor: "#17a2b8",
+      title: "Copied",
+    });
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error copying to clipboard: " + error,
+    });
+  }
 };
 
-const fetchDetails = () => {
-  api("interaction/fetchDetailsJoin", {
-    id: interactionSession.id,
-  }).then(
-    function (res) {
-      if (interactionSession.id != res.id) {
-        console.error(
-          "interactionSession.id != res.id",
-          interactionSession.id,
-          res.id
-        );
-        return;
-      }
-      interactionSession.title = res.title;
-      interactionSession.name = res.name;
-      link.value.join = config.client.url + "/" + interactionSession.id;
-      link.value.host =
-        config.client.url + "/interaction/host/" + interactionSession.id;
-      link.value.qr =
-        config.api.url + "shared/QRcode/?id=" + interactionSession.id;
-      loading.value = false;
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to fetch interaction session details",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
+const fetchDetails = async () => {
+  try {
+    const response = await api("interaction/fetchDetailsJoin", {
+      id: interactionSession.id,
+    });
+
+    if (interactionSession.id != response.id) {
+      console.error(
+        "interactionSession.id != response.id",
+        interactionSession.id,
+        response.id
+      );
+      return;
     }
-  );
+    interactionSession.title = response.title;
+    interactionSession.name = response.name;
+    link.value.join = config.client.url + "/" + interactionSession.id;
+    link.value.host =
+      config.client.url + "/interaction/host/" + interactionSession.id;
+    link.value.qr =
+      config.api.url + "shared/QRcode/?id=" + interactionSession.id;
+    loading.value = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to fetch interaction session details",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
 
-onMounted(() => {
+onMounted(async () => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
   if (!interactionSession.id) {
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Enter session ID",
       html: '<div class="overflow-hidden"><input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactionSession.id = document.getElementById("swalFormId").value;
+        interactionSession.id = document
+          .getElementById("swalFormId")
+          .value.trim();
         if (interactionSession.id == "")
           Swal.showValidationMessage("Please enter a session ID");
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState(
-          {},
-          "",
-          "/interaction/instructions/" + interactionSession.id
-        );
-        fetchDetails();
-      } else {
-        router.push("/");
-      }
     });
+
+    if (isConfirmed) {
+      history.replaceState(
+        {},
+        "",
+        "/interaction/instructions/" + interactionSession.id
+      );
+      fetchDetails();
+    } else {
+      router.push("/");
+    }
   } else {
     fetchDetails();
   }

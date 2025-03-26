@@ -37,7 +37,7 @@ async function fetchConfig() {
       throw error.errors;
     } else {
       //another unexpected error
-      console.log("API error: ", error);
+      console.error("API error: ", error);
       throw [{ msg: "API error: " + error.toString() }];
     }
   }

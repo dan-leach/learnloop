@@ -15,12 +15,12 @@ const loading = ref(true);
 let pollingInterval; // Declared here to be accessible by onBeforeUnmount
 
 // If in preview mode should already have id and pin, else prompt for them, then load host view
-onMounted(() => {
+onMounted(async () => {
   if (interactionSession.id && interactionSession.pin) {
     loadHostView();
   } else {
     interactionSession.id = useRouter().currentRoute.value.params.id;
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Enter session ID and PIN",
       html:
         "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
@@ -31,8 +31,12 @@ onMounted(() => {
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactionSession.id = document.getElementById("swalFormId").value;
-        interactionSession.pin = document.getElementById("swalFormPin").value;
+        interactionSession.id = document
+          .getElementById("swalFormId")
+          .value.trim();
+        interactionSession.pin = document
+          .getElementById("swalFormPin")
+          .value.trim();
         if (interactionSession.pin == "") {
           Swal.showValidationMessage("Please enter your PIN");
           return false;
@@ -43,14 +47,14 @@ onMounted(() => {
         }
         return true;
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, "", interactionSession.id);
-        loadHostView();
-      } else {
-        router.push("/");
-      }
     });
+
+    if (isConfirmed) {
+      history.replaceState({}, "", interactionSession.id);
+      loadHostView();
+    } else {
+      router.push("/");
+    }
   }
 });
 
@@ -111,17 +115,16 @@ const loadHostView = async () => {
 };
 
 // Update the status of the session on the server (e.g. preview true/false)
-const updateStatus = () => {
-  api("interaction/updateStatus", {
-    id: interactionSession.id,
-    pin: interactionSession.pin,
-    status: interactionSession.status,
-  }).then(
-    function () {},
-    function (error) {
-      console.error("updateStatus failed", error);
-    }
-  );
+const updateStatus = async () => {
+  try {
+    await api("interaction/updateStatus", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      status: interactionSession.status,
+    });
+  } catch (error) {
+    console.error("updateStatus failed", error);
+  }
 };
 
 // Fetch the details of the session from the server
@@ -145,24 +148,23 @@ const fetchDetailsHost = async () => {
 };
 
 // Fetch the submission count for the waiting room host view
-const fetchSubmissionCount = () => {
-  api("interaction/fetchSubmissionCount", {
-    id: interactionSession.id,
-    pin: interactionSession.pin,
-    isPreview: interactionSession.status.preview,
-  }).then(
-    function (res) {
-      interactionSession.submissionCount = res;
-    },
-    function (error) {
-      console.error("fetchSubmissionCount failed", error);
-    }
-  );
+const fetchSubmissionCount = async () => {
+  try {
+    const response = await api("interaction/fetchSubmissionCount", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      isPreview: interactionSession.status.preview,
+    });
+
+    interactionSession.submissionCount = response;
+  } catch (error) {
+    console.error("fetchSubmissionCount failed", error);
+  }
 };
 
 // Fetch new submissions for the current slide
 let fetchNewSubmissionsFailCount = 0;
-const fetchNewSubmissions = () => {
+const fetchNewSubmissions = async () => {
   if (
     !interactionSession.slides[interactionSession.status.facilitatorIndex]
       .interaction
@@ -174,38 +176,37 @@ const fetchNewSubmissions = () => {
   const lastSubmissionId = submissions.length
     ? submissions[submissions.length - 1].id
     : 0;
-  api("interaction/fetchNewSubmissions", {
-    id: interactionSession.id,
-    pin: interactionSession.pin,
-    slideIndex: interactionSession.status.facilitatorIndex,
-    lastSubmissionId: lastSubmissionId,
-    isPreview: interactionSession.status.preview,
-  }).then(
-    function (res) {
-      for (let submission of res) submissions.push(submission);
-      fetchNewSubmissionsFailCount = 0;
-      Swal.close();
-    },
-    function (error) {
-      fetchNewSubmissionsFailCount++;
-      console.error(
-        "fetchNewSubmissions failed - failCount: " +
-          fetchNewSubmissionsFailCount,
-        error
-      );
-      if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible())
-        Swal.fire({
-          toast: true,
-          showConfirmButton: false,
-          icon: "error",
-          iconColor: "#17a2b8",
-          title: "Connection to LearnLoop failed",
-          text: "Please check your internet connection",
-          position: "bottom",
-          width: "450px",
-        });
-    }
-  );
+
+  try {
+    const response = await api("interaction/fetchNewSubmissions", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      slideIndex: interactionSession.status.facilitatorIndex,
+      lastSubmissionId: lastSubmissionId,
+      isPreview: interactionSession.status.preview,
+    });
+
+    for (let submission of response) submissions.push(submission);
+    fetchNewSubmissionsFailCount = 0;
+    Swal.close();
+  } catch (error) {
+    fetchNewSubmissionsFailCount++;
+    console.error(
+      "fetchNewSubmissions failed - failCount: " + fetchNewSubmissionsFailCount,
+      error
+    );
+    if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible())
+      Swal.fire({
+        toast: true,
+        showConfirmButton: false,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Connection to LearnLoop failed",
+        text: "Please check your internet connection",
+        position: "bottom",
+        width: "450px",
+      });
+  }
 };
 
 // Fetch submissions for the current slide

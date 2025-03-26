@@ -53,8 +53,12 @@ onMounted(async () => {
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactionSession.id = document.getElementById("swalFormId").value;
-        interactionSession.pin = document.getElementById("swalFormPin").value;
+        interactionSession.id = document
+          .getElementById("swalFormId")
+          .value.trim();
+        interactionSession.pin = document
+          .getElementById("swalFormPin")
+          .value.trim();
         if (interactionSession.pin == "") {
           Swal.showValidationMessage("Please enter your PIN");
           return false;
@@ -102,8 +106,12 @@ const createSessionFromTemplate = async () => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      interactionSession.id = document.getElementById("swalFormId").value;
-      interactionSession.pin = document.getElementById("swalFormPin").value;
+      interactionSession.id = document
+        .getElementById("swalFormId")
+        .value.trim();
+      interactionSession.pin = document
+        .getElementById("swalFormPin")
+        .value.trim();
       if (interactionSession.pin == "") {
         Swal.showValidationMessage("Please enter your PIN");
         return false;
@@ -362,17 +370,17 @@ const sortSlide = (index, x) => {
 };
 
 // Remove the slide at the given index
-const removeSlide = (index) => {
-  Swal.fire({
+const removeSlide = async (index) => {
+  const { isConfirmed } = await Swal.fire({
     title: "Remove this slide?",
     showCancelButton: true,
     confirmButtonColor: "#dc3545",
-  }).then((result) => {
-    if (result.isConfirmed) {
-      interactionSession.slides.splice(index, 1);
-      updateSession();
-    }
   });
+
+  if (isConfirmed) {
+    interactionSession.slides.splice(index, 1);
+    updateSession();
+  }
 };
 
 // Show the host view in preview mode

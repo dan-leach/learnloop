@@ -139,7 +139,7 @@ const formIsValid = () => {
   }
   return true;
 };
-const submit = () => {
+const submit = async () => {
   submitted.value = true;
   if (!formIsValid()) {
     console.log("form validation failed");
@@ -150,37 +150,35 @@ const submit = () => {
   }
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
-  api("feedback/giveFeedback", {
-    id: feedbackSession.id,
-    feedback: feedbackSession.feedback,
-    subsessions: feedbackSession.subsessions,
-    questions: feedbackSession.questions,
-  }).then(
-    function () {
-      for (let cookie of cookies) {
-        if (cookie.id == feedbackSession.id) {
-          document.cookie =
-            feedbackSession.id +
-            "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        }
+  try {
+    await api("feedback/giveFeedback", {
+      id: feedbackSession.id,
+      feedback: feedbackSession.feedback,
+      subsessions: feedbackSession.subsessions,
+      questions: feedbackSession.questions,
+    });
+    for (let cookie of cookies) {
+      if (cookie.id == feedbackSession.id) {
+        document.cookie =
+          feedbackSession.id +
+          "=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
       }
-      btnSubmit.value.text = "Give feedback";
-      btnSubmit.value.wait = false;
-      router.push("/feedback/complete");
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable submit your feedback",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      btnSubmit.value.text = "Retry give feedback?";
-      btnSubmit.value.wait = false;
     }
-  );
+    btnSubmit.value.text = "Give feedback";
+    btnSubmit.value.wait = false;
+    router.push("/feedback/complete");
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable submit your feedback",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    btnSubmit.value.text = "Retry give feedback?";
+    btnSubmit.value.wait = false;
+  }
 };
 
 let subsessionFeedbackModal;
@@ -222,7 +220,7 @@ const showSkipSubsessionFeedbackInfo = () => {
 const hideSkipSubsessionFeedbackInfo = () =>
   skipSubsessionFeedbackInfoModal.hide();
 
-const skipSubsessionFeedback = (index) => {
+const skipSubsessionFeedback = async (index) => {
   const statusElement = document.getElementById(
     "subsession" + index + "Status"
   );
@@ -237,7 +235,7 @@ const skipSubsessionFeedback = (index) => {
     statusElement.classList.remove("is-invalid");
     statusElement.classList.add("is-valid");
   } else {
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Skip session?",
       text: "Your existing feedback for " + subsession.title + " will be lost.",
       icon: "warning",
@@ -245,108 +243,106 @@ const skipSubsessionFeedback = (index) => {
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       confirmButtonText: "Skip",
-    }).then((result) => {
-      if (result.isConfirmed) {
-        subsession.status = "Skipped";
-        subsession.positive = "";
-        subsession.negative = "";
-        subsession.score == null;
-        statusElement.classList.remove("is-invalid");
-        statusElement.classList.add("is-valid");
-      }
     });
+
+    if (isConfirmed) {
+      subsession.status = "Skipped";
+      subsession.positive = "";
+      subsession.negative = "";
+      subsession.score == null;
+      statusElement.classList.remove("is-invalid");
+      statusElement.classList.add("is-valid");
+    }
   }
 };
 
-const loadGiveFeedback = () => {
-  api("feedback/loadGiveFeedback", { id: feedbackSession.id }).then(
-    function (res) {
-      if (feedbackSession.id != res.id) {
-        console.error(
-          "feedbackSession.id != res.id",
-          feedbackSession.id,
-          res.id
-        );
-        return;
-      }
-      feedbackSession.title = res.title;
-      feedbackSession.date = res.date;
-      feedbackSession.name = res.name;
-      feedbackSession.subsessions = res.subsessions;
-      for (let subsession of feedbackSession.subsessions) {
-        subsession.status = "To do";
-        subsession.positive = "";
-        subsession.negative = "";
-        subsession.score = null;
-        subsession.scoreText =
-          "Please use the slider to indicate an overall score.";
-      }
-      feedbackSession.questions = res.questions;
-      for (let question of feedbackSession.questions) {
-        question.response = "";
-        if (!question.settings) {
-          //for pre-v5 custom questions
-          question.settings = {
-            selectedLimit: {
-              min: 1,
-              max: 100,
-            },
-            characterLimit: 500,
-          };
-        }
-        if (question.settings.required == undefined) {
-          //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
-          if (question.type == "text" || question.type == "select")
-            question.settings.required = true;
-        }
-      }
-      feedbackSession.certificate = res.certificate;
-      feedbackSession.attendance = res.attendance;
-      for (let cookie of cookies) {
-        if (cookie.id == feedbackSession.id) {
-          Swal.fire({
-            title: "Resume feedback session?",
-            icon: "info",
-            iconColor: "#17a2b8",
-            text: "You previously started filling in this feedback form. Would you like to pick up where you left off?",
-            confirmButtonText: "Yes, let's go",
-            confirmButtonColor: "#17a2b8",
-            showDenyButton: true,
-            denyButtonText: "No, start over",
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-          }).then((result) => {
-            if (result.isConfirmed) {
-              console.log(
-                "Load feedback data from cookie with ID: " + cookie.id
-              );
-              feedbackSession.feedback = cookie.feedback;
-              feedbackSession.questions = cookie.questions;
-              feedbackSession.subsessions = cookie.subsessions;
-            }
-          });
-        }
-      }
-      loading.value = false;
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load feedback form",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
+const loadGiveFeedback = async () => {
+  try {
+    const response = await api("feedback/loadGiveFeedback", {
+      id: feedbackSession.id,
+    });
+    if (feedbackSession.id != response.id) {
+      console.error(
+        "feedbackSession.id != response.id",
+        feedbackSession.id,
+        response.id
+      );
+      return;
     }
-  );
+    feedbackSession.title = response.title;
+    feedbackSession.date = response.date;
+    feedbackSession.name = response.name;
+    feedbackSession.subsessions = response.subsessions;
+    for (let subsession of feedbackSession.subsessions) {
+      subsession.status = "To do";
+      subsession.positive = "";
+      subsession.negative = "";
+      subsession.score = null;
+      subsession.scoreText =
+        "Please use the slider to indicate an overall score.";
+    }
+    feedbackSession.questions = response.questions;
+    for (let question of feedbackSession.questions) {
+      question.response = "";
+      if (!question.settings) {
+        //for pre-v5 custom questions
+        question.settings = {
+          selectedLimit: {
+            min: 1,
+            max: 100,
+          },
+          characterLimit: 500,
+        };
+      }
+      if (question.settings.required == undefined) {
+        //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
+        if (question.type == "text" || question.type == "select")
+          question.settings.required = true;
+      }
+    }
+    feedbackSession.certificate = response.certificate;
+    feedbackSession.attendance = response.attendance;
+    for (let cookie of cookies) {
+      if (cookie.id == feedbackSession.id) {
+        const { isConfirmed } = await Swal.fire({
+          title: "Resume feedback session?",
+          icon: "info",
+          iconColor: "#17a2b8",
+          text: "You previously started filling in this feedback form. Would you like to pick up where you left off?",
+          confirmButtonText: "Yes, let's go",
+          confirmButtonColor: "#17a2b8",
+          showDenyButton: true,
+          denyButtonText: "No, start over",
+          allowOutsideClick: false,
+          allowEscapeKey: false,
+        });
+
+        if (isConfirmed) {
+          console.log("Load feedback data from cookie with ID: " + cookie.id);
+          feedbackSession.feedback = cookie.feedback;
+          feedbackSession.questions = cookie.questions;
+          feedbackSession.subsessions = cookie.subsessions;
+        }
+      }
+    }
+    loading.value = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to load feedback form",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
 
-onMounted(() => {
+onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
   if (!feedbackSession.id) {
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Enter session ID",
       html:
         "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
@@ -354,18 +350,18 @@ onMounted(() => {
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        feedbackSession.id = document.getElementById("swalFormId").value;
+        feedbackSession.id = document.getElementById("swalFormId").value.trim();
         if (feedbackSession.id == "")
           Swal.showValidationMessage("Please enter a session ID");
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, "", feedbackSession.id);
-        loadGiveFeedback();
-      } else {
-        router.push("/");
-      }
     });
+
+    if (isConfirmed) {
+      history.replaceState({}, "", feedbackSession.id);
+      loadGiveFeedback();
+    } else {
+      router.push("/");
+    }
   } else {
     loadGiveFeedback();
   }

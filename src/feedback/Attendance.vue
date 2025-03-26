@@ -6,95 +6,87 @@ import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
 import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
 import { inject } from "vue";
 const config = inject("config");
 
 let loading = ref(true);
 
-const viewAttendance = () => {
-  api("feedback/viewAttendance", {
-    id: feedbackSession.id,
-    pin: feedbackSession.pin,
-  }).then(
-    function (res) {
-      if (feedbackSession.id != res.id) {
-        console.error(
-          "feedbackSession.id != res.id",
-          feedbackSession.id,
-          res.id
-        );
-        return;
-      }
-      feedbackSession.title = res.title;
-      feedbackSession.date = res.date;
-      feedbackSession.name = res.name;
-      feedbackSession.attendance = res.attendance;
-      loading.value = false;
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to load attendance report",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
-    }
-  );
-};
-
-const fetchAttendancePDF = () => {
-  api(
-    "feedback/fetchAttendancePDF",
-    {
+const viewAttendance = async () => {
+  try {
+    const response = await api("feedback/viewAttendance", {
       id: feedbackSession.id,
       pin: feedbackSession.pin,
-    },
-    "blob"
-  ).then(
-    function (res) {
-      // Create a new HTML page to display the PDF with a custom title
-      const htmlContent = `
-        <html>
-          <head>
-            <title>Attendance report</title>
-          </head>
-          <body style="margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f4f4f4;">
-            <embed src="${res}" type="application/pdf" width="100%" height="100%" />
-          </body>
-        </html>
-        `;
+    });
 
-      // Open a new window and write the content
-      const newTab = window.open();
-      newTab.document.write(htmlContent);
-
-      Swal.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        title: "Success",
-        text: "Attendance report should now be open in a new tab.",
-        confirmButtonColor: "#17a2b8",
-      });
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Error",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
+    if (feedbackSession.id != response.id) {
+      console.error(
+        "feedbackSession.id != response.id",
+        feedbackSession.id,
+        response.id
+      );
+      return;
     }
-  );
+    feedbackSession.title = response.title;
+    feedbackSession.date = response.date;
+    feedbackSession.name = response.name;
+    feedbackSession.attendance = response.attendance;
+    loading.value = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to load attendance report",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
 
-onMounted(() => {
+const fetchAttendancePDF = async () => {
+  try {
+    const response = await api(
+      "feedback/fetchAttendancePDF",
+      {
+        id: feedbackSession.id,
+        pin: feedbackSession.pin,
+      },
+      "blob"
+    );
+    // Create a temporary anchor element
+    const a = document.createElement("a");
+    a.href = response;
+    a.download = `${feedbackSession.title} attendance.pdf`; // Set desired filename
+    document.body.appendChild(a);
+    a.click();
+
+    // Cleanup
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(response);
+
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      iconColor: "#17a2b8",
+      title: "The attendance report should now be downloading.",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+};
+
+onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: "Enter session ID and PIN",
     html:
       '<div class="overflow-hidden">You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
@@ -105,21 +97,21 @@ onMounted(() => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
-      feedbackSession.id = document.getElementById("swalFormId").value;
-      feedbackSession.pin = document.getElementById("swalFormPin").value;
+      feedbackSession.id = document.getElementById("swalFormId").value.trim();
+      feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
       if (feedbackSession.pin == "")
         Swal.showValidationMessage("Please enter your PIN");
       if (feedbackSession.id == "")
         Swal.showValidationMessage("Please enter a session ID");
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      history.replaceState({}, "", feedbackSession.id);
-      viewAttendance();
-    } else {
-      router.push("/");
-    }
   });
+
+  if (isConfirmed) {
+    history.replaceState({}, "", feedbackSession.id);
+    viewAttendance();
+  } else {
+    router.push("/");
+  }
 });
 </script>
 

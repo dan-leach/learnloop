@@ -23,102 +23,99 @@ const goToSlide = (index) => {
 };
 
 let fetchStatusFailCount = 0;
-const fetchStatus = () => {
-  api("interaction/fetchStatus", {
-    id: interactionSession.id,
-  }).then(
-    function (res) {
-      interactionSession.status = res;
+const fetchStatus = async () => {
+  try {
+    const response = await api("interaction/fetchStatus", {
+      id: interactionSession.id,
+    });
+    interactionSession.status = response;
 
-      let awaitUser = false;
-      if (interactionSession.slides[currentIndex.value].interaction) {
-        if (interactionSession.slides[currentIndex.value].interaction.response)
-          awaitUser = true;
-        if (
-          interactionSession.slides[currentIndex.value].interaction.closed ||
-          interactionSession.status.lockedSlides[currentIndex.value - 1]
-        )
-          awaitUser = false;
-      }
-
+    let awaitUser = false;
+    if (interactionSession.slides[currentIndex.value].interaction) {
+      if (interactionSession.slides[currentIndex.value].interaction.response)
+        awaitUser = true;
       if (
-        currentIndex.value != interactionSession.status.facilitatorIndex &&
-        !awaitUser
+        interactionSession.slides[currentIndex.value].interaction.closed ||
+        interactionSession.status.lockedSlides[currentIndex.value - 1]
       )
-        goToSlide(interactionSession.status.facilitatorIndex);
-
-      fetchStatusFailCount = 0;
-      Swal.close();
-    },
-    function (error) {
-      fetchStatusFailCount++;
-      console.error(
-        "fetchStatus failed - failCount: " + fetchStatusFailCount,
-        error
-      );
-      if (fetchStatusFailCount > 5 && !Swal.isVisible())
-        Swal.fire({
-          toast: true,
-          showConfirmButton: false,
-          icon: "error",
-          iconColor: "#17a2b8",
-          title: "Connection to LearnLoop failed",
-          text: "Please check your internet connection",
-          position: "bottom",
-          width: "450px",
-        });
+        awaitUser = false;
     }
-  );
-};
 
-const fetchDetails = () => {
-  api("interaction/fetchDetailsJoin", {
-    id: interactionSession.id,
-  }).then(
-    function (res) {
-      if (interactionSession.id != res.id) {
-        console.error(
-          "interactionSession.id != res.id",
-          interactionSession.id,
-          res.id
-        );
-        return;
-      }
-      interactionSession.title = res.title;
-      interactionSession.name = res.name;
-      interactionSession.feedbackID = res.feedbackID;
-      res.slides.unshift({ type: "waitingRoom" });
-      res.slides.push({ type: "end" });
-      interactionSession.slides = res.slides;
-      for (let slide of interactionSession.slides) {
-        if (slide.interaction) slide.interaction.submissionCount = 0;
-      }
-      interactionSession.status = res.status;
-      currentIndex.value = interactionSession.status.facilitatorIndex;
-      loading.value = false;
-      setInterval(
-        fetchStatus,
-        config.value.interaction.join.currentIndexPollInterval
-      );
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    if (
+      currentIndex.value != interactionSession.status.facilitatorIndex &&
+      !awaitUser
+    )
+      goToSlide(interactionSession.status.facilitatorIndex);
+
+    fetchStatusFailCount = 0;
+    Swal.close();
+  } catch (error) {
+    fetchStatusFailCount++;
+    console.error(
+      "fetchStatus failed - failCount: " + fetchStatusFailCount,
+      error
+    );
+    if (fetchStatusFailCount > 5 && !Swal.isVisible())
       Swal.fire({
+        toast: true,
+        showConfirmButton: false,
         icon: "error",
         iconColor: "#17a2b8",
-        title: "Unable to join interaction session",
-        text: error,
-        confirmButtonColor: "#17a2b8",
+        title: "Connection to LearnLoop failed",
+        text: "Please check your internet connection",
+        position: "bottom",
+        width: "450px",
       });
-      router.push("/");
-    }
-  );
+  }
 };
 
-onMounted(() => {
+const fetchDetails = async () => {
+  try {
+    const response = await api("interaction/fetchDetailsJoin", {
+      id: interactionSession.id,
+    });
+
+    if (interactionSession.id != response.id) {
+      console.error(
+        "interactionSession.id != response.id",
+        interactionSession.id,
+        response.id
+      );
+      return;
+    }
+    interactionSession.title = response.title;
+    interactionSession.name = response.name;
+    interactionSession.feedbackID = response.feedbackID;
+    response.slides.unshift({ type: "waitingRoom" });
+    response.slides.push({ type: "end" });
+    interactionSession.slides = response.slides;
+    for (let slide of interactionSession.slides) {
+      if (slide.interaction) slide.interaction.submissionCount = 0;
+    }
+    interactionSession.status = response.status;
+    currentIndex.value = interactionSession.status.facilitatorIndex;
+    loading.value = false;
+    setInterval(
+      fetchStatus,
+      config.value.interaction.join.currentIndexPollInterval
+    );
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to join interaction session",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
+};
+
+onMounted(async () => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
   if (!interactionSession.id) {
-    Swal.fire({
+    const { isConfirmed } = await Swal.fire({
       title: "Enter session ID",
       html:
         "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
@@ -126,18 +123,20 @@ onMounted(() => {
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
-        interactionSession.id = document.getElementById("swalFormId").value;
+        interactionSession.id = document
+          .getElementById("swalFormId")
+          .value.trim();
         if (interactionSession.id == "")
           Swal.showValidationMessage("Please enter a session ID");
       },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, "", interactionSession.id);
-        fetchDetails();
-      } else {
-        router.push("/");
-      }
     });
+
+    if (isConfirmed) {
+      history.replaceState({}, "", interactionSession.id);
+      fetchDetails();
+    } else {
+      router.push("/");
+    }
   } else {
     fetchDetails();
   }

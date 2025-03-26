@@ -158,28 +158,18 @@ const isLeadInfo = () => {
   });
 };
 
-const toggleCanEdit = () => {
+const toggleCanEdit = async () => {
   if (isLead.value && !canEdit.value) {
-    Swal.fire({
+    await Swal.fire({
       icon: "info",
       iconColor: "#17a2b8",
       title: "Lead organiser must have edit access",
       html: '<div class="text-start">The lead organsier must have editing rights.</div>',
       width: "60%",
       confirmButtonColor: "#17a2b8",
-    }).then(
-      function () {
-        canEdit.value = true;
-      },
-      function (error) {
-        Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          text: error,
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    );
+    });
+
+    canEdit.value = true;
   }
 };
 const canEditInfo = () => {

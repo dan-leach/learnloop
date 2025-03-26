@@ -24,46 +24,42 @@ link.value.view =
 link.value.qr = config.value.api.url + "qrcode/?id=" + feedbackSession.id;
 let clipboard = ref(false);
 if (navigator.clipboard) clipboard.value = true;
-const copyText = (string) => {
+const copyText = async (string) => {
   if (!clipboard.value) return;
-  navigator.clipboard.writeText(string).then(
-    function () {
-      Toast.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        iconColor: "#17a2b8",
-        title: "Copied",
-      });
-    },
-    function (error) {
-      Toast.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Error copying to clipboard: " + error,
-      });
-    }
-  );
+  try {
+    await navigator.clipboard.writeText(string)
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      iconColor: "#17a2b8",
+      title: "Copied",
+    });
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error copying to clipboard: " + error,
+    });
+  }
 };
 const copyImg = async (src) => {
   if (!clipboard.value) return;
   const response = await fetch(src);
   const blob = await response.blob();
-  navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]).then(
-    function () {
-      Toast.fire({
-        icon: "success",
-        iconColor: "#17a2b8",
-        title: "Copied",
-      });
-    },
-    function (error) {
-      Toast.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Error copying to clipboard: " + error,
-      });
-    }
-  );
+  try {
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      title: "Copied",
+    });
+  } catch (error) {
+    Toast.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Error copying to clipboard: " + error,
+    });
+  }
 };
 </script>
 

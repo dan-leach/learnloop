@@ -13,31 +13,32 @@ const config = inject("config");
 
 const deployVersion = false;
 const interactionInterestEmail = ref("");
-const interactionInterest = () => {
+const interactionInterest = async () => {
   if (interactionInterestEmail.value) {
     document
       .getElementById("interactionInterestEmail")
       .classList.remove("is-invalid");
-    api("interaction/interest", { email: interactionInterestEmail.value }).then(
-      function (res) {
-        Swal.fire({
-          icon: "success",
-          iconColor: "#17a2b8",
-          text: res.message,
-          confirmButtonColor: "#17a2b8",
-        });
-        interactionInterestEmail.value = "";
-      },
-      function (error) {
-        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-        Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          text: error,
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    );
+
+    try {
+      const response = await api("interaction/interest", {
+        email: interactionInterestEmail.value,
+      });
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        text: response.message,
+        confirmButtonColor: "#17a2b8",
+      });
+      interactionInterestEmail.value = "";
+    } catch (error) {
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        icon: "error",
+        iconColor: "#17a2b8",
+        text: error,
+        confirmButtonColor: "#17a2b8",
+      });
+    }
   } else {
     document
       .getElementById("interactionInterestEmail")
@@ -63,11 +64,11 @@ const hostInteraction = () => {
   }
 };
 
-const resetPin = (module, id) => {
+const resetPin = async (module, id) => {
   if (!id) id = "";
   let email = "";
   router.push("/");
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: "Reset PIN",
     html:
       "<div class='overflow-hidden'>You will need your session ID which you can find in emails relating to your session.<br>For example: " +
@@ -80,8 +81,8 @@ const resetPin = (module, id) => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
-      id = document.getElementById("swalFormId").value;
-      email = document.getElementById("swalFormEmail").value;
+      id = document.getElementById("swalFormId").value.trim();
+      email = document.getElementById("swalFormEmail").value.trim();
       if (email == "") {
         Swal.showValidationMessage("Please enter an email");
         return false;
@@ -90,47 +91,47 @@ const resetPin = (module, id) => {
         Swal.showValidationMessage("Please enter a session ID");
         return false;
       }
-      await api(module + "/resetPin", { id, email }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "<br><br>New pin emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
+
+      try {
+        const response = await api(module + "/resetPin", { id, email });
+
+        let html = response.message;
+        if (response.sendMailFails.length) {
+          html +=
+            "<br><br>New pin emails to the following recepients failed:<br>";
+          for (let fail of response.sendMailFails)
+            html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
         }
-      );
+        Swal.fire({
+          icon: "success",
+          iconColor: "#17a2b8",
+          html: html,
+          confirmButtonColor: "#17a2b8",
+        });
+      } catch (error) {
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+        Swal.fire({
+          icon: "error",
+          iconColor: "#17a2b8",
+          text: error,
+          confirmButtonColor: "#17a2b8",
+        });
+      }
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-      interactionSession.reset();
-    }
   });
+
+  if (isConfirmed) {
+    feedbackSession.reset();
+    interactionSession.reset();
+  }
 };
 
-const setNotificationPreference = (id) => {
+const setNotificationPreference = async (id) => {
   if (!id) id = "";
   let pin = "";
   router.push("/");
   let notifications = true;
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: "Set notification preferences",
     html:
       "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created." +
@@ -142,8 +143,8 @@ const setNotificationPreference = (id) => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
-      id = document.getElementById("swalFormId").value;
-      pin = document.getElementById("swalFormPin").value;
+      id = document.getElementById("swalFormId").value.trim();
+      pin = document.getElementById("swalFormPin").value.trim();
       if (pin == "") {
         Swal.showValidationMessage("Please enter your PIN");
         return false;
@@ -153,47 +154,47 @@ const setNotificationPreference = (id) => {
         return false;
       }
       notifications = document.getElementById("swalFormNotifications").value;
-      await api("feedback/updateNotificationPreferences", {
-        id,
-        pin,
-        notifications: notifications === "true" ? true : false,
-      }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "<br><br>Notification preference emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
+
+      try {
+        const response = await api("feedback/updateNotificationPreferences", {
+          id,
+          pin,
+          notifications: notifications === "true" ? true : false,
+        });
+
+        let html = response.message;
+        if (response.sendMailFails.length) {
+          html +=
+            "<br><br>Notification preference emails to the following recepients failed:<br>";
+          for (let fail of response.sendMailFails)
+            html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
         }
-      );
+        Swal.fire({
+          icon: "success",
+          iconColor: "#17a2b8",
+          html: html,
+          confirmButtonColor: "#17a2b8",
+        });
+      } catch (error) {
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+        Swal.fire({
+          icon: "error",
+          iconColor: "#17a2b8",
+          text: error,
+          confirmButtonColor: "#17a2b8",
+        });
+      }
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-    }
   });
+
+  if (isConfirmed) {
+    feedbackSession.reset();
+  }
 };
 
-const findMySessions = (module) => {
+const findMySessions = async (module) => {
   let email = "";
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: "Find my sessions",
     html:
       "<div class='overflow-hidden'>Enter your email below and we'll email you with a list of sessions for which you're listed as an organiser or facilitator.<br>" +
@@ -201,52 +202,52 @@ const findMySessions = (module) => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
-      email = document.getElementById("swalFormEmail").value;
+      email = document.getElementById("swalFormEmail").value.trim();
       if (email == "") {
         Swal.showValidationMessage("Please enter an email");
         return false;
       }
-      await api(module + "/findMySessions", {
-        email,
-      }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "Session history emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: res.sendMailFails.length ? "error" : "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
+
+      try {
+        const response = await api(module + "/findMySessions", {
+          email,
+        });
+
+        let html = response.message;
+        if (response.sendMailFails.length) {
+          html +=
+            "Session history emails to the following recepients failed:<br>";
+          for (let fail of response.sendMailFails)
+            html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
         }
-      );
+        Swal.fire({
+          icon: response.sendMailFails.length ? "error" : "success",
+          iconColor: "#17a2b8",
+          html: html,
+          confirmButtonColor: "#17a2b8",
+        });
+      } catch (error) {
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+        Swal.fire({
+          icon: "error",
+          iconColor: "#17a2b8",
+          text: error,
+          confirmButtonColor: "#17a2b8",
+        });
+      }
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-      interactionSession.reset();
-    }
   });
+
+  if (isConfirmed) {
+    feedbackSession.reset();
+    interactionSession.reset();
+  }
 };
 
-const closeFeedbackSession = () => {
+const closeFeedbackSession = async () => {
   let id = "";
   let pin = "";
-  Swal.fire({
+  const { isConfirmed } = await Swal.fire({
     title: "Close session",
     html:
       "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created.<br><br>Please be aware that once closed a session cannot be reopend to further feedback.<br>" +
@@ -255,8 +256,8 @@ const closeFeedbackSession = () => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: async () => {
-      id = document.getElementById("swalFormId").value;
-      pin = document.getElementById("swalFormPin").value;
+      id = document.getElementById("swalFormId").value.trim();
+      pin = document.getElementById("swalFormPin").value.trim();
       if (pin == "") {
         Swal.showValidationMessage("Please enter a session PIN");
         return false;
@@ -265,39 +266,39 @@ const closeFeedbackSession = () => {
         Swal.showValidationMessage("Please enter a session ID");
         return false;
       }
-      await api("feedback/closeSession", { id, pin }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "<br><br>Session closure emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
+
+      try {
+        const response = await api("feedback/closeSession", { id, pin });
+
+        let html = response.message;
+        if (response.sendMailFails.length) {
+          html +=
+            "<br><br>Session closure emails to the following recepients failed:<br>";
+          for (let fail of response.sendMailFails)
+            html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
         }
-      );
+        Swal.fire({
+          icon: "success",
+          iconColor: "#17a2b8",
+          html: html,
+          confirmButtonColor: "#17a2b8",
+        });
+      } catch (error) {
+        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+        Swal.fire({
+          icon: "error",
+          iconColor: "#17a2b8",
+          text: error,
+          confirmButtonColor: "#17a2b8",
+        });
+      }
     },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-      interactionSession.reset();
-    }
   });
+
+  if (isConfirmed) {
+    feedbackSession.reset();
+    interactionSession.reset();
+  }
 };
 
 onMounted(() => {

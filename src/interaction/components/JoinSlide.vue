@@ -16,55 +16,54 @@ let spinner = ref(false);
 let btnSubmitText = ref("Submit");
 let btnSubmitBelowText = ref("");
 
-const submit = () => {
+const submit = async () => {
   let slide = interactionSession.slides[props.currentIndex];
   slide.interaction.closed = true;
   spinner.value = true;
   btnSubmitText.value = "Please wait";
-  api("interaction/insertSubmission", {
-    id: interactionSession.id,
-    slideIndex: props.currentIndex,
-    response: slide.interaction.response,
-    isPreview: interactionSession.status.preview,
-  }).then(
-    function (res) {
-      Toast.fire({
-        icon: "success",
-        title: "Your response was submitted",
-      });
-      spinner.value = false;
-      slide.interaction.submissionCount++;
-      if (
-        slide.interaction.submissionCount <
-        slide.interaction.settings.submissionLimit
-      ) {
-        slide.interaction.closed = false;
-        btnSubmitText.value = "Submit";
-        btnSubmitBelowText.value = "You may submit multiple responses";
-        slide.interaction.response = "";
-      } else {
-        btnSubmitText.value = "Done";
-        btnSubmitBelowText.value =
-          slide.interaction.submissionCount ==
-          slide.interaction.settings.submissionLimit
-            ? "You have reached the submission limit"
-            : "";
-      }
-    },
-    function (error) {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to submit your response",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
+  try {
+    await api("interaction/insertSubmission", {
+      id: interactionSession.id,
+      slideIndex: props.currentIndex,
+      response: slide.interaction.response,
+      isPreview: interactionSession.status.preview,
+    });
+
+    Toast.fire({
+      icon: "success",
+      title: "Your response was submitted",
+    });
+    spinner.value = false;
+    slide.interaction.submissionCount++;
+    if (
+      slide.interaction.submissionCount <
+      slide.interaction.settings.submissionLimit
+    ) {
       slide.interaction.closed = false;
-      spinner.value = false;
-      btnSubmitText.value = "Try again?";
+      btnSubmitText.value = "Submit";
+      btnSubmitBelowText.value = "You may submit multiple responses";
+      slide.interaction.response = "";
+    } else {
+      btnSubmitText.value = "Done";
+      btnSubmitBelowText.value =
+        slide.interaction.submissionCount ==
+        slide.interaction.settings.submissionLimit
+          ? "You have reached the submission limit"
+          : "";
     }
-  );
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to submit your response",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    slide.interaction.closed = false;
+    spinner.value = false;
+    btnSubmitText.value = "Try again?";
+  }
 };
 </script>
 

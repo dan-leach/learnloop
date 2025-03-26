@@ -45,26 +45,26 @@ let load = ref({
 
 //fetching the config data
 import { fetchConfig } from "./data/fetchConfig";
-const loadConfigData = () => {
+const loadConfigData = async () => {
   //show the loading spinner
   load.value.pending = true;
 
   //clear the failed message in case of retry
   load.value.failed = "";
 
-  fetchConfig()
-    .then((config) => {
-      if (config.api.showConsole) {
-        console.log("Config fetched successfully:", config);
-      }
-      load.value.pending = false;
-    })
-    .catch((error) => {
-      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-      load.value.failed =
-        error.toString() || "Failed to load configuration data";
-      load.value.pending = false;
-    });
+  try {
+    const config = await fetchConfig();
+
+    if (config.api.showConsole) {
+      console.log("Config fetched successfully:", config);
+    }
+
+    load.value.pending = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    load.value.failed = error.toString() || "Failed to load configuration data";
+    load.value.pending = false;
+  }
 };
 
 onMounted(() => {
