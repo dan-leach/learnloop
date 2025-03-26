@@ -1,5 +1,6 @@
 <script setup>
 import { onMounted, onUpdated } from "vue";
+import HideResponses from "./HideResponses.vue";
 import { inject } from "vue";
 const config = inject("config");
 const props = defineProps(["slide"]);
@@ -139,24 +140,7 @@ onUpdated(() => {
       </ul>
     </div>
   </div>
-  <div
-    v-if="slide.isInteractive"
-    class="d-flex flex-wrap align-items-center align-content-stretch justify-content-around"
-  >
-    <div class="card bg-transparent shadow p-2 m-2 align-items-center">
-      <div class="d-flex flex-wrap mx-2">
-        <div>
-          Options:
-          <ul>
-            <li v-for="option in slide.interaction.options" :key="option">
-              {{ option.text }}
-            </li>
-          </ul>
-          Responses: {{ slide.interaction.submissions.length }}
-        </div>
-      </div>
-    </div>
-  </div>
+  <HideResponses v-if="slide.isInteractive" :slide="slide" />
 </template>
 
 <style scoped>
