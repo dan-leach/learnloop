@@ -16,7 +16,7 @@ const config = inject("config");
       >
         <div class="align-self-center me-4">
           <img
-            :src="config.api.url + '/shared/QRcode/?id=' + feedbackID"
+            :src="config.api.url + 'qrcode/?id=' + feedbackID"
             class="qr-code"
           />
         </div>

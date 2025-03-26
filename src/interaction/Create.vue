@@ -18,12 +18,14 @@ const saveStatus = ref({
   error: false,
 });
 
-console.log("TEMP SET ACTIVE");
+//console.log("TEMP SET ACTIVE");
+//
 //interactionSession.id = "faW5Vk";
 //interactionSession.pin = "554107";
-interactionSession.title = "Demo";
-interactionSession.name = "Dan";
-interactionSession.email = "web@danleach.uk";
+//
+//interactionSession.title = "Demo";
+//interactionSession.name = "Dan";
+//interactionSession.email = "web@danleach.uk";
 
 // Load the create page, or get the session id and pin if editing then trigger fetch details
 onMounted(async () => {
@@ -393,6 +395,13 @@ const previewSession = async () => {
     interactionSession.status = res;
     Swal.close();
     interactionSession.status.preview = true;
+    Swal.fire({
+      icon: "info",
+      iconColor: "#17a2b8",
+      title: "Refresh connected devices",
+      text: "If you previously connected any devices to this session please refresh the page on them now. This ensures the connected devices have your latest changes.",
+      confirmButtonColor: "#17a2b8",
+    });
     router.push("/interaction/host/preview");
   } catch (error) {
     console.error("previewSession error:", error);

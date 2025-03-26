@@ -51,11 +51,7 @@ const deleteSubmissions = async () => {
     <div class="join-panel text-center m-2 p-2 d-flex justify-content-around">
       <div class="align-self-center me-4">
         <img
-          :src="
-            config.client.url +
-            '/api/shared/QRcode/?id=' +
-            interactionSession.id
-          "
+          :src="config.api.url + 'qrcode/?id=' + interactionSession.id"
           class="qr-code"
         />
       </div>

@@ -1,7 +1,3 @@
-Current:
-
-1. fix subsession feedback report using 'various dates' when parent session has a date given
-
 Andy Mullet:
 Done
 Presenter to be able to view next slide - open new tab synced to facilitatorIndex+1 and with usual host screen controls removed

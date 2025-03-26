@@ -53,8 +53,7 @@ const fetchDetails = async () => {
     link.value.join = config.client.url + "/" + interactionSession.id;
     link.value.host =
       config.client.url + "/interaction/host/" + interactionSession.id;
-    link.value.qr =
-      config.api.url + "shared/QRcode/?id=" + interactionSession.id;
+    link.value.qr = config.api.url + "qrcode/?id=" + interactionSession.id;
     loading.value = false;
   } catch (error) {
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
