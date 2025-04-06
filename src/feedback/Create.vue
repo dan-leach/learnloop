@@ -4,6 +4,7 @@ import router from "../router";
 import { useRouter } from "vue-router";
 import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
+import {showHelp, hideHelp} from "../assets/HelpToast"
 import Modal from "bootstrap/js/dist/modal";
 import EditSubsessionForm from "./components/EditSubsessionForm.vue";
 import EditOrganiserForm from "./components/EditOrganiserForm.vue";
@@ -551,58 +552,6 @@ onMounted(async () => {
     feedbackSession.reset();
   }
 });
-
-let helpToastInstance
-
-const helpToastMixin = Swal.mixin({
-  toast: true,
-  showConfirmButton: false,
-  timer: null,
-  timerProgressBar: false,
-  showCloseButton: true,
-  position: "bottom",
-  animation: false
-});
-
-const inputHelp = {
-  title: {
-    heading: 'Session title',
-    html: `
-      <ul>
-        <li>Point 1</li>
-        <li>Point 2</li>
-      </ul>
-    `
-  },
-  date: {
-    heading: 'Session date',
-    html: `
-      <ul>
-        <li>Point A</li>
-      </ul>
-    `
-  }
-
-}
-
-const showHelp = (inputName) => {
-  console.log('showHelp:', inputName)
-  const help = inputHelp[inputName]
-  if (help) {
-    helpToastInstance = helpToastMixin.fire({
-        title: help.heading,
-        html: help.html,
-      });
-  }
-}
-
-const hideHelp = () => {
-  console.log('hideHelp')
-  helpToastInstance.close()
-}
-
-
-
 </script>
 
 <template>
@@ -720,6 +669,8 @@ const hideHelp = () => {
               placeholder=""
               name="name"
               autocomplete="off"
+              @focusin="showHelp('name')"
+              @focusout="hideHelp()"
               required
             />
             <label for="name">
