@@ -551,6 +551,58 @@ onMounted(async () => {
     feedbackSession.reset();
   }
 });
+
+let helpToastInstance
+
+const helpToastMixin = Swal.mixin({
+  toast: true,
+  showConfirmButton: false,
+  timer: null,
+  timerProgressBar: false,
+  showCloseButton: true,
+  position: "bottom",
+  animation: false
+});
+
+const inputHelp = {
+  title: {
+    heading: 'Session title',
+    html: `
+      <ul>
+        <li>Point 1</li>
+        <li>Point 2</li>
+      </ul>
+    `
+  },
+  date: {
+    heading: 'Session date',
+    html: `
+      <ul>
+        <li>Point A</li>
+      </ul>
+    `
+  }
+
+}
+
+const showHelp = (inputName) => {
+  console.log('showHelp:', inputName)
+  const help = inputHelp[inputName]
+  if (help) {
+    helpToastInstance = helpToastMixin.fire({
+        title: help.heading,
+        html: help.html,
+      });
+  }
+}
+
+const hideHelp = () => {
+  console.log('hideHelp')
+  helpToastInstance.close()
+}
+
+
+
 </script>
 
 <template>
@@ -610,6 +662,8 @@ onMounted(async () => {
               placeholder=""
               name="title"
               autocomplete="off"
+              @focusin="showHelp('title')"
+              @focusout="hideHelp()"
               required
             />
             <label for="title"
@@ -628,6 +682,8 @@ onMounted(async () => {
                 id="date"
                 name="Date"
                 autocomplete="off"
+                @focusin="showHelp('date')"
+                @focusout="hideHelp()"
                 required
                 :disabled="feedbackSession.multipleDates"
               />
