@@ -247,16 +247,6 @@ const toggleCertificate = () => {
   feedbackSession.certificate = !feedbackSession.certificate;
   feedbackSession.attendance = feedbackSession.certificate;
 };
-const certificateInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Certificate of attendance (Optional)",
-    html: '<div class="text-start">By default attendees of your session will be able to download a certificate of attendance after completing the feedback form. This is a good way of encouraging attendees to provide feedback.<br><br> You can disable the certificate if you prefer. Attendees will still be able to provide feedback but will not be given the option to download a certificate afterwards.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
-};
 const toggleAttendance = () => {
   if (!feedbackSession.attendance && !feedbackSession.certificate) {
     Swal.fire({
@@ -275,16 +265,6 @@ const attendanceInfo = () => {
     iconColor: "#17a2b8",
     title: "Register of attendance (Optional)",
     html: '<div class="text-start">By default you will be able to generate an attendance report of people who have attended your session. The attendance report shows the name and organisation of each attendee who downloads a certificate of attendance. The attendee details are not linked to their feedback. To reduce the risk of attendees being linked to their feedback you will only be able to view a register of attendance once you have received at least 3 feedback submissions.<br><br>The certificate option must be enabled for the attendance register to be available.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
-};
-const multipleDatesInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Multiple dates (Optional)",
-    html: '<div class="text-start">By default you must provide a date for your session. The certificate (if enabled) will show this date.<br><br> If you are running the same session on multiple dates you can use the "Deliver on multiple dates" option. When this option is used the certificate will instead show the date when they submitted feedback. Your feedback report will be organised by the month the feedback was submitted.</div>',
     width: "60%",
     confirmButtonColor: "#17a2b8",
   });
@@ -639,7 +619,7 @@ onMounted(async () => {
               <label for="name">Date</label>
               <div class="invalid-feedback">Please fill out this field.</div>
             </div>
-            <div class="d-flex align-items-center justify-content-start mb-3">
+            <div class="d-flex align-items-center justify-content-start mb-3" @mouseover="showHelp('multipleDates')" @mouseout="hideHelp()" @touchstart="showHelp('multipleDates')">
               <div class="mx-2">or deliver on multiple dates</div>
               <div class="form-check form-switch">
                 <input
@@ -650,13 +630,6 @@ onMounted(async () => {
                   @click="feedbackSession.date = ''"
                 />
               </div>
-              <font-awesome-icon
-                :icon="['fas', 'question-circle']"
-                size="xl"
-                class="mx-2"
-                style="color: black"
-                @click="multipleDatesInfo"
-              />
             </div>
           </div>
           <!--Name-->
@@ -683,7 +656,7 @@ onMounted(async () => {
         <div class="card bg-transparent shadow p-2 mb-3 settings-card">
           <label for="furtherOptions" class="form-label">Options</label>
           <!--Certificate-->
-          <div class="d-flex align-items-center justify-content-start">
+          <div class="d-flex align-items-center justify-content-start" @mouseover="showHelp('certificate')" @mouseout="hideHelp()" @touchstart="showHelp('certificate')">
             <div class="d-flex align-items-center justify-content-start mb-3">
               <button
                 class="btn btn-settings btn-teal btn-sm"
@@ -693,13 +666,6 @@ onMounted(async () => {
                 {{ feedbackSession.certificate ? "Disable" : "Enable" }}
                 certificate
               </button>
-              <font-awesome-icon
-                :icon="['fas', 'question-circle']"
-                size="xl"
-                class="mx-2"
-                style="color: black"
-                @click="certificateInfo"
-              />
             </div>
             <div class="mb-3">
               <span v-if="feedbackSession.certificate">

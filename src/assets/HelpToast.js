@@ -34,6 +34,15 @@ const inputHelp = {
       </ul>
     `
   },
+  multipleDates: {
+    heading: 'multiple dates',
+    html: `
+      <ul>
+        <li>select multiple dates if you want to collate feedback using the same feedback form for a session delivered multiple times</li>
+        <li>Your feedback report will be organised by the month the feedback was submitted</li>
+      </ul>
+    `
+  },
   name: {
     heading: 'session facilitator',
     html: `
@@ -42,10 +51,20 @@ const inputHelp = {
             <li>E.g. 'Dr Smith', or 'ST4-8 teaching reps'</li>
             <li>The facilitator name will appear on the feedback form and the certificate of attendance (if enabled)</li>
     `
+  },
+  certificate: {
+    heading: 'certificate option',
+    html: `
+      <ul>
+        <li>Attendees can download a certificate of attendance after completing the feedback form - this is a good way of encouraging attendees to provide feedback</li>
+        <li>You can disable the certificate if you prefer - attendees will still be able to provide feedback but will not be given the option to download a certificate afterwards</li>
+      </ul>
+    `
   }
 }
 
 const showHelp = (inputName) => {
+  console.log('showHelp', inputName)
   const help = inputHelp[inputName]
   if (help) {
     helpToastInstance = helpToastMixin.fire({
