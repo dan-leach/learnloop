@@ -10,6 +10,12 @@ import router from "./router";
 import { library } from "@fortawesome/fontawesome-svg-core";
 /* import font awesome icon component */
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+/* import specific regular icons */
+import {
+  faSquare as farSquare,
+  faSquareCheck as farSquareCheck,
+} from "@fortawesome/free-regular-svg-icons";
+
 /* import specific icons */
 import {
   faRotateRight,
@@ -36,6 +42,7 @@ import {
   faArrowUpRightFromSquare,
   faCircleCheck,
   faArrowsRotate,
+  faCircleInfo,
 } from "@fortawesome/free-solid-svg-icons";
 /* add icons to the library */
 library.add(
@@ -62,7 +69,10 @@ library.add(
   faXmark,
   faArrowUpRightFromSquare,
   faCircleCheck,
-  faArrowsRotate
+  faArrowsRotate,
+  faCircleInfo,
+  farSquare,
+  farSquareCheck
 );
 
 import { cookies } from "./data/cookies.js";
@@ -81,11 +91,17 @@ if (document.cookie) {
   }
 }
 
+import focusCollapse from "./assets/focusCollapse";
+import hoverCollapse from "./assets/hoverCollapse";
+
 const app = createApp(App).component("font-awesome-icon", FontAwesomeIcon);
 
 // Import config and inject
 import { config } from "./data/fetchConfig";
 app.provide("config", config);
+
+app.directive("focus-collapse", focusCollapse);
+app.directive("hover-collapse", hoverCollapse);
 
 app.use(router);
 

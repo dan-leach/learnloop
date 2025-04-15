@@ -27,6 +27,10 @@
   border-color: #17a2b8;
 }
 
+.border-teal {
+  border-color: #17a2b8 !important;
+}
+
 body {
   background-color: #17a3b813;
 }

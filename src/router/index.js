@@ -15,6 +15,31 @@ const router = createRouter({
           component: () => import("../feedback/Create.vue"),
         },
         {
+          path: "create-type",
+          name: "feedback-create-type",
+          component: () => import("../feedback/CreateType.vue"),
+        },
+        {
+          path: "create-details",
+          name: "feedback-create-details",
+          component: () => import("../feedback/CreateDetails.vue"),
+        },
+        {
+          path: "create-subsessions",
+          name: "feedback-create-subsessions",
+          component: () => import("../feedback/CreateSubsessions.vue"),
+        },
+        {
+          path: "create-options",
+          name: "feedback-create-options",
+          component: () => import("../feedback/CreateOptions.vue"),
+        },
+        {
+          path: "create-organisers",
+          name: "feedback-create-organisers",
+          component: () => import("../feedback/CreateOrganisers.vue"),
+        },
+        {
           path: "created",
           name: "feedback-created",
           component: () => import("../feedback/Created.vue"),
