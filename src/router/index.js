@@ -30,9 +30,9 @@ const router = createRouter({
           component: () => import("../feedback/CreateSubsessions.vue"),
         },
         {
-          path: "create-options",
-          name: "feedback-create-options",
-          component: () => import("../feedback/CreateOptions.vue"),
+          path: "create-questions",
+          name: "feedback-create-questions",
+          component: () => import("../feedback/CreateQuestions.vue"),
         },
         {
           path: "create-organisers",

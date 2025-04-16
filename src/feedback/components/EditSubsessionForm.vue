@@ -1,9 +1,6 @@
 <script setup>
 import { ref } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
-import Swal from "sweetalert2";
-import { inject } from "vue";
-const config = inject("config");
 
 const props = defineProps(["index", "isEdit"]);
 const emit = defineEmits(["hideEditSubsessionModal"]);
@@ -21,11 +18,6 @@ if (props.index > -1) {
   if (props.isEdit && email.value.length && subsession.id)
     emailLocked.value = true;
 }
-
-let btnSubmit = ref({
-  text: "Add to series",
-  wait: false,
-});
 
 let submit = () => {
   document
@@ -54,17 +46,6 @@ const createSubsession = () => {
     .getElementById("editSubsessionModal" + props.index)
     .classList.remove("was-validated");
 };
-
-const subsessionFacilitatorEmailInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Provide an email for session facilitators (Optional)",
-    html: "<div class=\"text-start\">If you provide an email address for the facilitator of this session we'll let them know that a feedback request has been set up for them. They will receive notifications when feedback is submitted (they can disable this feature if they prefer) and will be able to view feedback that is submitted for their session (but not other sessions or overall feedback).<br><br>If you don't have their email address and permission to use it for this purpose leave this field blank. As the organiser, you will still be able to view feedback for their session and share it with them manually.</div>",
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
-};
 </script>
 
 <template>
@@ -84,72 +65,98 @@ const subsessionFacilitatorEmailInfo = () => {
         </div>
         <div class="modal-body">
           <div id="editSubsessionForm" class="needs-validation" novalidate>
-            <div class="row">
-              <div class="col mb-3">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    v-model="title"
-                    class="form-control"
-                    id="prompt"
-                    placeholder=""
-                    name="prompt"
-                    autocomplete="off"
-                    required
-                  />
-                  <label for="title">Session title</label>
-                  <div class="invalid-feedback">
-                    Please provide a title for this session.
-                  </div>
-                </div>
+            <!--title-->
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                v-model="title"
+                class="form-control"
+                id="prompt"
+                placeholder=""
+                name="prompt"
+                autocomplete="off"
+                v-focus-collapse="'subsessionTitleHelp'"
+                required
+              />
+              <label for="title">Session title</label>
+              <div class="invalid-feedback">
+                Please provide a title for this session.
+              </div>
+              <div class="collapse form-text mx-1" id="subsessionTitleHelp">
+                <span
+                  >Choose a title so attendees know what they're providing
+                  feedback for.</span
+                ><br />
+                <span>
+                  A list of session titles will appear on the certificate of
+                  attendance (if enabled).
+                </span>
               </div>
             </div>
-            <div class="row">
-              <div class="col-md mb-3">
-                <div class="form-floating">
-                  <input
-                    type="text"
-                    v-model="name"
-                    class="form-control"
-                    id="name"
-                    placeholder=""
-                    name="name"
-                    autocomplete="off"
-                    required
-                  />
-                  <label for="Name">Facilitator name</label>
-                  <div class="invalid-feedback">
-                    Please provide a facilitator name for this session.
-                  </div>
-                </div>
+
+            <!--name-->
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                v-model="name"
+                class="form-control"
+                id="name"
+                placeholder=""
+                name="name"
+                autocomplete="off"
+                v-focus-collapse="'subsessionNameHelp'"
+                required
+              />
+              <label for="Name">Facilitator name</label>
+              <div class="invalid-feedback">
+                Please provide a facilitator name for this session.
               </div>
-              <div class="col-md mb-3">
-                <div class="input-group">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      v-model="email"
-                      class="form-control"
-                      id="email"
-                      placeholder=""
-                      name="email"
-                      autocomplete="off"
-                      :disabled="emailLocked"
-                    />
-                    <label for="Email">Facilitator email</label>
-                  </div>
-                  <div class="input-group-text">
-                    <font-awesome-icon
-                      :icon="['fas', 'question-circle']"
-                      size="lg"
-                      style="color: black"
-                      @click="subsessionFacilitatorEmailInfo"
-                    />
-                  </div>
-                </div>
+              <div class="collapse form-text mx-1" id="subsessionNameHelp">
+                <span
+                  >Provide the name of the person or team responsible for the
+                  session.</span
+                ><br />
+                <span>
+                  The facilitator name will appear on the feedback form but not
+                  on the certificate of attendance.
+                </span>
+              </div>
+            </div>
+
+            <!--email-->
+            <div class="form-floating mb-3">
+              <input
+                type="text"
+                v-model="email"
+                class="form-control"
+                id="email"
+                placeholder=""
+                name="email"
+                autocomplete="off"
+                v-focus-collapse="'subsessionEmailHelp'"
+                :disabled="emailLocked"
+              />
+              <label for="Email">Facilitator email</label>
+              <div class="collapse form-text mx-1" id="subsessionEmailHelp">
+                <span
+                  >Provide an email address for the facilitator of this session
+                  (optional).</span
+                ><br />
+                <span
+                  >They will be able to view feedback for their session (but not
+                  other sessions or overall feedback).</span
+                ><br />
+                <span
+                  >If you don't have their email address and permission to use
+                  it for this purpose leave this field blank.</span
+                ><br /><span
+                  >As the organiser, you will still be able to view feedback for
+                  their session and share it with them manually.</span
+                ><br />
               </div>
             </div>
           </div>
+
           <div class="text-center">
             <button
               class="btn btn-teal text-center"

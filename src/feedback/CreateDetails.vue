@@ -2,6 +2,24 @@
 import { onMounted } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
+import Swal from "sweetalert2";
+
+const toggleCertificate = () => {
+  feedbackSession.certificate = !feedbackSession.certificate;
+  feedbackSession.attendance = feedbackSession.certificate;
+};
+const toggleAttendance = () => {
+  if (!feedbackSession.attendance && !feedbackSession.certificate) {
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: "You must enable the 'Certificate of Attendance' option to be able to use the 'Register of Attendance' option.",
+      confirmButtonColor: "#17a2b8",
+    });
+  } else {
+    feedbackSession.attendance = !feedbackSession.attendance;
+  }
+};
 
 const back = () => {
   router.push("/feedback/create-type");
@@ -18,12 +36,16 @@ const next = () => {
   if (feedbackSession.isSeries) {
     router.push("/feedback/create-subsessions");
   } else {
-    router.push("/feedback/create-options");
+    router.push("/feedback/create-questions");
   }
 };
 
 onMounted(async () => {
-  if (!feedbackSession.isSeries && !feedbackSession.isSingle) {
+  if (
+    !feedbackSession.isSeries &&
+    !feedbackSession.isSingle &&
+    !feedbackSession.useTemplate
+  ) {
     router.push("/feedback/create-type");
   }
 });
@@ -36,9 +58,9 @@ onMounted(async () => {
     novalidate
   >
     <h1 class="text-center display-4">Feedback</h1>
-    <p>
-      Add details of your teaching event to start creating your feedback form
-    </p>
+    <div class="text-center">
+      <p>Add some details about your teaching event</p>
+    </div>
     <!--Title-->
     <div class="form-floating mb-3">
       <input
@@ -54,21 +76,20 @@ onMounted(async () => {
       />
       <label for="title">Event title</label>
       <div class="invalid-feedback">
-        Please provide a title for your teaching event
+        Please provide a title for your teaching event.
       </div>
       <div class="collapse form-text mx-1" id="titleHelp">
-        <ul>
-          <li>
-            Choose a title so attendees know what they're providing feedback for
-          </li>
-          <li>
-            E.g. <i>'ST4-8 teaching day: Renal focus'</i> or
-            <i>'How to manage paediatric DKA'</i>
-          </li>
-          <li>
-            The title will appear on the certificate of attendance (if enabled)
-          </li>
-        </ul>
+        <span
+          >Choose a title so attendees know what they're providing feedback
+          for.</span
+        ><br />
+        <span>
+          E.g. <i>'ST4-8 teaching day: Renal focus'</i> or
+          <i>'How to manage paediatric DKA'</i>.</span
+        ><br />
+        <span>
+          The title will appear on the certificate of attendance (if enabled).
+        </span>
       </div>
     </div>
 
@@ -89,7 +110,7 @@ onMounted(async () => {
         />
         <label for="name">Date</label>
         <div class="invalid-feedback">
-          Please provide a date, or select the multiple dates option
+          Please provide a date, or select the multiple dates option.
         </div>
       </div>
       <div class="d-flex align-items-center justify-content-start">
@@ -105,16 +126,16 @@ onMounted(async () => {
         </div>
       </div>
       <div class="collapse form-text mx-1" id="dateHelp">
-        <ul>
-          <li>Provide a date on which your teaching event is taking place</li>
-          <li>
-            The date will appear on the certificate of attendance (if enabled)
-          </li>
-          <li>
-            Select multiple dates to collate feedback for a session delivered
-            multiple times with the same form
-          </li>
-        </ul>
+        <span>Provide a date on which your teaching event is taking place.</span
+        ><br />
+        <span>
+          The date will appear on the certificate of attendance (if
+          enabled).</span
+        ><br />
+        <span>
+          Select multiple dates to collate feedback for a session delivered
+          multiple times with the same form.
+        </span>
       </div>
     </div>
 
@@ -133,19 +154,113 @@ onMounted(async () => {
       />
       <label for="name">Facilitator name</label>
       <div class="invalid-feedback">
-        Please provide the name of the facilitator for this teaching event
+        Please provide the name of the facilitator for this teaching event.
       </div>
       <div class="collapse form-text mx-1" id="nameHelp">
-        <ul>
-          <li>
-            Provide the name of the person or team responsible for the teaching
-          </li>
-          <li>&nbsp;E.g. 'Dr Smith', or 'ST4-8 teaching reps'</li>
-          <li>
-            The facilitator name will appear on the feedback form and the
-            certificate of attendance (if enabled)
-          </li>
-        </ul>
+        <span>
+          Provide the name of the person or team responsible for the
+          teaching.</span
+        ><br />
+        <span>E.g. 'Dr Smith', or 'ST4-8 teaching reps'.</span><br />
+        <span>
+          The facilitator name will appear on the feedback form and the
+          certificate of attendance (if enabled).
+        </span>
+      </div>
+    </div>
+
+    <!--Certificate-->
+    <div class="mb-3">
+      <div class="d-flex flex-wrap align-items-center justify-content-start">
+        <div class="d-flex align-items-center justify-content-start">
+          <button
+            class="btn btn-settings btn-teal btn-sm"
+            id="toggleCertificate"
+            @click.prevent="toggleCertificate"
+          >
+            {{ feedbackSession.certificate ? "Disable" : "Enable" }}
+            certificate
+          </button>
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            size="xl"
+            class="mx-2"
+            style="color: black"
+            v-focus-collapse="'certificateHelp'"
+          />
+        </div>
+        <div>
+          <span v-if="feedbackSession.certificate">
+            Attendees receive certificate after giving feedback
+            <font-awesome-icon
+              :icon="['fas', 'check']"
+              size="2xl"
+              style="color: green"
+            />
+          </span>
+          <span v-else>
+            Attendees will not receive a certificate
+            <font-awesome-icon
+              :icon="['fas', 'times']"
+              size="2xl"
+              style="color: red"
+            />
+          </span>
+        </div>
+      </div>
+      <div class="collapse form-text mx-1" id="certificateHelp">
+        <span
+          >Providing a certificate of attendance encourages attendees to provide
+          feedback.</span
+        >
+      </div>
+    </div>
+
+    <!--Attendance-->
+    <div class="mb-3">
+      <div class="d-flex flex-wrap align-items-center justify-content-start">
+        <div class="d-flex align-items-center justify-content-start">
+          <button
+            class="btn btn-settings btn-teal btn-sm"
+            id="toggleAttendance"
+            @click.prevent="toggleAttendance"
+          >
+            {{ feedbackSession.attendance ? "Disable" : "Enable" }}
+            register
+          </button>
+          <font-awesome-icon
+            :icon="['fas', 'question-circle']"
+            size="xl"
+            class="mx-2"
+            style="color: black"
+            v-focus-collapse="'attendanceHelp'"
+          />
+        </div>
+        <div>
+          <span v-if="feedbackSession.attendance">
+            Register of attendance will be kept
+            <font-awesome-icon
+              :icon="['fas', 'check']"
+              size="2xl"
+              style="color: green"
+            />
+          </span>
+          <span v-if="!feedbackSession.attendance">
+            Register of attendance won't be kept
+            <font-awesome-icon
+              :icon="['fas', 'times']"
+              size="2xl"
+              style="color: red"
+            />
+          </span>
+        </div>
+      </div>
+      <div class="collapse form-text mx-1" id="attendanceHelp">
+        <span
+          >The attendance report shows the name and organisation of each
+          attendee who downloads a certificate of attendance.</span
+        ><br />
+        <span>The attendee details are not linked to their feedback.</span>
       </div>
     </div>
   </form>

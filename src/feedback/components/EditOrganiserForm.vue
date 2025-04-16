@@ -147,16 +147,6 @@ const toggleIsLead = () => {
   }
   if (isLead.value) canEdit.value = true;
 };
-const isLeadInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Lead organiser",
-    html: '<div class="text-start">The email address for the lead organiser cannot be changed later and will always have edit access. They will receive an email notification if the session is updated by any of the other organsiers with editing rights. The login details provided on the next page are for the lead organiser.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
-};
 
 const toggleCanEdit = async () => {
   if (isLead.value && !canEdit.value) {
@@ -171,16 +161,6 @@ const toggleCanEdit = async () => {
 
     canEdit.value = true;
   }
-};
-const canEditInfo = () => {
-  Swal.fire({
-    icon: "info",
-    iconColor: "#17a2b8",
-    title: "Grant edit rights",
-    html: '<div class="text-start">If you grant an organiser editing rights they can make changes to this feedback request (until feedback has been submitted). Otherwise they will only be able to view the feedback and attendance reports. At least one organiser must have editing rights.</div>',
-    width: "60%",
-    confirmButtonColor: "#17a2b8",
-  });
 };
 </script>
 
@@ -201,108 +181,140 @@ const canEditInfo = () => {
         </div>
         <div class="modal-body">
           <div id="editOrganiserForm" class="needs-validation" novalidate>
-            <div class="row">
-              <div class="col-md mb-3">
-                <div class="input-group">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      v-model="name"
-                      class="form-control"
-                      id="name"
-                      placeholder=""
-                      name="name"
-                      autocomplete="off"
-                      required
-                    />
-                    <label for="Name">Organiser name</label>
-                  </div>
+            <div>
+              <div class="form-floating">
+                <input
+                  type="text"
+                  v-model="name"
+                  class="form-control"
+                  id="name"
+                  placeholder=""
+                  name="name"
+                  autocomplete="off"
+                  v-focus-collapse="'organiserNameHelp'"
+                  required
+                />
+                <label for="Name">Organiser name</label>
+                <div class="collapse form-text mx-1" id="organiserNameHelp">
+                  <span>
+                    This does not appear on the feedback form or certificate of
+                    attendance.
+                  </span>
                 </div>
               </div>
-              <div class="col-md mb-3">
-                <div class="input-group">
-                  <div class="form-floating">
-                    <input
-                      type="text"
-                      v-model="email"
-                      class="form-control"
-                      id="email"
-                      placeholder=""
-                      name="email"
-                      autocomplete="off"
-                      required
-                      :disabled="existing"
-                    />
-                    <label for="Email">Organiser email</label>
+              <div class="my-3">
+                <div class="form-floating">
+                  <input
+                    type="text"
+                    v-model="email"
+                    class="form-control"
+                    id="email"
+                    placeholder=""
+                    name="email"
+                    autocomplete="off"
+                    required
+                    v-focus-collapse="'organiserEmailHelp'"
+                    :disabled="existing"
+                  />
+                  <label for="Email">Organiser email</label>
+                  <div class="collapse form-text mx-1" id="organiserEmailHelp">
+                    <span>
+                      The organiser will receive the the session ID and PIN to
+                      be able to view the feedback by email.
+                    </span>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="row">
-              <div class="d-flex align-items-center justify-content-start">
-                <div
-                  class="d-flex align-items-center justify-content-start mb-3"
-                >
-                  <div class="form-check form-switch">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="toggleIsLead"
-                      v-model="isLead"
-                      @change="toggleIsLead"
-                      :disabled="isEdit"
-                    />
-                  </div>
-                  <font-awesome-icon
-                    :icon="['fas', 'question-circle']"
-                    size="xl"
-                    class="mx-2"
-                    style="color: black"
-                    @click="isLeadInfo"
+            <!--lead-->
+            <div class="d-flex align-items-center justify-content-start">
+              <div class="d-flex align-items-center justify-content-start mt-3">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="toggleIsLead"
+                    v-model="isLead"
+                    @change="toggleIsLead"
+                    :disabled="isEdit"
                   />
                 </div>
-                <div class="mb-3">
-                  <span v-if="isLead">
-                    This is the lead organiser. They will always have edit
-                    access and their email cannot be changed once the session
-                    has been created.
-                  </span>
-                  <span v-else> Not the lead organiser </span>
-                </div>
+                <font-awesome-icon
+                  :icon="['fas', 'question-circle']"
+                  size="xl"
+                  class="mx-2"
+                  style="color: black"
+                  v-focus-collapse="'leadOrganiserHelp'"
+                />
               </div>
-              <div class="d-flex align-items-center justify-content-start">
-                <div
-                  class="d-flex align-items-center justify-content-start mb-3"
-                >
-                  <div class="form-check form-switch">
-                    <input
-                      class="form-check-input"
-                      type="checkbox"
-                      id="toggleCanEdit"
-                      v-model="canEdit"
-                      @change="toggleCanEdit"
-                    />
-                  </div>
-                  <font-awesome-icon
-                    :icon="['fas', 'question-circle']"
-                    size="xl"
-                    class="mx-2"
-                    style="color: black"
-                    @click="canEditInfo"
+              <div class="mt-3">
+                <span v-if="isLead">
+                  This is the lead organiser. They will always have edit access
+                  and their email cannot be changed once the session has been
+                  created.
+                </span>
+                <span v-else> Not the lead organiser </span>
+              </div>
+            </div>
+            <div class="collapse form-text mx-1" id="leadOrganiserHelp">
+              <span
+                >The email address for the lead organiser cannot be changed
+                later and will always have edit access.</span
+              ><br />
+              <span
+                >They will receive an email notification if the session is
+                updated by any of the other organsiers with editing
+                rights.</span
+              ><br />
+              <span
+                >The login details provided on the next page are for the lead
+                organiser.</span
+              >
+            </div>
+
+            <!--can edit-->
+            <div class="d-flex align-items-center justify-content-start">
+              <div class="d-flex align-items-center justify-content-start mt-3">
+                <div class="form-check form-switch">
+                  <input
+                    class="form-check-input"
+                    type="checkbox"
+                    id="toggleCanEdit"
+                    v-model="canEdit"
+                    @change="toggleCanEdit"
                   />
                 </div>
-                <div class="mb-3">
-                  <span v-if="canEdit">
-                    This organiser can edit this feedback session
-                  </span>
-                  <span v-else>
-                    This organiser cannot edit this feedback session
-                  </span>
-                </div>
+                <font-awesome-icon
+                  :icon="['fas', 'question-circle']"
+                  size="xl"
+                  class="mx-2"
+                  style="color: black"
+                  v-focus-collapse="'editOrganiserHelp'"
+                />
               </div>
+              <div class="mt-3">
+                <span v-if="canEdit">
+                  This organiser can edit this feedback session
+                </span>
+                <span v-else>
+                  This organiser cannot edit this feedback session
+                </span>
+              </div>
+            </div>
+            <div class="collapse form-text mx-1" id="editOrganiserHelp">
+              <span
+                >If you grant an organiser editing rights they can make changes
+                to this feedback request (until feedback has been
+                submitted).</span
+              ><br />
+              <span
+                >Otherwise they will only be able to view the feedback and
+                attendance reports.</span
+              ><br />
+              <span>At least one organiser must have editing rights.</span>
             </div>
           </div>
-          <div class="text-center">
+          <div class="text-center mt-3">
             <button
               class="btn btn-teal text-center"
               id="submitEditOrganiserForm"

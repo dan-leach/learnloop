@@ -31,6 +31,11 @@
   border-color: #17a2b8 !important;
 }
 
+.alert-teal {
+  border-color: #17a2b8;
+  background-color: #17a3b83a;
+}
+
 body {
   background-color: #17a3b813;
 }

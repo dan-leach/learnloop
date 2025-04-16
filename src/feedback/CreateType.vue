@@ -11,13 +11,39 @@ let seriesHelpInstance;
 let templateHelpInstance;
 const nextDisabled = ref(true);
 
-const selectSingle = (forceOn) => {
+const selectSingle = async (forceOn) => {
   if (feedbackSession.isSingle && !forceOn) {
     feedbackSession.isSingle = false;
     singleHelpInstance.hide();
     nextDisabled.value = true;
     return;
   }
+  if (feedbackSession.useTemplate && feedbackSession.title) {
+    const { isConfirmed } = await Swal.fire({
+      title: "Lose progress?",
+      text: "This will remove the template you loaded.",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+    });
+    if (isConfirmed) {
+      feedbackSession.reset();
+    } else {
+      return;
+    }
+  } else if (feedbackSession.subsessions.length) {
+    const { isConfirmed } = await Swal.fire({
+      title: "Lose progress?",
+      text: "This will remove the sessions you've added to your teaching event.",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+    });
+    if (isConfirmed) {
+      feedbackSession.subsessions = [];
+    } else {
+      return;
+    }
+  }
+
   feedbackSession.isSeries = false;
   feedbackSession.useTemplate = false;
   feedbackSession.isSingle = true;
@@ -27,14 +53,40 @@ const selectSingle = (forceOn) => {
   nextDisabled.value = false;
 };
 
-const selectSeries = (forceOn) => {
-  console.log("selectSeries", forceOn);
+const selectSeries = async (forceOn) => {
   if (feedbackSession.isSeries && !forceOn) {
+    if (feedbackSession.subsessions.length) {
+      const { isConfirmed } = await Swal.fire({
+        title: "Lose progress?",
+        text: "This will remove the sessions you've added to your teaching event.",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+      });
+      if (isConfirmed) {
+        feedbackSession.subsessions = [];
+      } else {
+        return;
+      }
+    }
     feedbackSession.isSeries = false;
     seriesHelpInstance.hide();
     nextDisabled.value = true;
     return;
   }
+  if (feedbackSession.useTemplate && feedbackSession.title) {
+    const { isConfirmed } = await Swal.fire({
+      title: "Lose progress?",
+      text: "This will remove the template you loaded.",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+    });
+    if (isConfirmed) {
+      feedbackSession.reset();
+    } else {
+      return;
+    }
+  }
+
   feedbackSession.isSingle = false;
   feedbackSession.useTemplate = false;
   feedbackSession.isSeries = true;
@@ -44,15 +96,41 @@ const selectSeries = (forceOn) => {
   nextDisabled.value = false;
 };
 
-const selectTemplate = (forceOn) => {
+const selectTemplate = async (forceOn) => {
   if (feedbackSession.useTemplate && !forceOn) {
-    console.log("TODO: unload loaded template if use template option unticked");
+    if (feedbackSession.title) {
+      const { isConfirmed } = await Swal.fire({
+        title: "Lose progress?",
+        text: "This will remove the template you loaded.",
+        showCancelButton: true,
+        confirmButtonColor: "#dc3545",
+      });
+      if (isConfirmed) {
+        feedbackSession.reset();
+      } else {
+        return;
+      }
+    }
     feedbackSession.useTemplate = false;
     templateHelpInstance.hide();
     nextDisabled.value = true;
     feedbackSession.reset();
     return;
   }
+  if (!feedbackSession.useTemplate && feedbackSession.title) {
+    const { isConfirmed } = await Swal.fire({
+      title: "Lose progress?",
+      text: "Loading a template will remove any details you already added.",
+      showCancelButton: true,
+      confirmButtonColor: "#dc3545",
+    });
+    if (isConfirmed) {
+      feedbackSession.reset();
+    } else {
+      return;
+    }
+  }
+
   feedbackSession.isSingle = false;
   feedbackSession.isSeries = false;
   feedbackSession.useTemplate = true;
@@ -170,10 +248,9 @@ const loadTemplate = async () => {
 };
 
 const next = async () => {
-  if (feedbackSession.useTemplate) {
+  if (feedbackSession.useTemplate && !feedbackSession.title) {
     const templateLoaded = await loadTemplate();
     if (!templateLoaded) {
-      console.log("loadTemplate failed");
       selectTemplate(false);
       return;
     }
@@ -193,12 +270,12 @@ onMounted(async () => {
     toggle: false,
   });
 
-  if (feedbackSession.isSingle) {
-    selectSingle(true);
+  if (feedbackSession.useTemplate) {
+    selectTemplate(true);
   } else if (feedbackSession.isSeries) {
     selectSeries(true);
-  } else if (feedbackSession.useTemplate) {
-    selectTemplate(true);
+  } else if (feedbackSession.isSingle) {
+    selectSingle(true);
   }
 });
 </script>
@@ -208,8 +285,7 @@ onMounted(async () => {
     <div class="options-container w-100">
       <h1 class="text-center display-4">Feedback</h1>
       <div class="text-center">
-        <p>Create a feedback form...</p>
-        Title: [{{ feedbackSession.title }}]
+        <p>Let's get started creating your feedback request</p>
       </div>
       <!--option buttons-->
       <div class="d-flex flex-column align-items-stretch">
@@ -220,16 +296,15 @@ onMounted(async () => {
             'border-teal':
               !feedbackSession.isSeries && !feedbackSession.useTemplate,
           }"
+          @click="selectSingle(false)"
         >
           <div class="d-flex justify-content-between align-items-center">
             <span>Collect feedback on a teaching event with one session</span>
             <button
               class="btn"
               :class="{
-                'btn-teal':
-                  !feedbackSession.isSeries && !feedbackSession.useTemplate,
+                'btn-teal': feedbackSession.isSingle,
               }"
-              @click="selectSingle(false)"
             >
               <font-awesome-icon
                 :icon="['far', 'square-check']"
@@ -245,35 +320,35 @@ onMounted(async () => {
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Create a simple feedback form for a single session </span
+              />Create a simple feedback form for a single session.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Certificate of attendance option </span
+              />Certificate of attendance option.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Register of attendance option </span
+              />Register of attendance option.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Add additional custom questions if required </span
+              />Add additional custom questions if required.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Add as many co-organisers as you need </span
+              />Add as many co-organisers as you need.</span
             ><br />
           </div>
         </div>
@@ -285,6 +360,7 @@ onMounted(async () => {
             'border-teal':
               !feedbackSession.isSingle && !feedbackSession.useTemplate,
           }"
+          @click="selectSeries(false)"
         >
           <div class="d-flex justify-content-between align-items-center">
             <span
@@ -293,10 +369,8 @@ onMounted(async () => {
             <button
               class="btn"
               :class="{
-                'btn-teal':
-                  !feedbackSession.isSingle && !feedbackSession.useTemplate,
+                'btn-teal': feedbackSession.isSeries,
               }"
-              @click="selectSeries(false)"
             >
               <font-awesome-icon
                 :icon="['far', 'square-check']"
@@ -313,7 +387,7 @@ onMounted(async () => {
                 style="color: #17a2b8"
                 class="me-1"
               />
-              Gather feedback on multiple sessions using a single form </span
+              Gather feedback on multiple sessions using a single form.</span
             ><br />
             <span>
               <font-awesome-icon
@@ -322,7 +396,7 @@ onMounted(async () => {
                 class="me-1"
               />
               Attendees wil be asked to provide feedback for each session you
-              add and for the event as a whole </span
+              add and for the event as a whole.</span
             ><br />
             <span>
               <font-awesome-icon
@@ -331,21 +405,21 @@ onMounted(async () => {
                 class="me-1"
               />
               You can give facilitators of each session access to view the
-              feedback (just for their session) </span
+              feedback (just for their session).</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Certificate of attendance option </span
+              />Certificate of attendance option.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Register of attendance option </span
+              />Register of attendance option.</span
             ><br />
             <span>
               <font-awesome-icon
@@ -353,14 +427,14 @@ onMounted(async () => {
                 style="color: #17a2b8"
                 class="me-1"
               />Add additional custom questions if required (just for the
-              overall feedback, not each session) </span
+              overall feedback, not each session).</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Add as many co-organisers as you need </span
+              />Add as many co-organisers as you need.</span
             ><br />
           </div>
         </div>
@@ -372,16 +446,15 @@ onMounted(async () => {
             'border-teal':
               !feedbackSession.isSeries && !feedbackSession.isSingle,
           }"
+          @click="selectTemplate(false)"
         >
           <div class="d-flex justify-content-between align-items-center">
             <span>Use a previous event as a template to collect feedback</span>
             <button
               class="btn"
               :class="{
-                'btn-teal':
-                  !feedbackSession.isSeries && !feedbackSession.isSingle,
+                'btn-teal': feedbackSession.useTemplate,
               }"
-              @click="selectTemplate(false)"
             >
               <font-awesome-icon
                 :icon="['far', 'square-check']"
@@ -397,56 +470,56 @@ onMounted(async () => {
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Use a previous feedback form as a template to save time&nbsp; </span
+              />Use a previous feedback form as a template to save time.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />You will need the session ID and PIN </span
+              />You will need the session ID and PIN.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />You can make changes before creating the new form </span
+              />You can make changes before creating the new form.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />The form used as a template will not be changed </span
+              />The form used as a template will not be changed.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Certificate of attendance option </span
+              />Certificate of attendance option.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Register of attendance option</span
+              />Register of attendance option.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Add additional custom questions if required </span
+              />Add additional custom questions if required.</span
             ><br />
             <span>
               <font-awesome-icon
                 :icon="['fas', 'check']"
                 style="color: #17a2b8"
                 class="me-1"
-              />Add as many co-organisers as you need </span
+              />Add as many co-organisers as you need.</span
             ><br />
           </div>
         </div>
@@ -472,6 +545,6 @@ onMounted(async () => {
   max-width: 750px;
 }
 .options-container {
-  max-width: 500px;
+  max-width: 750px;
 }
 </style>

@@ -92,7 +92,6 @@ if (document.cookie) {
 }
 
 import focusCollapse from "./assets/focusCollapse";
-import hoverCollapse from "./assets/hoverCollapse";
 
 const app = createApp(App).component("font-awesome-icon", FontAwesomeIcon);
 
@@ -101,7 +100,6 @@ import { config } from "./data/fetchConfig";
 app.provide("config", config);
 
 app.directive("focus-collapse", focusCollapse);
-app.directive("hover-collapse", hoverCollapse);
 
 app.use(router);
 
