@@ -1,10 +1,11 @@
 <script setup>
-import { onMounted } from "vue";
+import { onMounted, inject } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
 import Swal from "sweetalert2";
 import EditQuestionForm from "./components/EditQuestionForm.vue";
 import Modal from "bootstrap/js/dist/modal";
+const config = inject("config");
 
 let editQuestionModal;
 const showEditQuestionForm = (index) => {
@@ -52,14 +53,26 @@ const removeQuestion = async (index) => {
 
 const back = () => {
   if (feedbackSession.isSeries) {
-    router.push("/feedback/create-subsessions");
+    router.push(
+      `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/sessions${
+        feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+      }`
+    );
   } else {
-    router.push("/feedback/create-details");
+    router.push(
+      `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/details${
+        feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+      }`
+    );
   }
 };
 
 const next = () => {
-  router.push("/feedback/create-organisers");
+  router.push(
+    `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/organisers${
+      feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+    }`
+  );
 };
 
 onMounted(async () => {
@@ -77,7 +90,11 @@ onMounted(async () => {
   <div class="container my-4">
     <h1 class="text-center display-4">Feedback</h1>
     <div class="text-center">
-      <p>Add custom questions (optional)</p>
+      <p v-if="feedbackSession.isEdit" class="form-label ms-2">
+        Editing feedback session
+        <span class="id-box">{{ feedbackSession.id }}</span>
+      </p>
+      <p v-else>Add custom questions (optional)</p>
     </div>
     <div class="p-2 mb-3">
       <!--custom questions-->

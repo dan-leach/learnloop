@@ -52,45 +52,100 @@ const removeOrganiser = async (index) => {
 };
 
 const back = () => {
-  router.push("/feedback/create-questions");
+  router.push(
+    `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/questions${
+      feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+    }`
+  );
 };
 
 const showWarning = ref(false);
+const showWarningNoLead = ref(false);
 const formIsValid = () => {
+  showWarningNoLead.value = false;
   if (!feedbackSession.organisers.length) {
     showWarning.value = true;
+    return false;
+  }
+  let leadOrganiserCount = 0;
+  for (let organiser of feedbackSession.organisers) {
+    if (organiser.isLead) {
+      leadOrganiserCount++;
+      break;
+    }
+  }
+  if (leadOrganiserCount != 1) {
+    showWarningNoLead.value = true;
     return false;
   }
   return true;
 };
 
 const btnSubmit = ref({
-  text: "Create feedback session",
+  text: `${feedbackSession.isEdit ? "Update" : "Create"} feedback session`,
   wait: false,
 });
 const submit = async () => {
   if (!formIsValid()) return false;
-  try {
-    btnSubmit.value.text = "Please wait...";
-    btnSubmit.value.wait = true;
-    const response = await api("feedback/insertSession", feedbackSession);
-    btnSubmit.value.text = "Create feedback session";
-    btnSubmit.value.wait = false;
-    feedbackSession.id = response.id;
-    feedbackSession.pin = response.leadPin;
-    feedbackSession.sendMailFails = response.sendMailFails;
-    router.push("/feedback/created");
-  } catch (error) {
-    btnSubmit.value.text = "Retry creating feedback session?";
-    btnSubmit.value.wait = false;
-    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-    Swal.fire({
-      title: "Error creating feedback session",
-      text: error,
-      icon: "error",
-      iconColor: "#17a2b8",
-      confirmButtonColor: "#17a2b8",
-    });
+  btnSubmit.value.text = "Please wait...";
+  btnSubmit.value.wait = true;
+  if (feedbackSession.isEdit) {
+    try {
+      const response = await api("feedback/updateSession", feedbackSession);
+
+      btnSubmit.value.text = "Update feedback session";
+      btnSubmit.value.wait = false;
+      let html = response.message;
+      if (response.sendMailFails.length) {
+        html +=
+          "<br><br>Session update emails to the following recepients failed:<br>";
+        for (let fail of response.sendMailFails)
+          html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+      }
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        html: html,
+        confirmButtonColor: "#17a2b8",
+      });
+      feedbackSession.reset();
+      router.push("/");
+    } catch (error) {
+      btnSubmit.value.text = "Retry updating feedback session?";
+      btnSubmit.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error updating feedback session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  } else {
+    try {
+      btnSubmit.value.text = "Please wait...";
+      btnSubmit.value.wait = true;
+      const response = await api("feedback/insertSession", feedbackSession);
+      btnSubmit.value.text = "Create feedback session";
+      btnSubmit.value.wait = false;
+      feedbackSession.id = response.id;
+      feedbackSession.pin = response.leadPin;
+      feedbackSession.sendMailFails = response.sendMailFails;
+      router.push("/feedback/create/complete");
+    } catch (error) {
+      btnSubmit.value.text = "Retry creating feedback session?";
+      btnSubmit.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error creating feedback session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
   }
 };
 
@@ -109,7 +164,11 @@ onMounted(async () => {
   <div class="container my-4">
     <h1 class="text-center display-4">Feedback</h1>
     <div class="text-center">
-      <p>Add organisers who need to view feedback or edit the session</p>
+      <p v-if="feedbackSession.isEdit" class="form-label ms-2">
+        Editing feedback session
+        <span class="id-box">{{ feedbackSession.id }}</span>
+      </p>
+      <p v-else>Add organisers who need to view feedback or edit the session</p>
     </div>
     <!--organisers-->
     <div class="alert alert-teal" alert-dismissible fade show role="alert">
@@ -241,20 +300,26 @@ onMounted(async () => {
     <template v-for="(organisers, index) in feedbackSession.organisers">
       <EditOrganiserForm
         :index="index"
-        :isEdit="false"
+        :isEdit="feedbackSession.isEdit"
         @hideEditOrganiserModal="hideEditOrganiserModal"
       />
     </template>
     <EditOrganiserForm
       index="-1"
-      :isEdit="false"
+      :isEdit="feedbackSession.isEdit"
       @hideEditOrganiserModal="hideEditOrganiserModal"
     />
     <div
       class="text-danger"
       v-if="showWarning && !feedbackSession.organisers.length"
     >
-      You must add at least one organiser
+      You must add at least one organiser.
+    </div>
+    <div
+      class="text-danger"
+      v-if="showWarningNoLead && feedbackSession.organisers.length"
+    >
+      A lead organiser must be designated.
     </div>
   </div>
   <!--back/next button-->

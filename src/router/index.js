@@ -11,38 +11,43 @@ const router = createRouter({
       children: [
         {
           path: "create",
-          name: "feedback-create",
-          component: () => import("../feedback/Create.vue"),
-        },
-        {
-          path: "create-type",
-          name: "feedback-create-type",
-          component: () => import("../feedback/CreateType.vue"),
-        },
-        {
-          path: "create-details",
-          name: "feedback-create-details",
-          component: () => import("../feedback/CreateDetails.vue"),
-        },
-        {
-          path: "create-subsessions",
-          name: "feedback-create-subsessions",
-          component: () => import("../feedback/CreateSubsessions.vue"),
-        },
-        {
-          path: "create-questions",
-          name: "feedback-create-questions",
-          component: () => import("../feedback/CreateQuestions.vue"),
-        },
-        {
-          path: "create-organisers",
-          name: "feedback-create-organisers",
-          component: () => import("../feedback/CreateOrganisers.vue"),
-        },
-        {
-          path: "created",
-          name: "feedback-created",
-          component: () => import("../feedback/Created.vue"),
+          redirect: "feedback/create/type",
+          children: [
+            {
+              path: "type",
+              name: "feedback-create-type/",
+              component: () => import("../feedback/CreateType.vue"),
+            },
+            {
+              path: "details/:id?",
+              name: "feedback-create-details",
+              alias: "/feedback/edit/details/:id?",
+              component: () => import("../feedback/CreateDetails.vue"),
+            },
+            {
+              path: "sessions/:id?",
+              name: "feedback-create-subsessions",
+              alias: "/feedback/edit/sessions/:id?",
+              component: () => import("../feedback/CreateSubsessions.vue"),
+            },
+            {
+              path: "questions/:id?",
+              name: "feedback-create-questions",
+              alias: "/feedback/edit/questions/:id?",
+              component: () => import("../feedback/CreateQuestions.vue"),
+            },
+            {
+              path: "organisers/:id?",
+              name: "feedback-create-organisers",
+              alias: "/feedback/edit/organisers/:id?",
+              component: () => import("../feedback/CreateOrganisers.vue"),
+            },
+            {
+              path: "complete/:id?",
+              name: "feedback-create-complete",
+              component: () => import("../feedback/CreateComplete.vue"),
+            },
+          ],
         },
         {
           path: "instructions/:id?",
@@ -52,7 +57,7 @@ const router = createRouter({
         {
           path: "edit/:id?",
           name: "feedback-edit",
-          component: () => import("../feedback/Create.vue"),
+          component: () => import("../feedback/Edit.vue"),
         },
         {
           path: "complete",

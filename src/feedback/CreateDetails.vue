@@ -22,7 +22,7 @@ const toggleAttendance = () => {
 };
 
 const back = () => {
-  router.push("/feedback/create-type");
+  router.push("/feedback/create/type");
 };
 
 const formIsValid = () => {
@@ -34,9 +34,17 @@ const formIsValid = () => {
 const next = () => {
   if (!formIsValid()) return false;
   if (feedbackSession.isSeries) {
-    router.push("/feedback/create-subsessions");
+    router.push(
+      `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/sessions${
+        feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+      }`
+    );
   } else {
-    router.push("/feedback/create-questions");
+    router.push(
+      `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/questions${
+        feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+      }`
+    );
   }
 };
 
@@ -59,7 +67,11 @@ onMounted(async () => {
   >
     <h1 class="text-center display-4">Feedback</h1>
     <div class="text-center">
-      <p>Add some details about your teaching event</p>
+      <p v-if="feedbackSession.isEdit" class="form-label ms-2">
+        Editing feedback session
+        <span class="id-box">{{ feedbackSession.id }}</span>
+      </p>
+      <p v-else>Add some details about your teaching event</p>
     </div>
     <!--Title-->
     <div class="form-floating mb-3">
@@ -266,7 +278,12 @@ onMounted(async () => {
   </form>
   <!--back/next button-->
   <div class="d-flex justify-content-evenly mb-3">
-    <button class="btn btn-secondary btn-lg me-2 mb-2" id="back" @click="back">
+    <button
+      class="btn btn-secondary btn-lg me-2 mb-2"
+      id="back"
+      @click="back"
+      v-if="!feedbackSession.isEdit"
+    >
       Back
     </button>
     <button class="btn btn-teal btn-lg me-2 mb-2" id="next" @click="next">
@@ -278,5 +295,14 @@ onMounted(async () => {
 <style>
 .container {
   max-width: 750px;
+}
+.id-box {
+  padding: 2px;
+  font-family: serif;
+  border: 2px solid #17a2b8;
+  border-radius: 10px;
+  background-color: #17a2b8;
+  color: white;
+  letter-spacing: 3px;
 }
 </style>

@@ -94,7 +94,11 @@ const removeSubsession = async (index) => {
 };
 
 const back = () => {
-  router.push("/feedback/create-details");
+  router.push(
+    `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/details${
+      feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+    }`
+  );
 };
 
 const showWarning = ref(false);
@@ -107,7 +111,11 @@ const formIsValid = () => {
 };
 const next = () => {
   if (!formIsValid()) return false;
-  router.push("/feedback/create-questions");
+  router.push(
+    `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/questions${
+      feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+    }`
+  );
 };
 
 onMounted(async () => {
@@ -125,7 +133,11 @@ onMounted(async () => {
   <div class="container my-4">
     <h1 class="text-center display-4">Feedback</h1>
     <div class="text-center">
-      <p>Add sessions to your teaching event</p>
+      <p v-if="feedbackSession.isEdit" class="form-label ms-2">
+        Editing feedback session
+        <span class="id-box">{{ feedbackSession.id }}</span>
+      </p>
+      <p v-else>Add sessions to your teaching event</p>
     </div>
     <div class="alert alert-teal" alert-dismissible fade show role="alert">
       <div class="d-flex justify-content-between">
@@ -215,13 +227,13 @@ onMounted(async () => {
     <template v-for="(subsession, index) in feedbackSession.subsessions">
       <EditSubsessionForm
         :index="index"
-        :isEdit="false"
+        :isEdit="feedbackSession.isEdit"
         @hideEditSubsessionModal="hideEditSubsessionModal"
       />
     </template>
     <EditSubsessionForm
       index="-1"
-      :isEdit="false"
+      :isEdit="feedbackSession.isEdit"
       @hideEditSubsessionModal="hideEditSubsessionModal"
     />
     <div

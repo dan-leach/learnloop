@@ -255,7 +255,7 @@ const next = async () => {
       return;
     }
   }
-  router.push("/feedback/create-details");
+  router.push("/feedback/create/details");
 };
 
 onMounted(async () => {

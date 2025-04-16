@@ -439,7 +439,7 @@ onMounted(() => {
           <li class="nav-item mb-2 flex-grow-1 d-flex">
             <button
               class="nav-link active flex-grow-1"
-              @click="router.push('/feedback/create-type')"
+              @click="router.push('/feedback/create')"
             >
               Create a new feedback session
             </button>
