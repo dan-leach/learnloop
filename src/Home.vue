@@ -343,85 +343,85 @@ onMounted(() => {
 </script>
 
 <template>
-  <main>
-    <div
-      class="alert alert-danger mt-3"
-      show
-      role="alert"
-      v-if="!deployVersion"
-    >
-      <div class="d-flex justify-content-between">
-        <h4 class="alert-heading">Development version</h4>
-      </div>
-      Welcome to LearnLoop v{{ config.version }}.
-      <a
-        href="https://github.com/dan-leach/learnloop/blob/v6/changelog.md"
-        target="_blank"
-        style="color: black"
-        >View the changelog here</a
-      >.<br />This version is under active development so it might behave in
-      unpredictable ways. Please
-      <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
-        >let me know</a
-      >
-      about any issues you find.<br />If you prefer to wait until the update is
-      formally released, please use
-      <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
-      instead.
+  <!--dev alert-->
+  <div class="alert alert-danger mt-3" show role="alert" v-if="!deployVersion">
+    <div class="d-flex justify-content-between">
+      <h4 class="alert-heading">Development version</h4>
     </div>
-    <div class="d-flex justify-content-around mt-3">
-      <!--remove hidden attribute to restore update info card-->
-      <div class="card bg-transparent shadow mb-3 update-info-card" hidden>
-        <div class="card-body">
-          <h5 class="card-title">What's new in the January update?</h5>
-          <p class="card-text">
-            Create feedback requests using existing sessions as a template, add
-            additional organisers, easier custom questions and more.
-            <a href="#" data-bs-toggle="collapse" data-bs-target="#changes"
-              >Read more...</a
-            >
-          </p>
-          <div class="collapse my-2" id="changes">
-            <ul>
-              <li class="mb-2">
-                You can now use a previous session as a template. The session
-                details including the organiser details, custom questions, and
-                any sessions will be automatically populated from your template
-                session. You can edit the details before submitting. The session
-                which is used as a template is not changed. Click
-                <strong>Use a previous session as a template</strong> on the
-                <strong>Create a new feedback session</strong> to try it out.
-              </li>
-              <li class="mb-2">
-                You can add multiple organisers to your feedback sessions. You
-                decide which organisers can edit the session or just view the
-                feedback and attendance data.
-              </li>
-              <li class="mb-2">
-                Custom questions now have more options, such as specifying how
-                many checkboxes must be selected (e.g. between 2 and 4), a
-                character limit for free-text questions, and all questions can
-                be required or optional.
-              </li>
-              <li class="mb-2">
-                You now have the option to select
-                <strong>deliver on multiple dates</strong> if you want to gather
-                feedback in one place for a session you are delivering more than
-                once.
-              </li>
-              <li>
-                <strong>Coming soon:</strong> Interaction will allow you to
-                share questions and polls with your audience via their
-                smartphone or other devices during teaching sessions. Register
-                your interest below to be the first to know when it's available.
-              </li>
-            </ul>
-          </div>
+    Welcome to LearnLoop v{{ config.version }}.
+    <a
+      href="https://github.com/dan-leach/learnloop/blob/v6/changelog.md"
+      target="_blank"
+      style="color: black"
+      >View the changelog here</a
+    >.<br />This version is under active development so it might behave in
+    unpredictable ways. Please
+    <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
+      >let me know</a
+    >
+    about any issues you find.<br />If you prefer to wait until the update is
+    formally released, please use
+    <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
+    instead.
+  </div>
+
+  <!--update card-->
+  <div class="d-flex justify-content-around mt-3">
+    <!--remove hidden attribute to restore update info card-->
+    <div class="card bg-transparent shadow mb-3 update-info-card" hidden>
+      <div class="card-body">
+        <h5 class="card-title">What's new in the January update?</h5>
+        <p class="card-text">
+          Create feedback requests using existing sessions as a template, add
+          additional organisers, easier custom questions and more.
+          <a href="#" data-bs-toggle="collapse" data-bs-target="#changes"
+            >Read more...</a
+          >
+        </p>
+        <div class="collapse my-2" id="changes">
+          <ul>
+            <li class="mb-2">
+              You can now use a previous session as a template. The session
+              details including the organiser details, custom questions, and any
+              sessions will be automatically populated from your template
+              session. You can edit the details before submitting. The session
+              which is used as a template is not changed. Click
+              <strong>Use a previous session as a template</strong> on the
+              <strong>Create a new feedback session</strong> to try it out.
+            </li>
+            <li class="mb-2">
+              You can add multiple organisers to your feedback sessions. You
+              decide which organisers can edit the session or just view the
+              feedback and attendance data.
+            </li>
+            <li class="mb-2">
+              Custom questions now have more options, such as specifying how
+              many checkboxes must be selected (e.g. between 2 and 4), a
+              character limit for free-text questions, and all questions can be
+              required or optional.
+            </li>
+            <li class="mb-2">
+              You now have the option to select
+              <strong>deliver on multiple dates</strong> if you want to gather
+              feedback in one place for a session you are delivering more than
+              once.
+            </li>
+            <li>
+              <strong>Coming soon:</strong> Interaction will allow you to share
+              questions and polls with your audience via their smartphone or
+              other devices during teaching sessions. Register your interest
+              below to be the first to know when it's available.
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-around flex-wrap mt-2">
-      <div class="card bg-transparent shadow p-2 m-2">
+  </div>
+
+  <!--main cards-->
+  <div class="row justify-content-center align-items-stretch mt-2">
+    <div class="col-12 col-md-8 col-lg-6 mb-3">
+      <div class="card bg-transparent shadow p-2 mx-auto h-100">
         <h1 class="text-center">Feedback</h1>
         <p class="text-center">Quickly gather anonymous feedback on teaching</p>
         <div class="input-group m-2">
@@ -500,7 +500,9 @@ onMounted(() => {
           {{ config.feedback.count }} responses
         </small>
       </div>
-      <div class="card bg-transparent shadow p-2 m-2 interaction-card">
+    </div>
+    <div class="col-12 col-md-8 col-lg-6 mb-3">
+      <div class="card bg-transparent shadow p-2 mx-auto h-100">
         <!--remove interaction-card class once back to full layout not just expression of interest-->
         <h1 class="text-center">Interaction</h1>
         <p class="text-center">Engage with your audience during teaching</p>
@@ -594,16 +596,15 @@ onMounted(() => {
         </div>
       </div>
     </div>
-    <Quote />
-  </main>
+  </div>
+
+  <!--quote-->
+  <Quote />
 </template>
 
 <style scoped>
 .card {
-  min-width: 300px;
-}
-.update-info-card {
-  width: 1070px;
+  max-width: 500px;
 }
 .nav-link.active {
   background-color: #17a2b8;
@@ -620,9 +621,6 @@ onMounted(() => {
 @media only screen and (min-width: 1200px) {
   .more-options {
     margin-left: 15px;
-  }
-  .interaction-card {
-    min-width: 450px;
   }
 }
 </style>
