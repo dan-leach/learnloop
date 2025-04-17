@@ -304,7 +304,8 @@ onMounted(async () => {
               :icon="['fas', 'check']"
               style="color: #17a2b8"
               class="me-1"
-            />You will need the session ID and PIN.</span
+            />You will need the ID and PIN of the session you want to use as a
+            template.</span
           ><br />
           <span>
             <font-awesome-icon
@@ -319,7 +320,7 @@ onMounted(async () => {
               style="color: #17a2b8"
               class="me-1"
             />The session used as a template will not be changed.</span
-          ><br />
+          >
         </div>
       </div>
     </div>

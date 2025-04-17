@@ -344,24 +344,32 @@ onMounted(() => {
 
 <template>
   <main>
-    <p class="text-center fs-6 mt-2" v-if="!deployVersion">
-      Welcome to LearnLoop v{{ config.version }}. This version is under active
-      development so it might behave in unpredictable ways. Please
-      <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
-        >let me know</a
-      >
-      about any issues you find.
+    <div
+      class="alert alert-danger mt-3"
+      show
+      role="alert"
+      v-if="!deployVersion"
+    >
+      <div class="d-flex justify-content-between">
+        <h4 class="alert-heading">Development version</h4>
+      </div>
+      Welcome to LearnLoop v{{ config.version }}.
       <a
         href="https://github.com/dan-leach/learnloop/blob/v6/changelog.md"
         target="_blank"
         style="color: black"
         >View the changelog here</a
-      >. If you prefer to wait until the update is formally released, please use
+      >.<br />This version is under active development so it might behave in
+      unpredictable ways. Please
+      <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
+        >let me know</a
+      >
+      about any issues you find.<br />If you prefer to wait until the update is
+      formally released, please use
       <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
       instead.
-    </p>
-    <div v-else class="mt-3"></div>
-    <div class="d-flex justify-content-around">
+    </div>
+    <div class="d-flex justify-content-around mt-3">
       <!--remove hidden attribute to restore update info card-->
       <div class="card bg-transparent shadow mb-3 update-info-card" hidden>
         <div class="card-body">

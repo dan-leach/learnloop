@@ -348,7 +348,7 @@ onMounted(async () => {
               style="color: #17a2b8"
               class="me-1"
             />Add as many co-organisers as you need.</span
-          ><br />
+          >
         </div>
       </div>
 
@@ -411,30 +411,9 @@ onMounted(async () => {
               :icon="['fas', 'check']"
               style="color: #17a2b8"
               class="me-1"
-            />Certificate of attendance option.</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Register of attendance option.</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Add additional custom questions if required (just for the overall
-            feedback, not each session).</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Add as many co-organisers as you need.</span
-          ><br />
+            />Plus all the features from a feedback request for a single
+            session.</span
+          >
         </div>
       </div>
 
@@ -475,50 +454,23 @@ onMounted(async () => {
               :icon="['fas', 'check']"
               style="color: #17a2b8"
               class="me-1"
-            />You will need the session ID and PIN.</span
+            />You will need the ID and PIN of the session you want to use as a
+            template.</span
           ><br />
           <span>
             <font-awesome-icon
               :icon="['fas', 'check']"
               style="color: #17a2b8"
               class="me-1"
-            />You can make changes before creating the new form.</span
+            />You can make changes before creating the new session.</span
           ><br />
           <span>
             <font-awesome-icon
               :icon="['fas', 'check']"
               style="color: #17a2b8"
               class="me-1"
-            />The form used as a template will not be changed.</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Certificate of attendance option.</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Register of attendance option.</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Add additional custom questions if required.</span
-          ><br />
-          <span>
-            <font-awesome-icon
-              :icon="['fas', 'check']"
-              style="color: #17a2b8"
-              class="me-1"
-            />Add as many co-organisers as you need.</span
-          ><br />
+            />The session used as a template will not be changed.</span
+          >
         </div>
       </div>
     </div>
