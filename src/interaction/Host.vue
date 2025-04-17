@@ -268,9 +268,9 @@ const exitPreviewSession = () => {
 
   // Return to crteate view (in either edit or create mode)
   if (interactionSession.editMode) {
-    router.push("/interaction/edit/" + interactionSession.id);
+    router.push("/interaction/edit/slides/" + interactionSession.id);
   } else {
-    router.push("/interaction/create");
+    router.push("/interaction/create/slides");
   }
 };
 

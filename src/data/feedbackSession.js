@@ -35,6 +35,10 @@ export const feedbackSession = reactive({
       scoreText: "Please use the slider to indicate an overall score",
     },
   },
+  isEdit: false,
+  isSingle: false,
+  isSeries: false,
+  useTemplate: false,
   reset: function () {
     this.id = "";
     this.pin = "";
@@ -70,5 +74,9 @@ export const feedbackSession = reactive({
       },
     };
     this.templateId = "";
+    this.isEdit = false;
+    this.isSingle = false;
+    this.isSeries = false;
+    this.useTemplate = false;
   },
 });

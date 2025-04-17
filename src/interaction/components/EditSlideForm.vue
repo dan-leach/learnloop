@@ -535,14 +535,20 @@ let submit = () => {
                   placeholder=""
                   name="prompt"
                   autocomplete="off"
+                  v-focus-collapse="'promptHelp'"
                   required
                 />
                 <label for="prompt">{{
                   slide.isInteractive
-                    ? "Question or instruction to attendees"
+                    ? "Prompt"
                     : "Slide heading"
                 }}</label>
+                <div class="collapse form-text mx-1" id="promptHelp">
+                  <span v-if="slide.isInteractive">The prompt is usually a question or instruction to the attendee that indicates how they should respond.<br>E.g. <i>'Select the most appropriate treatment'</i> for a multiple choice interaction.<br> The prompt appears above the content or interaction on the presenter's screen and the attendee device.</span>
+                  <span v-else>The slide heading appears above the content on the presenter's screen and the attendee device.</span>
+                </div>
               </div>
+
               <!--notes-->
               <div class="form-floating mb-3">
                 <textarea
@@ -552,8 +558,12 @@ let submit = () => {
                   placeholder=""
                   name="notes"
                   autocomplete="off"
+                  v-focus-collapse="'notesHelp'"
                 ></textarea>
                 <label for="notes">Presenter notes</label>
+                <div class="collapse form-text mx-1" id="notesHelp">
+                  <span>If you have a secondary screen not visible to attendees you can use presenter view.</span><br><span>Notes added here are displayed along with a preview of the next slide.</span>
+                </div>
               </div>
               <!--content-->
               <div class="card mb-3">

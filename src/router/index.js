@@ -98,13 +98,36 @@ const router = createRouter({
       children: [
         {
           path: "create",
-          name: "interaction-create",
-          component: () => import("../interaction/Create.vue"),
-        },
-        {
-          path: "created",
-          name: "interaction-created",
-          component: () => import("../interaction/Created.vue"),
+          redirect: "interaction/create/type",
+          children: [
+            {
+              path: "type",
+              name: "interaction-create-type",
+              component: () => import("../interaction/CreateType.vue"),
+            },
+            {
+              path: "details/:id?",
+              name: "interaction-create-details",
+              alias: "/interaction/edit/details/:id?",
+              component: () => import("../interaction/CreateDetails.vue"),
+            },
+            {
+              path: "login",
+              name: "interaction-create-login",
+              component: () => import("../interaction/CreateLogin.vue"),
+            },
+            {
+              path: "slides/:id?",
+              name: "interaction-create-slides",
+              alias: "/interaction/edit/slides/:id?",
+              component: () => import("../interaction/CreateSlides.vue"),
+            },
+            {
+              path: "complete",
+              name: "interaction-create-complete",
+              component: () => import("../interaction/CreateComplete.vue"),
+            },
+          ],
         },
         {
           path: "instructions/:id?",
@@ -124,7 +147,7 @@ const router = createRouter({
         {
           path: "edit/:id?", //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN
           name: "interaction-edit",
-          component: () => import("../interaction/Create.vue"),
+          component: () => import("../interaction/Edit.vue"),
         },
         {
           path: "resetPIN/:id?", //? allows route to match even if no id provided. In this case the dialog will prompt for ID as well as PIN

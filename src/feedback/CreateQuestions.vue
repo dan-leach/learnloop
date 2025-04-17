@@ -81,7 +81,7 @@ onMounted(async () => {
     !feedbackSession.isSingle &&
     !feedbackSession.useTemplate
   ) {
-    router.push("/feedback/create-type");
+    router.push("/feedback/create/type");
   }
 });
 </script>
