@@ -411,7 +411,8 @@ onMounted(async () => {
               :icon="['fas', 'check']"
               style="color: #17a2b8"
               class="me-1"
-            />Plus all the features from a feedback request for a single
+            />
+            Plus all the features from a feedback request for a single
             session.</span
           >
         </div>
