@@ -1,13 +1,31 @@
 <script setup>
+/**
+ * @module feedback/CreateSubsessions
+ * @summary Step 3 (only if isSeries) of the feedback session creation process.
+ * @description This component allows users to add, edit, sort, and remove subsessions (individual teaching sessions) within a feedback event.
+ * Each subsession can have a title, facilitator name, and optional email address for direct feedback access.
+ * @requires ../data/feedbackSession.js
+ * @requires ../router/index.js
+ * @requires sweetalert2
+ * @requires bootstrap/js/dist/modal
+ */
 import { onMounted, inject, ref } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
 import Swal from "sweetalert2";
 import EditSubsessionForm from "./components/EditSubsessionForm.vue";
 import Modal from "bootstrap/js/dist/modal";
+
 const config = inject("config");
 
 let editSubsessionModal;
+
+/**
+ * Shows the modal form to edit a subsession.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ * @param {number} index - Index of the subsession to edit. -1 if adding a new one.
+ */
 const showEditSubsessionForm = (index) => {
   editSubsessionModal = new Modal(
     document.getElementById("editSubsessionModal" + index),
@@ -21,25 +39,28 @@ const showEditSubsessionForm = (index) => {
 };
 
 /**
- * Validates an email address.
+ * Validates an email address using a regex.
  *
- * This function checks if the provided email follows the standard email format.
- *
- * @param {string} email - The email address to validate.
- * @returns {boolean} - Returns true if the email is valid, otherwise false.
+ * @memberof module:feedback/CreateSubsessions
+ * @param {string} email - Email address to validate.
+ * @returns {boolean} True if valid, false otherwise.
  */
 function emailIsValid(email) {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
 }
 
+/**
+ * Handles hiding the modal and saving data if the form was submitted.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ * @param {number|undefined} index - Subsession index, or undefined if form was closed without saving.
+ * @param {string} subsession - JSON string with form data.
+ */
 const hideEditSubsessionModal = async (index, subsession) => {
-  //hide the subsession form
   editSubsessionModal.hide();
-
   if (index === undefined) return; //user did not submit the form, closed using the X. Do nothing except hide the modal
 
-  //get the data from the form output
   const { name, title, email } = JSON.parse(subsession);
 
   if (index == -1) {
@@ -49,11 +70,12 @@ const hideEditSubsessionModal = async (index, subsession) => {
     //otherwise use Object assign to avoid row visually jumping around as array mutated
     Object.assign(feedbackSession.subsessions[index], { name, title, email });
   }
+
   if (!email && config.value.client.subsessionEmailPrompt) {
-    config.value.client.subsessionEmailPrompt = false; //only prompt once
+    config.value.client.subsessionEmailPrompt = false; // Only prompt once
     const { isConfirmed } = await Swal.fire({
       title: "Are you sure you don't want to provide a facilitator email?",
-      text: "If you don't provide an email for the facilitator of this session they won't be able to view their feedback directly. As the organiser, you will still be able to view feedback for their session and share it with them manually if you wish. Click 'Cancel' if you want to return and enter a faciltator email.",
+      html: "Facilitators won't be able to view their feedback directly unless you provide their email. <br><br>You can still send it to them manually.",
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
     });
@@ -77,12 +99,27 @@ const hideEditSubsessionModal = async (index, subsession) => {
     );
   }
 };
+
+/**
+ * Moves a subsession up or down in the list.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ * @param {number} index - Current index of the subsession.
+ * @param {number} x - Offset to move by (-1 for up, 1 for down).
+ */
 const sortSubsession = (index, x) =>
   feedbackSession.subsessions.splice(
     index + x,
     0,
     feedbackSession.subsessions.splice(index, 1)[0]
   );
+
+/**
+ * Prompts the user to confirm and removes a subsession if confirmed.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ * @param {number} index - Index of the subsession to remove.
+ */
 const removeSubsession = async (index) => {
   const { isConfirmed } = await Swal.fire({
     title: "Remove this subsession?",
@@ -93,6 +130,11 @@ const removeSubsession = async (index) => {
   if (isConfirmed) feedbackSession.subsessions.splice(index, 1);
 };
 
+/**
+ * Navigates back to the feedback session details view.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ */
 const back = () => {
   router.push(
     `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/details${
@@ -102,6 +144,13 @@ const back = () => {
 };
 
 const showWarning = ref(false);
+
+/**
+ * Validates that at least one subsession has been added.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ * @returns {boolean} True if valid, false otherwise.
+ */
 const formIsValid = () => {
   if (!feedbackSession.subsessions.length) {
     showWarning.value = true;
@@ -109,8 +158,14 @@ const formIsValid = () => {
   }
   return true;
 };
+
+/**
+ * Navigates to the next step (question setup) if form is valid.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ */
 const next = () => {
-  if (!formIsValid()) return false;
+  if (!formIsValid()) return;
   router.push(
     `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/questions${
       feedbackSession.isEdit ? "/" + feedbackSession.id : ""
@@ -118,7 +173,12 @@ const next = () => {
   );
 };
 
-onMounted(async () => {
+/**
+ * Ensures that the session type has been selected, otherwise redirects to type selection.
+ *
+ * @memberof module:feedback/CreateSubsessions
+ */
+onMounted(() => {
   if (
     !feedbackSession.isSeries &&
     !feedbackSession.isSingle &&

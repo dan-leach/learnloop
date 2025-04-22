@@ -1,32 +1,75 @@
 <script setup>
+/**
+ * @module feedback/components/EditSubsessionForm
+ * @summary Modal for adding or editing a feedback subsession
+ * @description Allows a user to add or edit title, facilitator name, and optionally facilitator email.
+ * Uses data binding and validation. Emits updated data back to the parent component.
+ * @exports EditSubsessionModal
+ */
+
 import { ref } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
 
 const props = defineProps(["index", "isEdit"]);
 const emit = defineEmits(["hideEditSubsessionModal"]);
 
+/**
+ * @memberof module:feedback/components/EditSubsessionForm
+ * @description Session title input value
+ */
 let title = ref("");
+
+/**
+ * @memberof module:feedback/components/EditSubsessionForm
+ * @description Facilitator name input value
+ */
 let name = ref("");
+
+/**
+ * @memberof module:feedback/components/EditSubsessionForm
+ * @description Facilitator email input value
+ */
 let email = ref("");
+
+/**
+ * @memberof module:feedback/components/EditSubsessionForm
+ * @description Whether the email input is locked from editing (e.g. for existing sessions)
+ */
 let emailLocked = ref(false);
 
+// Pre-fill form fields when editing an existing subsession
 if (props.index > -1) {
   const subsession = feedbackSession.subsessions[props.index];
   title.value = subsession.title;
   name.value = subsession.name;
   email.value = subsession.email || "";
-  if (props.isEdit && email.value.length && subsession.id)
+
+  if (props.isEdit && email.value.length && subsession.id) {
     emailLocked.value = true;
+  }
 }
 
+/**
+ * @function submit
+ * @memberof module:feedback/components/EditSubsessionForm
+ * @description Validates input and emits new or updated subsession data
+ * @returns {boolean} Returns false if form validation fails
+ */
 let submit = () => {
   document
     .getElementById("editSubsessionModal" + props.index)
     .classList.add("was-validated");
+
   if (!title.value || !name.value) return false;
+
   createSubsession();
 };
 
+/**
+ * @function createSubsession
+ * @memberof module:feedback/components/EditSubsessionForm
+ * @description Emits form data and resets the form if creating a new subsession
+ */
 const createSubsession = () => {
   emit(
     "hideEditSubsessionModal",
@@ -37,11 +80,14 @@ const createSubsession = () => {
       email: email.value,
     })
   );
+
+  // Reset input fields if adding a new subsession
   if (props.index == -1) {
     title.value = "";
     name.value = "";
     email.value = "";
   }
+
   document
     .getElementById("editSubsessionModal" + props.index)
     .classList.remove("was-validated");

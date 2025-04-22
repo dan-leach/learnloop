@@ -1,19 +1,59 @@
 <script setup>
+/**
+ * @module feedback/components/EditOrganiserForm
+ * @summary Modal for adding or editing organisers of a feedback session.
+ * @description Allows an organiser to be added or edited, with validation for lead status, email, and editing permissions.
+ * @requires Swal
+ * @requires vue
+ * @exports OrganiserModal
+ */
+
 import { ref } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
 import Swal from "sweetalert2";
 
+/**
+ * Props passed to the component: index of the organiser and whether the form is for editing.
+ * @type {Object}
+ * @property {number} index - The index of the organiser to edit. If -1, a new organiser is being added.
+ * @property {boolean} isEdit - A flag indicating whether the organiser is being edited or added.
+ */
 const props = defineProps(["index", "isEdit"]);
+
+/**
+ * Event emitter for hiding the organiser modal.
+ * @type {Function}
+ */
 const emit = defineEmits(["hideEditOrganiserModal"]);
 
+/**
+ * Reactive reference for the organiser's name.
+ * @type {Ref<string>}
+ */
 let name = ref("");
+/**
+ * Reactive reference for the organiser's email address.
+ * @type {Ref<string>}
+ */
 let email = ref("");
+/**
+ * Reactive reference indicating whether the organiser is the lead organiser.
+ * @type {Ref<boolean>}
+ */
 let isLead = ref(true);
+/**
+ * Reactive reference indicating whether the organiser has edit permissions.
+ * @type {Ref<boolean>}
+ */
 let canEdit = ref(true);
+/**
+ * Reactive reference indicating whether the organiser already exists in the session.
+ * @type {Ref<boolean>}
+ */
 let existing = ref(false);
 
+// Initialize form values if editing an existing organiser
 if (props.isEdit) isLead.value = false;
-
 if (props.index > -1) {
   const organiser = feedbackSession.organisers[props.index];
   name.value = organiser.name;
@@ -24,10 +64,7 @@ if (props.index > -1) {
 }
 
 /**
- * Validates an email address.
- *
- * This function checks if the provided email follows the standard email format.
- *
+ * Validates the provided email address.
  * @param {string} email - The email address to validate.
  * @returns {boolean} - Returns true if the email is valid, otherwise false.
  */
@@ -36,16 +73,28 @@ function emailIsValid(email) {
   return emailRegex.test(email);
 }
 
+/**
+ * Reactive reference for the submit button's state (text and loading indicator).
+ * @type {Ref<Object>}
+ */
 let btnSubmit = ref({
   text: "Add organiser",
   wait: false,
 });
 
+/**
+ * Handles the form submission for adding or editing an organiser.
+ * Performs validation checks and ensures that the form meets the required criteria before submission.
+ */
 let submit = () => {
   document
     .getElementById("editOrganiserModal" + props.index)
     .classList.add("was-validated");
+
+  // Validate fields before submission
   if (!name.value || !email.value) return false;
+
+  // Check if lead organiser validation passes
   if (isLead.value && otherOrganiserIsLead()) {
     Swal.fire({
       icon: "info",
@@ -57,17 +106,21 @@ let submit = () => {
     });
     return false;
   }
+
+  // Check if the lead organiser has editing rights
   if (isLead.value && !canEdit.value) {
     Swal.fire({
       icon: "info",
       iconColor: "#17a2b8",
       title: "Lead organiser must have edit access",
-      html: '<div class="text-start">The lead organsier must have editing rights.</div>',
+      html: '<div class="text-start">The lead organiser must have editing rights.</div>',
       width: "60%",
       confirmButtonColor: "#17a2b8",
     });
     return false;
   }
+
+  // Check for duplicate email addresses
   if (organiserEmailDuplicate()) {
     Swal.fire({
       icon: "info",
@@ -79,8 +132,11 @@ let submit = () => {
     });
     return false;
   }
+
   btnSubmit.text = "Please wait";
   btnSubmit.wait = true;
+
+  // If email is valid, proceed with adding organiser
   if (emailIsValid(email.value)) {
     addOrganiser();
   } else {
@@ -95,6 +151,9 @@ let submit = () => {
   }
 };
 
+/**
+ * Adds the organiser to the feedback session and emits the updated organiser data.
+ */
 const addOrganiser = () => {
   emit(
     "hideEditOrganiserModal",
@@ -106,33 +165,45 @@ const addOrganiser = () => {
       canEdit: canEdit.value,
     })
   );
+  // Reset form if adding a new organiser
   if (props.index == -1) {
     name.value = "";
     email.value = "";
     isLead.value = isLead.value || otherOrganiserIsLead() ? false : true;
     canEdit.value = true;
   }
+  // Remove validation class after submission
   document
     .getElementById("editOrganiserModal" + props.index)
     .classList.remove("was-validated");
 };
 
+/**
+ * Checks if any other organiser already has the same email address.
+ * @returns {boolean} - Returns true if there is a duplicate email, otherwise false.
+ */
 const organiserEmailDuplicate = () => {
   for (let i in feedbackSession.organisers) {
-    //return true another organiser already has this email
     if (feedbackSession.organisers[i].email === email.value && i != props.index)
       return true;
   }
   return false;
 };
 
+/**
+ * Checks if any other organiser is currently marked as the lead.
+ * @returns {boolean} - Returns true if another organiser is the lead, otherwise false.
+ */
 const otherOrganiserIsLead = () => {
   for (let i in feedbackSession.organisers) {
-    //return true if one of the organisers isLead, excluding the current organiser index
     if (feedbackSession.organisers[i].isLead && i != props.index) return true;
   }
   return false;
 };
+
+/**
+ * Toggles the lead status for the organiser. Ensures only one lead organiser exists.
+ */
 const toggleIsLead = () => {
   if (isLead.value && otherOrganiserIsLead()) {
     Swal.fire({
@@ -148,13 +219,16 @@ const toggleIsLead = () => {
   if (isLead.value) canEdit.value = true;
 };
 
+/**
+ * Toggles the editing rights for the organiser. Ensures the lead organiser always has edit rights.
+ */
 const toggleCanEdit = async () => {
   if (isLead.value && !canEdit.value) {
     await Swal.fire({
       icon: "info",
       iconColor: "#17a2b8",
       title: "Lead organiser must have edit access",
-      html: '<div class="text-start">The lead organsier must have editing rights.</div>',
+      html: '<div class="text-start">The lead organiser must have editing rights.</div>',
       width: "60%",
       confirmButtonColor: "#17a2b8",
     });

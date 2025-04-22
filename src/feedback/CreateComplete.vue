@@ -1,15 +1,32 @@
 <script setup>
-import { ref } from "vue";
+/**
+ * @module feedback/CreateComplete
+ * @summary Final step of the session creation process.
+ * @description Displays session ID, PIN, and shareable links.
+ * Provides utility functions to copy session details or QR code to clipboard.
+ * Redirects user to the session creation page if session data is missing.
+ * 
+ * @requires module:router
+ * @requires module:data/feedbackSession
+ * @requires module:assets/Toast
+ */
+
+import { ref, inject } from "vue";
 import router from "../router";
 import { feedbackSession } from "../data/feedbackSession.js";
 import Toast from "../assets/Toast.js";
-import { inject } from "vue";
+
 const config = inject("config");
 
+// Redirect if essential session data is missing
 if (!feedbackSession.id || !feedbackSession.pin) {
   router.push("/feedback/create");
 }
 
+/**
+ * @memberof module:feedback/CreateComplete
+ * @description Holds index of lead organiser (if there are multiple)
+ */
 const leadOrganiserIndex = ref(0);
 if (feedbackSession.organisers.length > 1) {
   leadOrganiserIndex.value = feedbackSession.organisers.findIndex(
@@ -17,20 +34,36 @@ if (feedbackSession.organisers.length > 1) {
   );
 }
 
-const link = ref({});
-link.value.give = config.value.client.url + "/" + feedbackSession.id;
-link.value.view =
-  config.value.client.url + "/feedback/view/" + feedbackSession.id;
-link.value.qr = config.value.api.url + "qrcode/?id=" + feedbackSession.id;
-let clipboard = ref(false);
-if (navigator.clipboard) clipboard.value = true;
+/**
+ * @memberof module:feedback/CreateComplete
+ * @description Links for sharing and accessing the feedback session
+ */
+const link = ref({
+  give: `${config.value.client.url}/${feedbackSession.id}`,
+  view: `${config.value.client.url}/feedback/view/${feedbackSession.id}`,
+  qr: `${config.value.api.url}qrcode/?id=${feedbackSession.id}`,
+});
+
+/**
+ * @memberof module:feedback/CreateComplete
+ * @description Whether the clipboard API is available
+ */
+const clipboard = ref(!!navigator.clipboard);
+
+/**
+ * @function copyText
+ * @memberof module:feedback/CreateComplete
+ * @description Copies plain text (ID, PIN, or URL) to the clipboard
+ * @param {string} string - The string to copy to clipboard
+ * @returns {Promise<void>}
+ * @throws Will show a toast notification if copying fails
+ */
 const copyText = async (string) => {
   if (!clipboard.value) return;
   try {
-    await navigator.clipboard.writeText(string)
+    await navigator.clipboard.writeText(string);
     Toast.fire({
       icon: "success",
-      iconColor: "#17a2b8",
       iconColor: "#17a2b8",
       title: "Copied",
     });
@@ -38,16 +71,25 @@ const copyText = async (string) => {
     Toast.fire({
       icon: "error",
       iconColor: "#17a2b8",
-      title: "Error copying to clipboard: " + error,
+      title: `Error copying to clipboard: ${error}`,
     });
   }
 };
+
+/**
+ * @function copyImg
+ * @memberof module:feedback/CreateComplete
+ * @description Fetches and copies an image (QR code) to the clipboard
+ * @param {string} src - The image URL to copy
+ * @returns {Promise<void>}
+ * @throws Will show a toast notification if copying fails
+ */
 const copyImg = async (src) => {
   if (!clipboard.value) return;
-  const response = await fetch(src);
-  const blob = await response.blob();
   try {
-    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+    const response = await fetch(src);
+    const blob = await response.blob();
+    await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     Toast.fire({
       icon: "success",
       iconColor: "#17a2b8",
@@ -57,11 +99,13 @@ const copyImg = async (src) => {
     Toast.fire({
       icon: "error",
       iconColor: "#17a2b8",
-      title: "Error copying to clipboard: " + error,
+      title: `Error copying to clipboard: ${error}`,
     });
   }
 };
 </script>
+
+
 
 <template v-once>
   <h1 class="text-center display-4">Feedback</h1>

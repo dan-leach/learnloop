@@ -1,18 +1,52 @@
 <script setup>
-import { ref, watch } from "vue";
+/**
+ * @module feedback/components/EditQuestionForm
+ * @summary Modal for adding or editing feedback questions in the system.
+ * @description Provides functionality to define and edit questions, including setting options, type-specific settings, and validation.
+ * @requires Swal
+ * @requires vue
+ */
+
+import { ref, watch, inject } from "vue";
 import { feedbackSession } from "../../data/feedbackSession.js";
 import Swal from "sweetalert2";
-import { inject } from "vue";
+
+/**
+ * Injected configuration object for client-specific settings.
+ * @type {Object}
+ */
 const config = inject("config");
 
+/**
+ * Props passed to the component, including the index of the question being edited.
+ * @type {Object}
+ * @property {number} index - The index of the question to be edited. If -1, a new question is being added.
+ */
 const props = defineProps(["index"]);
+
+/**
+ * Event emitter for hiding the edit question modal.
+ * @type {Function}
+ */
 const emit = defineEmits(["hideEditQuestionModal"]);
 
+/**
+ * Reactive reference for the question's title.
+ * @type {Ref<string>}
+ */
 let title = ref("");
+
+/**
+ * Reactive reference for the question's type (e.g., text, select, checkboxes).
+ * @type {Ref<string>}
+ */
 let type = ref("");
+
+// Reactive references for options and settings of the question.
 let options = ref([]);
 let settings = ref({});
 
+// Initializes values if the component is used to edit an existing question.
 if (props.index > -1) {
   const question = feedbackSession.questions[props.index];
   title.value = question.title;
@@ -21,6 +55,11 @@ if (props.index > -1) {
   settings.value = question.settings;
 }
 
+/**
+ * Watches the type of the question and updates its settings accordingly.
+ * @param {string} newType - The new type of the question.
+ * @param {string} oldType - The old type of the question.
+ */
 watch(type, (newType, oldType) => {
   if (type.value) {
     settings.value =
@@ -32,6 +71,9 @@ watch(type, (newType, oldType) => {
   }
 });
 
+/**
+ * Opens a SweetAlert modal with detailed information about the question types.
+ */
 const questionTypeInfo = () => {
   Swal.fire({
     icon: "info",
@@ -87,14 +129,23 @@ const questionTypeInfo = () => {
               </div>
             </div>
           </div>
-        </div>     
+        </div>
       </div>`,
     width: "60%",
     confirmButtonColor: "#17a2b8",
   });
 };
 
+/**
+ * Reactive reference for the new option text input.
+ * @type {Ref<string>}
+ */
 let newOption = ref("");
+
+/**
+ * Adds a new option to the question.
+ * Validates input and updates the settings accordingly.
+ */
 const addOption = () => {
   if (newOption.value) {
     options.value.push({ title: newOption.value });
@@ -110,15 +161,35 @@ const addOption = () => {
     );
   }
 };
+
+/**
+ * Removes an option at the specified index.
+ * Updates the selected limits accordingly.
+ * @param {number} index - The index of the option to remove.
+ */
 const removeOption = (index) => {
   options.value.splice(index, 1);
   keepSelectedLimitsWithinMinMax();
 };
+
+/**
+ * Sorts options in the list based on the index.
+ * @param {number} index - The current index of the option to sort.
+ * @param {number} x - Direction to move the option: -1 for up, 1 for down.
+ */
 const sortOption = (index, x) =>
   options.value.splice(index + x, 0, options.value.splice(index, 1)[0]);
 
+/**
+ * Reactive reference to allow toggling show/hide settings.
+ * @type {Ref<boolean>}
+ */
 let showSettings = ref(false);
 
+/**
+ * Keeps the selected limits within the bounds of the number of options.
+ * Ensures that the minimum limit is less than or equal to the maximum limit.
+ */
 const keepSelectedLimitsWithinMinMax = () => {
   if (settings.value.selectedLimit.min > options.value.length)
     settings.value.selectedLimit.min = options.value.length;
@@ -132,12 +203,20 @@ const keepSelectedLimitsWithinMinMax = () => {
     settings.value.selectedLimit.max = settings.value.selectedLimit.min;
 };
 
+/**
+ * Submits the question, validating required fields and options.
+ * Emits the updated question data or displays errors if validation fails.
+ */
 let submit = () => {
   newOption.value = "";
   document
     .getElementById("editQuestionModal" + props.index)
     .classList.add("was-validated");
-  if (!type.value) return false;
+
+  // Validation for title and question type
+  if (!type.value || !title.value) return false;
+
+  // Validate options based on limits
   if (settings.value.optionsLimit == 0) {
     options.value = [];
   } else if (
@@ -168,8 +247,11 @@ let submit = () => {
     });
     return false;
   }
-  if (!title.value) return false;
+
+  // Ensure selected limits are valid
   if (settings.value.selectedLimit) keepSelectedLimitsWithinMinMax();
+
+  // Emit updated question data
   emit(
     "hideEditQuestionModal",
     props.index,
@@ -180,12 +262,16 @@ let submit = () => {
       settings: settings.value,
     })
   );
+
+  // Reset form if adding a new question
   if (props.index == -1) {
     title.value = "";
     type.value = "";
     options.value = [];
     settings.value = {};
   }
+
+  // Remove validation indication
   document
     .getElementById("editQuestionModal" + props.index)
     .classList.remove("was-validated");

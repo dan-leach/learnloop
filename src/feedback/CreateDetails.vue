@@ -1,13 +1,36 @@
 <script setup>
+/**
+ * @module feedback/CreateDetails
+ * @summary Step 2 of the feedback session creation process.
+ * @description
+ * This component manages the state for feedback session metadata entry,
+ * including conditional logic for certificates and attendance registers.
+ * Navigation guards redirect if the session type is not defined.
+ * @requires ../data/feedbackSession.js
+ * @requires ../router/index.js
+ * @requires sweetalert2
+ */
+
 import { onMounted } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
 import Swal from "sweetalert2";
 
+/**
+ * Toggles whether a certificate of attendance will be issued.
+ * Also links the attendance setting to the certificate.
+ * @memberof module:FeedbackDetailsForm
+ */
 const toggleCertificate = () => {
   feedbackSession.certificate = !feedbackSession.certificate;
   feedbackSession.attendance = feedbackSession.certificate;
 };
+
+/**
+ * Toggles whether a register of attendance will be kept.
+ * Validates that the certificate is enabled before allowing attendance tracking.
+ * @memberof module:FeedbackDetailsForm
+ */
 const toggleAttendance = () => {
   if (!feedbackSession.attendance && !feedbackSession.certificate) {
     Swal.fire({
@@ -21,16 +44,33 @@ const toggleAttendance = () => {
   }
 };
 
+/**
+ * Navigates back to the session type selection page.
+ * @memberof module:FeedbackDetailsForm
+ */
 const back = () => {
   router.push("/feedback/create/type");
 };
 
+/**
+ * Validates the form fields.
+ * Adds Bootstrap 'was-validated' class to show feedback.
+ * Ensures that required fields are filled before proceeding.
+ * @returns {boolean} True if valid, false otherwise.
+ * @memberof module:FeedbackDetailsForm
+ */
 const formIsValid = () => {
   document.getElementById("createDetailsForm").classList.add("was-validated");
   if (!feedbackSession.title || !feedbackSession.name) return false;
   if (!feedbackSession.multipleDates && !feedbackSession.date) return false;
   return true;
 };
+
+/**
+ * Navigates to the next step based on session type and edit status.
+ * Redirects to sessions or questions configuration.
+ * @memberof module:FeedbackDetailsForm
+ */
 const next = () => {
   if (!formIsValid()) return false;
   if (feedbackSession.isSeries) {
@@ -48,6 +88,11 @@ const next = () => {
   }
 };
 
+/**
+ * Redirects the user back to the session type page if a session type hasn't been selected.
+ * Acts as a navigation guard to prevent direct access to this view.
+ * @memberof module:FeedbackDetailsForm
+ */
 onMounted(async () => {
   if (
     !feedbackSession.isSeries &&

@@ -1,4 +1,19 @@
 <script setup>
+/**
+ * @module feedback/CreateOrganisers
+ * @summary Step 5 of the session creation process.
+ * @description This component handles the addition, editing, ordering, and validation of organisers
+ *  for a feedback session. Each organiser can be marked as a lead and given edit permissions.
+ *  A modal form is used for edits, and the component ensures that one lead organiser is assigned.
+ *
+ * @requires vue
+ * @requires sweetalert2
+ * @requires bootstrap/js/dist/modal
+ * @requires ../data/feedbackSession.js
+ * @requires ../router/index.js
+ * @requires ../data/api.js
+ */
+
 import { onMounted, ref } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
@@ -8,6 +23,12 @@ import { api } from "../data/api.js";
 import EditOrganiserForm from "./components/EditOrganiserForm.vue";
 
 let editOrganiserModal;
+
+/**
+ * Opens the organiser modal for editing or adding.
+ * @function showEditOrganiserForm
+ * @param {number} index - Index of organiser to edit, or -1 to add a new one.
+ */
 const showEditOrganiserForm = (index) => {
   editOrganiserModal = new Modal(
     document.getElementById("editOrganiserModal" + index),
@@ -19,6 +40,13 @@ const showEditOrganiserForm = (index) => {
   );
   editOrganiserModal.show();
 };
+
+/**
+ * Handles modal close after edit/add action.
+ * @function hideEditOrganiserModal
+ * @param {number} [index] - Index of the organiser being edited, -1 if adding, or undefined if cancelled.
+ * @param {string} [organiser] - JSON stringified organiser object.
+ */
 const hideEditOrganiserModal = (index, organiser) => {
   if (index === undefined) {
     //user did not submit the form, closed using the X. Do nothing except hide the modal
@@ -35,12 +63,25 @@ const hideEditOrganiserModal = (index, organiser) => {
   }
   editOrganiserModal.hide();
 };
+
+/**
+ * Reorders an organiser within the list.
+ * @function sortOrganiser
+ * @param {number} index - Current index of the organiser.
+ * @param {number} x - Offset to move by (-1 for up, +1 for down).
+ */
 const sortOrganiser = (index, x) =>
   feedbackSession.organisers.splice(
     index + x,
     0,
     feedbackSession.organisers.splice(index, 1)[0]
   );
+
+/**
+ * Prompts for and removes an organiser.
+ * @function removeOrganiser
+ * @param {number} index - Index of organiser to remove.
+ */
 const removeOrganiser = async (index) => {
   const { isConfirmed } = await Swal.fire({
     title: "Remove this organiser?",
@@ -51,6 +92,10 @@ const removeOrganiser = async (index) => {
   if (isConfirmed) feedbackSession.organisers.splice(index, 1);
 };
 
+/**
+ * Navigates back to the question creation screen.
+ * @function back
+ */
 const back = () => {
   router.push(
     `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/questions${
@@ -61,6 +106,13 @@ const back = () => {
 
 const showWarning = ref(false);
 const showWarningNoLead = ref(false);
+
+/**
+ * Validates organiser list before submission.
+ * Ensures at least one organiser exists and exactly one is lead.
+ * @function formIsValid
+ * @returns {boolean} Whether the form is valid.
+ */
 const formIsValid = () => {
   showWarningNoLead.value = false;
   if (!feedbackSession.organisers.length) {
@@ -85,16 +137,23 @@ const btnSubmit = ref({
   text: `${feedbackSession.isEdit ? "Update" : "Create"} feedback session`,
   wait: false,
 });
+
+/**
+ * Handles form submission, sending data to the API to create or update a feedback session.
+ * @function submit
+ */
 const submit = async () => {
   if (!formIsValid()) return false;
   btnSubmit.value.text = "Please wait...";
   btnSubmit.value.wait = true;
+
   if (feedbackSession.isEdit) {
     try {
       const response = await api("feedback/updateSession", feedbackSession);
 
       btnSubmit.value.text = "Update feedback session";
       btnSubmit.value.wait = false;
+
       let html = response.message;
       if (response.sendMailFails.length) {
         html +=
@@ -149,6 +208,10 @@ const submit = async () => {
   }
 };
 
+/**
+ * Redirects user if session type is not selected.
+ * @function onMounted
+ */
 onMounted(async () => {
   if (
     !feedbackSession.isSeries &&

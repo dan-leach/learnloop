@@ -1,4 +1,20 @@
 <script setup>
+/**
+ * @module feedback/View
+ * @summary View and download feedback session report
+ * @description Handles fetching and displaying feedback data for a single session or series,
+ * and allows exporting as a PDF. Authenticates user using session ID and PIN prompt.
+ * @requires vue
+ * @requires vue-router
+ * @requires bootstrap/js/dist/modal
+ * @requires ../data/feedbackSession.js
+ * @requires ../data/api.js
+ * @requires ../components/Loading.vue
+ * @requires ./components/DownloadFeedbackForm.vue
+ * @requires sweetalert2
+ * @requires ../assets/Toast.js
+ */
+
 import { onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
 import router from "../router";
@@ -9,12 +25,18 @@ import Loading from "../components/Loading.vue";
 import DownloadFeedbackForm from "./components/DownloadFeedbackForm.vue";
 import Swal from "sweetalert2";
 import Toast from "../assets/Toast.js";
-import { inject } from "vue";
-const config = inject("config");
 
 let loading = ref(true);
 let isSeries = ref(false);
 
+let downloadFeedbackModal; // Bootstrap modal instance
+
+/**
+ * Fetches feedback data from the server and updates the shared feedbackSession object.
+ * @async
+ * @function fetchFeedback
+ * @throws Will show a SweetAlert modal and redirect on error.
+ */
 const fetchFeedback = async () => {
   try {
     const response = await api("feedback/viewFeedback", {
@@ -22,38 +44,42 @@ const fetchFeedback = async () => {
       pin: feedbackSession.pin,
     });
 
-    if (feedbackSession.id != response.id) {
-      console.error(
-        "feedbackSession.id != response.id",
-        feedbackSession.id,
-        response.id
-      );
+    if (feedbackSession.id !== response.id) {
+      console.error("Mismatched session ID", feedbackSession.id, response.id);
       return;
     }
+
+    // Main session feedback
     feedbackSession.title = response.title;
     feedbackSession.date = response.date;
     feedbackSession.name = response.name;
     feedbackSession.feedback.positive = response.feedback.positive;
     feedbackSession.feedback.negative = response.feedback.negative;
+
+    // Average score
     let sum = 0;
     for (let score of response.feedback.score) sum += parseInt(score);
     feedbackSession.feedback.score =
       Math.round((sum / response.feedback.score.length) * 10) / 10;
     if (Number.isNaN(feedbackSession.feedback.score))
       feedbackSession.feedback.score = "-";
+
     feedbackSession.questions = response.questions;
+
+    // Subsession data
     if (response.subsessions) {
       for (let subsession of response.subsessions) {
-        let sum = 0;
-        for (let score of subsession.feedback.score) sum += parseInt(score);
+        let subSum = 0;
+        for (let score of subsession.feedback.score) subSum += parseInt(score);
         subsession.feedback.score =
-          Math.round((sum / subsession.feedback.score.length) * 10) / 10;
+          Math.round((subSum / subsession.feedback.score.length) * 10) / 10;
         if (Number.isNaN(subsession.feedback.score))
           subsession.feedback.score = "-";
         feedbackSession.subsessions.push(subsession);
-        isSeries = true;
+        isSeries.value = true;
       }
     }
+
     loading.value = false;
   } catch (error) {
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
@@ -68,7 +94,11 @@ const fetchFeedback = async () => {
   }
 };
 
-let downloadFeedbackModal;
+/**
+ * Opens the modal for selecting download options.
+ * @function showDownloadFeedbackForm
+ * @param {number} index - (optional) Index of a subsession.
+ */
 const showDownloadFeedbackForm = (index) => {
   downloadFeedbackModal = new Modal(
     document.getElementById("downloadFeedbackModal"),
@@ -80,45 +110,50 @@ const showDownloadFeedbackForm = (index) => {
   );
   downloadFeedbackModal.show();
 };
+
+/** Hides the download modal. */
 const hideDownloadFeedbackModal = () => downloadFeedbackModal.hide();
 
+/**
+ * Downloads the feedback report PDF.
+ * @async
+ * @function fetchFeedbackPDF
+ * @param {string} [downloadId] - Optional subsession ID for downloading a report from a series.
+ */
 const fetchFeedbackPDF = async (downloadId) => {
   const requestObject = {
     id: feedbackSession.id,
     pin: feedbackSession.pin,
   };
+
+  let downloadTitle = feedbackSession.title;
+
   if (downloadId) {
     requestObject.id = downloadId;
     requestObject.parentSessionId = feedbackSession.id;
+    const subsession = feedbackSession.subsessions.find(
+      (s) => s.id === downloadId
+    );
+    if (subsession) downloadTitle = subsession.title;
   }
-  let downloadTitle;
-  if (downloadId) {
-    downloadTitle = feedbackSession.subsessions.find(
-      (subsession) => subsession.id == downloadId
-    ).title;
-  } else {
-    downloadTitle = feedbackSession.title;
-  }
+
   try {
     const response = await api(
       "feedback/fetchFeedbackPDF",
       requestObject,
       "blob"
     );
-    // Create a temporary anchor element
+
     const a = document.createElement("a");
     a.href = response;
-    a.download = `${downloadTitle} feedback report.pdf`; // Set desired filename
+    a.download = `${downloadTitle} feedback report.pdf`;
     document.body.appendChild(a);
     a.click();
-
-    // Cleanup
     document.body.removeChild(a);
     window.URL.revokeObjectURL(response);
 
     Toast.fire({
       icon: "success",
-      iconColor: "#17a2b8",
       iconColor: "#17a2b8",
       title: "Your feedback report should now be downloading.",
     });
@@ -134,25 +169,30 @@ const fetchFeedbackPDF = async (downloadId) => {
   }
 };
 
+/**
+ * Runs when the component is mounted: prompts for ID + PIN, then loads session data.
+ * @memberof module:feedback/View
+ */
 onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
+
   const { isConfirmed } = await Swal.fire({
     title: "Enter session ID and PIN",
-    html:
-      '<div class="overflow-hidden">You will need your session ID and PIN which you can find in the email you received when your session was created. <br>' +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-      feedbackSession.id +
-      '">' +
-      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
+    html: `
+      <div class="overflow-hidden">
+        You will need your session ID and PIN which you can find in the email you received when your session was created.<br>
+        <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="${feedbackSession.id}">
+        <input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">
+      </div>`,
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
       feedbackSession.id = document.getElementById("swalFormId").value.trim();
       feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
-      if (feedbackSession.pin == "")
-        Swal.showValidationMessage("Please enter your PIN");
-      if (feedbackSession.id == "")
+      if (!feedbackSession.id)
         Swal.showValidationMessage("Please enter a session ID");
+      if (!feedbackSession.pin)
+        Swal.showValidationMessage("Please enter your PIN");
     },
   });
 

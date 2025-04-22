@@ -1,13 +1,34 @@
 <script setup>
+/**
+ * @module feedback/CreateQuestions
+ * @summary Step 4 of the session creation process.
+ * @description This component allows users to add, edit, sort, and remove custom feedback questions
+ *  for a feedback session. It supports session-based navigation and uses Bootstrap modals
+ *  for editing questions.
+ *
+ * @requires vue
+ * @requires sweetalert2
+ * @requires bootstrap/js/dist/modal
+ * @requires ../data/feedbackSession.js
+ * @requires ../router/index.js
+ */
+
 import { onMounted, inject } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
 import Swal from "sweetalert2";
 import EditQuestionForm from "./components/EditQuestionForm.vue";
 import Modal from "bootstrap/js/dist/modal";
+
 const config = inject("config");
 
 let editQuestionModal;
+
+/**
+ * Shows the modal form to add or edit a question.
+ * @function showEditQuestionForm
+ * @param {number} index - Index of the question to edit, or -1 to add new.
+ */
 const showEditQuestionForm = (index) => {
   editQuestionModal = new Modal(
     document.getElementById("editQuestionModal" + index),
@@ -19,12 +40,22 @@ const showEditQuestionForm = (index) => {
   );
   editQuestionModal.show();
 };
+
+/**
+ * Hides the question modal and updates the question list.
+ * @function hideEditQuestionModal
+ * @param {number} [index] - Question index, or -1 for new, or undefined if cancelled.
+ * @param {string} [question] - JSON stringified question object.
+ */
 const hideEditQuestionModal = (index, question) => {
+  if (index) index = parseInt(index);
   if (index === undefined) {
-    //user did not submit the form, closed using the X. Do nothing except hide the modal
-  } else if (index == -1) {
+    // Modal closed without submitting - do nothing.
+  } else if (index === -1) {
+    // Add new question
     feedbackSession.questions.push(JSON.parse(question));
   } else {
+    // Edit existing question
     const { title, type, options, settings } = JSON.parse(question);
     Object.assign(feedbackSession.questions[index], {
       title,
@@ -35,12 +66,25 @@ const hideEditQuestionModal = (index, question) => {
   }
   editQuestionModal.hide();
 };
+
+/**
+ * Reorders questions in the list.
+ * @function sortQuestion
+ * @param {number} index - Index of the question to move.
+ * @param {number} x - Direction (-1 for up, 1 for down).
+ */
 const sortQuestion = (index, x) =>
   feedbackSession.questions.splice(
     index + x,
     0,
     feedbackSession.questions.splice(index, 1)[0]
   );
+
+/**
+ * Prompts user to confirm and removes a question.
+ * @function removeQuestion
+ * @param {number} index - Index of the question to remove.
+ */
 const removeQuestion = async (index) => {
   const { isConfirmed } = await Swal.fire({
     title: "Remove this question?",
@@ -51,22 +95,27 @@ const removeQuestion = async (index) => {
   if (isConfirmed) feedbackSession.questions.splice(index, 1);
 };
 
+/**
+ * Navigates back to the session details or list view depending on session type.
+ * @function back
+ */
 const back = () => {
-  if (feedbackSession.isSeries) {
-    router.push(
-      `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/sessions${
+  const base = `/feedback/${feedbackSession.isEdit ? "edit" : "create"}`;
+  const path = feedbackSession.isSeries
+    ? `${base}/sessions${
         feedbackSession.isEdit ? "/" + feedbackSession.id : ""
       }`
-    );
-  } else {
-    router.push(
-      `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/details${
+    : `${base}/details${
         feedbackSession.isEdit ? "/" + feedbackSession.id : ""
-      }`
-    );
-  }
+      }`;
+
+  router.push(path);
 };
 
+/**
+ * Navigates forward to the organisers step.
+ * @function next
+ */
 const next = () => {
   router.push(
     `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/organisers${
@@ -75,7 +124,8 @@ const next = () => {
   );
 };
 
-onMounted(async () => {
+// Redirect to type selection if session hasn't been initialized
+onMounted(() => {
   if (
     !feedbackSession.isSeries &&
     !feedbackSession.isSingle &&

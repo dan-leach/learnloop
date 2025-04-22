@@ -1,4 +1,15 @@
 <script setup>
+/**
+ * @module feedback/edit
+ * @summary Manages the loading and editing of a feedback session.
+ * @description This module allows users to load and edit an existing feedback session by providing their session ID and PIN.
+ * It validates the session ID and PIN, fetches the session data from the server, and handles various types of questions and settings.
+ * Additionally, it ensures error handling and user feedback in case of failure.
+ * @requires vue
+ * @requires vue-router
+ * @requires swal2
+ */
+
 import { onMounted } from "vue";
 import router from "../router";
 import { useRouter } from "vue-router";
@@ -7,17 +18,29 @@ import { api } from "../data/api.js";
 import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
 
+// Set the current session to editing mode and set the session ID from the route params
 feedbackSession.isEdit = true;
 feedbackSession.id = useRouter().currentRoute.value.params.id;
 
+/**
+ * Loads the details of the feedback session for editing.
+ *
+ * This function retrieves session data via the API, processes the data,
+ * and updates the session object accordingly. It handles errors and
+ * provides feedback if something goes wrong during the load process.
+ *
+ * @returns {Promise<void>} - Returns a promise that resolves when the session details are loaded successfully.
+ */
 const loadUpdateDetails = async () => {
   try {
+    // Fetch session details from the API
     const response = await api("feedback/loadUpdateSession", {
       id: feedbackSession.id,
       pin: feedbackSession.pin,
       isTemplate: false,
     });
 
+    // Ensure the session ID matches the response
     if (feedbackSession.id != response.id) {
       console.error(
         "feedbackSession.id != response.id",
@@ -27,6 +50,7 @@ const loadUpdateDetails = async () => {
       return;
     }
 
+    // Update feedback session object with response data
     feedbackSession.title = response.title;
     feedbackSession.date = response.date;
     feedbackSession.multipleDates = response.multipleDates ? true : false;
@@ -35,6 +59,7 @@ const loadUpdateDetails = async () => {
     feedbackSession.certificate = response.certificate;
     feedbackSession.attendance = response.attendance;
 
+    // Handle subsessions if available
     if (response.subsessions.length) {
       feedbackSession.subsessions = response.subsessions;
       feedbackSession.isSeries = true;
@@ -42,11 +67,12 @@ const loadUpdateDetails = async () => {
       feedbackSession.isSingle = true;
     }
 
+    // Handle questions and their settings
     if (response.questions.length) {
       feedbackSession.questions = response.questions;
       for (let question of feedbackSession.questions) {
         if (!question.settings) {
-          //for pre-v5 custom questions
+          // For pre-v5 custom questions, add default settings
           question.settings = {
             selectedLimit: {
               min: 1,
@@ -56,16 +82,18 @@ const loadUpdateDetails = async () => {
           };
         }
         if (question.settings.required == undefined) {
-          //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
+          // Set 'required' for text and select questions, but not for checkboxes
           if (question.type == "text" || question.type == "select")
             question.settings.required = true;
         }
       }
     }
 
+    // Set organiser details
     feedbackSession.organisers = response.organisers;
     for (let organiser of feedbackSession.organisers) organiser.existing = true;
   } catch (error) {
+    // If an error occurs, show an error message and redirect
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
     Swal.fire({
       icon: "error",
@@ -79,6 +107,15 @@ const loadUpdateDetails = async () => {
   }
 };
 
+/**
+ * Prompts the user to enter the session ID and PIN for editing the session.
+ *
+ * This function displays a confirmation dialog with input fields for
+ * the session ID and PIN. If confirmed, it loads the session details for
+ * further editing. If canceled, it redirects the user to the home page.
+ *
+ * @returns {Promise<void>} - Returns a promise that resolves when the session details are either loaded or the user is redirected.
+ */
 onMounted(async () => {
   const { isConfirmed } = await Swal.fire({
     title: "Enter session ID and PIN",
@@ -91,8 +128,11 @@ onMounted(async () => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
+      // Set feedback session ID and PIN
       feedbackSession.id = document.getElementById("swalFormId").value.trim();
       feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
+
+      // Validate the inputs
       if (feedbackSession.pin == "")
         Swal.showValidationMessage("Please enter your PIN");
       if (feedbackSession.id == "")
@@ -101,9 +141,11 @@ onMounted(async () => {
   });
 
   if (isConfirmed) {
+    // If confirmed, load session details
     await loadUpdateDetails();
     router.push("/feedback/edit/details/" + feedbackSession.id);
   } else {
+    // If canceled, redirect to home
     router.push("/");
   }
 });

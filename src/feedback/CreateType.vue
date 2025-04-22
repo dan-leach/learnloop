@@ -1,4 +1,16 @@
 <script setup>
+/**
+ * @module feedback/CreateType
+ * @summary Step 1 of the feedback session create process.
+ * @description Allows users to choose between creating a single session, a series, or using a previous template.
+ * @requires vue
+ * @requires ../data/feedbackSession.js
+ * @requires ../router/index.js
+ * @requires bootstrap/js/dist/collapse
+ * @requires sweetalert2
+ * @requires ../data/api.js
+ */
+
 import { onMounted, ref } from "vue";
 import { feedbackSession } from "../data/feedbackSession.js";
 import router from "../router/index.js";
@@ -6,140 +18,123 @@ import Collapse from "bootstrap/js/dist/collapse";
 import Swal from "sweetalert2";
 import { api } from "../data/api.js";
 
-let singleHelpInstance;
-let seriesHelpInstance;
-let templateHelpInstance;
+// Bootstrap collapse instances for help sections
+let singleHelpInstance, seriesHelpInstance, templateHelpInstance;
+
+// Controls whether the Next button is disabled
 const nextDisabled = ref(true);
 
-const selectSingle = async (forceOn) => {
-  if (feedbackSession.isSingle && !forceOn) {
-    feedbackSession.isSingle = false;
-    singleHelpInstance.hide();
-    nextDisabled.value = true;
-    return;
-  }
-  if (feedbackSession.useTemplate && feedbackSession.title) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Lose progress?",
-      text: "This will remove the template you loaded.",
-      showCancelButton: true,
-      confirmButtonColor: "#dc3545",
-    });
-    if (isConfirmed) {
-      feedbackSession.reset();
-    } else {
-      return;
-    }
-  } else if (feedbackSession.subsessions.length) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Lose progress?",
-      text: "This will remove the sessions you've added to your teaching event.",
-      showCancelButton: true,
-      confirmButtonColor: "#dc3545",
-    });
-    if (isConfirmed) {
-      feedbackSession.subsessions = [];
-    } else {
-      return;
-    }
-  }
+/**
+ * Confirm reset if necessary and activate selected mode.
+ * Helper function to handle confirmation before switching modes.
+ * @param {string} mode - One of 'single', 'series', or 'template'.
+ * @param {boolean} forceOn - Whether to force activation without toggling off.
+ * @returns {Promise<boolean>} Whether the switch was successful.
+ */
+const handleModeSelection = async (mode, forceOn) => {
+  const isActive = {
+    single: feedbackSession.isSingle,
+    series: feedbackSession.isSeries,
+    template: feedbackSession.useTemplate,
+  }[mode];
 
-  feedbackSession.isSeries = false;
-  feedbackSession.useTemplate = false;
-  feedbackSession.isSingle = true;
-  seriesHelpInstance.hide();
-  templateHelpInstance.hide();
-  singleHelpInstance.show();
-  nextDisabled.value = false;
-};
-
-const selectSeries = async (forceOn) => {
-  if (feedbackSession.isSeries && !forceOn) {
-    if (feedbackSession.subsessions.length) {
-      const { isConfirmed } = await Swal.fire({
-        title: "Lose progress?",
-        text: "This will remove the sessions you've added to your teaching event.",
-        showCancelButton: true,
-        confirmButtonColor: "#dc3545",
-      });
-      if (isConfirmed) {
-        feedbackSession.subsessions = [];
-      } else {
-        return;
-      }
-    }
-    feedbackSession.isSeries = false;
-    seriesHelpInstance.hide();
-    nextDisabled.value = true;
-    return;
-  }
-  if (feedbackSession.useTemplate && feedbackSession.title) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Lose progress?",
-      text: "This will remove the template you loaded.",
-      showCancelButton: true,
-      confirmButtonColor: "#dc3545",
-    });
-    if (isConfirmed) {
-      feedbackSession.reset();
-    } else {
-      return;
-    }
-  }
-
-  feedbackSession.isSingle = false;
-  feedbackSession.useTemplate = false;
-  feedbackSession.isSeries = true;
-  singleHelpInstance.hide();
-  templateHelpInstance.hide();
-  seriesHelpInstance.show();
-  nextDisabled.value = false;
-};
-
-const selectTemplate = async (forceOn) => {
-  if (feedbackSession.useTemplate && !forceOn) {
-    if (feedbackSession.title) {
-      const { isConfirmed } = await Swal.fire({
-        title: "Lose progress?",
-        text: "This will remove the template you loaded.",
-        showCancelButton: true,
-        confirmButtonColor: "#dc3545",
-      });
-      if (isConfirmed) {
-        feedbackSession.reset();
-      } else {
-        return;
-      }
-    }
-    feedbackSession.useTemplate = false;
-    templateHelpInstance.hide();
-    nextDisabled.value = true;
+  // If changing from template, confirm loss of template
+  if (feedbackSession.useTemplate && feedbackSession.title && !forceOn) {
+    const confirmed = await confirmLoss(
+      "This will remove the template you loaded."
+    );
+    if (!confirmed) return false;
     feedbackSession.reset();
-    return;
-  }
-  if (!feedbackSession.useTemplate && feedbackSession.title) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Lose progress?",
-      text: "Loading a template will remove any details you already added.",
-      showCancelButton: true,
-      confirmButtonColor: "#dc3545",
-    });
-    if (isConfirmed) {
-      feedbackSession.reset();
-    } else {
-      return;
+    if (isActive) {
+      setModeNone(mode);
+      return false;
     }
   }
 
-  feedbackSession.isSingle = false;
-  feedbackSession.isSeries = false;
-  feedbackSession.useTemplate = true;
+  // If changing mode when the subsessions exist, confirm loss of sessions
+  if (feedbackSession.subsessions.length && !forceOn) {
+    const confirmed = await confirmLoss(
+      "This will remove the sessions you've added to your teaching event."
+    );
+    if (!confirmed) return false;
+    feedbackSession.subsessions = [];
+    if (isActive) {
+      setModeNone(mode);
+      return false;
+    }
+  }
+
+  // If change to template mode and there is already details addded, confirm loss
+  if (mode === "template" && feedbackSession.title && !isActive) {
+    const confirmed = await confirmLoss(
+      "This will remove any details you've added."
+    );
+    if (!confirmed) return false;
+    feedbackSession.reset();
+  }
+
+  setMode(mode);
+  return true;
+};
+
+/**
+ * @function confirmLoss
+ * @description Displays a confirmation modal to warn about lost progress.
+ * @param {string} text - Warning message to show.
+ * @returns {Promise<boolean>} Whether the user confirmed.
+ */
+const confirmLoss = async (text) => {
+  const { isConfirmed } = await Swal.fire({
+    title: "Lose progress?",
+    text,
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+  });
+  return isConfirmed;
+};
+
+/**
+ * @function setMode
+ * @description Updates feedbackSession flags and UI based on the selected mode.
+ * @param {string} mode - The selected mode.
+ */
+const setMode = (mode) => {
+  feedbackSession.isSingle = mode === "single";
+  feedbackSession.isSeries = mode === "series";
+  feedbackSession.useTemplate = mode === "template";
+
   singleHelpInstance.hide();
   seriesHelpInstance.hide();
-  templateHelpInstance.show();
+  templateHelpInstance.hide();
+
+  if (mode === "single") singleHelpInstance.show();
+  if (mode === "series") seriesHelpInstance.show();
+  if (mode === "template") templateHelpInstance.show();
+
   nextDisabled.value = false;
 };
 
+/**
+ * @function setModeNone
+ * @description Deactivates the currently selected mode and hides its help.
+ * @param {string} mode - Mode to deactivate.
+ */
+const setModeNone = (mode) => {
+  if (mode === "single") singleHelpInstance.hide();
+  if (mode === "series") seriesHelpInstance.hide();
+  if (mode === "template") templateHelpInstance.hide();
+
+  feedbackSession.isSingle = false;
+  feedbackSession.isSeries = false;
+  feedbackSession.useTemplate = false;
+  nextDisabled.value = true;
+};
+
+/**
+ * @function fetchTemplate
+ * @description Loads a saved feedback session to use as a template.
+ * @returns {Promise<boolean>} Whether the fetch succeeded.
+ */
 const fetchTemplate = async () => {
   try {
     const response = await api("feedback/loadUpdateSession", {
@@ -147,6 +142,7 @@ const fetchTemplate = async () => {
       pin: feedbackSession.pin,
       isTemplate: true,
     });
+
     if (feedbackSession.id != response.id) {
       console.error(
         "feedbackSession.id != response.id",
@@ -158,125 +154,112 @@ const fetchTemplate = async () => {
 
     feedbackSession.title = `Copy of ${response.title}`;
     feedbackSession.date = response.date;
-    feedbackSession.multipleDates = response.multipleDates ? true : false;
+    feedbackSession.multipleDates = !!response.multipleDates;
     feedbackSession.name = response.name;
-
     feedbackSession.certificate = response.certificate;
     feedbackSession.attendance = response.attendance;
+    feedbackSession.questions = response.questions || [];
+    feedbackSession.subsessions = response.subsessions || [];
+    feedbackSession.organisers = response.organisers.map((o) => ({
+      ...o,
+      existing: true,
+    }));
 
-    if (response.subsessions.length) {
-      feedbackSession.subsessions = response.subsessions;
-      feedbackSession.isSeries = true;
-      feedbackSession.isSingle = false;
-    } else {
-      feedbackSession.isSingle = true;
-      feedbackSession.isSeries = false;
-    }
-    if (response.questions.length) {
-      feedbackSession.questions = response.questions;
-      hasQuestions.value = true;
-      for (let question of feedbackSession.questions) {
-        if (!question.settings) {
-          //for pre-v5 custom questions
-          question.settings = {
-            selectedLimit: {
-              min: 1,
-              max: 100,
-            },
-            characterLimit: 500,
-          };
-        }
-        if (question.settings.required == undefined) {
-          //for older sessions with undefined 'required' paramenter default to required for text and select but not for checkboxes
-          if (question.type == "text" || question.type == "select")
-            question.settings.required = true;
-        }
+    // Compatibility patch for old formats
+    for (const q of feedbackSession.questions) {
+      q.settings = q.settings || {
+        selectedLimit: { min: 1, max: 100 },
+        characterLimit: 500,
+      };
+      if (
+        q.settings.required === undefined &&
+        (q.type === "text" || q.type === "select")
+      ) {
+        q.settings.required = true;
       }
     }
 
-    feedbackSession.organisers = response.organisers;
-    for (let organiser of feedbackSession.organisers) organiser.existing = true;
+    // Determine mode
+    feedbackSession.isSeries = feedbackSession.subsessions.length > 0;
+    feedbackSession.isSingle = !feedbackSession.isSeries;
 
-    //remove the id and pin so that a new session is created rather than overwriting the template
-    //save id in templateId to show template message at top
     feedbackSession.templateId = feedbackSession.id;
     feedbackSession.id = "";
     feedbackSession.pin = "";
+    feedbackSession.subsessions.forEach((s) => (s.id = ""));
 
-    //remove the ids from subsessions so new subsessions are created for a template based create
-    for (let subsession of feedbackSession.subsessions) {
-      subsession.id = "";
-    }
     return true;
   } catch (error) {
-    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    const message = Array.isArray(error)
+      ? error.map((e) => e.msg).join(" ")
+      : error;
     Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
       title: "Unable to load feedback session",
-      text: error,
+      text: message,
       confirmButtonColor: "#17a2b8",
     });
     return false;
   }
 };
+
+/**
+ * @function loadTemplate
+ * @description Prompts user for ID/PIN and attempts to load a session template.
+ * @returns {Promise<boolean>} Whether the session was successfully loaded.
+ */
 const loadTemplate = async () => {
   const { isConfirmed } = await Swal.fire({
     title: "Enter ID and PIN for the session you want to use as a template",
-    html:
-      "You will need your session ID and PIN which you can find in the email you received when the session you want to use as a template was created. <br>" +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-      feedbackSession.id +
-      '">' +
-      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
+    html: `You will need your session ID and PIN which you can find in the email you received when the session you want to use as a template was created.<br>
+      <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="${feedbackSession.id}">
+      <input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">`,
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     preConfirm: () => {
       feedbackSession.id = document.getElementById("swalFormId").value.trim();
       feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
-      if (feedbackSession.pin == "")
-        Swal.showValidationMessage("Please enter your PIN");
-      if (feedbackSession.id == "")
+      if (!feedbackSession.id)
         Swal.showValidationMessage("Please enter a session ID");
+      if (!feedbackSession.pin)
+        Swal.showValidationMessage("Please enter your PIN");
     },
   });
-
-  if (isConfirmed) {
-    if (await fetchTemplate()) return true;
-  }
-  return false;
+  return isConfirmed && (await fetchTemplate());
 };
 
+/**
+ * @function next
+ * @description Validates and routes to the next step.
+ */
 const next = async () => {
   if (feedbackSession.useTemplate && !feedbackSession.title) {
     const templateLoaded = await loadTemplate();
     if (!templateLoaded) {
-      selectTemplate(false);
+      setModeNone("template");
       return;
     }
   }
   router.push("/feedback/create/details");
 };
 
-onMounted(async () => {
-  const singleHelpElement = document.getElementById("singleHelp");
-  singleHelpInstance = new Collapse(singleHelpElement, { toggle: false });
-
-  const seriesHelpElement = document.getElementById("seriesHelp");
-  seriesHelpInstance = new Collapse(seriesHelpElement, { toggle: false });
-
-  const templateHelpElement = document.getElementById("templateHelp");
-  templateHelpInstance = new Collapse(templateHelpElement, {
+onMounted(() => {
+  // Initialize help collapses
+  singleHelpInstance = new Collapse(document.getElementById("singleHelp"), {
+    toggle: false,
+  });
+  seriesHelpInstance = new Collapse(document.getElementById("seriesHelp"), {
+    toggle: false,
+  });
+  templateHelpInstance = new Collapse(document.getElementById("templateHelp"), {
     toggle: false,
   });
 
-  if (feedbackSession.useTemplate) {
-    selectTemplate(true);
-  } else if (feedbackSession.isSeries) {
-    selectSeries(true);
-  } else if (feedbackSession.isSingle) {
-    selectSingle(true);
-  }
+  // Restore state based on session object
+  if (feedbackSession.useTemplate) setMode("template");
+  else if (feedbackSession.isSeries) setMode("series");
+  else if (feedbackSession.isSingle) setMode("single");
 });
 </script>
 
@@ -295,7 +278,7 @@ onMounted(async () => {
           'border-teal':
             !feedbackSession.isSeries && !feedbackSession.useTemplate,
         }"
-        @click="selectSingle(false)"
+        @click="handleModeSelection('single', false)"
       >
         <div class="d-flex justify-content-between align-items-center">
           <span>Collect feedback on a teaching event with one session</span>
@@ -359,7 +342,7 @@ onMounted(async () => {
           'border-teal':
             !feedbackSession.isSingle && !feedbackSession.useTemplate,
         }"
-        @click="selectSeries(false)"
+        @click="handleModeSelection('series', false)"
       >
         <div class="d-flex justify-content-between align-items-center">
           <span
@@ -424,7 +407,7 @@ onMounted(async () => {
         :class="{
           'border-teal': !feedbackSession.isSeries && !feedbackSession.isSingle,
         }"
-        @click="selectTemplate(false)"
+        @click="handleModeSelection('template', false)"
       >
         <div class="d-flex justify-content-between align-items-center">
           <span>Use a previous event as a template to collect feedback</span>
