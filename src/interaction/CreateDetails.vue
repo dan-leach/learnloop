@@ -1,66 +1,114 @@
 <script setup>
+/**
+ * @module interaction/CreateDetails
+ * @summary Step 2 of the interaction session creation process.
+ * @description Validates, inserts, or updates interaction sessions. Routes users appropriately based on session type.
+ * @requires vue
+ * @requires vue-router
+ * @requires ../router
+ * @requires ../data/interactionSession.js
+ * @requires ../data/api.js
+ * @requires ../assets/toast.js
+ * @requires bootstrap/js/dist/modal
+ * @requires sweetalert2
+ */
+
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
 import { api } from "../data/api.js";
 import Toast from "../assets/toast.js";
-import { inject } from "vue";
-const config = inject("config");
-import Modal from "bootstrap/js/dist/modal";
 import Swal from "sweetalert2";
 
+// Redirect user if they try to access this view incorrectly
 if (
   !interactionSession.isNew &&
   !interactionSession.useTemplate &&
   !interactionSession.isEdit
 ) {
-  if (useRouter().currentRoute.value.path.includes("/edit/")) {
-    router.push(
-      "/interaction/edit/" + useRouter().currentRoute.value.params.id
-    );
-  } else {
-    router.push("/interaction/create/type");
-  }
+  const currentPath = useRouter().currentRoute.value.path;
+  const currentParams = useRouter().currentRoute.value.params;
+  router.push(
+    currentPath.includes("/edit/")
+      ? `/interaction/edit/${currentParams.id}`
+      : "/interaction/create/type"
+  );
 }
 
-let btnNext = ref({
+// Button state for "Continue"
+const btnNext = ref({
   text: "Continue",
   wait: false,
 });
+
+/**
+ * Moves the user to the next step if session is valid and insert/update succeeds.
+ * @memberof module:interaction/CreateDetails
+ * @returns {Promise<void>}
+ */
 const next = async () => {
-  if (!sessionDetailsAreValid()) return false;
-  btnNext.value.text = "Please wait...";
-  btnNext.value.wait = true;
-  let insertUpdateSuccess;
-  if (interactionSession.id) {
-    insertUpdateSuccess = await updateSession();
+  if (!sessionDetailsAreValid()) return;
+
+  btnNext.value = { text: "Please wait...", wait: true };
+
+  const success = interactionSession.id
+    ? await updateSession()
+    : await insertSession();
+
+  if (success) {
+    btnNext.value = { text: "Continue", wait: false };
+    const routePath = interactionSession.isEdit
+      ? `/interaction/edit/slides/${interactionSession.id}`
+      : "/interaction/create/login";
+    router.push(routePath);
   } else {
-    insertUpdateSuccess = await insertSession();
-  }
-  if (insertUpdateSuccess) {
-    btnNext.value.text = "Continue";
-    btnNext.value.wait = false;
-    router.push(
-      `/interaction/${
-        interactionSession.isEdit
-          ? "edit/slides/" + interactionSession.id
-          : "create/login"
-      }`
-    );
-  } else {
-    btnNext.value.text = "Retry?";
-    btnNext.value.wait = false;
+    btnNext.value = { text: "Retry?", wait: false };
   }
 };
+
+/**
+ * Navigates the user back to session type selection.
+ * @memberof module:interaction/CreateDetails
+ */
 const back = () => {
   router.push("/interaction/create/type");
 };
 
-// Insert the session on the server and get a session ID and PIN
+/**
+ * Validates the interaction session details before submission.
+ * @memberof module:interaction/CreateDetails
+ * @returns {boolean} - True if valid, false otherwise.
+ */
+const sessionDetailsAreValid = () => {
+  document.getElementById("createSessionForm").classList.add("was-validated");
+
+  return (
+    interactionSession.title &&
+    interactionSession.name &&
+    emailIsValid(interactionSession.email)
+  );
+};
+
+/**
+ * Validates an email address using a standard pattern.
+ * @memberof module:interaction/CreateDetails
+ * @param {string} email - The email to validate.
+ * @returns {boolean} - True if valid, false if not.
+ */
+const emailIsValid = (email) => {
+  const pattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return pattern.test(email);
+};
+
+/**
+ * Sends a request to create a new interaction session.
+ * On success, updates interactionSession with ID, PIN, and email outcome.
+ * @memberof module:interaction/CreateDetails
+ * @returns {Promise<boolean>} - True if successful, false if error occurs.
+ */
 const insertSession = async () => {
   try {
-    // Perform the insert
     const response = await api("interaction/insertSession", {
       title: interactionSession.title,
       feedbackId: interactionSession.feedbackID,
@@ -68,63 +116,59 @@ const insertSession = async () => {
       email: interactionSession.email,
     });
 
-    // Locally record the response
     interactionSession.id = response.id;
     interactionSession.pin = response.pin;
     interactionSession.emailOutcome = response.emailOutcome;
 
     return true;
   } catch (error) {
-    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-    Swal.fire({
+    showError("Unable to create interaction session", formatError(error));
+    return false;
+  }
+};
+
+/**
+ * Sends a request to update an existing interaction session.
+ * @memberof module:interaction/CreateDetails
+ * @returns {Promise<boolean>} - True if update succeeds, false otherwise.
+ */
+const updateSession = async () => {
+  try {
+    await api("interaction/updateSession", interactionSession);
+    return true;
+  } catch (error) {
+    Toast.fire({
       icon: "error",
-      iconColor: "#17a2b8",
-      title: "Unable to create interaction session",
-      text: error,
-      confirmButtonColor: "#17a2b8",
+      title: `Error saving session: ${formatError(error)}`,
     });
     return false;
   }
 };
 
 /**
- * Validates an email address.
- *
- * This function checks if the provided email follows the standard email format.
- *
- * @param {string} email - The email address to validate.
- * @returns {boolean} - Returns true if the email is valid, otherwise false.
+ * Displays an error dialog using SweetAlert2.
+ * @memberof module:interaction/CreateDetails
+ * @param {string} title - Dialog title.
+ * @param {string} text - Error message.
  */
-function emailIsValid(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
-// Check the session details are valid
-const sessionDetailsAreValid = () => {
-  document.getElementById("createSessionForm").classList.add("was-validated");
-  if (
-    !interactionSession.title ||
-    !interactionSession.name ||
-    !emailIsValid(interactionSession.email)
-  )
-    return false;
-  return true;
+const showError = (title, text) => {
+  Swal.fire({
+    icon: "error",
+    iconColor: "#17a2b8",
+    title,
+    text,
+    confirmButtonColor: "#17a2b8",
+  });
 };
 
-// Update the session on the server
-const updateSession = async () => {
-  try {
-    const response = await api("interaction/updateSession", interactionSession);
-    return true;
-  } catch (error) {
-    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-    Toast.fire({
-      icon: "error",
-      title: `Error saving session: ${error}`,
-    });
-    return false;
-  }
+/**
+ * Formats API error responses for display.
+ * @memberof module:interaction/CreateDetails
+ * @param {Error|string|Array} error - The error object or message.
+ * @returns {string} - A user-friendly error message.
+ */
+const formatError = (error) => {
+  return Array.isArray(error) ? error.map((e) => e.msg).join(" ") : error;
 };
 </script>
 

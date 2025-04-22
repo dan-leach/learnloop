@@ -1,30 +1,79 @@
 <script setup>
-import { ref } from "vue";
+/**
+ * @module interaction/CreateComplete
+ * @summary Final step of the interaction session creation process.
+ * @description Provides details of how to join and host the session, including links and QR codes.
+ * @requires vue
+ * @requires vue-router
+ * @requires ../data/interactionSession.js
+ * @requires ../assets/toast.js
+ */
+
+import { ref, inject } from "vue";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
-import { inject } from "vue";
-const config = inject("config");
 import Toast from "../assets/Toast.js";
 
+const config = inject("config");
+
+/**
+ * Redirect to the slide type selection page if the session isn't new and doesn't use a template.
+ */
 if (!interactionSession.isNew && !interactionSession.useTemplate) {
   router.push("/interaction/create/type");
 }
 
+/**
+ * Navigate to home and reset session data.
+ * @async
+ */
 const next = async () => {
   interactionSession.reset();
   router.push("/");
 };
+
+/**
+ * Navigate back to slide creation step.
+ */
 const back = () => {
   router.push("/interaction/create/slides");
 };
 
-const link = ref({});
-link.value.join = config.value.client.url + "/" + interactionSession.id;
-link.value.host =
-  config.value.client.url + "/interaction/host/" + interactionSession.id;
-link.value.qr = config.value.api.url + "qrcode/?id=" + interactionSession.id;
-let clipboard = ref(false);
-if (navigator.clipboard) clipboard.value = true;
+const link = ref({
+  /**
+   * Join link for participants.
+   * @type {string}
+   */
+  join: config.value.client.url + "/" + interactionSession.id,
+
+  /**
+   * Host link for the presenter.
+   * @type {string}
+   */
+  host: config.value.client.url + "/interaction/host/" + interactionSession.id,
+
+  /**
+   * QR code image source URL.
+   * @type {string}
+   */
+  qr: config.value.api.url + "qrcode/?id=" + interactionSession.id,
+});
+
+/**
+ * Indicates whether clipboard API is supported.
+ * @type {Ref<boolean>}
+ */
+const clipboard = ref(false);
+
+if (navigator.clipboard) {
+  clipboard.value = true;
+}
+
+/**
+ * Copy a string to clipboard and show a toast.
+ * @param {string} string - The text to copy.
+ * @async
+ */
 const copyText = async (string) => {
   if (!clipboard.value) return;
   try {
@@ -40,11 +89,17 @@ const copyText = async (string) => {
     });
   }
 };
+
+/**
+ * Copy an image to clipboard by its source URL.
+ * @param {string} src - The image source URL.
+ * @async
+ */
 const copyImg = async (src) => {
   if (!clipboard.value) return;
-  const response = await fetch(src);
-  const blob = await response.blob();
   try {
+    const response = await fetch(src);
+    const blob = await response.blob();
     await navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
     Toast.fire({
       icon: "success",

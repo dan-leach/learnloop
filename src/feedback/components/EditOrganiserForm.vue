@@ -5,7 +5,6 @@
  * @description Allows an organiser to be added or edited, with validation for lead status, email, and editing permissions.
  * @requires Swal
  * @requires vue
- * @exports OrganiserModal
  */
 
 import { ref } from "vue";

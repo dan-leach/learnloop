@@ -1,7 +1,19 @@
 Current:
+Finish interaction optimising/jsDoc:
+
+- Edit
+- Host
+- Instructions
+- Join
+- PresenterView
+- components/host/ all
+- components/join/ all
+- components/HostSlide
+- components/JoinSlide
+- components/Uploader
+
 Test
-Extract common functions
-ChatGPT comments
+Improve join interactive UI
 
 To do
 Preview certificate

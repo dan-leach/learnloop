@@ -1,22 +1,38 @@
 <script setup>
-import { ref } from "vue";
+/**
+ * @module interaction/CreateSlides
+ * @summary Step 4 of the interaction session creation process.
+ * @description Allows adding, removing, sorting, and editing slides. Supports saving, previewing, and navigating to next steps.
+ * @requires vue
+ * @requires vue-router
+ * @requires ../router
+ * @requires ../data/interactionSession.js
+ * @requires ../data/api.js
+ * @requires ../assets/toast.js
+ * @requires bootstrap/js/dist/modal
+ * @requires sweetalert2
+ */
+
+import { ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
 import { api } from "../data/api.js";
 import Toast from "../assets/toast.js";
-import { inject } from "vue";
-const config = inject("config");
 import Modal from "bootstrap/js/dist/modal";
-import EditSlideForm from "./components/EditSlideForm.vue";
 import Swal from "sweetalert2";
+import EditSlideForm from "./components/EditSlideForm.vue";
 
+const config = inject("config");
+
+// Ensure correct navigation entry point
 if (
   !interactionSession.isNew &&
   !interactionSession.useTemplate &&
   !interactionSession.isEdit
 ) {
-  if (useRouter().currentRoute.value.path.includes("/edit/")) {
+  const currentPath = useRouter().currentRoute.value.path;
+  if (currentPath.includes("/edit/")) {
     router.push(
       "/interaction/edit/" + useRouter().currentRoute.value.params.id
     );
@@ -30,6 +46,10 @@ const saveStatus = ref({
   error: false,
 });
 
+/**
+ * Navigate back to the previous step in the creation or editing flow.
+ * @memberof module:interaction/CreateSlides
+ */
 const back = () => {
   router.push(
     `/interaction/${
@@ -40,23 +60,25 @@ const back = () => {
   );
 };
 
-let btnNext = ref({
+const btnNext = ref({
   text: "Continue",
   wait: false,
 });
 
-// Update the session on the server
+/**
+ * Saves the session data to the server.
+ * Updates visual status indicators accordingly.
+ * @memberof module:interaction/CreateSlides
+ * @returns {Promise<string|false>} - Status message or false on failure.
+ */
 const updateSession = async () => {
   try {
-    // Indicate to the user save in progress
     saveStatus.value.saved = false;
     saveStatus.value.error = false;
     btnNext.value.wait = true;
 
-    // Perform the update
     const res = await api("interaction/updateSession", interactionSession);
 
-    // Indicate to the user save is complete, after a short delay so the save process is visible
     setTimeout(() => {
       saveStatus.value.saved = true;
       btnNext.value.wait = false;
@@ -75,7 +97,12 @@ const updateSession = async () => {
 };
 
 let editSlideModal;
-// Show the edit slide form
+
+/**
+ * Opens the slide editing modal for a specific slide index.
+ * @memberof module:interaction/CreateSlides
+ * @param {number} index - Index of the slide to edit.
+ */
 const showEditSlideForm = (index) => {
   editSlideModal = new Modal(
     document.getElementById("editSlideModal" + index),
@@ -88,33 +115,51 @@ const showEditSlideForm = (index) => {
   editSlideModal.show();
 };
 
-// Hide the edit slide form
+/**
+ * Hides the slide modal and updates or inserts the slide data.
+ * Triggers auto-save if a change was submitted.
+ * @memberof module:interaction/CreateSlides
+ * @param {number|undefined} index - Index of the edited slide, or undefined if cancelled.
+ * @param {string} slide - The updated slide data (JSON stringified).
+ */
 const hideEditSlideModal = (index, slide) => {
   editSlideModal.hide();
+  if (index) index = parseInt(index);
   if (index === undefined) return; //user did not submit the form, closed using the X. Do nothing except hide the modal
 
-  if (index == -1) {
-    interactionSession.slides.push(JSON.parse(slide));
+  const parsedSlide = JSON.parse(slide);
+
+  if (index === -1) {
+    // New slide just push it to the array
+    interactionSession.slides.push(parsedSlide);
   } else {
-    //otherwise use Object assign to avoid row visually jumping around as array mutated
-    Object.assign(interactionSession.slides[index], JSON.parse(slide));
+    // Otherwise use Object assign to avoid row visually jumping around as array mutated
+    Object.assign(interactionSession.slides[index], parsedSlide);
   }
 
-  // Auto save the change on the server
   updateSession();
 };
 
-// Sort a given slide up or down
-const sortSlide = (index, x) => {
+/**
+ * Moves a slide up or down in the array.
+ * @memberof module:interaction/CreateSlides
+ * @param {number} index - Index of the slide to move.
+ * @param {number} direction - +1 to move down, -1 to move up.
+ */
+const sortSlide = (index, direction) => {
   interactionSession.slides.splice(
-    index + x,
+    index + direction,
     0,
     interactionSession.slides.splice(index, 1)[0]
   );
   updateSession();
 };
 
-// Remove the slide at the given index
+/**
+ * Prompts the user to confirm deletion of a slide, and removes it if confirmed.
+ * @memberof module:interaction/CreateSlides
+ * @param {number} index - Index of the slide to remove.
+ */
 const removeSlide = async (index) => {
   const { isConfirmed } = await Swal.fire({
     title: "Remove this slide?",
@@ -128,16 +173,18 @@ const removeSlide = async (index) => {
   }
 };
 
-// Show the host view in preview mode
+/**
+ * Loads the session's status and navigates to the host preview screen.
+ * @memberof module:interaction/CreateSlides
+ */
 const preview = async () => {
   try {
     const res = await api("interaction/fetchStatus", {
       id: interactionSession.id,
     });
-
     interactionSession.status = res;
-    Swal.close();
     interactionSession.status.preview = true;
+
     Swal.fire({
       icon: "info",
       iconColor: "#17a2b8",
@@ -145,9 +192,9 @@ const preview = async () => {
       text: "If you previously connected any devices to this session please refresh the page on them now. This ensures the connected devices have your latest changes.",
       confirmButtonColor: "#17a2b8",
     });
+
     router.push("/interaction/host/preview");
   } catch (error) {
-    console.error("previewSession error:", error);
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
     Swal.fire({
       icon: "error",
@@ -159,14 +206,32 @@ const preview = async () => {
   }
 };
 
-// Finish editing the session by performing a final save and deactivating any preview submissions
-const next = async () => {
-  if (!slidesFormIsValid()) return false;
+const showWarning = ref(false);
 
-  // Perform a final save
+/**
+ * Validates that at least one slide has been added.
+ * @memberof module:interaction/CreateSlides
+ * @returns {boolean}
+ */
+const slidesFormIsValid = () => {
+  if (!interactionSession.slides.length) {
+    showWarning.value = true;
+    return false;
+  }
+  return true;
+};
+
+/**
+ * Finalizes the session creation/editing.
+ * Performs a last save, deactivates preview submissions, and navigates forward.
+ * @memberof module:interaction/CreateSlides
+ */
+const next = async () => {
+  if (!slidesFormIsValid()) return;
+
   const updateMessage = await updateSession();
 
-  // Deactivate any preview submissions
+  // Deactivate preview submissions
   api("interaction/deactivateSubmissions", {
     id: interactionSession.id,
     pin: interactionSession.pin,
@@ -174,7 +239,6 @@ const next = async () => {
   });
 
   if (updateMessage) {
-    // Do nothing if the save failed
     if (!interactionSession.isEdit) {
       router.push("/interaction/create/complete");
     } else {
@@ -185,16 +249,6 @@ const next = async () => {
       });
     }
   }
-};
-
-const showWarning = ref(false);
-// On finish editing check that at least 1 slide is added
-const slidesFormIsValid = () => {
-  if (!interactionSession.slides.length) {
-    showWarning.value = true;
-    return false;
-  }
-  return true;
 };
 </script>
 

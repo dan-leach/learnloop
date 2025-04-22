@@ -4,7 +4,6 @@
  * @summary Modal for adding or editing a feedback subsession
  * @description Allows a user to add or edit title, facilitator name, and optionally facilitator email.
  * Uses data binding and validation. Emits updated data back to the parent component.
- * @exports EditSubsessionModal
  */
 
 import { ref } from "vue";

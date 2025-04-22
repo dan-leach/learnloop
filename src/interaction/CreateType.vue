@@ -1,4 +1,20 @@
 <script setup>
+/**
+ * @module interaction/CreateType
+ * @summary Step 1 of the interaction session creation process.
+ * @description
+ * This module manages whether a user starts a new session or uses a template.
+ * It includes functions for loading template sessions, prompting for session ID and PIN,
+ * resetting session state, and navigating to the session details page.
+ *
+ * @requires vue
+ * @requires bootstrap/js/dist/collapse
+ * @requires sweetalert2
+ * @requires ../data/interactionSession.js
+ * @requires ../data/api.js
+ * @requires ../router/index.js
+ */
+
 import { onMounted, ref } from "vue";
 import { interactionSession } from "../data/interactionSession.js";
 import router from "../router/index.js";
@@ -10,6 +26,12 @@ let newHelpInstance;
 let templateHelpInstance;
 const nextDisabled = ref(true);
 
+/**
+ * @function selectNew
+ * @memberof module:interaction/CreateType
+ * @description Selects the "New session" option. Optionally forces UI update.
+ * @param {boolean} forceOn - If true, forces selection even if already selected.
+ */
 const selectNew = async (forceOn) => {
   if (interactionSession.isNew && !forceOn) {
     interactionSession.isNew = false;
@@ -17,6 +39,7 @@ const selectNew = async (forceOn) => {
     nextDisabled.value = true;
     return;
   }
+
   if (interactionSession.useTemplate && interactionSession.title) {
     const { isConfirmed } = await Swal.fire({
       title: "Lose progress?",
@@ -24,11 +47,8 @@ const selectNew = async (forceOn) => {
       showCancelButton: true,
       confirmButtonColor: "#dc3545",
     });
-    if (isConfirmed) {
-      interactionSession.reset();
-    } else {
-      return;
-    }
+    if (!isConfirmed) return;
+    interactionSession.reset();
   }
 
   interactionSession.useTemplate = false;
@@ -38,6 +58,12 @@ const selectNew = async (forceOn) => {
   nextDisabled.value = false;
 };
 
+/**
+ * @function selectTemplate
+ * @memberof module:interaction/CreateType
+ * @description Selects the "Use template" option. Optionally forces UI update.
+ * @param {boolean} forceOn - If true, forces selection even if already selected.
+ */
 const selectTemplate = async (forceOn) => {
   if (interactionSession.useTemplate && !forceOn) {
     if (interactionSession.title) {
@@ -47,18 +73,15 @@ const selectTemplate = async (forceOn) => {
         showCancelButton: true,
         confirmButtonColor: "#dc3545",
       });
-      if (isConfirmed) {
-        interactionSession.reset();
-      } else {
-        return;
-      }
+      if (!isConfirmed) return;
+      interactionSession.reset();
     }
     interactionSession.useTemplate = false;
     templateHelpInstance.hide();
     nextDisabled.value = true;
-    interactionSession.reset();
     return;
   }
+
   if (!interactionSession.useTemplate && interactionSession.title) {
     const { isConfirmed } = await Swal.fire({
       title: "Lose progress?",
@@ -66,11 +89,8 @@ const selectTemplate = async (forceOn) => {
       showCancelButton: true,
       confirmButtonColor: "#dc3545",
     });
-    if (isConfirmed) {
-      interactionSession.reset();
-    } else {
-      return;
-    }
+    if (!isConfirmed) return;
+    interactionSession.reset();
   }
 
   interactionSession.isNew = false;
@@ -80,7 +100,12 @@ const selectTemplate = async (forceOn) => {
   nextDisabled.value = false;
 };
 
-// Fetch the details of the interaction session to be edited
+/**
+ * @function fetchTemplate
+ * @memberof module:interaction/CreateType
+ * @description Fetches details of a session by ID and PIN and loads it into the session state.
+ * @returns {boolean} Whether the fetch was successful.
+ */
 const fetchTemplate = async () => {
   try {
     const response = await api("interaction/fetchDetailsHost", {
@@ -88,8 +113,8 @@ const fetchTemplate = async () => {
       pin: interactionSession.pin,
     });
 
-    if (interactionSession.id != response.id) {
-      throw new error("Response session ID does not match request session ID");
+    if (interactionSession.id !== response.id) {
+      throw new Error("Response session ID does not match request session ID");
     }
 
     interactionSession.title = `Copy of ${response.title}`;
@@ -114,12 +139,18 @@ const fetchTemplate = async () => {
     return false;
   }
 };
+
+/**
+ * @function loadTemplate
+ * @memberof module:interaction/CreateType
+ * @description Prompts for ID and PIN, then fetches session data to use as a template.
+ * @returns {boolean} Whether the template was successfully loaded.
+ */
 const loadTemplate = async () => {
-  // Get the id and pin for the session to be used as template
   const { isConfirmed } = await Swal.fire({
     title: "Enter session ID and PIN",
     html:
-      "<div class='overflow-hidden'>You will need the session ID and PIN for the session you want to use as the template. You can find these details in the email you received when your session was created. <br>" +
+      "<div class='overflow-hidden'>You will need the session ID and PIN for the session you want to use as the template. You can find these details in the email you received when your session was created.<br>" +
       '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">' +
       '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
     showCancelButton: true,
@@ -131,11 +162,11 @@ const loadTemplate = async () => {
       interactionSession.pin = document
         .getElementById("swalFormPin")
         .value.trim();
-      if (interactionSession.pin == "") {
+      if (!interactionSession.pin) {
         Swal.showValidationMessage("Please enter your PIN");
         return false;
       }
-      if (interactionSession.id == "") {
+      if (!interactionSession.id) {
         Swal.showValidationMessage("Please enter a session ID");
         return false;
       }
@@ -143,14 +174,17 @@ const loadTemplate = async () => {
     },
   });
 
-  // If form not confirmed, cancel the create from template process
   if (isConfirmed) {
-    await fetchTemplate();
-    return true;
+    return await fetchTemplate();
   }
   return false;
 };
 
+/**
+ * @function next
+ * @memberof module:interaction/CreateType
+ * @description Proceeds to the next screen in the interaction session creation flow.
+ */
 const next = async () => {
   if (interactionSession.useTemplate && !interactionSession.title) {
     const templateLoaded = await loadTemplate();
@@ -162,14 +196,17 @@ const next = async () => {
   router.push("/interaction/create/details");
 };
 
+/**
+ * @function onMounted
+ * @memberof module:interaction/CreateType
+ * @description Initializes Bootstrap collapses and default UI state based on session flags.
+ */
 onMounted(async () => {
   const newHelpElement = document.getElementById("newHelp");
   newHelpInstance = new Collapse(newHelpElement, { toggle: false });
 
   const templateHelpElement = document.getElementById("templateHelp");
-  templateHelpInstance = new Collapse(templateHelpElement, {
-    toggle: false,
-  });
+  templateHelpInstance = new Collapse(templateHelpElement, { toggle: false });
 
   if (interactionSession.useTemplate) {
     selectTemplate(true);

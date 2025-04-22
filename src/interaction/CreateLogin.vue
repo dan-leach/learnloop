@@ -1,19 +1,40 @@
 <script setup>
-import { ref } from "vue";
+/**
+ * @module interaction/CreateLogin
+ * @summary Step 3 of the interaction session creation process.
+ * @description Ensures correct entry point, provides clipboard copy functionality, and navigates to next or previous setup steps.
+ * @requires vue
+ * @requires vue-router
+ * @requires ../router
+ * @requires ../data/interactionSession.js
+ * @requires ../assets/Toast.js
+ */
+
+import { ref, inject } from "vue";
 import router from "../router";
 import { interactionSession } from "../data/interactionSession.js";
-import { inject } from "vue";
-const config = inject("config");
 import Toast from "../assets/Toast.js";
 
+const config = inject("config");
+
+// Ensure proper entry point to this view
 if (!interactionSession.isNew && !interactionSession.useTemplate) {
   router.push("/interaction/create/type");
 }
 
-let clipboard = ref(false);
-if (navigator.clipboard) clipboard.value = true;
+// Detect clipboard API support
+const clipboard = ref(!!navigator.clipboard);
+
+/**
+ * Copies a given string to the user's clipboard.
+ * Displays a toast notification for success or failure.
+ * @memberof module:interaction/CreateLogin
+ * @param {string} string - The text to copy to clipboard.
+ * @returns {Promise<void>}
+ */
 const copyText = async (string) => {
   if (!clipboard.value) return;
+
   try {
     await navigator.clipboard.writeText(string);
     Toast.fire({
@@ -28,9 +49,18 @@ const copyText = async (string) => {
   }
 };
 
-const next = async () => {
+/**
+ * Proceeds to the next step: slide creation.
+ * @memberof module:interaction/CreateLogin
+ */
+const next = () => {
   router.push("/interaction/create/slides");
 };
+
+/**
+ * Returns to the previous step: session details.
+ * @memberof module:interaction/CreateLogin
+ */
 const back = () => {
   router.push("/interaction/create/details");
 };
