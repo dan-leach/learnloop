@@ -1,27 +1,51 @@
 <script setup>
-import { ref, onMounted } from "vue";
-import router from "../router";
+/**
+ * @module interaction/Instructions
+ * @summary Handles displaying the joining instructions for an interaction session.
+ * @description
+ * This component prompts the user for a session ID (if not present), fetches details for the session,
+ * and generates relevant links (join, host, QR). It also allows copying the join link to the clipboard.
+ *
+ * @requires vue
+ * @requires vue-router
+ * @requires ../data/interactionSession
+ * @requires ../data/api
+ * @requires SweetAlert2
+ * @requires Toast
+ * @requires Loading
+ */
+
+import { ref, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
+import router from "../router";
 import { api } from "../data/api.js";
 import { interactionSession } from "../data/interactionSession.js";
-import { inject } from "vue";
-const config = inject("config");
 import Swal from "sweetalert2";
 import Toast from "../assets/Toast.js";
 import Loading from "../components/Loading.vue";
 
+// Global config injection (API and client URLs)
+const config = inject("config");
+
+// Local reactive state
 const link = ref({});
 const loading = ref(true);
 
-let clipboard = ref(false);
-if (navigator.clipboard) clipboard.value = true;
+// Clipboard support
+const clipboard = ref(Boolean(navigator.clipboard));
+
+/**
+ * Copies the given text string to the clipboard and shows a success or error toast.
+ * @param {string} string - The text to copy.
+ * @async
+ */
 const copyText = async (string) => {
   if (!clipboard.value) return;
+
   try {
     await navigator.clipboard.writeText(string);
     Toast.fire({
       icon: "success",
-      iconColor: "#17a2b8",
       iconColor: "#17a2b8",
       title: "Copied",
     });
@@ -34,13 +58,18 @@ const copyText = async (string) => {
   }
 };
 
+/**
+ * Fetches details for the current interaction session and sets up join/host/QR links.
+ * Redirects on failure.
+ * @async
+ */
 const fetchDetails = async () => {
   try {
     const response = await api("interaction/fetchDetailsJoin", {
       id: interactionSession.id,
     });
 
-    if (interactionSession.id != response.id) {
+    if (interactionSession.id !== response.id) {
       console.error(
         "interactionSession.id != response.id",
         interactionSession.id,
@@ -48,15 +77,18 @@ const fetchDetails = async () => {
       );
       return;
     }
+
     interactionSession.title = response.title;
     interactionSession.name = response.name;
-    link.value.join = config.client.url + "/" + interactionSession.id;
-    link.value.host =
-      config.client.url + "/interaction/host/" + interactionSession.id;
-    link.value.qr = config.api.url + "qrcode/?id=" + interactionSession.id;
+
+    link.value.join = `${config.client.url}/${interactionSession.id}`;
+    link.value.host = `${config.client.url}/interaction/host/${interactionSession.id}`;
+    link.value.qr = `${config.api.url}qrcode/?id=${interactionSession.id}`;
+
     loading.value = false;
   } catch (error) {
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+
     Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
@@ -64,24 +96,33 @@ const fetchDetails = async () => {
       text: error,
       confirmButtonColor: "#17a2b8",
     });
+
     router.push("/");
   }
 };
 
+// Initialization logic: ask for session ID if not present and fetch details
 onMounted(async () => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
+
   if (!interactionSession.id) {
     const { isConfirmed } = await Swal.fire({
       title: "Enter session ID",
-      html: '<div class="overflow-hidden"><input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
+      html: `
+        <div class="overflow-hidden">
+          <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">
+        </div>`,
       showCancelButton: true,
       confirmButtonColor: "#17a2b8",
       preConfirm: () => {
         interactionSession.id = document
           .getElementById("swalFormId")
           .value.trim();
-        if (interactionSession.id == "")
+        if (!interactionSession.id) {
           Swal.showValidationMessage("Please enter a session ID");
+          return false;
+        }
+        return true;
       },
     });
 
@@ -89,7 +130,7 @@ onMounted(async () => {
       history.replaceState(
         {},
         "",
-        "/interaction/instructions/" + interactionSession.id
+        `/interaction/instructions/${interactionSession.id}`
       );
       fetchDetails();
     } else {
