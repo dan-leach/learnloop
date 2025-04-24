@@ -1,7 +1,20 @@
 <script setup>
+/**
+ * @module interaction/components/join/FreeText
+ * @summary Validates character length before submitting free-text responses.
+ * @description
+ * This module validates the user's input on a free-text slide before allowing submission.
+ * It uses character length settings from the slide's configuration and provides user feedback via Toast notifications.
+ * If the input passes validation, the "submit" event is emitted to the parent.
+ *
+ * @requires ../../../data/interactionSession.js
+ * @requires ../../../assets/Toast.js
+ */
+
 import { interactionSession } from "../../../data/interactionSession.js";
 import Toast from "../../../assets/Toast.js";
 
+// Props passed from parent component
 const props = defineProps([
   "slide",
   "spinner",
@@ -9,31 +22,42 @@ const props = defineProps([
   "btnSubmitBelowText",
   "currentIndex",
 ]);
+
+// Emits 'submit' event to the parent when validation passes
 const emit = defineEmits(["submit"]);
 
-let submit = () => {
-  let length = props.slide.interaction.response.length;
-  let minLength = props.slide.interaction.settings.characterLimit.min;
-  let maxLength = props.slide.interaction.settings.characterLimit.max;
-  if (length < minLength) {
+/**
+ * Validate character length and emit submit event if valid.
+ * @function
+ * @returns {void}
+ * @memberof module:interaction/components/join/FreeText
+ */
+const submit = () => {
+  const length = props.slide.interaction.response.length;
+  const { min, max } = props.slide.interaction.settings.characterLimit;
+
+  // Input too short
+  if (length < min) {
     Toast.fire({
       icon: "error",
       iconColor: "#17a2b8",
-      title:
-        "Your response must be at least " + minLength + " characters in length",
+      title: `Your response must be at least ${min} characters in length`,
     });
-  } else if (length > maxLength) {
-    Toast.fire({
-      icon: "error",
-      iconColor: "#17a2b8",
-      title:
-        "Your response cannot be more than " +
-        maxLength +
-        " characters in length",
-    });
-  } else {
-    emit("submit");
+    return;
   }
+
+  // Input too long
+  if (length > max) {
+    Toast.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: `Your response cannot be more than ${max} characters in length`,
+    });
+    return;
+  }
+
+  // Input valid – emit submit to parent
+  emit("submit");
 };
 </script>
 

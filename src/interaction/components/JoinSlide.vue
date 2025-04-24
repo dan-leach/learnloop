@@ -1,4 +1,21 @@
 <script setup>
+/**
+ * @module interaction/components/JoinSlide
+ * @summary Handles user response submission for interactive slides in Join view.
+ * @description
+ * This component manages the response submission lifecycle:
+ * - Detects the current interactive slide via prop
+ * - Submits user response to the backend
+ * - Displays submission feedback via Toast or SweetAlert
+ * - Handles submission limits and input reset logic
+ *
+ * @requires vue
+ * @requires ../../data/api.js
+ * @requires ../../data/interactionSession.js
+ * @requires sweetalert2
+ * @requires ../../assets/Toast.js
+ */
+
 import { ref } from "vue";
 import { api } from "../../data/api.js";
 import { interactionSession } from "../../data/interactionSession.js";
@@ -10,18 +27,28 @@ import FreeText from "./join/FreeText.vue";
 import Content from "./join/Content.vue";
 import Swal from "sweetalert2";
 import Toast from "../../assets/Toast.js";
+
+// Props
 const props = defineProps(["currentIndex"]);
 
-let spinner = ref(false);
-let btnSubmitText = ref("Submit");
-let btnSubmitBelowText = ref("");
+// UI state
+const spinner = ref(false);
+const btnSubmitText = ref("Submit");
+const btnSubmitBelowText = ref("");
 
+/**
+ * Submit the current response to the backend and handle submission logic.
+ * @returns {Promise<void>}
+ * @memberof module:interaction/components/JoinSlide
+ */
 const submit = async () => {
-  let slide = interactionSession.slides[props.currentIndex];
-  slide.interaction.closed = true;
+  const slide = interactionSession.slides[props.currentIndex];
+  slide.interaction.closed = true; // prevent resubmission during request
   spinner.value = true;
   btnSubmitText.value = "Please wait";
+
   try {
+    // Send submission to API
     await api("interaction/insertSubmission", {
       id: interactionSession.id,
       slideIndex: props.currentIndex,
@@ -29,37 +56,47 @@ const submit = async () => {
       isPreview: interactionSession.status.preview,
     });
 
+    // On success
     Toast.fire({
       icon: "success",
       title: "Your response was submitted",
     });
+
     spinner.value = false;
     slide.interaction.submissionCount++;
-    if (
-      slide.interaction.submissionCount <
-      slide.interaction.settings.submissionLimit
-    ) {
+
+    const limit = slide.interaction.settings.submissionLimit;
+    const hasMoreSubmissions = slide.interaction.submissionCount < limit;
+
+    if (hasMoreSubmissions) {
+      // Reset for another response
       slide.interaction.closed = false;
       btnSubmitText.value = "Submit";
       btnSubmitBelowText.value = "You may submit multiple responses";
       slide.interaction.response = "";
     } else {
+      // Submission limit reached
       btnSubmitText.value = "Done";
       btnSubmitBelowText.value =
-        slide.interaction.submissionCount ==
-        slide.interaction.settings.submissionLimit
+        slide.interaction.submissionCount === limit
           ? "You have reached the submission limit"
           : "";
     }
   } catch (error) {
-    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    // Format and show error
+    const message = Array.isArray(error)
+      ? error.map((e) => e.msg).join(" ")
+      : error;
+
     Swal.fire({
       icon: "error",
       iconColor: "#17a2b8",
       title: "Unable to submit your response",
-      text: error,
+      text: message,
       confirmButtonColor: "#17a2b8",
     });
+
+    // Re-enable interaction for retry
     slide.interaction.closed = false;
     spinner.value = false;
     btnSubmitText.value = "Try again?";

@@ -1,12 +1,4 @@
 Current:
-Finish interaction optimising/jsDoc:
-
-- Join
-- PresenterView
-- components/join/ all
-- components/JoinSlide
-- components/Uploader
-
 Check that feedbackId is valid session ID
 Fix 'showValidIndicators' and refresh submissions buttons not showing if interaction slide created with content which is then removed
 Test
