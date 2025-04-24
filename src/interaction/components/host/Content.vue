@@ -1,28 +1,57 @@
 <script setup>
-import { onMounted, onUpdated } from "vue";
+/**
+ * @module interaction/components/host/Content
+ * @summary Handles layout and behavior for slide content including images and text.
+ * @description
+ * Dynamically sets image container widths based on the number of images and presence of text.
+ * Reacts on initial mount and any updates (e.g., new images added).
+ *
+ * @requires vue
+ * @requires ./HideResponses.vue
+ */
+
+import { onMounted, onUpdated, inject } from "vue";
 import HideResponses from "./HideResponses.vue";
-import { inject } from "vue";
+
+// App-level config injection
 const config = inject("config");
+
+// Props from parent
 const props = defineProps(["slide"]);
 const emit = defineEmits(["toggleContent"]);
 
+/**
+ * Dynamically assigns class names to image containers
+ * based on whether slide text is present and the number of images.
+ * This controls the image display layout (full-width or half-width).
+ *
+ * @memberof module:interaction/components/host/Content
+ */
 const setImageContainerWidth = () => {
-  let imageContainerIsFullWidth = props.slide.content.textStrings.length
-    ? false
-    : true;
-  let imageCount = props.slide.content.images.length;
-  let className = imageContainerIsFullWidth
-    ? "image-container-" + imageCount
-    : "image-container-half-" + imageCount;
-  for (let i = 0; i < imageCount; i++)
-    document
-      .getElementById("imageContainer" + i)
-      .setAttribute("class", className);
+  const { textStrings, images } = props.slide.content;
+
+  // If there's any text, we render images at half width
+  const isFullWidth = textStrings.length === 0;
+  const imageCount = images.length;
+
+  // Determine class name to apply
+  const className = isFullWidth
+    ? `image-container-${imageCount}`
+    : `image-container-half-${imageCount}`;
+
+  // Apply class name to each image container element
+  for (let i = 0; i < imageCount; i++) {
+    const element = document.getElementById(`imageContainer${i}`);
+    if (element) element.setAttribute("class", className);
+  }
 };
 
+// Apply layout class after initial render
 onMounted(() => {
   if (props.slide.content.images.length) setImageContainerWidth();
 });
+
+// Reapply layout class if slide updates
 onUpdated(() => {
   if (props.slide.content.images.length) setImageContainerWidth();
 });

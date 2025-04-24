@@ -1,15 +1,14 @@
 Current:
 Finish interaction optimising/jsDoc:
 
-- Host
 - Join
 - PresenterView
-- components/host/ all
 - components/join/ all
-- components/HostSlide
 - components/JoinSlide
 - components/Uploader
 
+Check that feedbackId is valid session ID
+Fix 'showValidIndicators' and refresh submissions buttons not showing if interaction slide created with content which is then removed
 Test
 Improve join interactive UI
 

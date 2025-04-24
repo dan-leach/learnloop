@@ -1,5 +1,31 @@
 <script setup>
+/**
+ * @module interaction/components/HostSlide
+ * @summary Handles slide-level logic and user interactions in the host view of an interactive session.
+ * @description
+ * This component manages:
+ * - Toggling content and response visibility
+ * - Navigation between slides
+ * - Triggering presenter view
+ *
+ * It communicates with parent components through emitted events and interacts
+ * with global session state from `interactionSession`.
+ *
+ * @requires vue
+ * @requires ../../data/interactionSession.js
+ * @requires ./host/WaitingRoom.vue
+ * @requires ./host/End.vue
+ * @requires ./host/HideResponses.vue
+ * @requires ./host/TrueFalse.vue
+ * @requires ./host/MultipleChoice.vue
+ * @requires ./host/FreeText.vue
+ * @requires ./host/WordCloud.vue
+ * @requires ./host/Content.vue
+ */
+
+import { inject, ref } from "vue";
 import { interactionSession } from "../../data/interactionSession.js";
+
 import WaitingRoom from "./host/WaitingRoom.vue";
 import End from "./host/End.vue";
 import HideResponses from "./host/HideResponses.vue";
@@ -8,10 +34,13 @@ import MultipleChoice from "./host/MultipleChoice.vue";
 import FreeText from "./host/FreeText.vue";
 import WordCloud from "./host/WordCloud.vue";
 import Content from "./host/Content.vue";
-import { inject, ref } from "vue";
+
 const config = inject("config");
 
+// Props from parent
 const props = defineProps(["currentIndex", "isPresenterView"]);
+
+// Emits to parent (for navigation and actions)
 const emit = defineEmits([
   "goForward",
   "goBack",
@@ -20,26 +49,48 @@ const emit = defineEmits([
   "refreshSubmissions",
 ]);
 
+/**
+ * Shows interaction responses on the current slide.
+ * Also clears existing submissions to restart the display.
+ * @memberof module:interaction/components/HostSlide
+ */
 const showResponses = () => {
-  interactionSession.slides[
-    props.currentIndex
-  ].interaction.settings.hideResponses = false;
-  interactionSession.slides[props.currentIndex].interaction.submissions = [];
+  const slide = interactionSession.slides[props.currentIndex];
+  slide.interaction.settings.hideResponses = false;
+  slide.interaction.submissions = [];
 };
 
+/**
+ * Toggles content visibility on the current slide.
+ * If content is hidden, it also triggers showing responses.
+ * @memberof module:interaction/components/HostSlide
+ */
 const toggleContent = () => {
-  interactionSession.slides[props.currentIndex].content.show =
-    !interactionSession.slides[props.currentIndex].content.show;
-  if (!interactionSession.slides[props.currentIndex].content.show)
-    showResponses();
+  const slide = interactionSession.slides[props.currentIndex];
+  slide.content.show = !slide.content.show;
+
+  // If hiding the content, show responses immediately
+  if (!slide.content.show) showResponses();
 };
 
+// Used to display validation markers during slide interaction
 const showValidIndicators = ref(false);
+
+/**
+ * Emits navigation events to the parent and resets validation indicators.
+ * @param {string} emitType - The name of the emit event (e.g., "goForward")
+ * @memberof module:interaction/components/HostSlide
+ */
 const nav = (emitType) => {
   showValidIndicators.value = false;
   emit(emitType);
 };
 
+/**
+ * Opens a new presenter view window for this session.
+ * Session ID and PIN are stored in localStorage to enable access.
+ * @memberof module:interaction/components/HostSlide
+ */
 const openPresenterView = () => {
   localStorage.setItem(
     "presenterViewSession",
@@ -48,6 +99,8 @@ const openPresenterView = () => {
       pin: interactionSession.pin,
     })
   );
+
+  // Opens presenter view in a new tab
   window.open(`/interaction/presenter-view/${interactionSession.id}`, "_blank");
 };
 </script>

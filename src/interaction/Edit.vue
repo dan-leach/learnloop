@@ -12,6 +12,7 @@
  * @requires ../data/api
  * @requires SweetAlert2
  * @requires ../assets/promptSessionDetails
+ * @requires ../components/Loading
  */
 
 import { onMounted } from "vue";
@@ -21,6 +22,7 @@ import { interactionSession } from "../data/interactionSession.js";
 import { api } from "../data/api.js";
 import Swal from "sweetalert2";
 import { promptSessionDetails } from "../assets/promptSessionDetails";
+import Loading from "../components/Loading.vue";
 
 // Initialize session as being edited and grab the session ID from the route
 interactionSession.isEdit = true;
@@ -47,6 +49,8 @@ const loadEditView = async () => {
     text: "If you make changes to your interaction session, any previous responses by attendees will be deleted.",
     confirmButtonColor: "#17a2b8",
   });
+
+  return true;
 };
 
 /**

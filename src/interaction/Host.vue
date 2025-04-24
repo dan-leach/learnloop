@@ -1,21 +1,44 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+/**
+ * @module interaction/Host
+ * @summary Host view for interaction sessions.
+ * @description
+ * This module powers the hosting view for an interactive session, managing:
+ * - Fetching session and slide data
+ * - Real-time polling of new submissions
+ * - Slide navigation, locking, and status updates
+ * - Preview session exit and session cleanup
+ *
+ * @requires vue
+ * @requires vue-router
+ * @requires ../data/api.js
+ * @requires ../data/interactionSession.js
+ * @requires ../assets/promptSessionDetails
+ * @requires ../assets/Toast.js
+ * @requires ../components/Loading.vue
+ * @requires ./components/HostSlide.vue
+ */
+
+import { onBeforeUnmount, onMounted, ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import router from "../router";
 import { api } from "../data/api.js";
 import { interactionSession } from "../data/interactionSession.js";
-import { inject } from "vue";
-const config = inject("config");
 import Swal from "sweetalert2";
-import Loading from "../components/Loading.vue";
-import HostSlide from "./components/HostSlide.vue";
 import Toast from "../assets/Toast.js";
 import { promptSessionDetails } from "../assets/promptSessionDetails";
+import Loading from "../components/Loading.vue";
+import HostSlide from "./components/HostSlide.vue";
 
+const config = inject("config");
 const loading = ref(true);
-let pollingInterval; // Declared here to be accessible by onBeforeUnmount
+let pollingInterval;
 
-// If in preview mode should already have id and pin, else prompt for them, then load host view
+/**
+ * Handles initial mount behavior: fetch or prompt for session ID and PIN,
+ * then load host view.
+ * @memberof module:interaction/Host
+ */
 onMounted(async () => {
   if (interactionSession.id && interactionSession.pin) {
     loadHostView();
@@ -25,10 +48,7 @@ onMounted(async () => {
       interactionSession.id
     );
 
-    if (!isConfirmed) {
-      router.push("/");
-      return;
-    }
+    if (!isConfirmed) return router.push("/");
 
     interactionSession.id = id;
     interactionSession.pin = pin;
@@ -37,30 +57,33 @@ onMounted(async () => {
   }
 });
 
-// Load and organise the data then remove the loading screen
+/**
+ * Loads the host session view including fetching session details,
+ * initializing slides, and starting polling.
+ * @memberof module:interaction/Host
+ */
 const loadHostView = async () => {
   try {
-    // Check if session ID and PIN are set
-    if (!interactionSession.id || !interactionSession.pin)
+    if (!interactionSession.id || !interactionSession.pin) {
       throw new Error("Session ID or PIN is empty");
+    }
 
-    // If not in preview mode, fetch details
     if (!interactionSession.status?.preview) {
       await fetchDetailsHost();
     }
 
-    // Add the waiting room and end slides
+    // Inject waiting room and end slides
     interactionSession.slides.unshift({ type: "waitingRoom" });
     interactionSession.slides.push({ type: "end" });
 
-    // Ensure starts on the waiting room slide
-    if (interactionSession.status.facilitatorIndex != 0) {
+    // Ensure starting at the first slide
+    if (interactionSession.status.facilitatorIndex !== 0) {
       interactionSession.status.facilitatorIndex = 0;
       updateStatus();
     }
 
-    // Set the default for each slide to start with content rather than interaction showing, and clear submissions
-    for (let slide of interactionSession.slides) {
+    // Set defaults per slide
+    for (const slide of interactionSession.slides) {
       if (slide.hasContent) slide.content.show = true;
       if (slide.interaction) {
         slide.interaction.submissions = [];
@@ -68,16 +91,13 @@ const loadHostView = async () => {
       }
     }
 
-    // Fetch the submission count for the waiting room host view
     fetchSubmissionCount();
 
-    // Set up the regular new submissions polling
     pollingInterval = setInterval(
       fetchNewSubmissions,
       config.value.interaction.host.newSubmissionsPollInterval
     );
 
-    // Remove the loading screen
     loading.value = false;
   } catch (error) {
     console.error("loadHostView failed", error);
@@ -86,14 +106,17 @@ const loadHostView = async () => {
       icon: "error",
       iconColor: "#17a2b8",
       title: "Unable to launch interaction session hosting",
-      text: error.message,
+      text: error,
       confirmButtonColor: "#17a2b8",
     });
     router.push("/");
   }
 };
 
-// Update the status of the session on the server (e.g. preview true/false)
+/**
+ * Updates session status on the server.
+ * @memberof module:interaction/Host
+ */
 const updateStatus = async () => {
   try {
     await api("interaction/updateStatus", {
@@ -106,27 +129,37 @@ const updateStatus = async () => {
   }
 };
 
-// Fetch the details of the session from the server
+/**
+ * Fetches session details for the host.
+ * @memberof module:interaction/Host
+ * @returns {Promise<boolean>}
+ * @throws {Error} If session ID mismatch occurs
+ */
 const fetchDetailsHost = async () => {
-  const res = await api("interaction/fetchDetailsHost", {
+  const response = await api("interaction/fetchDetailsHost", {
     id: interactionSession.id,
     pin: interactionSession.pin,
   });
 
-  if (interactionSession.id != res.id) {
-    throw new error("Response session ID does not match request session ID");
+  if (interactionSession.id !== response.id) {
+    throw new Error("Response session ID does not match request session ID");
   }
 
-  interactionSession.title = res.title;
-  interactionSession.name = res.name;
-  interactionSession.feedbackID = res.feedbackID;
-  interactionSession.status = res.status;
-  interactionSession.slides = res.slides;
+  Object.assign(interactionSession, {
+    title: response.title,
+    name: response.name,
+    feedbackID: response.feedbackID,
+    status: response.status,
+    slides: response.slides,
+  });
 
   return true;
 };
 
-// Fetch the submission count for the waiting room host view
+/**
+ * Fetches initial submission count for waiting room.
+ * @memberof module:interaction/Host
+ */
 const fetchSubmissionCount = async () => {
   try {
     const response = await api("interaction/fetchSubmissionCount", {
@@ -141,40 +174,36 @@ const fetchSubmissionCount = async () => {
   }
 };
 
-// Fetch new submissions for the current slide
 let fetchNewSubmissionsFailCount = 0;
+
+/**
+ * Fetches new submissions for the current slide, with failure handling.
+ * @memberof module:interaction/Host
+ */
 const fetchNewSubmissions = async () => {
-  if (
-    !interactionSession.slides[interactionSession.status.facilitatorIndex]
-      .interaction
-  )
-    return;
-  const submissions =
-    interactionSession.slides[interactionSession.status.facilitatorIndex]
-      .interaction.submissions;
-  const lastSubmissionId = submissions.length
-    ? submissions[submissions.length - 1].id
-    : 0;
+  const currentSlide =
+    interactionSession.slides[interactionSession.status.facilitatorIndex];
+  if (!currentSlide.interaction) return;
+
+  const submissions = currentSlide.interaction.submissions;
+  const lastId = submissions.length ? submissions.at(-1).id : 0;
 
   try {
-    const response = await api("interaction/fetchNewSubmissions", {
+    const newSubs = await api("interaction/fetchNewSubmissions", {
       id: interactionSession.id,
       pin: interactionSession.pin,
       slideIndex: interactionSession.status.facilitatorIndex,
-      lastSubmissionId: lastSubmissionId,
+      lastSubmissionId: lastId,
       isPreview: interactionSession.status.preview,
     });
 
-    for (let submission of response) submissions.push(submission);
+    submissions.push(...newSubs);
     fetchNewSubmissionsFailCount = 0;
     Swal.close();
   } catch (error) {
     fetchNewSubmissionsFailCount++;
-    console.error(
-      "fetchNewSubmissions failed - failCount: " + fetchNewSubmissionsFailCount,
-      error
-    );
-    if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible())
+    console.error("fetchNewSubmissions failed", error);
+    if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible()) {
       Swal.fire({
         toast: true,
         showConfirmButton: false,
@@ -185,28 +214,34 @@ const fetchNewSubmissions = async () => {
         position: "bottom",
         width: "450px",
       });
+    }
   }
 };
 
-// Fetch submissions for the current slide
+/**
+ * Clears submissions for the current slide and fetches new ones.
+ * @memberof module:interaction/Host
+ */
 const refreshSubmissions = () => {
-  if (
-    interactionSession.slides[interactionSession.status.facilitatorIndex]
-      .interaction
-  )
-    interactionSession.slides[
-      interactionSession.status.facilitatorIndex
-    ].interaction.submissions = [];
+  const currentSlide =
+    interactionSession.slides[interactionSession.status.facilitatorIndex];
+  if (currentSlide.interaction) currentSlide.interaction.submissions = [];
   fetchNewSubmissions();
 };
 
-// Go to a specific slide index
+/**
+ * Navigate to a specific slide index and update relevant UI state.
+ * @memberof module:interaction/Host
+ * @param {number} index - Slide index to navigate to
+ */
 const goToSlide = (index) => {
   config.value.client.isFocusView =
-    index == 0 || index == interactionSession.slides.length - 1 ? false : true;
+    index > 0 && index < interactionSession.slides.length - 1;
+
+  // Offer fullscreen tip when entering/exiting interactive phase
   if (
-    (index == 1 && interactionSession.status.facilitatorIndex == 0) ||
-    index == interactionSession.slides.length - 1
+    (index === 1 && interactionSession.status.facilitatorIndex === 0) ||
+    index === interactionSession.slides.length - 1
   ) {
     Toast.fire({
       icon: "info",
@@ -215,45 +250,46 @@ const goToSlide = (index) => {
       position: "center",
     });
   }
+
   interactionSession.status.facilitatorIndex = index;
   updateStatus();
-  if (index == 0) fetchSubmissionCount();
-  if (
-    interactionSession.slides[interactionSession.status.facilitatorIndex]
-      .interaction
-  )
-    interactionSession.slides[
-      interactionSession.status.facilitatorIndex
-    ].interaction.submissions = [];
+
+  if (index === 0) fetchSubmissionCount();
+
+  const currentSlide = interactionSession.slides[index];
+  if (currentSlide.interaction) currentSlide.interaction.submissions = [];
 };
 
-// Toggle the lock on the current slide
+/**
+ * Toggle whether the current slide is locked.
+ * @memberof module:interaction/Host
+ */
 const toggleLockSlide = () => {
-  //Need to -1 from current index as the lockedSlides array does not include the waiting room slide
-  interactionSession.status.lockedSlides[
-    interactionSession.status.facilitatorIndex - 1
-  ] =
-    !interactionSession.status.lockedSlides[
-      interactionSession.status.facilitatorIndex - 1
-    ];
+  const i = interactionSession.status.facilitatorIndex - 1; // exclude waiting room
+  interactionSession.status.lockedSlides[i] =
+    !interactionSession.status.lockedSlides[i];
   updateStatus();
 };
 
-// Exit the preview session and return to the create view
+/**
+ * Exit preview session and return to the appropriate editor view.
+ * @memberof module:interaction/Host
+ */
 const exitPreviewSession = () => {
-  // Remove the waiting room and end slides before returning to create view
-  interactionSession.slides.shift();
-  interactionSession.slides.pop();
+  interactionSession.slides.shift(); // Remove waiting room
+  interactionSession.slides.pop(); // Remove end slide
 
-  // Return to crteate view (in either edit or create mode)
-  if (interactionSession.editMode) {
-    router.push("/interaction/edit/slides/" + interactionSession.id);
-  } else {
-    router.push("/interaction/create/slides");
-  }
+  const target = interactionSession.isEdit
+    ? `/interaction/edit/slides/${interactionSession.id}`
+    : "/interaction/create/slides";
+
+  router.push(target);
 };
 
-// Reset the host view when the component is unmounted
+/**
+ * Cleanup interval and session state when unmounted.
+ * @memberof module:interaction/Host
+ */
 onBeforeUnmount(() => {
   clearInterval(pollingInterval);
   loading.value = true;
