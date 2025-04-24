@@ -13,6 +13,7 @@
  * @requires SweetAlert2
  * @requires Toast
  * @requires Loading
+ * @requires ../assets/promptSessionDetails
  */
 
 import { ref, onMounted, inject } from "vue";
@@ -23,6 +24,7 @@ import { interactionSession } from "../data/interactionSession.js";
 import Swal from "sweetalert2";
 import Toast from "../assets/Toast.js";
 import Loading from "../components/Loading.vue";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 // Global config injection (API and client URLs)
 const config = inject("config");
@@ -105,40 +107,31 @@ const fetchDetails = async () => {
 onMounted(async () => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
 
-  if (!interactionSession.id) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Enter session ID",
-      html: `
-        <div class="overflow-hidden">
-          <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">
-        </div>`,
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        interactionSession.id = document
-          .getElementById("swalFormId")
-          .value.trim();
-        if (!interactionSession.id) {
-          Swal.showValidationMessage("Please enter a session ID");
-          return false;
-        }
-        return true;
-      },
-    });
-
-    if (isConfirmed) {
-      history.replaceState(
-        {},
-        "",
-        `/interaction/instructions/${interactionSession.id}`
-      );
-      fetchDetails();
-    } else {
-      router.push("/");
-    }
-  } else {
+  if (interactionSession.id) {
     fetchDetails();
+    return;
   }
+
+  const { isConfirmed, id } = await promptSessionDetails(
+    "",
+    "Enter session ID",
+    undefined,
+    true,
+    false
+  );
+
+  if (!isConfirmed) {
+    router.push("/");
+    return;
+  }
+
+  interactionSession.id = id;
+  history.replaceState(
+    {},
+    "",
+    `/interaction/instructions/${interactionSession.id}`
+  );
+  fetchDetails();
 });
 </script>
 

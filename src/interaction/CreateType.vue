@@ -13,6 +13,7 @@
  * @requires ../data/interactionSession.js
  * @requires ../data/api.js
  * @requires ../router/index.js
+ * @requires ../assets/promptSessionDetails.js
  */
 
 import { onMounted, ref } from "vue";
@@ -21,6 +22,7 @@ import router from "../router/index.js";
 import Collapse from "bootstrap/js/dist/collapse";
 import Swal from "sweetalert2";
 import { api } from "../data/api.js";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 let newHelpInstance;
 let templateHelpInstance;
@@ -147,37 +149,15 @@ const fetchTemplate = async () => {
  * @returns {boolean} Whether the template was successfully loaded.
  */
 const loadTemplate = async () => {
-  const { isConfirmed } = await Swal.fire({
-    title: "Enter session ID and PIN",
-    html:
-      "<div class='overflow-hidden'>You will need the session ID and PIN for the session you want to use as the template. You can find these details in the email you received when your session was created.<br>" +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">' +
-      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
-      interactionSession.id = document
-        .getElementById("swalFormId")
-        .value.trim();
-      interactionSession.pin = document
-        .getElementById("swalFormPin")
-        .value.trim();
-      if (!interactionSession.pin) {
-        Swal.showValidationMessage("Please enter your PIN");
-        return false;
-      }
-      if (!interactionSession.id) {
-        Swal.showValidationMessage("Please enter a session ID");
-        return false;
-      }
-      return true;
-    },
-  });
+  const { isConfirmed, id, pin } = await promptSessionDetails();
 
-  if (isConfirmed) {
-    return await fetchTemplate();
+  if (!isConfirmed) {
+    return false;
   }
-  return false;
+
+  interactionSession.id = id;
+  interactionSession.pin = pin;
+  return await fetchTemplate();
 };
 
 /**

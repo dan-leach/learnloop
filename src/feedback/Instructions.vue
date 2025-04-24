@@ -11,6 +11,7 @@
  * @requires sweetalert2
  * @requires ../assets/Toast.js
  * @requires ../components/Loading.vue
+ * @requires ../assets/promptSessionDetails.js
  */
 
 import { ref, onMounted, inject } from "vue";
@@ -21,6 +22,7 @@ import { feedbackSession } from "../data/feedbackSession.js";
 import Swal from "sweetalert2";
 import Toast from "../assets/Toast.js";
 import Loading from "../components/Loading.vue";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 const config = inject("config");
 
@@ -100,35 +102,26 @@ onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
 
   // Prompt if session ID is missing from route
-  if (!feedbackSession.id) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Enter session ID",
-      html: `
-        <div class="overflow-hidden">
-          <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input">
-        </div>`,
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        feedbackSession.id = document.getElementById("swalFormId").value.trim();
-        if (!feedbackSession.id)
-          Swal.showValidationMessage("Please enter a session ID");
-      },
-    });
-
-    if (isConfirmed) {
-      history.replaceState(
-        {},
-        "",
-        `/feedback/instructions/${feedbackSession.id}`
-      );
-      fetchDetails();
-    } else {
-      router.push("/");
-    }
-  } else {
+  if (feedbackSession.id) {
     fetchDetails();
+    return;
   }
+  const { isConfirmed, id } = await promptSessionDetails(
+    "",
+    "Enter session ID",
+    "",
+    true,
+    false
+  );
+
+  if (!isConfirmed) {
+    router.push("/");
+    return;
+  }
+
+  feedbackSession.id = id;
+  history.replaceState({}, "", `/feedback/instructions/${feedbackSession.id}`);
+  fetchDetails();
 });
 </script>
 

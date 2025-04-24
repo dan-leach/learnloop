@@ -10,6 +10,7 @@ import Swal from "sweetalert2";
 import Loading from "../components/Loading.vue";
 import HostSlide from "./components/HostSlide.vue";
 import Toast from "../assets/Toast.js";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 const loading = ref(true);
 let pollingInterval; // Declared here to be accessible by onBeforeUnmount
@@ -20,41 +21,19 @@ onMounted(async () => {
     loadHostView();
   } else {
     interactionSession.id = useRouter().currentRoute.value.params.id;
-    const { isConfirmed } = await Swal.fire({
-      title: "Enter session ID and PIN",
-      html:
-        "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-        interactionSession.id +
-        '">' +
-        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        interactionSession.id = document
-          .getElementById("swalFormId")
-          .value.trim();
-        interactionSession.pin = document
-          .getElementById("swalFormPin")
-          .value.trim();
-        if (interactionSession.pin == "") {
-          Swal.showValidationMessage("Please enter your PIN");
-          return false;
-        }
-        if (interactionSession.id == "") {
-          Swal.showValidationMessage("Please enter a session ID");
-          return false;
-        }
-        return true;
-      },
-    });
+    const { isConfirmed, id, pin } = await promptSessionDetails(
+      interactionSession.id
+    );
 
-    if (isConfirmed) {
-      history.replaceState({}, "", interactionSession.id);
-      loadHostView();
-    } else {
+    if (!isConfirmed) {
       router.push("/");
+      return;
     }
+
+    interactionSession.id = id;
+    interactionSession.pin = pin;
+    history.replaceState({}, "", interactionSession.id);
+    loadHostView();
   }
 });
 

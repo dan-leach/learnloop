@@ -13,6 +13,7 @@
  * @requires ./components/DownloadFeedbackForm.vue
  * @requires sweetalert2
  * @requires ../assets/Toast.js
+ * @requires ../assets/promptSessionDetails.js
  */
 
 import { onMounted, ref } from "vue";
@@ -25,6 +26,7 @@ import Loading from "../components/Loading.vue";
 import DownloadFeedbackForm from "./components/DownloadFeedbackForm.vue";
 import Swal from "sweetalert2";
 import Toast from "../assets/Toast.js";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 let loading = ref(true);
 let isSeries = ref(false);
@@ -176,32 +178,19 @@ const fetchFeedbackPDF = async (downloadId) => {
 onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
 
-  const { isConfirmed } = await Swal.fire({
-    title: "Enter session ID and PIN",
-    html: `
-      <div class="overflow-hidden">
-        You will need your session ID and PIN which you can find in the email you received when your session was created.<br>
-        <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="${feedbackSession.id}">
-        <input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">
-      </div>`,
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
-      feedbackSession.id = document.getElementById("swalFormId").value.trim();
-      feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
-      if (!feedbackSession.id)
-        Swal.showValidationMessage("Please enter a session ID");
-      if (!feedbackSession.pin)
-        Swal.showValidationMessage("Please enter your PIN");
-    },
-  });
+  const { isConfirmed, id, pin } = await promptSessionDetails(
+    feedbackSession.id
+  );
 
-  if (isConfirmed) {
-    history.replaceState({}, "", feedbackSession.id);
-    fetchFeedback();
-  } else {
+  if (!isConfirmed) {
     router.push("/");
+    return;
   }
+
+  feedbackSession.id = id;
+  feedbackSession.pin = pin;
+  history.replaceState({}, "", feedbackSession.id);
+  fetchFeedback();
 });
 </script>
 

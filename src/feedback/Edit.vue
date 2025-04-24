@@ -8,6 +8,10 @@
  * @requires vue
  * @requires vue-router
  * @requires swal2
+ * @requires feedbackSession
+ * @requires api
+ * @requires Loading
+ * @requires promptSessionDetails
  */
 
 import { onMounted } from "vue";
@@ -17,6 +21,7 @@ import { feedbackSession } from "../data/feedbackSession.js";
 import { api } from "../data/api.js";
 import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 // Set the current session to editing mode and set the session ID from the route params
 feedbackSession.isEdit = true;
@@ -117,36 +122,19 @@ const loadUpdateDetails = async () => {
  * @returns {Promise<void>} - Returns a promise that resolves when the session details are either loaded or the user is redirected.
  */
 onMounted(async () => {
-  const { isConfirmed } = await Swal.fire({
-    title: "Enter session ID and PIN",
-    html:
-      "You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
-      '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-      feedbackSession.id +
-      '">' +
-      '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">',
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
-      // Set feedback session ID and PIN
-      feedbackSession.id = document.getElementById("swalFormId").value.trim();
-      feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
+  const { isConfirmed, id, pin } = await promptSessionDetails(
+    feedbackSession.id
+  );
 
-      // Validate the inputs
-      if (feedbackSession.pin == "")
-        Swal.showValidationMessage("Please enter your PIN");
-      if (feedbackSession.id == "")
-        Swal.showValidationMessage("Please enter a session ID");
-    },
-  });
-
-  if (isConfirmed) {
-    // If confirmed, load session details
-    await loadUpdateDetails();
-    router.push("/feedback/edit/details/" + feedbackSession.id);
-  } else {
-    // If canceled, redirect to home
+  if (!isConfirmed) {
     router.push("/");
+    return;
+  }
+
+  feedbackSession.id = id;
+  feedbackSession.pin = pin;
+  if (await loadUpdateDetails()) {
+    router.push("/feedback/edit/details/" + feedbackSession.id);
   }
 });
 </script>

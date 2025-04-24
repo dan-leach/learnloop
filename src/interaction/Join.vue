@@ -9,6 +9,7 @@ const config = inject("config");
 import Swal from "sweetalert2";
 import Loading from "../components/Loading.vue";
 import JoinSlide from "./components/JoinSlide.vue";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 const loading = ref(true);
 const showSlide = ref(true);
@@ -114,32 +115,28 @@ const fetchDetails = async () => {
 
 onMounted(async () => {
   interactionSession.id = useRouter().currentRoute.value.params.id;
-  if (!interactionSession.id) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Enter session ID",
-      html:
-        "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        interactionSession.id = document
-          .getElementById("swalFormId")
-          .value.trim();
-        if (interactionSession.id == "")
-          Swal.showValidationMessage("Please enter a session ID");
-      },
-    });
 
-    if (isConfirmed) {
-      history.replaceState({}, "", interactionSession.id);
-      fetchDetails();
-    } else {
-      router.push("/");
-    }
-  } else {
+  if (interactionSession.id) {
     fetchDetails();
+    return;
   }
+
+  const { isConfirmed, id } = await promptSessionDetails(
+    interactionSession.id,
+    "Join session",
+    "You will need a session ID provided by your facilitator.",
+    true,
+    false
+  );
+
+  if (!isConfirmed) {
+    router.push("/");
+    return;
+  }
+
+  interactionSession.id = id;
+  history.replaceState({}, "", interactionSession.id);
+  fetchDetails();
 });
 </script>
 

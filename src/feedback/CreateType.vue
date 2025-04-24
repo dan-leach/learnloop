@@ -9,6 +9,7 @@
  * @requires bootstrap/js/dist/collapse
  * @requires sweetalert2
  * @requires ../data/api.js
+ * @requires ../assets/promptSessionDetails
  */
 
 import { onMounted, ref } from "vue";
@@ -17,6 +18,7 @@ import router from "../router/index.js";
 import Collapse from "bootstrap/js/dist/collapse";
 import Swal from "sweetalert2";
 import { api } from "../data/api.js";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 // Bootstrap collapse instances for help sections
 let singleHelpInstance, seriesHelpInstance, templateHelpInstance;
@@ -210,22 +212,13 @@ const fetchTemplate = async () => {
  * @returns {Promise<boolean>} Whether the session was successfully loaded.
  */
 const loadTemplate = async () => {
-  const { isConfirmed } = await Swal.fire({
-    title: "Enter ID and PIN for the session you want to use as a template",
-    html: `You will need your session ID and PIN which you can find in the email you received when the session you want to use as a template was created.<br>
-      <input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="${feedbackSession.id}">
-      <input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input">`,
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: () => {
-      feedbackSession.id = document.getElementById("swalFormId").value.trim();
-      feedbackSession.pin = document.getElementById("swalFormPin").value.trim();
-      if (!feedbackSession.id)
-        Swal.showValidationMessage("Please enter a session ID");
-      if (!feedbackSession.pin)
-        Swal.showValidationMessage("Please enter your PIN");
-    },
-  });
+  const { isConfirmed, id, pin } = await promptSessionDetails(
+    feedbackSession.id,
+    "Enter ID and PIN for the session you want to use as a template",
+    "You will need your session ID and PIN which you can find in the email you received when the session you want to use as a template was created."
+  );
+  feedbackSession.id = id;
+  feedbackSession.pin = pin;
   return isConfirmed && (await fetchTemplate());
 };
 

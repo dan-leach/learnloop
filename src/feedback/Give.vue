@@ -9,6 +9,7 @@ import Loading from "../components/Loading.vue";
 import Swal from "sweetalert2";
 import Modal from "bootstrap/js/dist/modal";
 import SubsessionFeedbackForm from "./components/SubsessionFeedbackForm.vue";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 
 // Reactive variables
 let loading = ref(true);
@@ -356,30 +357,27 @@ const loadGiveFeedback = async () => {
 // Initialize the feedback session
 onMounted(async () => {
   feedbackSession.id = useRouter().currentRoute.value.params.id;
-  if (!feedbackSession.id) {
-    const { isConfirmed } = await Swal.fire({
-      title: "Enter session ID",
-      html:
-        "<div class='overflow-hidden'>You will need a session ID provided by your facilitator. <br>" +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input"></div>',
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        feedbackSession.id = document.getElementById("swalFormId").value.trim();
-        if (!feedbackSession.id)
-          Swal.showValidationMessage("Please enter a session ID");
-      },
-    });
-
-    if (isConfirmed) {
-      history.replaceState({}, "", feedbackSession.id);
-      loadGiveFeedback();
-    } else {
-      router.push("/");
-    }
-  } else {
+  if (feedbackSession.id) {
     loadGiveFeedback();
+    return;
   }
+
+  const { isConfirmed, id } = await promptSessionDetails(
+    "",
+    "Enter session ID",
+    "You will need a session ID provided by your facilitator.",
+    true,
+    false
+  );
+
+  if (!isConfirmed) {
+    router.push("/");
+    return;
+  }
+
+  feedbackSession.id = id;
+  history.replaceState({}, "", feedbackSession.id);
+  loadGiveFeedback();
 });
 </script>
 
