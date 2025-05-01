@@ -286,7 +286,8 @@ const next = async () => {
           <tr>
             <th class="bg-transparent p-0 ps-2"></th>
             <th class="bg-transparent p-0 ps-2">Question/heading</th>
-            <th class="bg-transparent p-0 ps-2">Slide type</th>
+            <th class="bg-transparent p-0 ps-2">Content</th>
+            <th class="bg-transparent p-0 ps-2">Interaction</th>
             <th class="bg-transparent p-0 ps-2">
               <button
                 class="btn btn-teal btn-sm btn-right"
@@ -304,10 +305,8 @@ const next = async () => {
             :key="slide"
           >
             <tr>
-              <td
-                class="bg-transparent p-0 ps-2"
-                v-if="slide.type != 'waitingRoom'"
-              >
+              <!--sort slide-->
+              <td class="bg-transparent p-0 ps-2">
                 <button
                   v-if="index != 0"
                   class="btn btn-default btn-sm p-0"
@@ -325,16 +324,28 @@ const next = async () => {
                   <font-awesome-icon :icon="['fas', 'chevron-down']" />
                 </button>
               </td>
-              <td
-                class="bg-transparent prompt-cell"
-                v-if="slide.type != 'waitingRoom'"
-              >
-                {{ slide.prompt }}
+              <!--heading-->
+              <td class="bg-transparent heading-cell">
+                {{ slide.heading }}
               </td>
-              <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
-                {{ config.interaction.create.slides.types[slide.type].name }}
+              <!--content-->
+              <td class="bg-transparent">
+                {{
+                  config.interaction.create.slides.content.layouts[
+                    slide.content.layout
+                  ]?.name
+                }}
               </td>
-              <td class="bg-transparent" v-if="slide.type != 'waitingRoom'">
+              <!--interaction-->
+              <td class="bg-transparent">
+                {{
+                  config.interaction.create.slides.interaction.types[
+                    slide.interaction.type
+                  ]?.name
+                }}
+              </td>
+              <!--edit/delete-->
+              <td class="bg-transparent">
                 <button
                   class="btn btn-danger btn-sm btn-right ms-4 mb-2"
                   id="btnRemoveSlide"
@@ -426,7 +437,7 @@ const next = async () => {
   opacity: 0;
   transform: translateX(30px);
 }
-.prompt-cell {
+.heading-cell {
   max-width: 50vw;
 }
 </style>
