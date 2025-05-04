@@ -5,8 +5,8 @@ const props = defineProps(["slide"]);
 
 <template>
   <div class="text-center m-4">
-    <div class="d-flex justify-content-center flex-wrap">
-      <p class="card p-3">
+    <div class="d-flex justify-content-center">
+      <p class="card p-3" v-if="slide.interaction.options.length">
         <span class="display-5 mb-2">Options</span>
         <ul class="text-start">
           <li v-for="option in slide.interaction.options" :key="option" class="display-6">

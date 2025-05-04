@@ -1,12 +1,10 @@
 Current:
-Update host/join to work with new interactionType and contentLayout options
-
-Next:
 Check that feedbackId is valid session ID
 Fix 'showValidIndicators' and refresh submissions buttons not showing if interaction slide created with content which is then removed
 Fix launching host mode fails (e.g. invalid session id) does not display error correctly to user
 Ensure all calls to errorHandler are followed by return false on api side
 Move icon buttons and show responses button to below heading/prompt
+Fix uploader hangs with invalid image format
 
 Test
 

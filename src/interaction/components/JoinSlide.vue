@@ -24,7 +24,10 @@ import End from "./join/End.vue";
 import TrueFalse from "./join/TrueFalse.vue";
 import MultipleChoice from "./join/MultipleChoice.vue";
 import FreeText from "./join/FreeText.vue";
-import Content from "./join/Content.vue";
+import Gallery from "./join/Gallery.vue";
+import TextStrings from "./join/TextStrings.vue";
+import Video from "./join/Video.vue";
+import TextStringsWithImage from "./join/TextStringsWithImage.vue";
 import Swal from "sweetalert2";
 import Toast from "../../assets/Toast.js";
 
@@ -107,59 +110,120 @@ const submit = async () => {
 <template>
   <div>
     <p class="text-center">
-      <strong>{{ interactionSession.slides[currentIndex].prompt }}</strong>
+      <strong>{{ interactionSession.slides[currentIndex].heading }}</strong>
     </p>
     <div class="d-flex justify-content-center">
       <div class="full-width">
-        <Content :slide="interactionSession.slides[currentIndex]" />
-        <WaitingRoom
-          v-if="interactionSession.slides[currentIndex].type == 'waitingRoom'"
-        />
-        <End
-          v-else-if="interactionSession.slides[currentIndex].type == 'end'"
-          :feedbackID="interactionSession.feedbackID"
-        />
-        <TrueFalse
-          v-else-if="
-            interactionSession.slides[currentIndex].type == 'trueFalse'
-          "
-          :slide="interactionSession.slides[currentIndex]"
-          :spinner="spinner"
-          :currentIndex="currentIndex"
-          :btnSubmitText="btnSubmitText"
-          :btnSubmitBelowText="btnSubmitBelowText"
-          @submit="submit"
-        />
-        <MultipleChoice
-          v-else-if="
-            interactionSession.slides[currentIndex].type == 'multipleChoice'
-          "
-          :slide="interactionSession.slides[currentIndex]"
-          :spinner="spinner"
-          :currentIndex="currentIndex"
-          :btnSubmitText="btnSubmitText"
-          :btnSubmitBelowText="btnSubmitBelowText"
-          @submit="submit"
-        />
-        <FreeText
-          v-else-if="
-            interactionSession.slides[currentIndex].type == 'freeText' ||
-            interactionSession.slides[currentIndex].type == 'wordCloud'
-          "
-          :slide="interactionSession.slides[currentIndex]"
-          :spinner="spinner"
-          :currentIndex="currentIndex"
-          :btnSubmitText="btnSubmitText"
-          :btnSubmitBelowText="btnSubmitBelowText"
-          @submit="submit"
-        />
+        <!--content-->
+        <div v-if="interactionSession.slides[currentIndex].hasContent">
+          <div
+            v-if="
+              !interactionSession.slides[currentIndex].content
+                .showContentForAttendees
+            "
+            class="p-3 text-center"
+          >
+            This content is shown on the host screen only.
+          </div>
+          <Gallery
+            v-else-if="
+              interactionSession.slides[currentIndex].content.layout ==
+              'gallery'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+          />
+          <TextStrings
+            v-else-if="
+              interactionSession.slides[currentIndex].content.layout ==
+              'textStrings'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+          />
+          <Video
+            v-else-if="
+              interactionSession.slides[currentIndex].content.layout == 'video'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+          />
+          <TextStringsWithImage
+            v-else-if="
+              interactionSession.slides[currentIndex].content.layout ==
+              'textStringsWithImage'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+          />
+          <div v-else class="text-center text-danger m-5">
+            Error: content layout [{{
+              interactionSession.slides[currentIndex].content.layout
+            }}] not recognised
+          </div>
+        </div>
+
+        <!--interaction-->
         <div
-          v-else-if="interactionSession.slides[currentIndex].type == 'static'"
-        ></div>
-        <p v-else>
-          Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
-          not recognised
-        </p>
+          v-if="
+            interactionSession.slides[currentIndex].isInteractive ||
+            interactionSession.slides[currentIndex].type
+          "
+        >
+          <WaitingRoom
+            v-if="interactionSession.slides[currentIndex].type == 'waitingRoom'"
+          />
+          <End
+            v-else-if="interactionSession.slides[currentIndex].type == 'end'"
+            :feedbackID="interactionSession.feedbackID"
+          />
+          <TrueFalse
+            v-else-if="
+              interactionSession.slides[currentIndex].interaction.type ==
+              'trueFalse'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+            :spinner="spinner"
+            :currentIndex="currentIndex"
+            :btnSubmitText="btnSubmitText"
+            :btnSubmitBelowText="btnSubmitBelowText"
+            @submit="submit"
+          />
+          <MultipleChoice
+            v-else-if="
+              interactionSession.slides[currentIndex].interaction.type ==
+              'multipleChoice'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+            :spinner="spinner"
+            :currentIndex="currentIndex"
+            :btnSubmitText="btnSubmitText"
+            :btnSubmitBelowText="btnSubmitBelowText"
+            @submit="submit"
+          />
+          <FreeText
+            v-else-if="
+              interactionSession.slides[currentIndex].interaction.type ==
+                'freeText' ||
+              interactionSession.slides[currentIndex].interaction.type ==
+                'wordCloud'
+            "
+            :slide="interactionSession.slides[currentIndex]"
+            :spinner="spinner"
+            :currentIndex="currentIndex"
+            :btnSubmitText="btnSubmitText"
+            :btnSubmitBelowText="btnSubmitBelowText"
+            @submit="submit"
+          />
+        </div>
+
+        <!-- No content or interaction -->
+        <div
+          v-if="
+            !interactionSession.slides[currentIndex].hasContent &&
+            !interactionSession.slides[currentIndex].isInteractive &&
+            !interactionSession.slides[currentIndex].type
+          "
+          class="text-center text-danger m-5"
+        >
+          Error: no content or interaction provided for this slide
+        </div>
       </div>
     </div>
   </div>

@@ -92,7 +92,7 @@ const submit = () => {
   </p>
   <div
     v-for="(option, index) in slide.interaction.options"
-    class="form-check d-flex align-items-center"
+    class="form-check d-flex align-items-center mb-3"
   >
     <input
       type="checkbox"

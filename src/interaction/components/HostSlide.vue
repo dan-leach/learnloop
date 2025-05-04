@@ -20,7 +20,7 @@
  * @requires ./host/MultipleChoice.vue
  * @requires ./host/FreeText.vue
  * @requires ./host/WordCloud.vue
- * @requires ./host/Content.vue
+ * @requires ./host/Gallery.vue
  */
 
 import { inject, ref } from "vue";
@@ -33,7 +33,10 @@ import TrueFalse from "./host/TrueFalse.vue";
 import MultipleChoice from "./host/MultipleChoice.vue";
 import FreeText from "./host/FreeText.vue";
 import WordCloud from "./host/WordCloud.vue";
-import Content from "./host/Content.vue";
+import Gallery from "./host/Gallery.vue";
+import TextStrings from "./host/TextStrings.vue";
+import Video from "./host/Video.vue";
+import TextStringsWithImage from "./host/TextStringsWithImage.vue";
 
 const config = inject("config");
 
@@ -68,6 +71,7 @@ const showResponses = () => {
 const toggleContent = () => {
   const slide = interactionSession.slides[props.currentIndex];
   slide.content.show = !slide.content.show;
+  slide.interaction.show = !slide.interaction.show;
 
   // If hiding the content, show responses immediately
   if (!slide.content.show) showResponses();
@@ -135,7 +139,7 @@ const openPresenterView = () => {
       </li>
     </ul>
     <p class="display-6 text-center m-1">
-      {{ interactionSession.slides[currentIndex].prompt }}
+      {{ interactionSession.slides[currentIndex].heading }}<br />
       <button
         v-if="
           interactionSession.slides[currentIndex].isInteractive &&
@@ -231,15 +235,58 @@ const openPresenterView = () => {
         Start <font-awesome-icon :icon="['fas', 'circle-chevron-right']" />
       </button>
     </div>
-    <Content
-      :slide="interactionSession.slides[currentIndex]"
+    <!--content-->
+    <div
       v-if="
         interactionSession.slides[currentIndex].hasContent &&
         interactionSession.slides[currentIndex].content.show
       "
-      @toggleContent="toggleContent"
-    />
-    <Transition mode="out-in" v-else>
+    >
+      <Gallery
+        v-if="
+          interactionSession.slides[currentIndex].content.layout == 'gallery'
+        "
+        :slide="interactionSession.slides[currentIndex]"
+      />
+      <TextStrings
+        v-else-if="
+          interactionSession.slides[currentIndex].content.layout ==
+          'textStrings'
+        "
+        :slide="interactionSession.slides[currentIndex]"
+      />
+      <Video
+        v-else-if="
+          interactionSession.slides[currentIndex].content.layout == 'video'
+        "
+        :slide="interactionSession.slides[currentIndex]"
+      />
+      <TextStringsWithImage
+        v-else-if="
+          interactionSession.slides[currentIndex].content.layout ==
+          'textStringsWithImage'
+        "
+        :slide="interactionSession.slides[currentIndex]"
+      />
+      <div v-else class="text-center text-danger m-5">
+        Error: content layout [{{
+          interactionSession.slides[currentIndex].content.layout
+        }}] not recognised
+      </div>
+      <HideResponses
+        v-if="interactionSession.slides[currentIndex].isInteractive"
+        :slide="interactionSession.slides[currentIndex]"
+      />
+    </div>
+
+    <!--interaction-->
+    <div
+      v-else-if="
+        (interactionSession.slides[currentIndex].isInteractive &&
+          interactionSession.slides[currentIndex].interaction.show) ||
+        interactionSession.slides[currentIndex].type
+      "
+    >
       <div
         id="chart-area"
         class="d-flex justify-content-center chart-area mx-4"
@@ -264,34 +311,46 @@ const openPresenterView = () => {
         />
         <TrueFalse
           v-else-if="
-            interactionSession.slides[currentIndex].type == 'trueFalse'
+            interactionSession.slides[currentIndex].interaction.type ==
+            'trueFalse'
           "
           :slide="interactionSession.slides[currentIndex]"
           :showValidIndicators="showValidIndicators"
         />
         <MultipleChoice
           v-else-if="
-            interactionSession.slides[currentIndex].type == 'multipleChoice'
+            interactionSession.slides[currentIndex].interaction.type ==
+            'multipleChoice'
           "
           :slide="interactionSession.slides[currentIndex]"
           :showValidIndicators="showValidIndicators"
         />
         <FreeText
-          v-else-if="interactionSession.slides[currentIndex].type == 'freeText'"
+          v-else-if="
+            interactionSession.slides[currentIndex].interaction.type ==
+            'freeText'
+          "
           :slide="interactionSession.slides[currentIndex]"
         />
         <WordCloud
           v-else-if="
-            interactionSession.slides[currentIndex].type == 'wordCloud'
+            interactionSession.slides[currentIndex].interaction.type ==
+            'wordCloud'
           "
           :slide="interactionSession.slides[currentIndex]"
         />
-        <p v-else>
-          Error: slide type [{{ interactionSession.slides[currentIndex].type }}]
-          not recognised
-        </p>
+        <div v-else class="text-center text-danger m-5">
+          Error: interaction type [{{
+            interactionSession.slides[currentIndex].interaction.type
+          }}]not recognised
+        </div>
       </div>
-    </Transition>
+    </div>
+
+    <!--no content or interaction-->
+    <div v-else class="text-center text-danger m-5">
+      Error: no content or interaction provided for this slide
+    </div>
   </div>
 </template>
 

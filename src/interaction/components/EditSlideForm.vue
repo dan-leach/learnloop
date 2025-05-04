@@ -21,6 +21,7 @@ import {
   preservePhrasesInfo,
   submissionLimitInfo,
   hideResponsesInfo,
+  showContentForAttendeesInfo,
 } from "./EditSlideFormHelp.js";
 
 const config = inject("config");
@@ -101,13 +102,6 @@ if (slideIndex > -1) {
  */
 let suppressContentLayoutWatcherWarning = false;
 watch(contentLayout, async (newContentLayout, oldContentLayout) => {
-  console.log(
-    "oldContentLayout",
-    oldContentLayout,
-    "newContentLayout",
-    newContentLayout
-  );
-
   if (suppressContentLayoutWatcherWarning) {
     suppressContentLayoutWatcherWarning = false;
   } else if (
@@ -130,6 +124,10 @@ watch(contentLayout, async (newContentLayout, oldContentLayout) => {
     }
   }
 
+  slide.value.content.showContentForAttendees =
+    config.value.interaction.create.slides.content.layouts[
+      newContentLayout
+    ]?.showContentForAttendeesDefault;
   slide.value.content.layout = newContentLayout;
   slide.value.hasContent = newContentLayout !== "none";
 });
@@ -872,7 +870,8 @@ const submit = () => {
                         class="input-group"
                         v-if="
                           slide.content.video.youtubeIDs.length <
-                          config.interaction.create.slides.videos.max
+                          config.interaction.create.slides.content.layouts.video
+                            .maxVideos
                         "
                       >
                         <input
@@ -895,6 +894,27 @@ const submit = () => {
                       <div class="invalid-feedback">
                         Please provide a video for this slide.
                       </div>
+                    </div>
+                  </div>
+                  <!--show content for attendees-->
+                  <div class="row align-items-center mb-3">
+                    <div class="col-md-4">Show content on attendee devices</div>
+                    <div class="col-md-1">
+                      <font-awesome-icon
+                        :icon="['fas', 'question-circle']"
+                        size="lg"
+                        style="color: black"
+                        @click="showContentForAttendeesInfo"
+                      />
+                    </div>
+                    <div class="col-md-7 px-5 form-check form-switch">
+                      <input
+                        v-model="slide.content.showContentForAttendees"
+                        class="form-check-input"
+                        type="checkbox"
+                        id="showContentForAttendees"
+                        name="showContentForAttendees"
+                      />
                     </div>
                   </div>
                 </div>

@@ -268,6 +268,20 @@ const hideResponsesInfo = () => {
   });
 };
 
+const showContentForAttendeesInfo = () => {
+  Swal.fire({
+    icon: "info",
+    iconColor: "#17a2b8",
+    title: "Show content on attendee devices",
+    html: `
+        <div class="text-start">
+          <p>By default content is shown both on the host screen and attendee devices. For images this allows attendees to zoom in or save the image.<br><br> You can choose to show the content only on the host screen if you want to prevent attendees from seeing it on their devices.</p>
+        </div>`,
+    width: "60%",
+    confirmButtonColor: "#17a2b8",
+  });
+};
+
 export {
   interactionTypeInfo,
   contentLayoutInfo,
@@ -276,4 +290,5 @@ export {
   preservePhrasesInfo,
   submissionLimitInfo,
   hideResponsesInfo,
+  showContentForAttendeesInfo,
 };

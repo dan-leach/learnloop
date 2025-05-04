@@ -44,6 +44,12 @@ onMounted(async () => {
     loadHostView();
   } else {
     interactionSession.id = useRouter().currentRoute.value.params.id;
+
+    if (interactionSession.id === "preview") {
+      router.push("/interaction/edit");
+      return;
+    }
+
     const { isConfirmed, id, pin } = await promptSessionDetails(
       interactionSession.id
     );
@@ -85,9 +91,10 @@ const loadHostView = async () => {
     // Set defaults per slide
     for (const slide of interactionSession.slides) {
       if (slide.hasContent) slide.content.show = true;
-      if (slide.interaction) {
+      if (slide.isInteractive) {
         slide.interaction.submissions = [];
         slide.interaction.submissionsCount = 0;
+        slide.interaction.show = slide.hasContent ? false : true;
       }
     }
 
@@ -183,7 +190,7 @@ let fetchNewSubmissionsFailCount = 0;
 const fetchNewSubmissions = async () => {
   const currentSlide =
     interactionSession.slides[interactionSession.status.facilitatorIndex];
-  if (!currentSlide.interaction) return;
+  if (!currentSlide.isInteractive) return;
 
   const submissions = currentSlide.interaction.submissions;
   const lastId = submissions.length ? submissions.at(-1).id : 0;
@@ -225,7 +232,7 @@ const fetchNewSubmissions = async () => {
 const refreshSubmissions = () => {
   const currentSlide =
     interactionSession.slides[interactionSession.status.facilitatorIndex];
-  if (currentSlide.interaction) currentSlide.interaction.submissions = [];
+  if (currentSlide.isInteractive) currentSlide.interaction.submissions = [];
   fetchNewSubmissions();
 };
 
@@ -257,7 +264,7 @@ const goToSlide = (index) => {
   if (index === 0) fetchSubmissionCount();
 
   const currentSlide = interactionSession.slides[index];
-  if (currentSlide.interaction) currentSlide.interaction.submissions = [];
+  if (currentSlide.isInteractive) currentSlide.interaction.submissions = [];
 };
 
 /**
@@ -294,9 +301,11 @@ onBeforeUnmount(() => {
   clearInterval(pollingInterval);
   loading.value = true;
   config.value.client.isFocusView = false;
-  interactionSession.status.facilitatorIndex = 0;
-  interactionSession.status.preview = false;
-  updateStatus();
+  if (interactionSession.status) {
+    interactionSession.status.facilitatorIndex = 0;
+    interactionSession.status.preview = false;
+    updateStatus();
+  }
 });
 </script>
 

@@ -69,7 +69,7 @@ const fetchStatus = async () => {
     const currentSlide = interactionSession.slides[currentIndex.value];
 
     // Determine if user should remain on current slide awaiting input
-    if (currentSlide?.interaction) {
+    if (currentSlide?.isInteractive) {
       if (currentSlide.interaction.response) awaitUser = true;
       if (
         currentSlide.interaction.closed ||
@@ -147,7 +147,7 @@ const fetchDetails = async () => {
 
     // Reset submission counts
     for (const slide of interactionSession.slides) {
-      if (slide.interaction) slide.interaction.submissionCount = 0;
+      if (slide.isInteractive) slide.interaction.submissionCount = 0;
     }
 
     interactionSession.status = response.status;
