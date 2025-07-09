@@ -245,11 +245,12 @@ export default {
       this.isLoading = false;
     },
     async removeImage(index) {
+      const filename = this.images[index].filename;
       this.images.splice(index, 1);
       await api("interaction/deleteImage", {
         id: this.id,
         pin: this.pin,
-        filename: this.images[index].filename,
+        filename,
       });
     },
     sortImage(index, x) {
