@@ -18,6 +18,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  id: {
+    type: String,
+    default: "",
+  },
 });
 
 /**
@@ -29,7 +33,7 @@ const image = computed(() => {
   if (!img) return null;
 
   return {
-    src: `${config.value.api.fetchImageUrl}?folder=${img.folder}&filename=${img.filename}`,
+    src: `${config.value.api.fetchImageUrl}?id=${props.id}&filename=${img.filename}`,
     caption: img.caption || "",
   };
 });

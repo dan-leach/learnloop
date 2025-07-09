@@ -5,10 +5,12 @@ Fix launching host mode fails (e.g. invalid session id) does not display error c
 Ensure all calls to errorHandler are followed by return false on api side
 Move icon buttons and show responses button to below heading/prompt
 Fix uploader hangs with invalid image format
+API catch routes for robots and favicon to block many errors
 
 Test
 
 To do
+Cloudflare
 Preview certificate
 Reuse images uploaded for a session on another slide - have a add a previously uploaded image button which launches gallery and adds the src to the uploader preview array
 Indicate the default questions on feedback create

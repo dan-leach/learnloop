@@ -131,6 +131,7 @@ const submit = async () => {
               'gallery'
             "
             :slide="interactionSession.slides[currentIndex]"
+            :id="interactionSession.id"
           />
           <TextStrings
             v-else-if="
@@ -151,6 +152,7 @@ const submit = async () => {
               'textStringsWithImage'
             "
             :slide="interactionSession.slides[currentIndex]"
+            :id="interactionSession.id"
           />
           <div v-else class="text-center text-danger m-5">
             Error: content layout [{{

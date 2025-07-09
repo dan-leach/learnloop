@@ -642,9 +642,10 @@ const submit = () => {
                     <div class="card-body" v-if="slide.show.content.images">
                       <p class="ms-1 small">
                         Only upload images which are suitable for public release
-                        and which you hold the copyright for. Images uploaded to
-                        LearnLoop will be shown on attendee devices and are not
-                        guarranteed to be secure.
+                        and for which you hold the copyright. Images may be
+                        shown on attendee devices and are not guarranteed to be
+                        secure. Images will be kept for 2 years from when the
+                        interaction session was last used.
                       </p>
                       <uploader
                         @change="imagesChange"
@@ -660,19 +661,10 @@ const submit = () => {
                           ].maxFilesize
                         "
                         :config="config"
+                        :id="interactionSession.id"
+                        :pin="interactionSession.pin"
                       >
                       </uploader>
-                      <p
-                        class="ms-1 small"
-                        v-if="
-                          config.interaction.create.slides.content.layouts[
-                            contentLayout
-                          ].maxImages > 1
-                        "
-                      >
-                        Note: if your slide contains multiple images captions
-                        will appear only when you click to enlarge the image.
-                      </p>
                     </div>
                   </div>
                   <!--text strings-->

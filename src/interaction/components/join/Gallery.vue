@@ -16,6 +16,10 @@ const props = defineProps({
     type: Object,
     required: true,
   },
+  id: {
+    type: String,
+    default: "",
+  },
 });
 
 /**
@@ -25,7 +29,7 @@ const props = defineProps({
 const imageList = computed(() => {
   const images = props.slide?.content?.images || [];
   return images.map((img) => ({
-    src: `${config.value.api.fetchImageUrl}?folder=${img.folder}&filename=${img.filename}`,
+    src: `${config.value.api.fetchImageUrl}?id=${props.id}&filename=${img.filename}`,
     caption: img.caption || "",
   }));
 });

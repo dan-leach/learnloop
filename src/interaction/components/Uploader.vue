@@ -28,8 +28,8 @@
                 <img
                   :src="
                     api.fetchImageUrl +
-                    '?folder=' +
-                    image.folder +
+                    '?id=' +
+                    id +
                     '&filename=' +
                     image.filename
                   "
@@ -121,6 +121,7 @@
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
+import { api } from "../../data/api.js";
 
 export default {
   props: {
@@ -156,6 +157,14 @@ export default {
       type: Object,
       default: null,
     },
+    id: {
+      type: String,
+      default: "",
+    },
+    pin: {
+      type: String,
+      default: "",
+    },
   },
   mounted() {
     this.init();
@@ -190,7 +199,7 @@ export default {
             let url = URL.createObjectURL(files[i]);
             formData.set("image", files[i]);
             const { data } = await axios.post(
-              this.api.uploadImageUrl,
+              `${this.api.uploadImageUrl}?id=${this.id}`,
               formData,
               this.uploaderConfig
             );
@@ -207,7 +216,6 @@ export default {
             }
             let addedImage = {
               url: url,
-              folder: data.folder,
               filename: data.filename,
               size: files[i].size,
               type: files[i].type,
@@ -236,8 +244,13 @@ export default {
       event.target.value = null;
       this.isLoading = false;
     },
-    removeImage(index) {
+    async removeImage(index) {
       this.images.splice(index, 1);
+      await api("interaction/deleteImage", {
+        id: this.id,
+        pin: this.pin,
+        filename: this.images[index].filename,
+      });
     },
     sortImage(index, x) {
       this.images.splice(index + x, 0, this.images.splice(index, 1)[0]);

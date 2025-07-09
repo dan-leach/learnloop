@@ -247,6 +247,7 @@ const openPresenterView = () => {
           interactionSession.slides[currentIndex].content.layout == 'gallery'
         "
         :slide="interactionSession.slides[currentIndex]"
+        :id="interactionSession.id"
       />
       <TextStrings
         v-else-if="
@@ -267,6 +268,7 @@ const openPresenterView = () => {
           'textStringsWithImage'
         "
         :slide="interactionSession.slides[currentIndex]"
+        :id="interactionSession.id"
       />
       <div v-else class="text-center text-danger m-5">
         Error: content layout [{{
