@@ -202,20 +202,25 @@ onMounted(async () => {
     <div class="text-center">
       <p>Let's get started creating your interaction session.</p>
     </div>
-    <div class="alert alert-danger" alert-dismissible fade show role="alert">
-      <div class="d-flex justify-content-between">
-        <h4 class="alert-heading">Closed beta</h4>
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      LearnLoop Interaction is in private beta and can only be used by
-      invitation. Unless you have joined the beta-testing group and had your
-      email approved, you will not be able to create an interaction session.
+
+    <!--new feature alert-->
+    <div
+      class="alert alert-warning mt-3 alert-dismissible fade show"
+      role="alert"
+    >
+      LearnLoop Interaction is new. Please
+      <a href="mailto:mail@learnloop.co.uk" target="_blank" style="color: black"
+        >let me know</a
+      >
+      about any issues.
+      <button
+        type="button"
+        class="btn-close"
+        data-bs-dismiss="alert"
+        aria-label="Close"
+      ></button>
     </div>
+
     <!--option buttons-->
     <div class="d-flex flex-column align-items-stretch w-100">
       <!--new-->

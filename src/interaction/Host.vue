@@ -340,6 +340,27 @@ onBeforeUnmount(() => {
             : "[Facilitator name]"
         }}
       </p>
+      <!--new feature alert-->
+      <div
+        class="alert alert-warning mt-3 alert-dismissible fade show"
+        role="alert"
+        v-if="!interactionSession.status.preview"
+      >
+        LearnLoop Interaction is new. Please
+        <a
+          href="mailto:mail@learnloop.co.uk"
+          target="_blank"
+          style="color: black"
+          >let me know</a
+        >
+        about any issues.
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
       <HostSlide
         :currentIndex="interactionSession.status.facilitatorIndex"
         class="m-2"

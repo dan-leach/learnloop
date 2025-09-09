@@ -29,7 +29,6 @@ import { promptSessionDetails } from "./assets/promptSessionDetails";
 import Quote from "./components/Quote.vue";
 
 const config = inject("config");
-const deployVersion = false;
 
 const interactionInterestEmail = ref("");
 
@@ -347,7 +346,7 @@ onMounted(() => {
 
 <template>
   <!--dev alert-->
-  <div class="alert alert-danger mt-3" show role="alert" v-if="!deployVersion">
+  <div class="alert alert-danger mt-3" show role="alert" v-if="config.devMode">
     <div class="d-flex justify-content-between">
       <h4 class="alert-heading">Development version</h4>
     </div>
@@ -371,12 +370,11 @@ onMounted(() => {
   <!--update card-->
   <div class="d-flex justify-content-around mt-3">
     <!--remove hidden attribute to restore update info card-->
-    <div class="card bg-transparent shadow mb-3 update-info-card" hidden>
+    <div class="card update-card bg-transparent shadow mb-3 update-info-card">
       <div class="card-body">
-        <h5 class="card-title">What's new in the January update?</h5>
+        <h5 class="card-title">What's new in the September update?</h5>
         <p class="card-text">
-          Create feedback requests using existing sessions as a template, add
-          additional organisers, easier custom questions and more.
+          Make your teaching sessions interactive with LearnLoop Interaction!
           <a href="#" data-bs-toggle="collapse" data-bs-target="#changes"
             >Read more...</a
           >
@@ -384,36 +382,30 @@ onMounted(() => {
         <div class="collapse my-2" id="changes">
           <ul>
             <li class="mb-2">
-              You can now use a previous session as a template. The session
-              details including the organiser details, custom questions, and any
-              sessions will be automatically populated from your template
-              session. You can edit the details before submitting. The session
-              which is used as a template is not changed. Click
-              <strong>Use a previous session as a template</strong> on the
-              <strong>Create a new feedback session</strong> to try it out.
+              LearnLoop Interaction is now live. Build interactive presentations
+              that attendees can join using their mobile device, in person or
+              remotely.
             </li>
             <li class="mb-2">
-              You can add multiple organisers to your feedback sessions. You
-              decide which organisers can edit the session or just view the
-              feedback and attendance data.
+              Interaction types include: multiple choice, true/false, free-text
+              and word clouds.
             </li>
             <li class="mb-2">
-              Custom questions now have more options, such as specifying how
-              many checkboxes must be selected (e.g. between 2 and 4), a
-              character limit for free-text questions, and all questions can be
-              required or optional.
+              Customise interactions with flexible settings such as how many
+              times attendees can submit answers, if responses should be hidden
+              until you reveal them, highlighting of correct answers and many
+              more controls.
             </li>
             <li class="mb-2">
-              You now have the option to select
-              <strong>deliver on multiple dates</strong> if you want to gather
-              feedback in one place for a session you are delivering more than
-              once.
+              Add content to your slides including text, images or videos. Or,
+              you can make existing presentations interactive by switching
+              between PowerPoint and LearnLoop.
             </li>
             <li>
-              <strong>Coming soon:</strong> Interaction will allow you to share
-              questions and polls with your audience via their smartphone or
-              other devices during teaching sessions. Register your interest
-              below to be the first to know when it's available.
+              <a href="/interaction/create/type"
+                >Create a new interaction session</a
+              >
+              to try it out.
             </li>
           </ul>
         </div>
@@ -424,7 +416,7 @@ onMounted(() => {
   <!--main cards-->
   <div class="row justify-content-center align-items-stretch mt-2">
     <div class="col-12 col-md-8 col-lg-6 mb-3">
-      <div class="card bg-transparent shadow p-2 mx-auto h-100">
+      <div class="card main-card bg-transparent shadow p-2 mx-auto h-100">
         <h1 class="text-center">Feedback</h1>
         <p class="text-center">Quickly gather anonymous feedback on teaching</p>
         <div class="input-group m-2">
@@ -505,11 +497,10 @@ onMounted(() => {
       </div>
     </div>
     <div class="col-12 col-md-8 col-lg-6 mb-3">
-      <div class="card bg-transparent shadow p-2 mx-auto h-100">
-        <!--remove interaction-card class once back to full layout not just expression of interest-->
+      <div class="card main-card bg-transparent shadow p-2 mx-auto h-100">
         <h1 class="text-center">Interaction</h1>
         <p class="text-center">Engage with your audience during teaching</p>
-        <div v-if="deployVersion">
+        <div v-if="config.devMode">
           <h4 class="text-center">Coming soon</h4>
           <div class="input-group m-2">
             <input
@@ -593,9 +584,6 @@ onMounted(() => {
           <div class="text-center">
             <small>{{ config.interaction.count }} interactions</small>
           </div>
-          <p class="text-center text-danger bg-dark p-1 mt-3">
-            <strong>Interaction is in private beta by invitation only</strong>
-          </p>
         </div>
       </div>
     </div>
@@ -606,7 +594,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.card {
+.update-card {
+  width: 100%;
+}
+.main-card {
   max-width: 500px;
 }
 .nav-link.active {
@@ -625,5 +616,8 @@ onMounted(() => {
   .more-options {
     margin-left: 15px;
   }
+}
+a {
+  color: black;
 }
 </style>

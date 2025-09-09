@@ -97,7 +97,7 @@ onMounted(() => {
         ><img
           alt="LearnLoop logo"
           class="logo"
-          src="https://dev.learnloop.co.uk/logo.png"
+          src="https://learnloop.co.uk/logo.png"
       /></RouterLink>
       <div class="input-group input-go me-2" v-if="showGo">
         <input
