@@ -350,7 +350,9 @@ onMounted(() => {
     <div class="d-flex justify-content-between">
       <h4 class="alert-heading">Development version</h4>
     </div>
-    Welcome to LearnLoop v{{ config.version }}.
+    Welcome to LearnLoop (client v{{ config.client.version }} | API v{{
+      config.api.version
+    }}).
     <a
       href="https://github.com/dan-leach/learnloop/blob/v6/changelog.md"
       target="_blank"
