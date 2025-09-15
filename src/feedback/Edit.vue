@@ -52,7 +52,7 @@ const loadUpdateDetails = async () => {
         feedbackSession.id,
         response.id
       );
-      return;
+      return false;
     }
 
     // Update feedback session object with response data
@@ -97,6 +97,8 @@ const loadUpdateDetails = async () => {
     // Set organiser details
     feedbackSession.organisers = response.organisers;
     for (let organiser of feedbackSession.organisers) organiser.existing = true;
+
+    return true;
   } catch (error) {
     // If an error occurs, show an error message and redirect
     if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
