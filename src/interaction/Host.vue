@@ -1,58 +1,254 @@
 <script setup>
-import { onBeforeUnmount, onMounted, ref } from "vue";
+/**
+ * @module interaction/Host
+ * @summary Host view for interaction sessions.
+ * @description
+ * This module powers the hosting view for an interactive session, managing:
+ * - Fetching session and slide data
+ * - Real-time polling of new submissions
+ * - Slide navigation, locking, and status updates
+ * - Preview session exit and session cleanup
+ *
+ * @requires vue
+ * @requires vue-router
+ * @requires ../data/api.js
+ * @requires ../data/interactionSession.js
+ * @requires ../assets/promptSessionDetails
+ * @requires ../assets/Toast.js
+ * @requires ../components/Loading.vue
+ * @requires ./components/HostSlide.vue
+ */
+
+import { onBeforeUnmount, onMounted, ref, inject } from "vue";
 import { useRouter } from "vue-router";
 import router from "../router";
 import { api } from "../data/api.js";
 import { interactionSession } from "../data/interactionSession.js";
-import { inject } from "vue";
-const config = inject("config");
 import Swal from "sweetalert2";
+import Toast from "../assets/Toast.js";
+import { promptSessionDetails } from "../assets/promptSessionDetails";
 import Loading from "../components/Loading.vue";
 import HostSlide from "./components/HostSlide.vue";
-import Toast from "../assets/Toast.js";
 
+const config = inject("config");
 const loading = ref(true);
-const currentIndex = ref(0);
+let pollingInterval;
 
-const updateHostStatus = () => {
-  interactionSession.hostStatus.facilitatorIndex = currentIndex.value;
-  api(
-    "interaction",
-    "updateHostStatus",
-    interactionSession.id,
-    interactionSession.pin,
-    interactionSession.hostStatus
-  ).then(
-    function () {},
-    function (error) {
-      console.log("updateHostStatus failed", error);
+/**
+ * Handles initial mount behavior: fetch or prompt for session ID and PIN,
+ * then load host view.
+ * @memberof module:interaction/Host
+ */
+onMounted(async () => {
+  if (interactionSession.id && interactionSession.pin) {
+    loadHostView();
+  } else {
+    interactionSession.id = useRouter().currentRoute.value.params.id;
+
+    if (interactionSession.id === "preview") {
+      router.push("/interaction/edit");
+      return;
     }
-  );
+
+    const { isConfirmed, id, pin } = await promptSessionDetails(
+      interactionSession.id
+    );
+
+    if (!isConfirmed) return router.push("/");
+
+    interactionSession.id = id;
+    interactionSession.pin = pin;
+    history.replaceState({}, "", interactionSession.id);
+    loadHostView();
+  }
+});
+
+/**
+ * Loads the host session view including fetching session details,
+ * initializing slides, and starting polling.
+ * @memberof module:interaction/Host
+ */
+const loadHostView = async () => {
+  try {
+    if (!interactionSession.id || !interactionSession.pin) {
+      throw new Error("Session ID or PIN is empty");
+    }
+
+    if (!interactionSession.status?.preview) {
+      await fetchDetailsHost();
+    }
+
+    // Inject waiting room and end slides
+    interactionSession.slides.unshift({ type: "waitingRoom" });
+    interactionSession.slides.push({ type: "end" });
+
+    // Ensure starting at the first slide
+    if (interactionSession.status.facilitatorIndex !== 0) {
+      interactionSession.status.facilitatorIndex = 0;
+      updateStatus();
+    }
+
+    // Set defaults per slide
+    for (const slide of interactionSession.slides) {
+      if (slide.hasContent) slide.content.show = true;
+      if (slide.isInteractive) {
+        slide.interaction.submissions = [];
+        slide.interaction.submissionsCount = 0;
+        slide.interaction.show = slide.hasContent ? false : true;
+      }
+    }
+
+    fetchSubmissionCount();
+
+    pollingInterval = setInterval(
+      fetchNewSubmissions,
+      config.value.interaction.host.newSubmissionsPollInterval
+    );
+
+    loading.value = false;
+  } catch (error) {
+    console.error("loadHostView failed", error);
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to launch interaction session hosting",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+    router.push("/");
+  }
 };
 
-const fetchSubmissionCount = () => {
-  api(
-    "interaction",
-    "fetchSubmissionCount",
-    interactionSession.id,
-    interactionSession.pin,
-    null
-  ).then(
-    function (res) {
-      interactionSession.submissionCount = res;
-    },
-    function (error) {
-      console.log("fetchSubmissionCount failed", error);
-    }
-  );
+/**
+ * Updates session status on the server.
+ * @memberof module:interaction/Host
+ */
+const updateStatus = async () => {
+  try {
+    await api("interaction/updateStatus", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      status: interactionSession.status,
+    });
+  } catch (error) {
+    console.error("updateStatus failed", error);
+  }
 };
 
+/**
+ * Fetches session details for the host.
+ * @memberof module:interaction/Host
+ * @returns {Promise<boolean>}
+ * @throws {Error} If session ID mismatch occurs
+ */
+const fetchDetailsHost = async () => {
+  const response = await api("interaction/fetchDetailsHost", {
+    id: interactionSession.id,
+    pin: interactionSession.pin,
+  });
+
+  if (interactionSession.id !== response.id) {
+    throw new Error("Response session ID does not match request session ID");
+  }
+
+  Object.assign(interactionSession, {
+    title: response.title,
+    name: response.name,
+    feedbackID: response.feedbackID,
+    status: response.status,
+    slides: response.slides,
+  });
+
+  return true;
+};
+
+/**
+ * Fetches initial submission count for waiting room.
+ * @memberof module:interaction/Host
+ */
+const fetchSubmissionCount = async () => {
+  try {
+    const response = await api("interaction/fetchSubmissionCount", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      isPreview: interactionSession.status.preview,
+    });
+
+    interactionSession.submissionCount = response;
+  } catch (error) {
+    console.error("fetchSubmissionCount failed", error);
+  }
+};
+
+let fetchNewSubmissionsFailCount = 0;
+
+/**
+ * Fetches new submissions for the current slide, with failure handling.
+ * @memberof module:interaction/Host
+ */
+const fetchNewSubmissions = async () => {
+  const currentSlide =
+    interactionSession.slides[interactionSession.status.facilitatorIndex];
+  if (!currentSlide.isInteractive) return;
+
+  const submissions = currentSlide.interaction.submissions;
+  const lastId = submissions.length ? submissions.at(-1).id : 0;
+
+  try {
+    const newSubs = await api("interaction/fetchNewSubmissions", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      slideIndex: interactionSession.status.facilitatorIndex,
+      lastSubmissionId: lastId,
+      isPreview: interactionSession.status.preview,
+    });
+
+    submissions.push(...newSubs);
+    fetchNewSubmissionsFailCount = 0;
+    Swal.close();
+  } catch (error) {
+    fetchNewSubmissionsFailCount++;
+    console.error("fetchNewSubmissions failed", error);
+    if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible()) {
+      Swal.fire({
+        toast: true,
+        showConfirmButton: false,
+        icon: "error",
+        iconColor: "#17a2b8",
+        title: "Connection to LearnLoop failed",
+        text: "Please check your internet connection",
+        position: "bottom",
+        width: "450px",
+      });
+    }
+  }
+};
+
+/**
+ * Clears submissions for the current slide and fetches new ones.
+ * @memberof module:interaction/Host
+ */
+const refreshSubmissions = () => {
+  const currentSlide =
+    interactionSession.slides[interactionSession.status.facilitatorIndex];
+  if (currentSlide.isInteractive) currentSlide.interaction.submissions = [];
+  fetchNewSubmissions();
+};
+
+/**
+ * Navigate to a specific slide index and update relevant UI state.
+ * @memberof module:interaction/Host
+ * @param {number} index - Slide index to navigate to
+ */
 const goToSlide = (index) => {
-  config.client.isFocusView =
-    index == 0 || index == interactionSession.slides.length - 1 ? false : true;
+  config.value.client.isFocusView =
+    index > 0 && index < interactionSession.slides.length - 1;
+
+  // Offer fullscreen tip when entering/exiting interactive phase
   if (
-    (index == 1 && currentIndex.value == 0) ||
-    index == interactionSession.slides.length - 1
+    (index === 1 && interactionSession.status.facilitatorIndex === 0) ||
+    index === interactionSession.slides.length - 1
   ) {
     Toast.fire({
       icon: "info",
@@ -61,204 +257,54 @@ const goToSlide = (index) => {
       position: "center",
     });
   }
-  currentIndex.value = index;
-  if (!isPreview.value) updateHostStatus();
-  if (index == 0 && !isPreview.value) fetchSubmissionCount();
-  if (interactionSession.slides[currentIndex.value].interaction)
-    interactionSession.slides[currentIndex.value].interaction.submissions = [];
-  console.log(interactionSession.slides[currentIndex.value]);
+
+  interactionSession.status.facilitatorIndex = index;
+  updateStatus();
+
+  if (index === 0) fetchSubmissionCount();
+
+  const currentSlide = interactionSession.slides[index];
+  if (currentSlide.isInteractive) currentSlide.interaction.submissions = [];
 };
+
+/**
+ * Toggle whether the current slide is locked.
+ * @memberof module:interaction/Host
+ */
 const toggleLockSlide = () => {
-  interactionSession.hostStatus.lockedSlides[currentIndex.value] =
-    !interactionSession.hostStatus.lockedSlides[currentIndex.value];
-  if (!isPreview.value) updateHostStatus();
+  const i = interactionSession.status.facilitatorIndex - 1; // exclude waiting room
+  interactionSession.status.lockedSlides[i] =
+    !interactionSession.status.lockedSlides[i];
+  updateStatus();
 };
 
-let fetchNewSubmissionsFailCount = 0;
-const fetchNewSubmissions = () => {
-  if (!interactionSession.slides[currentIndex.value].interaction) return;
-  const submissions =
-    interactionSession.slides[currentIndex.value].interaction.submissions;
-  const lastSubmissionId = submissions.length
-    ? submissions[submissions.length - 1].id
-    : 0;
-  api(
-    "interaction",
-    "fetchNewSubmissions",
-    interactionSession.id,
-    interactionSession.pin,
-    {
-      slideIndex: currentIndex.value,
-      lastSubmissionId: lastSubmissionId,
-    }
-  ).then(
-    function (res) {
-      for (let submission of res) submissions.push(submission);
-      fetchNewSubmissionsFailCount = 0;
-      Swal.close();
-    },
-    function (error) {
-      fetchNewSubmissionsFailCount++;
-      console.log(
-        "fetchNewSubmissions failed - failCount: " +
-          fetchNewSubmissionsFailCount,
-        error
-      );
-      if (fetchNewSubmissionsFailCount > 5 && !Swal.isVisible())
-        Swal.fire({
-          toast: true,
-          showConfirmButton: false,
-          icon: "error",
-          iconColor: "#17a2b8",
-          title: "Connection to LearnLoop failed",
-          text: "Please check your internet connection",
-          position: "bottom",
-          width: "450px",
-        });
-    }
-  );
-};
-
-let myInterval; //declared here to be accessible by onMounted and onBeforeUnmount
-
-const fetchDetailsHost = () => {
-  api(
-    "interaction",
-    "fetchDetailsHost",
-    interactionSession.id,
-    interactionSession.pin,
-    null
-  ).then(
-    function (res) {
-      if (interactionSession.id != res.id) {
-        console.error(
-          "interactionSession.id != res.id",
-          interactionSession.id,
-          response.id
-        );
-        return;
-      }
-      interactionSession.title = res.title;
-      interactionSession.name = res.name;
-      interactionSession.feedbackID = res.feedbackID;
-      res.slides.unshift({ type: "waitingRoom" });
-      res.slides.push({ type: "end" });
-      interactionSession.slides = res.slides;
-      for (let slide of interactionSession.slides) {
-        if (slide.hasContent) slide.content.show = true;
-        if (slide.interaction) {
-          slide.interaction.submissions = [];
-          slide.interaction.submissionsCount = 0;
-        }
-      }
-      loading.value = false;
-      fetchSubmissionCount();
-      updateHostStatus();
-      fetchNewSubmissions();
-      myInterval = setInterval(
-        fetchNewSubmissions,
-        config.interaction.host.newSubmissionsPollInterval
-      );
-    },
-    function (error) {
-      Swal.fire({
-        icon: "error",
-        iconColor: "#17a2b8",
-        title: "Unable to launch interaction session hosting",
-        text: error,
-        confirmButtonColor: "#17a2b8",
-      });
-      router.push("/");
-    }
-  );
-};
-
-const isPreview = ref(useRouter().currentRoute.value.params.id == "preview");
-if (isPreview.value) {
-  interactionSession.slides.unshift({ type: "waitingRoom" });
-  interactionSession.slides.push({ type: "end" });
-}
+/**
+ * Exit preview session and return to the appropriate editor view.
+ * @memberof module:interaction/Host
+ */
 const exitPreviewSession = () => {
-  loading.value = true;
-  config.client.isFocusView = false;
-  currentIndex.value = 0;
-  interactionSession.slides.shift();
-  interactionSession.slides.pop();
-  if (interactionSession.editMode) {
-    router.push("/interaction/edit/" + interactionSession.id);
-  } else {
-    router.push("/interaction/create");
-  }
+  interactionSession.slides.shift(); // Remove waiting room
+  interactionSession.slides.pop(); // Remove end slide
+
+  const target = interactionSession.isEdit
+    ? `/interaction/edit/slides/${interactionSession.id}`
+    : "/interaction/create/slides";
+
+  router.push(target);
 };
 
-onMounted(() => {
-  if (isPreview.value) {
-    console.log("preview", interactionSession);
-    if (!interactionSession.slides.length) {
-      Swal.fire({
-        title: "Unable to preview session",
-        text: "The session contains no slides to preview. You will now be returned to the session creation page",
-        confirmButtonColor: "#17a2b8",
-      }).then(() => {
-        router.push("/interaction/create");
-      });
-    } else {
-      for (let slide of interactionSession.slides) {
-        if (slide.hasContent) slide.content.show = true;
-        if (slide.interaction) {
-          slide.interaction.submissions = [];
-          slide.interaction.submissionsCount = 0;
-        }
-      }
-      loading.value = false;
-    }
-  } else {
-    interactionSession.id = useRouter().currentRoute.value.params.id;
-    Swal.fire({
-      title: "Enter session ID and PIN",
-      html:
-        "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created. <br>" +
-        '<input id="swalFormId" placeholder="ID" type="text" autocomplete="off" class="swal2-input" value="' +
-        interactionSession.id +
-        '">' +
-        '<input id="swalFormPin" placeholder="PIN" type="password" autocomplete="off" class="swal2-input"></div>',
-      showCancelButton: true,
-      confirmButtonColor: "#17a2b8",
-      preConfirm: () => {
-        interactionSession.id = document.getElementById("swalFormId").value;
-        interactionSession.pin = document.getElementById("swalFormPin").value;
-        if (interactionSession.pin == "")
-          Swal.showValidationMessage("Please enter your PIN");
-        if (interactionSession.id == "")
-          Swal.showValidationMessage("Please enter a session ID");
-      },
-    }).then((result) => {
-      if (result.isConfirmed) {
-        history.replaceState({}, "", interactionSession.id);
-        fetchDetailsHost();
-      } else {
-        router.push("/");
-      }
-    });
-  }
-});
-
+/**
+ * Cleanup interval and session state when unmounted.
+ * @memberof module:interaction/Host
+ */
 onBeforeUnmount(() => {
-  if (!isPreview.value) {
-    let hostStatus = { facilitatorIndex: 0 };
-    api(
-      "interaction",
-      "updateHostStatus",
-      interactionSession.id,
-      interactionSession.pin,
-      hostStatus
-    ).then(
-      function () {},
-      function (error) {
-        console.log("updateHostStatus failed", error);
-      }
-    );
-    clearInterval(myInterval);
+  clearInterval(pollingInterval);
+  loading.value = true;
+  config.value.client.isFocusView = false;
+  if (interactionSession.status) {
+    interactionSession.status.facilitatorIndex = 0;
+    interactionSession.status.preview = false;
+    updateStatus();
   }
 });
 </script>
@@ -269,7 +315,7 @@ onBeforeUnmount(() => {
       <Loading />
     </div>
     <div v-else>
-      <div class="text-center my-3" v-if="isPreview">
+      <div class="text-center my-3" v-if="interactionSession.status.preview">
         <button
           class="btn btn-teal"
           id="exitPreviewSession"
@@ -279,7 +325,7 @@ onBeforeUnmount(() => {
         </button>
       </div>
       <h1 v-if="!config.client.isFocusView" class="text-center display-4">
-        Interaction
+        Interaction {{ interactionSession.status.preview ? "Preview" : "" }}
       </h1>
       <p v-if="!config.client.isFocusView" class="text-center">
         {{
@@ -294,15 +340,36 @@ onBeforeUnmount(() => {
             : "[Facilitator name]"
         }}
       </p>
+      <!--new feature alert-->
+      <div
+        class="alert alert-warning mt-3 alert-dismissible fade show"
+        role="alert"
+        v-if="!interactionSession.status.preview"
+      >
+        LearnLoop Interaction is new. Please
+        <a
+          href="mailto:mail@learnloop.co.uk"
+          target="_blank"
+          style="color: black"
+          >let me know</a
+        >
+        about any issues.
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
       <HostSlide
-        :currentIndex="currentIndex"
-        :isPreview="isPreview"
+        :currentIndex="interactionSession.status.facilitatorIndex"
         class="m-2"
         :class="{ container: !config.client.isFocusView }"
-        @goForward="goToSlide(currentIndex + 1)"
-        @goBack="goToSlide(currentIndex - 1)"
+        @goForward="goToSlide(interactionSession.status.facilitatorIndex + 1)"
+        @goBack="goToSlide(interactionSession.status.facilitatorIndex - 1)"
         @goStart="goToSlide(0)"
         @toggleLockSlide="toggleLockSlide"
+        @refreshSubmissions="refreshSubmissions"
       />
     </div>
   </Transition>

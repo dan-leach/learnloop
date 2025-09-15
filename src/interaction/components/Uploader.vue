@@ -1,9 +1,3 @@
-<script setup>
-import { inject } from "vue";
-const config = inject("config");
-//
-</script>
-
 <template>
   <div>
     <div class="mu-container" :class="isInvalid ? 'mu-red-border' : ''">
@@ -32,7 +26,13 @@ const config = inject("config");
             <td class="bg-transparent">
               <div class="mu-image-container">
                 <img
-                  :src="config.api.imagesUrl + image.src"
+                  :src="
+                    api.fetchImageUrl +
+                    '?id=' +
+                    id +
+                    '&filename=' +
+                    image.filename
+                  "
                   alt=""
                   class="mu-images-preview"
                 />
@@ -121,12 +121,13 @@ const config = inject("config");
 <script>
 import axios from "axios";
 import Swal from "sweetalert2";
+import { api } from "../../data/api.js";
 
 export default {
   props: {
-    server: {
-      type: String,
-      default: config.api.imageUrl,
+    config: {
+      type: Object,
+      default: {},
     },
     isInvalid: {
       type: Boolean,
@@ -156,6 +157,14 @@ export default {
       type: Object,
       default: null,
     },
+    id: {
+      type: String,
+      default: "",
+    },
+    pin: {
+      type: String,
+      default: "",
+    },
   },
   mounted() {
     this.init();
@@ -163,17 +172,20 @@ export default {
   data() {
     return {
       images: [],
-      config: {
+      uploaderConfig: {
         headers: null,
       },
-
+      api: {
+        uploadImageUrl: this.config.api.uploadImageUrl,
+        fetchImageUrl: this.config.api.fetchImageUrl,
+      },
       isLoading: true,
     };
   },
   methods: {
     init() {
       this.images = this.media;
-      this.config.headers = this.headers;
+      this.uploaderConfig.headers = this.headers;
       setTimeout(() => (this.isLoading = false), 1000);
     },
     async fileChange(event) {
@@ -187,9 +199,9 @@ export default {
             let url = URL.createObjectURL(files[i]);
             formData.set("image", files[i]);
             const { data } = await axios.post(
-              config.api.url + "/interaction/uploads/index.php",
+              `${this.api.uploadImageUrl}?id=${this.id}`,
               formData,
-              this.config
+              this.uploaderConfig
             );
             if (data.error) {
               this.isLoading = false;
@@ -204,7 +216,7 @@ export default {
             }
             let addedImage = {
               url: url,
-              src: data.src,
+              filename: data.filename,
               size: files[i].size,
               type: files[i].type,
             };
@@ -232,8 +244,14 @@ export default {
       event.target.value = null;
       this.isLoading = false;
     },
-    removeImage(index) {
+    async removeImage(index) {
+      const filename = this.images[index].filename;
       this.images.splice(index, 1);
+      await api("interaction/deleteImage", {
+        id: this.id,
+        pin: this.pin,
+        filename,
+      });
     },
     sortImage(index, x) {
       this.images.splice(index + x, 0, this.images.splice(index, 1)[0]);

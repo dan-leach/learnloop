@@ -1,40 +1,55 @@
 <script setup>
-import Modal from 'bootstrap/js/dist/modal';
-const props = defineProps(['index', 'subsession']);
+/**
+ * @module feedback/components/SubsessionFeedbackForm
+ * @summary Provides a feedback modal for a session's subsession.
+ * @description This module allows users to provide feedback for a specific subsession. It includes a form for providing positive and constructive comments, as well as a score for the session. It validates the form and emits events when feedback is successfully submitted.
+ * @requires vue
+ */
 
-const emit = defineEmits(['hideSubsessionFeedbackModal']);
+const props = defineProps(["index", "subsession"]);
 
+const emit = defineEmits(["hideSubsessionFeedbackModal"]);
+
+/**
+ * Handles the submission of the feedback form.
+ * Validates the form inputs and marks the subsession as complete upon successful submission.
+ * Emits an event to hide the modal after feedback submission.
+ */
 let submitSubsessionFeedbackForm = () => {
   document
-    .getElementById('subsessionFeedbackModal' + props.index)
-    .classList.add('was-validated');
+    .getElementById("subsessionFeedbackModal" + props.index)
+    .classList.add("was-validated");
   if (
-    props.subsession.positive == '' ||
-    props.subsession.negative == '' ||
+    props.subsession.positive == "" ||
+    props.subsession.negative == "" ||
     props.subsession.score == null
   )
     return false;
-  props.subsession.status = 'Complete';
-  emit('hideSubsessionFeedbackModal', props.index);
+  props.subsession.status = "Complete";
+  emit("hideSubsessionFeedbackModal", props.index);
 };
 
+/**
+ * Updates the score text based on the user's score input.
+ * This method categorizes the score and generates a text description.
+ */
 let scoreChange = () => {
   let x = props.subsession.score;
-  let y = 'slider error';
+  let y = "slider error";
   if (x > 95) {
     y = "an overwhelmingly excellent session, couldn't be improved";
   } else if (x > 80) {
-    y = 'an excellent sesssion, minimal grounds for improvement';
+    y = "an excellent session, minimal grounds for improvement";
   } else if (x > 70) {
-    y = 'a very good session, minor points for improvement';
+    y = "a very good session, minor points for improvement";
   } else if (x > 60) {
-    y = 'a fairly good session, could be improved further';
+    y = "a fairly good session, could be improved further";
   } else if (x > 40) {
-    y = 'basically sound, but needs further development';
+    y = "basically sound, but needs further development";
   } else if (x >= 20) {
-    y = 'not adequate in its current state';
+    y = "not adequate in its current state";
   } else if (x < 20) {
-    y = 'an extremely poor session';
+    y = "an extremely poor session";
   }
 
   props.subsession.scoreText = y;
@@ -59,8 +74,14 @@ let scoreChange = () => {
           <form id="subsessionFeedbackForm" class="needs-validation" novalidate>
             <div>
               <label for="positiveComments" class="form-label"
-                >Positive Comments:</label
-              >
+                >Positive comments
+                <sup
+                  ><font-awesome-icon
+                    :icon="['fas', 'asterisk']"
+                    size="2xs"
+                    style="color: #ff0000"
+                    class="float-right" /></sup
+              ></label>
               <textarea
                 rows="5"
                 v-model="subsession.positive"
@@ -77,8 +98,14 @@ let scoreChange = () => {
             </div>
             <div class="mt-4">
               <label for="negativeComments" class="form-label"
-                >Constructive Comments:</label
-              >
+                >Constructive comments
+                <sup
+                  ><font-awesome-icon
+                    :icon="['fas', 'asterisk']"
+                    size="2xs"
+                    style="color: #ff0000"
+                    class="float-right" /></sup
+              ></label>
               <textarea
                 rows="5"
                 v-model="subsession.negative"
@@ -95,7 +122,14 @@ let scoreChange = () => {
             </div>
             <div class="mt-4">
               <label for="score" class="form-label"
-                >Score: {{ subsession.score }}/100</label
+                >Score
+                <sup
+                  ><font-awesome-icon
+                    :icon="['fas', 'asterisk']"
+                    size="2xs"
+                    style="color: #ff0000"
+                    class="float-right" /></sup
+                >&nbsp;&nbsp;&nbsp;&nbsp;{{ subsession.score }}/100</label
               >
               <input
                 type="range"
@@ -144,6 +178,9 @@ let scoreChange = () => {
 </template>
 
 <style scoped>
+.form-label {
+  font-size: 1.3rem;
+}
 .form-range::-webkit-slider-thumb {
   background-color: #17a2b8;
   margin-top: -0.35rem;

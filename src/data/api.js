@@ -18,7 +18,8 @@ async function api(route, data, responseType) {
   const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
   if (showConsole) {
-    console.log(data ? data : "", ` --> ${route}`);
+    if (route != "interaction/fetchNewSubmissions")
+      console.log(data ? data : "", ` --> ${route}`);
   }
 
   try {
@@ -49,7 +50,8 @@ async function api(route, data, responseType) {
 
       // Show the response if required
       if (showConsole && response.ok) {
-        console.log(`${route} -->`, jsonResponse);
+        if (route != "interaction/fetchNewSubmissions")
+          console.log(`${route} -->`, jsonResponse);
       }
       if (!response.ok) {
         throw jsonResponse;

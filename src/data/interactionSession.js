@@ -11,7 +11,9 @@ export const interactionSession = reactive({
     facilitatorIndex: 0,
     lockedSlides: [],
   },
-  editMode: false,
+  isEdit: false,
+  isNew: false,
+  useTemplate: false,
   reset: function () {
     this.id = "";
     this.pin = "";
@@ -23,6 +25,8 @@ export const interactionSession = reactive({
       facilitatorIndex: 0,
       lockedSlides: [],
     };
-    this.editMode = false;
+    this.isEdit = false;
+    this.isNew = false;
+    this.useTemplate = false;
   },
 });

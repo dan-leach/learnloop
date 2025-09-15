@@ -1,0 +1,412 @@
+<script setup>
+/**
+ * @module feedback/CreateOrganisers
+ * @summary Step 5 of the session creation process.
+ * @description This component handles the addition, editing, ordering, and validation of organisers
+ *  for a feedback session. Each organiser can be marked as a lead and given edit permissions.
+ *  A modal form is used for edits, and the component ensures that one lead organiser is assigned.
+ *
+ * @requires vue
+ * @requires sweetalert2
+ * @requires bootstrap/js/dist/modal
+ * @requires ../data/feedbackSession.js
+ * @requires ../router/index.js
+ * @requires ../data/api.js
+ */
+
+import { onMounted, ref } from "vue";
+import { feedbackSession } from "../data/feedbackSession.js";
+import router from "../router/index.js";
+import Swal from "sweetalert2";
+import Modal from "bootstrap/js/dist/modal";
+import { api } from "../data/api.js";
+import EditOrganiserForm from "./components/EditOrganiserForm.vue";
+
+let editOrganiserModal;
+
+/**
+ * Opens the organiser modal for editing or adding.
+ * @function showEditOrganiserForm
+ * @param {number} index - Index of organiser to edit, or -1 to add a new one.
+ */
+const showEditOrganiserForm = (index) => {
+  editOrganiserModal = new Modal(
+    document.getElementById("editOrganiserModal" + index),
+    {
+      backdrop: "static",
+      keyboard: false,
+      focus: true,
+    }
+  );
+  editOrganiserModal.show();
+};
+
+/**
+ * Handles modal close after edit/add action.
+ * @function hideEditOrganiserModal
+ * @param {number} [index] - Index of the organiser being edited, -1 if adding, or undefined if cancelled.
+ * @param {string} [organiser] - JSON stringified organiser object.
+ */
+const hideEditOrganiserModal = (index, organiser) => {
+  if (index === undefined) {
+    //user did not submit the form, closed using the X. Do nothing except hide the modal
+  } else if (index == -1) {
+    feedbackSession.organisers.push(JSON.parse(organiser));
+  } else {
+    const { name, email, isLead, canEdit } = JSON.parse(organiser);
+    Object.assign(feedbackSession.organisers[index], {
+      name,
+      email,
+      isLead,
+      canEdit,
+    });
+  }
+  editOrganiserModal.hide();
+};
+
+/**
+ * Reorders an organiser within the list.
+ * @function sortOrganiser
+ * @param {number} index - Current index of the organiser.
+ * @param {number} x - Offset to move by (-1 for up, +1 for down).
+ */
+const sortOrganiser = (index, x) =>
+  feedbackSession.organisers.splice(
+    index + x,
+    0,
+    feedbackSession.organisers.splice(index, 1)[0]
+  );
+
+/**
+ * Prompts for and removes an organiser.
+ * @function removeOrganiser
+ * @param {number} index - Index of organiser to remove.
+ */
+const removeOrganiser = async (index) => {
+  const { isConfirmed } = await Swal.fire({
+    title: "Remove this organiser?",
+    showCancelButton: true,
+    confirmButtonColor: "#dc3545",
+  });
+
+  if (isConfirmed) feedbackSession.organisers.splice(index, 1);
+};
+
+/**
+ * Navigates back to the question creation screen.
+ * @function back
+ */
+const back = () => {
+  router.push(
+    `/feedback/${feedbackSession.isEdit ? "edit" : "create"}/questions${
+      feedbackSession.isEdit ? "/" + feedbackSession.id : ""
+    }`
+  );
+};
+
+const showWarning = ref(false);
+const showWarningNoLead = ref(false);
+
+/**
+ * Validates organiser list before submission.
+ * Ensures at least one organiser exists and exactly one is lead.
+ * @function formIsValid
+ * @returns {boolean} Whether the form is valid.
+ */
+const formIsValid = () => {
+  showWarningNoLead.value = false;
+  if (!feedbackSession.organisers.length) {
+    showWarning.value = true;
+    return false;
+  }
+  let leadOrganiserCount = 0;
+  for (let organiser of feedbackSession.organisers) {
+    if (organiser.isLead) {
+      leadOrganiserCount++;
+      break;
+    }
+  }
+  if (leadOrganiserCount != 1) {
+    showWarningNoLead.value = true;
+    return false;
+  }
+  return true;
+};
+
+const btnSubmit = ref({
+  text: `${feedbackSession.isEdit ? "Update" : "Create"} feedback session`,
+  wait: false,
+});
+
+/**
+ * Handles form submission, sending data to the API to create or update a feedback session.
+ * @function submit
+ */
+const submit = async () => {
+  if (!formIsValid()) return false;
+  btnSubmit.value.text = "Please wait...";
+  btnSubmit.value.wait = true;
+
+  if (feedbackSession.isEdit) {
+    try {
+      const response = await api("feedback/updateSession", feedbackSession);
+
+      btnSubmit.value.text = "Update feedback session";
+      btnSubmit.value.wait = false;
+
+      let html = response.message;
+      if (response.sendMailFails.length) {
+        html +=
+          "<br><br>Session update emails to the following recepients failed:<br>";
+        for (let fail of response.sendMailFails)
+          html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+      }
+
+      Swal.fire({
+        icon: "success",
+        iconColor: "#17a2b8",
+        html: html,
+        confirmButtonColor: "#17a2b8",
+      });
+      feedbackSession.reset();
+      router.push("/");
+    } catch (error) {
+      btnSubmit.value.text = "Retry updating feedback session?";
+      btnSubmit.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error updating feedback session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  } else {
+    try {
+      btnSubmit.value.text = "Please wait...";
+      btnSubmit.value.wait = true;
+      const response = await api("feedback/insertSession", feedbackSession);
+      btnSubmit.value.text = "Create feedback session";
+      btnSubmit.value.wait = false;
+      feedbackSession.id = response.id;
+      feedbackSession.pin = response.leadPin;
+      feedbackSession.sendMailFails = response.sendMailFails;
+      router.push("/feedback/create/complete");
+    } catch (error) {
+      btnSubmit.value.text = "Retry creating feedback session?";
+      btnSubmit.value.wait = false;
+      if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+      Swal.fire({
+        title: "Error creating feedback session",
+        text: error,
+        icon: "error",
+        iconColor: "#17a2b8",
+        confirmButtonColor: "#17a2b8",
+      });
+    }
+  }
+};
+
+/**
+ * Redirects user if session type is not selected.
+ * @function onMounted
+ */
+onMounted(async () => {
+  if (
+    !feedbackSession.isSeries &&
+    !feedbackSession.isSingle &&
+    !feedbackSession.useTemplate
+  ) {
+    router.push("/feedback/create/type");
+  }
+});
+</script>
+
+<template>
+  <div class="container my-4">
+    <h1 class="text-center display-4">Feedback</h1>
+    <div class="text-center">
+      <p v-if="feedbackSession.isEdit" class="form-label ms-2">
+        Editing feedback session
+        <span class="id-box">{{ feedbackSession.id }}</span>
+      </p>
+      <p v-else>Add organisers who need to view feedback or edit the session</p>
+    </div>
+    <!--organisers-->
+    <div class="alert alert-teal" alert-dismissible fade show role="alert">
+      <div class="d-flex justify-content-between">
+        <h4 class="alert-heading">Organisers</h4>
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      <span
+        >Adding an organiser allows them to view the feedback for this
+        session.</span
+      ><br />
+      <span>You can optionally grant access to edit the feedback request.</span
+      ><br />
+      <span>You should add your own details as the lead organsier.</span><br />
+      <span
+        >The lead organiser cannot be changed once the session is created.</span
+      >
+    </div>
+
+    <p class="d-flex align-items-center">
+      <font-awesome-icon
+        :icon="['fas', 'triangle-exclamation']"
+        size="2xl"
+        style="color: #17a2b8"
+        class="me-3"
+      />
+      Only add organisers who should be able to view the feedback for all
+      sessions.
+    </p>
+
+    <table class="table" id="organisersTable">
+      <thead>
+        <tr>
+          <th class="bg-transparent p-0 ps-2"></th>
+          <th class="bg-transparent p-0 ps-2">Name</th>
+          <th class="bg-transparent p-0 ps-2">Email</th>
+          <th class="bg-transparent p-0 ps-2">Lead</th>
+          <th class="bg-transparent p-0 ps-2">Can edit?</th>
+          <th class="bg-transparent p-0 ps-2">
+            <button
+              class="btn btn-teal btn-sm btn-right"
+              id="btnAddOrganiser"
+              @click.prevent="showEditOrganiserForm(-1)"
+            >
+              Add <i class="fas fa-plus"></i>
+            </button>
+          </th>
+        </tr>
+      </thead>
+      <TransitionGroup name="list" tag="tbody">
+        <template
+          v-for="(organiser, index) in feedbackSession.organisers"
+          :key="organiser"
+        >
+          <tr>
+            <td class="bg-transparent p-0 ps-2">
+              <button
+                v-if="index != 0"
+                class="btn btn-default btn-sm p-0"
+                id="btnSortUp"
+                @click="sortOrganiser(index, -1)"
+              >
+                <font-awesome-icon :icon="['fas', 'chevron-up']" /></button
+              ><br />
+              <button
+                v-if="index != feedbackSession.organisers.length - 1"
+                class="btn btn-default btn-sm p-0"
+                id="btnSortDown"
+                @click="sortOrganiser(index, 1)"
+              >
+                <font-awesome-icon :icon="['fas', 'chevron-down']" />
+              </button>
+            </td>
+            <td class="bg-transparent">{{ organiser.name }}</td>
+            <td class="bg-transparent">{{ organiser.email }}</td>
+            <td class="bg-transparent">
+              <font-awesome-icon
+                v-if="organiser.isLead"
+                :icon="['fas', 'check']"
+                size="2xl"
+                style="color: green"
+              />
+              <font-awesome-icon
+                v-else
+                :icon="['fas', 'times']"
+                size="2xl"
+                style="color: red"
+              />
+            </td>
+            <td class="bg-transparent">
+              <font-awesome-icon
+                v-if="organiser.canEdit"
+                :icon="['fas', 'check']"
+                size="2xl"
+                style="color: green"
+              />
+              <font-awesome-icon
+                v-else
+                :icon="['fas', 'times']"
+                size="2xl"
+                style="color: red"
+              />
+            </td>
+            <td class="bg-transparent">
+              <button
+                class="btn btn-danger btn-sm btn-right ms-4"
+                id="btnRemoveOrganiser"
+                @click="removeOrganiser(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'trash-can']" />
+              </button>
+              <button
+                class="btn btn-teal btn-sm btn-right"
+                id="btnEditOrganiser"
+                @click="showEditOrganiserForm(index)"
+              >
+                <font-awesome-icon :icon="['fas', 'edit']" />
+              </button>
+            </td>
+          </tr>
+        </template>
+      </TransitionGroup>
+    </table>
+    <template v-for="(organisers, index) in feedbackSession.organisers">
+      <EditOrganiserForm
+        :index="index"
+        :isEdit="feedbackSession.isEdit"
+        @hideEditOrganiserModal="hideEditOrganiserModal"
+      />
+    </template>
+    <EditOrganiserForm
+      index="-1"
+      :isEdit="feedbackSession.isEdit"
+      @hideEditOrganiserModal="hideEditOrganiserModal"
+    />
+    <div
+      class="text-danger"
+      v-if="showWarning && !feedbackSession.organisers.length"
+    >
+      You must add at least one organiser.
+    </div>
+    <div
+      class="text-danger"
+      v-if="showWarningNoLead && feedbackSession.organisers.length"
+    >
+      A lead organiser must be designated.
+    </div>
+  </div>
+  <!--back/next button-->
+  <div class="d-flex justify-content-evenly mb-3">
+    <button class="btn btn-secondary btn-lg me-2 mb-2" id="back" @click="back">
+      Back
+    </button>
+    <button
+      class="btn btn-teal btn-lg me-2 mb-2"
+      id="submit"
+      @click="submit"
+      :disabled="btnSubmit.wait"
+    >
+      <span
+        v-if="btnSubmit.wait"
+        class="spinner-border spinner-border-sm me-2"
+      ></span
+      >{{ btnSubmit.text }}
+    </button>
+  </div>
+</template>
+
+<style>
+.container {
+  max-width: 750px;
+}
+</style>

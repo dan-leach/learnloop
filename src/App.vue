@@ -2,6 +2,7 @@
 import { ref, watch, onMounted } from "vue";
 import router from "./router";
 import { RouterLink, RouterView } from "vue-router";
+import Footer from "./components/Footer.vue";
 import { Tooltip } from "bootstrap";
 new Tooltip(document.body, {
   selector: "[data-bs-toggle='tooltip']",
@@ -45,26 +46,26 @@ let load = ref({
 
 //fetching the config data
 import { fetchConfig } from "./data/fetchConfig";
-const loadConfigData = () => {
+const loadConfigData = async () => {
   //show the loading spinner
   load.value.pending = true;
 
   //clear the failed message in case of retry
   load.value.failed = "";
 
-  fetchConfig()
-    .then((config) => {
-      if (config.api.showConsole) {
-        console.log("Config fetched successfully:", config);
-      }
-      load.value.pending = false;
-    })
-    .catch((error) => {
-      console.error("Failed to fetch config:", error);
-      load.value.failed =
-        error.toString() || "Failed to load configuration data";
-      load.value.pending = false;
-    });
+  try {
+    const config = await fetchConfig();
+
+    if (config.api.showConsole) {
+      console.log("Config fetched successfully:", config);
+    }
+
+    load.value.pending = false;
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    load.value.failed = error.toString() || "Failed to load configuration data";
+    load.value.pending = false;
+  }
 };
 
 onMounted(() => {
@@ -97,7 +98,7 @@ onMounted(() => {
         ><img
           alt="LearnLoop logo"
           class="logo"
-          src="https://dev.learnloop.co.uk/logo.png"
+          src="https://learnloop.co.uk/logo.png"
       /></RouterLink>
       <div class="input-group input-go me-2" v-if="showGo">
         <input
@@ -117,41 +118,7 @@ onMounted(() => {
     <div id="app-view" :class="{ container: !config.client.isFocusView }">
       <RouterView />
     </div>
-    <footer
-      id="footer"
-      v-if="!config.client.isFocusView"
-      class="footer mt-auto"
-    >
-      <nav class="navbar bg-teal justify-content-center">
-        <ul class="navbar-nav nav-pills flex-row">
-          <li class="nav-item">
-            <a class="nav-link p-2 mx-2" :href="config.repo" target="_blank"
-              >LearnLoop v{{ config.version }}</a
-            >
-          </li>
-          <li class="nav-item">
-            <a class="nav-link p-2 mx-2" :href="config.web" target="_blank"
-              >Created by {{ config.author }}</a
-            >
-          </li>
-        </ul>
-        <ul class="navbar-nav nav-pills flex-row">
-          <li class="nav-item">
-            <a
-              class="nav-link p-2 mx-2"
-              :href="'mailto:' + config.email"
-              target="_blank"
-              >Contact: {{ config.email }}</a
-            >
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link p-2 mx-2" to="/privacy-policy"
-              >Privacy policy</RouterLink
-            >
-          </li>
-        </ul>
-      </nav>
-    </footer>
+    <Footer />
   </div>
 </template>
 

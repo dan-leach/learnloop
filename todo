@@ -1,14 +1,28 @@
+Current:
+Check that feedbackId is valid session ID
+Fix 'showValidIndicators' and refresh submissions buttons not showing if interaction slide created with content which is then removed
+Fix launching host mode fails (e.g. invalid session id) does not display error correctly to user
+Ensure all calls to errorHandler are followed by return false on api side
+Move icon buttons and show responses button to below heading/prompt
+Fix uploader hangs with invalid image format
+API catch routes for robots and favicon to block many errors
+
+Test
+
+To do
+Cloudflare
+Preview certificate
+Reuse images uploaded for a session on another slide - have a add a previously uploaded image button which launches gallery and adds the src to the uploader preview array
+Indicate the default questions on feedback create
+Static slide content overlapping ediges on mobile (see screenshot on AM teams convo)
+
 Later:
+Use sessionStorage to enforce submission limits - make sure there is a work around for preview mode
 Add host view images to slide type help
 Add imageCloud to slide type help
-Add appVersion field to session entries in database
 Image compression for large uploads
 API for fetching images that checks valid session ID, then make img/ private
-
-Later:
 Have arrow keys control slide movements
-
-Improvements:
 Add auto-create feedback session for an interact session?
 Add interaction related quotes
 

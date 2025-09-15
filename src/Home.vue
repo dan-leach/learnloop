@@ -1,309 +1,310 @@
 <script setup>
-import { onMounted, ref } from "vue";
+/**
+ * @module Home
+ * @summary Main home page logic for LearnLoop
+ * @description
+ * This module handles homepage routing, email interest registration, session routing,
+ * feedback/interaction session management (reset PIN, notification preferences, session closure, etc),
+ * and legacy support for query parameters from LearnLoop v4.
+ *
+ * @requires vue
+ * @requires vue-router
+ * @requires ./data/api.js
+ * @requires ./router
+ * @requires ./components/Quote.vue
+ * @requires sweetalert2
+ * @requires ./data/feedbackSession.js
+ * @requires ./data/interactionSession.js
+ * @requires ./assets/promptSessionDetails
+ */
+
+import { onMounted, ref, inject } from "vue";
 import { useRouter } from "vue-router";
-import { api } from "./data/api.js";
 import router from "./router";
-import Quote from "./components/Quote.vue";
 import Swal from "sweetalert2";
+import { api } from "./data/api.js";
 import { feedbackSession } from "./data/feedbackSession.js";
 import { interactionSession } from "./data/interactionSession.js";
+import { promptSessionDetails } from "./assets/promptSessionDetails";
+import Quote from "./components/Quote.vue";
 
-import { inject } from "vue";
 const config = inject("config");
 
-const deployVersion = true;
 const interactionInterestEmail = ref("");
-const interactionInterest = () => {
-  if (interactionInterestEmail.value) {
+
+/**
+ * Submits an email to register interest in the interaction module.
+ * Shows success/error message based on server response.
+ */
+const interactionInterest = async () => {
+  if (!interactionInterestEmail.value) {
     document
       .getElementById("interactionInterestEmail")
-      .classList.remove("is-invalid");
-    api("interaction/interest", { email: interactionInterestEmail.value }).then(
-      function (res) {
-        Swal.fire({
-          icon: "success",
-          iconColor: "#17a2b8",
-          text: res.message,
-          confirmButtonColor: "#17a2b8",
-        });
-        interactionInterestEmail.value = "";
-      },
-      function (error) {
-        if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-        Swal.fire({
-          icon: "error",
-          iconColor: "#17a2b8",
-          text: error,
-          confirmButtonColor: "#17a2b8",
-        });
-      }
-    );
-  } else {
-    document
-      .getElementById("interactionInterestEmail")
-      .classList.add("is-invalid");
+      ?.classList.add("is-invalid");
+    return;
+  }
+
+  document
+    .getElementById("interactionInterestEmail")
+    ?.classList.remove("is-invalid");
+
+  try {
+    const response = await api("interaction/interest", {
+      email: interactionInterestEmail.value,
+    });
+
+    Swal.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      text: response.message,
+      confirmButtonColor: "#17a2b8",
+    });
+
+    interactionInterestEmail.value = "";
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
   }
 };
 
+/**
+ * Navigates to the feedback view page if session ID exists.
+ */
 const viewFeedback = () => {
-  if (feedbackSession.id) {
-    document.getElementById("feedbackID").classList.remove("is-invalid");
-    router.push("/feedback/view/" + feedbackSession.id.trim());
-  } else {
-    document.getElementById("feedbackID").classList.add("is-invalid");
+  const id = feedbackSession.id?.trim();
+  if (!id) {
+    document.getElementById("feedbackID")?.classList.add("is-invalid");
+    return;
   }
+
+  document.getElementById("feedbackID")?.classList.remove("is-invalid");
+  router.push("/feedback/view/" + id);
 };
 
+/**
+ * Navigates to the interaction host page if session ID exists.
+ */
 const hostInteraction = () => {
-  if (interactionSession.id) {
-    document.getElementById("interactionID").classList.remove("is-invalid");
-    router.push("/interaction/host/" + interactionSession.id.trim());
-  } else {
-    document.getElementById("interactionID").classList.add("is-invalid");
+  const id = interactionSession.id?.trim();
+  if (!id) {
+    document.getElementById("interactionID")?.classList.add("is-invalid");
+    return;
   }
+
+  document.getElementById("interactionID")?.classList.remove("is-invalid");
+  router.push("/interaction/host/" + id);
 };
 
-const resetPin = (module, id) => {
-  if (!id) id = "";
-  let email = "";
+/**
+ * Resets the facilitator PIN for a session.
+ * @param {string} module - 'feedback' or 'interaction'
+ * @param {string} prefillId - Optional session ID to prefill
+ */
+const resetPin = async (module, prefillId = "") => {
+  const { isConfirmed, id, email } = await promptSessionDetails(
+    prefillId,
+    "Reset PIN",
+    `You will need your session ID from the session email.<br>For example: ${config.value.client.url.replace(
+      "https://",
+      ""
+    )}/<mark>aBc123</mark>`,
+    true,
+    false,
+    true
+  );
+
+  if (!isConfirmed) return;
+
+  try {
+    const response = await api(`${module}/resetPin`, { id, email });
+    let html = response.message;
+
+    if (response.sendMailFails.length) {
+      html += "<br><br>New pin emails to the following recipients failed:<br>";
+      for (const fail of response.sendMailFails) {
+        html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
+      }
+    }
+
+    Swal.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      html,
+      confirmButtonColor: "#17a2b8",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+
+  feedbackSession.reset();
+  interactionSession.reset();
+};
+
+/**
+ * Allows facilitators to update session notification preferences.
+ * @param {string} id - Optional session ID to prefill
+ */
+const setNotificationPreference = async (prefillId = "") => {
   router.push("/");
-  Swal.fire({
-    title: "Reset PIN",
-    html:
-      "<div class='overflow-hidden'>You will need your session ID which you can find in emails relating to your session.<br>For example: " +
-      config.value.client.url.replace("https://", "") +
-      "/<mark>aBc123</mark>.<br>" +
-      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="' +
-      id +
-      '">' +
-      '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input"></div>',
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: async () => {
-      id = document.getElementById("swalFormId").value;
-      email = document.getElementById("swalFormEmail").value;
-      if (email == "") {
-        Swal.showValidationMessage("Please enter an email");
-        return false;
+
+  const { isConfirmed, id, pin, boolean } = await promptSessionDetails(
+    prefillId,
+    "Set notification preferences",
+    `You will need your session ID and PIN from the session creation email.`,
+    true,
+    true,
+    false,
+    { promptText: "Set notifications", trueText: "On", falseText: "Off" }
+  );
+
+  if (!isConfirmed) return;
+
+  try {
+    const response = await api("feedback/updateNotificationPreferences", {
+      id,
+      pin,
+      notifications: boolean,
+    });
+    let html = response.message;
+
+    if (response.sendMailFails.length) {
+      html += "<br><br>Notification emails failed for:<br>";
+      for (const fail of response.sendMailFails) {
+        html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
       }
-      if (id == "") {
-        Swal.showValidationMessage("Please enter a session ID");
-        return false;
-      }
-      await api(module + "/resetPin", { id, email }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "<br><br>New pin emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
-        }
-      );
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-      interactionSession.reset();
     }
-  });
+
+    Swal.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      html,
+      confirmButtonColor: "#17a2b8",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+
+  feedbackSession.reset();
 };
 
-const setNotificationPreference = (id) => {
-  if (!id) id = "";
-  let pin = "";
-  router.push("/");
-  let notifications = true;
-  Swal.fire({
-    title: "Set notification preferences",
-    html:
-      "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created." +
-      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input" value="' +
-      id +
-      '">' +
-      '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input"><br><br>' +
-      'Set notifications <select id="swalFormNotifications" type="select" class="swal2-input"><option value=true>On</option><option value=false>Off</option></select></div>',
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: async () => {
-      id = document.getElementById("swalFormId").value;
-      pin = document.getElementById("swalFormPin").value;
-      if (pin == "") {
-        Swal.showValidationMessage("Please enter your PIN");
-        return false;
+/**
+ * Facilitators can request an email listing all their sessions.
+ * @param {string} module - 'feedback' or 'interaction'
+ */
+const findMySessions = async (module) => {
+  const { isConfirmed, email } = await promptSessionDetails(
+    null,
+    "Find my sessions",
+    `Enter your email and we’ll email you a list of your sessions.`,
+    false,
+    false,
+    true
+  );
+
+  if (!isConfirmed) return;
+
+  try {
+    const response = await api(`${module}/findMySessions`, { email });
+    let html = response.message;
+
+    if (response.sendMailFails.length) {
+      html += "<br>Session history emails failed for:<br>";
+      for (const fail of response.sendMailFails) {
+        html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
       }
-      if (id == "") {
-        Swal.showValidationMessage("Please enter a session ID");
-        return false;
-      }
-      notifications = document.getElementById("swalFormNotifications").value;
-      await api("feedback/updateNotificationPreferences", {
-        id,
-        pin,
-        notifications: notifications === "true" ? true : false,
-      }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "<br><br>Notification preference emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
-        }
-      );
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
     }
-  });
+
+    Swal.fire({
+      icon: response.sendMailFails.length ? "error" : "success",
+      iconColor: "#17a2b8",
+      html,
+      confirmButtonColor: "#17a2b8",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+
+  feedbackSession.reset();
+  interactionSession.reset();
 };
 
-const findMySessions = (module) => {
-  let email = "";
-  Swal.fire({
-    title: "Find my sessions",
-    html:
-      "<div class='overflow-hidden'>Enter your email below and we'll email you with a list of sessions for which you're listed as an organiser or facilitator.<br>" +
-      '<input id="swalFormEmail" placeholder="Facilitator email" autocomplete="off" class="swal2-input"></div>',
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: async () => {
-      email = document.getElementById("swalFormEmail").value;
-      if (email == "") {
-        Swal.showValidationMessage("Please enter an email");
-        return false;
+/**
+ * Allows a facilitator to permanently close a feedback session.
+ */
+const closeFeedbackSession = async (prefillId = "") => {
+  const { isConfirmed, id, pin } = await promptSessionDetails(
+    prefillId,
+    "Close session",
+    `You will need your session ID and PIN from the session creation email.<br><br>Once closed, a session cannot be reopened.`
+  );
+
+  if (!isConfirmed) return;
+
+  try {
+    const response = await api("feedback/closeSession", { id, pin });
+    let html = response.message;
+
+    if (response.sendMailFails.length) {
+      html += "<br><br>Session closure emails failed for:<br>";
+      for (const fail of response.sendMailFails) {
+        html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
       }
-      await api(module + "/findMySessions", {
-        email,
-      }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "Session history emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: res.sendMailFails.length ? "error" : "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
-        }
-      );
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-      interactionSession.reset();
     }
-  });
+
+    Swal.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      html,
+      confirmButtonColor: "#17a2b8",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
+
+  feedbackSession.reset();
+  interactionSession.reset();
 };
 
-const closeFeedbackSession = () => {
-  let id = "";
-  let pin = "";
-  Swal.fire({
-    title: "Close session",
-    html:
-      "<div class='overflow-hidden'>You will need your session ID and PIN which you can find in the email you received when your session was created.<br><br>Please be aware that once closed a session cannot be reopend to further feedback.<br>" +
-      '<input id="swalFormId" placeholder="Session ID" autocomplete="off" class="swal2-input">' +
-      '<input id="swalFormPin" placeholder="Pin" type="password" autocomplete="off" class="swal2-input"></div>',
-    showCancelButton: true,
-    confirmButtonColor: "#17a2b8",
-    preConfirm: async () => {
-      id = document.getElementById("swalFormId").value;
-      pin = document.getElementById("swalFormPin").value;
-      if (pin == "") {
-        Swal.showValidationMessage("Please enter a session PIN");
-        return false;
-      }
-      if (id == "") {
-        Swal.showValidationMessage("Please enter a session ID");
-        return false;
-      }
-      await api("feedback/closeSession", { id, pin }).then(
-        function (res) {
-          let html = res.message;
-          if (res.sendMailFails.length) {
-            html +=
-              "<br><br>Session closure emails to the following recepients failed:<br>";
-            for (let fail of res.sendMailFails)
-              html += `${fail.name} (${fail.email}): <span class='text-danger'><i>${fail.error}</i></span><br>`;
-          }
-          Swal.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            html: html,
-            confirmButtonColor: "#17a2b8",
-          });
-        },
-        function (error) {
-          if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
-        }
-      );
-    },
-  }).then((result) => {
-    if (result.isConfirmed) {
-      feedbackSession.reset();
-      interactionSession.reset();
-    }
-  });
-};
-
+/**
+ * Runs on page load. Handles legacy URL support and router redirection.
+ */
 onMounted(() => {
   feedbackSession.reset();
   interactionSession.reset();
-  let id = useRouter().currentRoute.value.params.id;
+
+  const route = useRouter().currentRoute.value;
+  const id = route.params.id;
+  const routeName = route.name;
+
   if (window.location.toString().includes("?")) {
     //v4 query
     let v4Param = window.location.toString().split("?")[1];
@@ -328,13 +329,15 @@ onMounted(() => {
     }
     return;
   }
-  let routeName = useRouter().currentRoute.value.name;
-  if (routeName == "interaction-resetPIN") resetPin("interaction", id);
-  else if (routeName == "feedback-resetPIN") resetPin("feedback", id);
-  else if (routeName == "feedback-notifications") setNotificationPreference(id);
-  else if (routeName == "home" && id) {
-    if (id.charAt(0) == "i") router.push("/interaction/" + id);
-    else router.push("/feedback/" + id);
+
+  if (routeName === "interaction-resetPIN") resetPin("interaction", id);
+  else if (routeName === "feedback-resetPIN") resetPin("feedback", id);
+  else if (routeName === "feedback-notifications")
+    setNotificationPreference(id);
+  else if (routeName === "home" && id) {
+    id.charAt(0) === "i"
+      ? router.push("/interaction/" + id)
+      : router.push("/feedback/" + id);
   } else {
     router.push("/");
   }
@@ -342,76 +345,80 @@ onMounted(() => {
 </script>
 
 <template>
-  <main>
-    <p class="text-center fs-6 mt-2" v-if="!deployVersion">
-      Welcome to LearnLoop v{{ config.version }}. This version is under active
-      development so it might behave in unpredictable ways. Please
-      <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
-        >let me know</a
-      >
-      about any issues you find.
-      <a
-        href="https://github.com/dan-leach/learnloop/blob/v5/changelog.md"
-        target="_blank"
-        style="color: black"
-        >View the changelog here</a
-      >. If you prefer to wait until the update is formally released, please use
-      <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
-      instead.
-    </p>
-    <div v-else class="mt-3"></div>
-    <div class="d-flex justify-content-around">
-      <div class="card bg-transparent shadow mb-3 update-info-card">
-        <div class="card-body">
-          <h5 class="card-title">What's new in the January update?</h5>
-          <p class="card-text">
-            Create feedback requests using existing sessions as a template, add
-            additional organisers, easier custom questions and more.
-            <a href="#" data-bs-toggle="collapse" data-bs-target="#changes"
-              >Read more...</a
-            >
-          </p>
-          <div class="collapse my-2" id="changes">
-            <ul>
-              <li class="mb-2">
-                You can now use a previous session as a template. The session
-                details including the organiser details, custom questions, and
-                any sessions will be automatically populated from your template
-                session. You can edit the details before submitting. The session
-                which is used as a template is not changed. Click
-                <strong>Use a previous session as a template</strong> on the
-                <strong>Create a new feedback session</strong> to try it out.
-              </li>
-              <li class="mb-2">
-                You can add multiple organisers to your feedback sessions. You
-                decide which organisers can edit the session or just view the
-                feedback and attendance data.
-              </li>
-              <li class="mb-2">
-                Custom questions now have more options, such as specifying how
-                many checkboxes must be selected (e.g. between 2 and 4), a
-                character limit for free-text questions, and all questions can
-                be required or optional.
-              </li>
-              <li class="mb-2">
-                You now have the option to select
-                <strong>deliver on multiple dates</strong> if you want to gather
-                feedback in one place for a session you are delivering more than
-                once.
-              </li>
-              <li>
-                <strong>Coming soon:</strong> Interaction will allow you to
-                share questions and polls with your audience via their
-                smartphone or other devices during teaching sessions. Register
-                your interest below to be the first to know when it's available.
-              </li>
-            </ul>
-          </div>
+  <!--dev alert-->
+  <div class="alert alert-danger mt-3" show role="alert" v-if="config.devMode">
+    <div class="d-flex justify-content-between">
+      <h4 class="alert-heading">Development version</h4>
+    </div>
+    Welcome to LearnLoop (client v{{ config.client.version }} | API v{{
+      config.api.version
+    }}).
+    <a
+      href="https://github.com/dan-leach/learnloop/blob/v6/changelog.md"
+      target="_blank"
+      style="color: black"
+      >View the changelog here</a
+    >.<br />This version is under active development so it might behave in
+    unpredictable ways. Please
+    <a href="mailto:web@danleach.uk" target="_blank" style="color: black"
+      >let me know</a
+    >
+    about any issues you find.<br />If you prefer to wait until the update is
+    formally released, please use
+    <a href="https://learnloop.co.uk" style="color: black">LearnLoop.co.uk</a>
+    instead.
+  </div>
+
+  <!--update card-->
+  <div class="d-flex justify-content-around mt-3">
+    <!--remove hidden attribute to restore update info card-->
+    <div class="card update-card bg-transparent shadow mb-3 update-info-card">
+      <div class="card-body">
+        <h5 class="card-title">What's new in the September update?</h5>
+        <p class="card-text">
+          Make your teaching sessions interactive with LearnLoop Interaction!
+          <a href="#" data-bs-toggle="collapse" data-bs-target="#changes"
+            >Read more...</a
+          >
+        </p>
+        <div class="collapse my-2" id="changes">
+          <ul>
+            <li class="mb-2">
+              LearnLoop Interaction is now live. Build interactive presentations
+              that attendees can join using their mobile device, in person or
+              remotely.
+            </li>
+            <li class="mb-2">
+              Interaction types include: multiple choice, true/false, free-text
+              and word clouds.
+            </li>
+            <li class="mb-2">
+              Customise interactions with flexible settings such as how many
+              times attendees can submit answers, if responses should be hidden
+              until you reveal them, highlighting of correct answers and many
+              more controls.
+            </li>
+            <li class="mb-2">
+              Add content to your slides including text, images or videos. Or,
+              you can make existing presentations interactive by switching
+              between PowerPoint and LearnLoop.
+            </li>
+            <li>
+              <a href="/interaction/create/type"
+                >Create a new interaction session</a
+              >
+              to try it out.
+            </li>
+          </ul>
         </div>
       </div>
     </div>
-    <div class="d-flex justify-content-around flex-wrap mt-2">
-      <div class="card bg-transparent shadow p-2 m-2">
+  </div>
+
+  <!--main cards-->
+  <div class="row justify-content-center align-items-stretch mt-2">
+    <div class="col-12 col-md-8 col-lg-6 mb-3">
+      <div class="card main-card bg-transparent shadow p-2 mx-auto h-100">
         <h1 class="text-center">Feedback</h1>
         <p class="text-center">Quickly gather anonymous feedback on teaching</p>
         <div class="input-group m-2">
@@ -490,11 +497,12 @@ onMounted(() => {
           {{ config.feedback.count }} responses
         </small>
       </div>
-      <div class="card bg-transparent shadow p-2 m-2 interaction-card">
-        <!--remove interaction-card class once back to full layout not just expression of interest-->
+    </div>
+    <div class="col-12 col-md-8 col-lg-6 mb-3">
+      <div class="card main-card bg-transparent shadow p-2 mx-auto h-100">
         <h1 class="text-center">Interaction</h1>
         <p class="text-center">Engage with your audience during teaching</p>
-        <div v-if="deployVersion">
+        <div v-if="config.devMode">
           <h4 class="text-center">Coming soon</h4>
           <div class="input-group m-2">
             <input
@@ -575,25 +583,24 @@ onMounted(() => {
               </ul>
             </li>
           </ul>
-          <small class="text-center">
-            {{ config.interaction.count }} interactions
-          </small>
-          <p class="text-center text-danger bg-dark p-1 mt-3">
-            <strong>Interaction is in private beta by invitation only</strong>
-          </p>
+          <div class="text-center">
+            <small>{{ config.interaction.count }} interactions</small>
+          </div>
         </div>
       </div>
     </div>
-    <Quote />
-  </main>
+  </div>
+
+  <!--quote-->
+  <Quote />
 </template>
 
 <style scoped>
-.card {
-  min-width: 300px;
+.update-card {
+  width: 100%;
 }
-.update-info-card {
-  width: 1070px;
+.main-card {
+  max-width: 500px;
 }
 .nav-link.active {
   background-color: #17a2b8;
@@ -611,8 +618,8 @@ onMounted(() => {
   .more-options {
     margin-left: 15px;
   }
-  .interaction-card {
-    min-width: 450px;
-  }
+}
+a {
+  color: black;
 }
 </style>

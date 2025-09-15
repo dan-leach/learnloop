@@ -1,13 +1,45 @@
 <script setup>
-import { interactionSession } from "../../../data/interactionSession.js";
-import { api } from "../../../data/api.js";
+/**
+ * @module interaction/components/host/WaitingRoom
+ * @summary Handles deletion of interaction submissions in presenter view.
+ * @description
+ * This script provides functionality for presenters to delete all submissions
+ * from the current interactive session. It uses SweetAlert2 for confirmation dialogs,
+ * and a custom Toast utility for success messages. The API call is performed via `api()`
+ * and targets the `interaction/deactivateSubmissions` endpoint.
+ *
+ * @requires vue
+ * @requires sweetalert2
+ * @requires ../../../data/interactionSession.js
+ * @requires ../../../data/api.js
+ * @requires ../../../assets/Toast.js
+ */
+
 import { inject } from "vue";
-const config = inject("config");
 import Swal from "sweetalert2";
 import Toast from "../../../assets/Toast.js";
+import { interactionSession } from "../../../data/interactionSession.js";
+import { api } from "../../../data/api.js";
 
-const deleteSubmissions = () => {
-  Swal.fire({
+// Inject global configuration
+const config = inject("config");
+
+// Props from parent component
+const props = defineProps(["isPresenterView"]);
+
+/**
+ * Prompts the presenter to confirm deletion of all previous submissions.
+ * On confirmation, it calls the API to deactivate submissions, resets local count,
+ * and displays a success toast. Handles and displays any errors that occur.
+ *
+ * @async
+ * @function deleteSubmissions
+ * @memberof module:interaction/components/host/WaitingRoom
+ * @returns {Promise<void>}
+ */
+const deleteSubmissions = async () => {
+  // Show confirmation dialog
+  const { isConfirmed } = await Swal.fire({
     title: "Delete submissions?",
     text: "Once previous submissions have been deleted they can't be restored.",
     icon: "warning",
@@ -15,34 +47,37 @@ const deleteSubmissions = () => {
     showCancelButton: true,
     confirmButtonColor: "#17a2b8",
     confirmButtonText: "Delete",
-  }).then((result) => {
-    if (result.isConfirmed)
-      api(
-        "interaction",
-        "deleteSubmissions",
-        interactionSession.id,
-        interactionSession.pin,
-        null
-      ).then(
-        function () {
-          Toast.fire({
-            icon: "success",
-            iconColor: "#17a2b8",
-            title: "Submissions have been cleared",
-          });
-          interactionSession.submissionCount = 0;
-        },
-        function (error) {
-          Swal.fire({
-            icon: "error",
-            iconColor: "#17a2b8",
-            title: "Unable to delete previous submissions",
-            text: error,
-            confirmButtonColor: "#17a2b8",
-          });
-        }
-      );
   });
+
+  if (!isConfirmed) return false;
+
+  try {
+    // Call API to deactivate submissions for the current session
+    await api("interaction/deactivateSubmissions", {
+      id: interactionSession.id,
+      pin: interactionSession.pin,
+      isPreview: interactionSession.status.preview,
+    });
+
+    // Reset local submission count
+    interactionSession.submissionCount = 0;
+
+    // Show success message
+    Toast.fire({
+      icon: "success",
+      iconColor: "#17a2b8",
+      title: "Submissions have been cleared",
+    });
+  } catch (error) {
+    if (Array.isArray(error)) error = error.map((e) => e.msg).join(" ");
+    Swal.fire({
+      icon: "error",
+      iconColor: "#17a2b8",
+      title: "Unable to delete previous submissions",
+      text: error,
+      confirmButtonColor: "#17a2b8",
+    });
+  }
 };
 </script>
 
@@ -51,11 +86,7 @@ const deleteSubmissions = () => {
     <div class="join-panel text-center m-2 p-2 d-flex justify-content-around">
       <div class="align-self-center me-4">
         <img
-          :src="
-            config.client.url +
-            '/api/shared/QRcode/?id=' +
-            interactionSession.id
-          "
+          :src="config.api.url + 'qrcode/?id=' + interactionSession.id"
           class="qr-code"
         />
       </div>
@@ -80,7 +111,11 @@ const deleteSubmissions = () => {
           interactionSession.submissionCount == 1 ? "" : "s"
         }}.
       </p>
-      <button class="btn btn-teal" @click="deleteSubmissions">
+      <button
+        class="btn btn-teal"
+        @click="deleteSubmissions"
+        v-if="!isPresenterView"
+      >
         Clear submissions
       </button>
     </div>
