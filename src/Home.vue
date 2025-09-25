@@ -500,6 +500,11 @@ onMounted(() => {
     </div>
     <div class="col-12 col-md-8 col-lg-6 mb-3">
       <div class="card main-card bg-transparent shadow p-2 mx-auto h-100">
+        <span
+          class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+        >
+          New
+        </span>
         <h1 class="text-center">Interaction</h1>
         <p class="text-center">Engage with your audience during teaching</p>
         <div v-if="config.devMode">
