@@ -47,28 +47,25 @@ let lockForm = ref(false);
  * @returns {Promise<void>}
  */
 const submit = async () => {
+  console.log(1);
   document
     .getElementById("fetchCertificateForm")
     .classList.add("was-validated");
 
   const attendee = feedbackSession.attendee;
 
+  // Convert region ID to name, or "Other"
+  const region =
+    attendee.region == -1
+      ? "Other"
+      : config.value.client.regions[attendee.region].name;
+
   // Basic validation
-  if (
-    !attendee.name ||
-    !Number.isInteger(attendee.region) ||
-    !attendee.organisation
-  ) {
+  if (!attendee.name || !region || !attendee.organisation) {
     return false;
   }
 
   lockForm.value = true;
-
-  // Convert region ID to name, or "Other"
-  const region =
-    attendee.region === -1
-      ? "Other"
-      : config.value.client.regions[attendee.region].name;
 
   try {
     // Request certificate as blob
